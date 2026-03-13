@@ -15,7 +15,7 @@ export default function Contact() {
 
   // Încărcare poză în formularul principal
   const incarcaPozaFormular = (file: File | null) => {
-  if (!file) return;
+    if (!file) return;
     const reader = new FileReader();
     reader.onload = () => {
       setFormular({ ...formular, poza: reader.result });
@@ -24,7 +24,8 @@ export default function Contact() {
   };
 
   // Încărcare poză în pop-up
-  const incarcaPozaPopup = (id, file) => {
+  const incarcaPozaPopup = (id: number, file: File | null) => {
+    if (!file) return;
     const reader = new FileReader();
     reader.onload = () => {
       setContacte(
@@ -62,7 +63,7 @@ export default function Contact() {
   };
 
   // Ștergere contact
-  const stergeContact = (id) => {
+  const stergeContact = (id: number) => {
     setContacte(contacte.filter((c) => c.id !== id));
   };
 
@@ -90,7 +91,6 @@ export default function Contact() {
 
         {/* Poză */}
         <div className="flex flex-col items-center mb-4">
-
           {formular.poza && (
             <img
               src={formular.poza}
@@ -102,7 +102,9 @@ export default function Contact() {
             type="file"
             accept="image/*"
             id="uploadPozaFormular"
-            onChange={(e) => incarcaPozaFormular(e.target.files[0])}
+            onChange={(e) =>
+              incarcaPozaFormular(e.target.files?.[0] ?? null)
+            }
             className="hidden"
           />
 
@@ -226,7 +228,6 @@ export default function Contact() {
 
             {/* Poză */}
             <div className="flex flex-col items-center mb-4">
-
               {popupContact.poza && (
                 <img
                   src={popupContact.poza}
@@ -239,7 +240,10 @@ export default function Contact() {
                 accept="image/*"
                 id="uploadPozaPopup"
                 onChange={(e) =>
-                  incarcaPozaPopup(popupContact.id, e.target.files[0])
+                  incarcaPozaPopup(
+                    popupContact.id,
+                    e.target.files?.[0] ?? null
+                  )
                 }
                 className="hidden"
               />
