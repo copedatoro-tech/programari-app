@@ -3,10 +3,24 @@
 import { useState } from "react";
 
 export default function Contact() {
-  const [contacte, setContacte] = useState([]);
-  const [popupContact, setPopupContact] = useState(null);
+  const [contacte, setContacte] = useState<
+    { id: number; eticheta: string; nume: string; telefon: string; poza: string | null }[]
+  >([]);
 
-  const [formular, setFormular] = useState({
+  const [popupContact, setPopupContact] = useState<{
+    id: number;
+    eticheta: string;
+    nume: string;
+    telefon: string;
+    poza: string | null;
+  } | null>(null);
+
+  const [formular, setFormular] = useState<{
+    eticheta: string;
+    nume: string;
+    telefon: string;
+    poza: string | null;
+  }>({
     eticheta: "",
     nume: "",
     telefon: "",
@@ -18,7 +32,7 @@ export default function Contact() {
     if (!file) return;
     const reader = new FileReader();
     reader.onload = () => {
-      setFormular({ ...formular, poza: reader.result });
+      setFormular({ ...formular, poza: reader.result as string });
     };
     reader.readAsDataURL(file);
   };
@@ -30,10 +44,12 @@ export default function Contact() {
     reader.onload = () => {
       setContacte(
         contacte.map((c) =>
-          c.id === id ? { ...c, poza: reader.result } : c
+          c.id === id ? { ...c, poza: reader.result as string } : c
         )
       );
-      setPopupContact({ ...popupContact, poza: reader.result });
+      if (popupContact) {
+        setPopupContact({ ...popupContact, poza: reader.result as string });
+      }
     };
     reader.readAsDataURL(file);
   };
@@ -53,7 +69,6 @@ export default function Contact() {
       },
     ]);
 
-    // Resetare formular
     setFormular({
       eticheta: "",
       nume: "",
@@ -69,6 +84,8 @@ export default function Contact() {
 
   // Salvare modificări în pop-up
   const salveazaModificariPopup = () => {
+    if (!popupContact) return;
+
     setContacte(
       contacte.map((c) =>
         c.id === popupContact.id ? popupContact : c
@@ -83,7 +100,7 @@ export default function Contact() {
         Contacte utile
       </h1>
 
-      {/* CARD PRINCIPAL FIX */}
+      {/* CARD PRINCIPAL */}
       <div className="w-full max-w-md bg-white p-6 rounded-2xl shadow-lg border border-amber-300 mb-10">
         <h2 className="text-2xl font-bold text-amber-900 mb-4 text-center">
           Adaugă un contact
@@ -169,7 +186,7 @@ export default function Contact() {
         </button>
       </div>
 
-      {/* GRILĂ CARDURI MICI */}
+      {/* GRILĂ CARDURI */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full max-w-5xl">
         {contacte.map((c) => (
           <div
