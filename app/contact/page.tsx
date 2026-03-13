@@ -14,7 +14,8 @@ export default function Contact() {
   });
 
   // Încărcare poză în formularul principal
-  const incarcaPozaFormular = (file: File) => {
+  const incarcaPozaFormular = (file: File | null) => {
+  if (!file) return;
     const reader = new FileReader();
     reader.onload = () => {
       setFormular({ ...formular, poza: reader.result });
