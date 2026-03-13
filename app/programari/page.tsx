@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 
@@ -28,12 +28,15 @@ type Programare = {
   documente: DocumentAttachment[];
 };
 
-export default function ProgramariPage() {
+/* ---------------------------------------------------------
+   COMPONENTA CARE FOLOSEȘTE useSearchParams()
+   (obligatoriu separată + învelită în <Suspense>)
+---------------------------------------------------------- */
+
+function ProgramariContent() {
   const [programari, setProgramari] = useState<Programare[]>([]);
   const [loaded, setLoaded] = useState(false);
-  const [popupProgramare, setPopupProgramare] = useState<Programare | null>(
-    null
-  );
+  const [popupProgramare, setPopupProgramare] = useState<Programare | null>(null);
 
   const [formular, setFormular] = useState<Programare>({
     id: 0,
@@ -53,6 +56,10 @@ export default function ProgramariPage() {
   const searchParams = useSearchParams();
   const idFromCalendar = searchParams.get("id");
 
+  /* ---------------------------------------------------------
+     LOCAL STORAGE
+  ---------------------------------------------------------- */
+
   useEffect(() => {
     const saved = localStorage.getItem("programari");
     if (saved) {
@@ -69,9 +76,17 @@ export default function ProgramariPage() {
     }
   }, [programari, loaded]);
 
+  /* ---------------------------------------------------------
+     POPUP SCROLL LOCK
+  ---------------------------------------------------------- */
+
   useEffect(() => {
     document.body.style.overflow = popupProgramare ? "hidden" : "auto";
   }, [popupProgramare]);
+
+  /* ---------------------------------------------------------
+     DESCHIDERE AUTOMATĂ DIN CALENDAR
+  ---------------------------------------------------------- */
 
   useEffect(() => {
     if (idFromCalendar && programari.length > 0) {
@@ -79,6 +94,10 @@ export default function ProgramariPage() {
       if (found) setPopupProgramare(found);
     }
   }, [idFromCalendar, programari]);
+
+  /* ---------------------------------------------------------
+     ÎNCĂRCARE POZE
+  ---------------------------------------------------------- */
 
   const incarcaPozaFormular = (file: File) => {
     const reader = new FileReader();
@@ -99,6 +118,10 @@ export default function ProgramariPage() {
     };
     reader.readAsDataURL(file);
   };
+
+  /* ---------------------------------------------------------
+     DOCUMENTE
+  ---------------------------------------------------------- */
 
   const adaugaDocumentFormular = (file: File) => {
     const reader = new FileReader();
@@ -148,6 +171,10 @@ export default function ProgramariPage() {
     );
   };
 
+  /* ---------------------------------------------------------
+     SALVĂRI
+  ---------------------------------------------------------- */
+
   const salveazaProgramareNoua = () => {
     if (!formular.nume || !formular.data || !formular.ora) return;
 
@@ -181,6 +208,10 @@ export default function ProgramariPage() {
     setPopupProgramare(null);
   };
 
+  /* ---------------------------------------------------------
+     REMINDER TEXT
+  ---------------------------------------------------------- */
+
   const descriereReminder = (p: Programare) => {
     if (p.reminderType === "none" || p.reminderMinutes === null) return null;
     const tip =
@@ -191,6 +222,10 @@ export default function ProgramariPage() {
         : "pop‑up + sunet";
     return `Reminder cu ${p.reminderMinutes} minute înainte (${tip})`;
   };
+
+  /* ---------------------------------------------------------
+     UI
+  ---------------------------------------------------------- */
 
   return (
     <main className="min-h-screen bg-amber-50 p-6 flex flex-col items-center">
@@ -205,6 +240,7 @@ export default function ProgramariPage() {
         📅 Vezi Calendarul
       </Link>
 
+      {/* FORMULAR */}
       <div className="w-full max-w-md bg-white p-6 rounded-2xl shadow-lg border border-amber-300 mb-10">
         <h2 className="text-2xl font-bold text-amber-900 mb-4 text-center">
           Adaugă o programare
@@ -234,6 +270,7 @@ export default function ProgramariPage() {
           >
             📸 Adaugă imagine
           </label>
+        </div>
         </div>
 
         <label className="block text-lg font-semibold text-amber-900 mb-1">
@@ -403,6 +440,7 @@ export default function ProgramariPage() {
         </button>
       </div>
 
+      {/* LISTA PROGRAMĂRI */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full max-w-5xl mb-10">
         {programari.map((p) => (
           <div
@@ -451,6 +489,7 @@ export default function ProgramariPage() {
         ))}
       </div>
 
+      {/* POP-UP */}
       {popupProgramare && (
         <div
           className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center p-4 z-50"
@@ -641,5 +680,17 @@ export default function ProgramariPage() {
         </div>
       )}
     </main>
+  );
+}
+
+/* ---------------------------------------------------------
+   PAGINA PRINCIPALĂ — ÎNVELITĂ ÎN <Suspense>
+---------------------------------------------------------- */
+
+export default function ProgramariPage() {
+  return (
+    <Suspense fallback={<div className="p-6 text-center">Se încarcă...</div>}>
+      <ProgramariContent />
+    </Suspense>
   );
 }
