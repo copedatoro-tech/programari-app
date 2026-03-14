@@ -750,3 +750,9 @@ function ProgramariContent() {
 ---------------------------------------------------------- */
 
 export default function ProgramariPage() {
+  return (
+    <Suspense>
+      <ProgramariContent />
+    </Suspense>
+  );
+}
