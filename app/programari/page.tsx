@@ -711,9 +711,13 @@ function ProgramariContent() {
             </div>
 
             <button
-              onClick={salveazaModificariPopup}
-              className="w-full py-3          </div>
-        </div>
+  onClick={salveazaModificariPopup}
+  className="w-full py-3 text-lg font-semibold rounded-xl bg-amber-600 text-white hover:bg-amber-700"
+>
+  💾 Salvează modificările
+</button>
+          </div>   {/* închide div-ul interior (popup box) */}
+        </div>     {/* închide overlay-ul */}
       )}
     </main>
   );
