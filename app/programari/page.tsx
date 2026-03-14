@@ -718,10 +718,8 @@ function ProgramariContent() {
 </button>
 
 </div>
-{/* închide div-ul interior */}
 
 </div>
-{/* închide overlay-ul */}
 
       )}
     </main>
