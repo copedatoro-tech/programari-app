@@ -518,7 +518,8 @@ function ProgramariContent() {
                 accept="image/*"
                 id="uploadPozaPopup"
                 onChange={(e) =>
-                  e.target.files && incarcaPozaPopup(e.target                }
+                  e.target.files && incarcaPozaPopup(e.target.files[0])
+}
                 className="hidden"
               />
 
