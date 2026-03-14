@@ -165,10 +165,12 @@ export default function Contact() {
         </label>
         <input
           type="tel"
+          maxLength={10}
           value={formular.telefon}
-          onChange={(e) =>
-            setFormular({ ...formular, telefon: e.target.value })
-          }
+          onChange={(e) => {
+            const doarCifre = e.target.value.replace(/[^0-9]/g, "");
+            setFormular({ ...formular, telefon: doarCifre });
+          }}
           className="w-full p-3 mb-4 text-lg rounded-xl border border-amber-300 focus:ring-2 focus:ring-amber-500 text-black"
         />
 
@@ -248,7 +250,7 @@ export default function Contact() {
               {popupContact.poza && (
                 <img
                   src={popupContact.poza}
-                  className="w-28 h-28 rounded-full object-cover border border-amber-400 mb-3"
+                  className="w-24 h-24 rounded-full object-cover border border-amber-400 mb-3"
                 />
               )}
 
@@ -257,10 +259,7 @@ export default function Contact() {
                 accept="image/*"
                 id="uploadPozaPopup"
                 onChange={(e) =>
-                  incarcaPozaPopup(
-                    popupContact.id,
-                    e.target.files?.[0] ?? null
-                  )
+                  incarcaPozaPopup(popupContact.id, e.target.files?.[0] ?? null)
                 }
                 className="hidden"
               />
@@ -269,11 +268,11 @@ export default function Contact() {
                 htmlFor="uploadPozaPopup"
                 className="px-4 py-2 bg-amber-600 text-white rounded-lg text-lg cursor-pointer hover:bg-amber-700 transition"
               >
-                📸 Adaugă imagine
+                📸 Schimbă imaginea
               </label>
             </div>
 
-            {/* Persoană / Rol */}
+            {/* Etichetă */}
             <label className="block text-lg font-semibold text-amber-900 mb-1">
               Persoană / Rol
             </label>
@@ -283,7 +282,7 @@ export default function Contact() {
               onChange={(e) =>
                 setPopupContact({ ...popupContact, eticheta: e.target.value })
               }
-              className="w-full p-3 mb-3 text-lg rounded-xl border border-amber-300 focus:ring-2 focus:ring-amber-500 text-black"
+              className="w-full p-3 mb-3 text-lg rounded-xl border border-amber-300 text-black"
             />
 
             {/* Nume */}
@@ -296,7 +295,7 @@ export default function Contact() {
               onChange={(e) =>
                 setPopupContact({ ...popupContact, nume: e.target.value })
               }
-              className="w-full p-3 mb-3 text-lg rounded-xl border border-amber-300 focus:ring-2 focus:ring-amber-500 text-black"
+              className="w-full p-3 mb-3 text-lg rounded-xl border border-amber-300 text-black"
             />
 
             {/* Telefon */}
@@ -305,35 +304,24 @@ export default function Contact() {
             </label>
             <input
               type="tel"
+              maxLength={10}
               value={popupContact.telefon}
-              onChange={(e) =>
-                setPopupContact({ ...popupContact, telefon: e.target.value })
-              }
-              className="w-full p-3 mb-4 text-lg rounded-xl border border-amber-300 focus:ring-2 focus:ring-amber-500 text-black"
+              onChange={(e) => {
+                const doarCifre = e.target.value.replace(/[^0-9]/g, "");
+                setPopupContact({ ...popupContact, telefon: doarCifre });
+              }}
+              className="w-full p-3 mb-4 text-lg rounded-xl border border-amber-300 text-black"
             />
 
             {/* Butoane */}
-            <div className="flex gap-4">
-              <a
-                href={`tel:${popupContact.telefon}`}
-                className="flex-1 py-4 text-xl font-semibold rounded-xl bg-green-600 text-white text-center hover:bg-green-700 transition"
+            <div className="flex gap-4 mt-4">
+              <button
+                onClick={salveazaModificariPopup}
+                className="flex-1 py-3 text-lg font-semibold rounded-xl bg-amber-600 text-white hover:bg-amber-700"
               >
-                📞 Sună
-              </a>
-              <a
-                href={`https://wa.me/${popupContact.telefon}`}
-                className="flex-1 py-4 text-xl font-semibold rounded-xl bg-emerald-500 text-white text-center hover:bg-emerald-600 transition"
-              >
-                💬 WhatsApp
-              </a>
+                💾 Salvează modificările
+              </button>
             </div>
-
-            <button
-              onClick={salveazaModificariPopup}
-              className="w-full mt-4 py-3 text-lg font-semibold rounded-xl bg-amber-600 text-white hover:bg-amber-700"
-            >
-              💾 Salvează modificările
-            </button>
           </div>
         </div>
       )}
