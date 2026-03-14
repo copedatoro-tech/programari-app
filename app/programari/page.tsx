@@ -716,12 +716,22 @@ function ProgramariContent() {
 >
   💾 Salvează modificările
 </button>
-          </div>   
-          {/* închide div-ul interior (popup box) */}
-        </div>     
-        {/* închide overlay-ul */}
+          </div>
+{/* închide div-ul interior */}
+
+</div>
+{/* închide overlay-ul */}
+
       )}
     </main>
+  );
+}
+
+export default function ProgramariPage() {
+  return (
+    <Suspense>
+      <ProgramariContent />
+    </Suspense>
   );
 }
 
