@@ -271,7 +271,6 @@ function ProgramariContent() {
             📸 Adaugă imagine
           </label>
         </div>
-        </div>
 
         <label className="block text-lg font-semibold text-amber-900 mb-1">
           Nume / Instituție
@@ -519,8 +518,7 @@ function ProgramariContent() {
                 accept="image/*"
                 id="uploadPozaPopup"
                 onChange={(e) =>
-                  e.target.files && incarcaPozaPopup(e.target.files[0])
-                }
+                  e.target.files && incarcaPozaPopup(e.target                }
                 className="hidden"
               />
 
