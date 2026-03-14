@@ -716,7 +716,8 @@ function ProgramariContent() {
 >
   💾 Salvează modificările
 </button>
-          </div>
+
+</div>
 {/* închide div-ul interior */}
 
 </div>
@@ -724,25 +725,5 @@ function ProgramariContent() {
 
       )}
     </main>
-  );
-}
-
-export default function ProgramariPage() {
-  return (
-    <Suspense>
-      <ProgramariContent />
-    </Suspense>
-  );
-}
-
-/* ---------------------------------------------------------
-   PAGINA PRINCIPALĂ — ÎNVELITĂ ÎN <Suspense>
----------------------------------------------------------- */
-
-export default function ProgramariPage() {
-  return (
-    <Suspense>
-      <ProgramariContent />
-    </Suspense>
   );
 }
