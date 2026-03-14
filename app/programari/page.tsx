@@ -4,9 +4,6 @@ import { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 
-type ReminderType = "none" | "popup" | "sound" | "both";
-type ReminderVolume = "mute" | "low" | "medium" | "high";
-
 type DocumentAttachment = {
   id: number;
   name: string;
@@ -21,16 +18,19 @@ type Programare = {
   motiv: string;
   telefon: string;
   poza: string | null;
-  reminderMinutes: number | null;
-  reminderType: ReminderType;
-  reminderVolume: ReminderVolume;
-  reminderForOther: boolean;
+
+  // Reminder nou
+  reminderMinutes: number;
+  reminderPopup: true;          // obligatoriu
+  reminderSound: boolean;       // bifă
+  reminderVibration: boolean;   // bifă
+  reminderForOther: boolean;    // pentru client
+
   documente: DocumentAttachment[];
 };
 
 /* ---------------------------------------------------------
    COMPONENTA CARE FOLOSEȘTE useSearchParams()
-   (obligatoriu separată + învelită în <Suspense>)
 ---------------------------------------------------------- */
 
 function ProgramariContent() {
@@ -38,6 +38,7 @@ function ProgramariContent() {
   const [loaded, setLoaded] = useState(false);
   const [popupProgramare, setPopupProgramare] = useState<Programare | null>(null);
 
+  // FORMULAR NOU COMPLET
   const [formular, setFormular] = useState<Programare>({
     id: 0,
     nume: "",
@@ -46,10 +47,13 @@ function ProgramariContent() {
     motiv: "",
     telefon: "",
     poza: null,
-    reminderMinutes: null,
-    reminderType: "none",
-    reminderVolume: "medium",
-    reminderForOther: false,
+
+    reminderMinutes: 10,
+    reminderPopup: true,        // obligatoriu
+    reminderSound: true,        // implicit activ
+    reminderVibration: true,    // implicit activ
+    reminderForOther: true,     // implicit activ
+
     documente: [],
   });
 
@@ -181,6 +185,7 @@ function ProgramariContent() {
     const noua: Programare = { ...formular, id: Date.now() };
     setProgramari((prev) => [...prev, noua]);
 
+    // resetare formular
     setFormular({
       id: 0,
       nume: "",
@@ -189,10 +194,13 @@ function ProgramariContent() {
       motiv: "",
       telefon: "",
       poza: null,
-      reminderMinutes: null,
-      reminderType: "none",
-      reminderVolume: "medium",
-      reminderForOther: false,
+
+      reminderMinutes: 10,
+      reminderPopup: true,
+      reminderSound: true,
+      reminderVibration: true,
+      reminderForOther: true,
+
       documente: [],
     });
   };
@@ -209,20 +217,18 @@ function ProgramariContent() {
   };
 
   /* ---------------------------------------------------------
-     REMINDER TEXT
+     DESCRIERE REMINDER
   ---------------------------------------------------------- */
 
   const descriereReminder = (p: Programare) => {
-    if (p.reminderType === "none" || p.reminderMinutes === null) return null;
-    const tip =
-      p.reminderType === "popup"
-        ? "pop‑up"
-        : p.reminderType === "sound"
-        ? "sunet"
-        : "pop‑up + sunet";
-    return `Reminder cu ${p.reminderMinutes} minute înainte (${tip})`;
-  };
+    let parts = [];
 
+    if (p.reminderPopup) parts.push("pop‑up");
+    if (p.reminderSound) parts.push("sunet");
+    if (p.reminderVibration) parts.push("vibrație");
+
+    return `Reminder cu ${p.reminderMinutes} minute înainte (${parts.join(", ")})`;
+  };
   /* ---------------------------------------------------------
      UI
   ---------------------------------------------------------- */
@@ -246,6 +252,7 @@ function ProgramariContent() {
           Adaugă o programare
         </h2>
 
+        {/* POZA */}
         <div className="flex flex-col items-center mb-4">
           {formular.poza && (
             <img
@@ -272,6 +279,7 @@ function ProgramariContent() {
           </label>
         </div>
 
+        {/* NUME */}
         <label className="block text-lg font-semibold text-amber-900 mb-1">
           Nume / Instituție
         </label>
@@ -285,6 +293,7 @@ function ProgramariContent() {
           className="w-full p-3 mb-3 text-lg rounded-xl border border-amber-300 text-black"
         />
 
+        {/* TELEFON */}
         <label className="block text-lg font-semibold text-amber-900 mb-1">
           Telefon
         </label>
@@ -302,6 +311,7 @@ function ProgramariContent() {
           className="w-full p-3 mb-4 text-lg rounded-xl border border-amber-300 text-black"
         />
 
+        {/* DATA */}
         <label className="block text-lg font-semibold text-amber-900 mb-1">
           Data
         </label>
@@ -314,20 +324,21 @@ function ProgramariContent() {
           className="w-full p-3 mb-3 text-lg rounded-xl border border-amber-300 text-black"
         />
 
+        {/* ORA — DOAR CIFRE + SELECTOR */}
         <label className="block text-lg font-semibold text-amber-900 mb-1">
           Ora
         </label>
         <input
-          type="text"
+          type="time"
           value={formular.ora}
           onChange={(e) => {
             const v = e.target.value.replace(/[^0-9:]/g, "");
             setFormular((prev) => ({ ...prev, ora: v }));
           }}
-          placeholder="Ex: 14:30"
           className="w-full p-3 mb-3 text-lg rounded-xl border border-amber-300 text-black"
         />
 
+        {/* MOTIV */}
         <label className="block text-lg font-semibold text-amber-900 mb-1">
           Motiv / Detalii
         </label>
@@ -340,6 +351,7 @@ function ProgramariContent() {
           className="w-full p-3 mb-3 text-lg rounded-xl border border-amber-300 text-black"
         />
 
+        {/* DOCUMENTE */}
         <label className="block text-lg font-semibold text-amber-900 mb-2">
           📎 Documente atașate
         </label>
@@ -382,36 +394,45 @@ function ProgramariContent() {
           ))}
         </div>
 
+        {/* NOTIFICĂRI */}
         <label className="block text-lg font-semibold text-amber-900 mt-4 mb-2">
-          🔔 Cum vrei să fii anunțat?
+          🔔 Notificări
         </label>
 
-        <div className="flex flex-wrap gap-2 mb-3">
-          {[
-            { label: "Fără", value: "none" },
-            { label: "Pop‑up", value: "popup" },
-            { label: "Sunet", value: "sound" },
-            { label: "Ambele", value: "both" },
-          ].map((opt) => (
-            <button
-              key={opt.value}
-              onClick={() =>
-                setFormular((prev) => ({
-                  ...prev,
-                  reminderType: opt.value as ReminderType,
-                }))
-              }
-              className={`px-3 py-2 rounded-lg text-sm border ${
-                formular.reminderType === opt.value
-                  ? "bg-amber-600 text-white"
-                  : "bg-white text-amber-900 border-amber-300"
-              }`}
-            >
-              {opt.label}
-            </button>
-          ))}
-        </div>
+        <label className="flex items-center gap-2 mb-2">
+          <input type="checkbox" checked disabled />
+          Pop‑up (obligatoriu)
+        </label>
 
+        <label className="flex items-center gap-2 mb-2">
+          <input
+            type="checkbox"
+            checked={formular.reminderSound}
+            onChange={(e) =>
+              setFormular((prev) => ({
+                ...prev,
+                reminderSound: e.target.checked,
+              }))
+            }
+          />
+          Sunet
+        </label>
+
+        <label className="flex items-center gap-2 mb-4">
+          <input
+            type="checkbox"
+            checked={formular.reminderVibration}
+            onChange={(e) =>
+              setFormular((prev) => ({
+                ...prev,
+                reminderVibration: e.target.checked,
+              }))
+            }
+          />
+          Vibrație
+        </label>
+
+        {/* REMINDER PENTRU CLIENT */}
         <label className="flex items-center gap-2 mb-4 text-amber-900">
           <input
             type="checkbox"
@@ -426,6 +447,7 @@ function ProgramariContent() {
           Trimite reminder și persoanei programate
         </label>
 
+        {/* SALVARE */}
         <button
           onClick={salveazaProgramareNoua}
           disabled={!formular.nume || !formular.data || !formular.ora}
@@ -457,11 +479,7 @@ function ProgramariContent() {
                 <p className="text-sm text-amber-800">
                   {p.data} • {p.ora}
                 </p>
-                {descriereReminder(p) && (
-                  <p className="text-xs text-amber-700">
-                    {descriereReminder(p)}
-                  </p>
-                )}
+                <p className="text-xs text-amber-700">{descriereReminder(p)}</p>
                 {p.documente.length > 0 && (
                   <p className="text-xs text-amber-700 mt-1">
                     {p.documente.length} document(e)
@@ -488,7 +506,7 @@ function ProgramariContent() {
         ))}
       </div>
 
-      {/* POP-UP */}
+      {/* POP-UP EDITARE */}
       {popupProgramare && (
         <div
           className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center p-4 z-50"
@@ -505,6 +523,7 @@ function ProgramariContent() {
               ×
             </button>
 
+            {/* POZA POPUP */}
             <div className="flex flex-col items-center mb-4">
               {popupProgramare.poza && (
                 <img
@@ -519,7 +538,7 @@ function ProgramariContent() {
                 id="uploadPozaPopup"
                 onChange={(e) =>
                   e.target.files && incarcaPozaPopup(e.target.files[0])
-}
+                }
                 className="hidden"
               />
 
@@ -527,10 +546,11 @@ function ProgramariContent() {
                 htmlFor="uploadPozaPopup"
                 className="px-4 py-2 bg-amber-600 text-white rounded-lg text-lg cursor-pointer hover:bg-amber-700 transition"
               >
-                📸 Adaugă imagine
+                📸 Schimbă imaginea
               </label>
             </div>
 
+            {/* NUME */}
             <label className="block text-lg font-semibold text-amber-900 mb-1">
               Nume / Instituție
             </label>
@@ -546,6 +566,7 @@ function ProgramariContent() {
               className="w-full p-3 mb-3 text-lg rounded-xl border border-amber-300 text-black"
             />
 
+            {/* DATA */}
             <label className="block text-lg font-semibold text-amber-900 mb-1">
               Data
             </label>
@@ -561,11 +582,12 @@ function ProgramariContent() {
               className="w-full p-3 mb-3 text-lg rounded-xl border border-amber-300 text-black"
             />
 
+            {/* ORA */}
             <label className="block text-lg font-semibold text-amber-900 mb-1">
               Ora
             </label>
             <input
-              type="text"
+              type="time"
               value={popupProgramare.ora}
               onChange={(e) => {
                 const v = e.target.value.replace(/[^0-9:]/g, "");
@@ -574,10 +596,10 @@ function ProgramariContent() {
                   ora: v,
                 });
               }}
-              placeholder="Ex: 14:30"
               className="w-full p-3 mb-3 text-lg rounded-xl border border-amber-300 text-black"
             />
 
+            {/* MOTIV */}
             <label className="block text-lg font-semibold text-amber-900 mb-1">
               Motiv / Detalii
             </label>
@@ -592,6 +614,7 @@ function ProgramariContent() {
               className="w-full p-3 mb-3 text-lg rounded-xl border border-amber-300 text-black"
             />
 
+            {/* TELEFON */}
             <label className="block text-lg font-semibold text-amber-900 mb-1">
               Telefon
             </label>
@@ -611,6 +634,7 @@ function ProgramariContent() {
               className="w-full p-3 mb-4 text-lg rounded-xl border border-amber-300 text-black"
             />
 
+            {/* DOCUMENTE POPUP */}
             <label className="block text-lg font-semibold text-amber-900 mb-2">
               📎 Documente atașate
             </label>
@@ -654,6 +678,45 @@ function ProgramariContent() {
               ))}
             </div>
 
+            {/* NOTIFICĂRI POPUP */}
+            <label className="block text-lg font-semibold text-amber-900 mt-4 mb-2">
+              🔔 Notificări
+            </label>
+
+            <label className="flex items-center gap-2 mb-2">
+              <input type="checkbox" checked disabled />
+              Pop‑up (obligatoriu)
+            </label>
+
+            <label className="flex items-center gap-2 mb-2">
+              <input
+                type="checkbox"
+                checked={popupProgramare.reminderSound}
+                onChange={(e) =>
+                  setPopupProgramare({
+                    ...popupProgramare,
+                    reminderSound: e.target.checked,
+                  })
+                }
+              />
+              Sunet
+            </label>
+
+            <label className="flex items-center gap-2 mb-4">
+              <input
+                type="checkbox"
+                checked={popupProgramare.reminderVibration}
+                onChange={(e) =>
+                  setPopupProgramare({
+                    ...popupProgramare,
+                    reminderVibration: e.target.checked,
+                  })
+                }
+              />
+              Vibrație
+            </label>
+
+            {/* BUTOANE */}
             <div className="flex gap-4 mb-4 mt-4">
               <a
                 href={`tel:${popupProgramare.telefon}`}
@@ -687,9 +750,3 @@ function ProgramariContent() {
 ---------------------------------------------------------- */
 
 export default function ProgramariPage() {
-  return (
-    <Suspense fallback={<div className="p-6 text-center">Se încarcă...</div>}>
-      <ProgramariContent />
-    </Suspense>
-  );
-}
