@@ -725,3 +725,11 @@ function ProgramariContent() {
     </main>
   );
 }
+
+export default function ProgramariPage() {
+  return (
+    <Suspense>
+      <ProgramariContent />
+    </Suspense>
+  );
+}
