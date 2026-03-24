@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, Suspense, useCallback } from "react";
+import { useState, useEffect, Suspense, useCallback, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 
@@ -54,11 +54,8 @@ function RezervareContent() {
           return Array.isArray(curat) ? curat : [];
         };
 
-        const listaServicii = proceseaza(profile.services);
-        const listaStaff = proceseaza(profile.staff);
-        
-        setServicii(listaServicii);
-        setSpecialisti(listaStaff);
+        setServicii(proceseaza(profile.services));
+        setSpecialisti(proceseaza(profile.staff));
         setManualBlocks(profile.manual_blocks || {});
       }
     } catch (e) {
@@ -71,6 +68,30 @@ function RezervareContent() {
   useEffect(() => {
     fetchAdminConfig();
   }, [fetchAdminConfig]);
+
+  // FILTRARE DINAMICĂ SPECIALIȘTI (bazată pe serviciul selectat)
+  const specialistiFiltrati = useMemo(() => {
+    if (!form.serviciu) return specialisti;
+    return specialisti.filter(sp => (sp.servicii || []).includes(form.serviciu));
+  }, [form.serviciu, specialisti]);
+
+  // FILTRARE DINAMICĂ SERVICII (bazată pe specialistul selectat)
+  const serviciiFiltrate = useMemo(() => {
+    if (form.specialist_id === "Oricine") return servicii;
+    const specialistSelectat = specialisti.find(s => s.nume === form.specialist_id);
+    if (!specialistSelectat || !specialistSelectat.servicii) return [];
+    return servicii.filter(s => specialistSelectat.servicii.includes(s.nume || s.name));
+  }, [form.specialist_id, servicii, specialisti]);
+
+  // VALIDARE SELECȚIE: Dacă selecția devine invalidă după filtrare, o resetăm
+  useEffect(() => {
+    if (form.serviciu && !serviciiFiltrate.some(s => (s.nume || s.name) === form.serviciu)) {
+      setForm(prev => ({ ...prev, serviciu: "" }));
+    }
+    if (form.specialist_id !== "Oricine" && !specialistiFiltrati.some(s => s.nume === form.specialist_id)) {
+      setForm(prev => ({ ...prev, specialist_id: "Oricine" }));
+    }
+  }, [serviciiFiltrate, specialistiFiltrati, form.serviciu, form.specialist_id]);
 
   const isTimeBlocked = (h: string, m: string) => {
     const timeStr = `${h}:${m}`;
@@ -129,31 +150,13 @@ function RezervareContent() {
 
         <form onSubmit={trimiteRezervare} className="p-10 space-y-6">
           <div className="space-y-3">
-             <input title="Introdu numele tău complet" type="text" required className="w-full p-5 bg-slate-50 rounded-[22px] border-2 border-slate-100 focus:border-amber-500 outline-none font-bold text-sm" placeholder="NUME ȘI PRENUME" value={form.nume} onChange={e => setForm({...form, nume: e.target.value})} />
+             <input title="Introdu numele tău complet" type="text" required className="w-full p-5 bg-slate-50 rounded-[22px] border-2 border-slate-100 focus:border-amber-500 outline-none font-bold text-sm uppercase" placeholder="NUME ȘI PRENUME" value={form.nume} onChange={e => setForm({...form, nume: e.target.value})} />
              <input title="Introdu numărul tău de telefon pentru confirmare" type="tel" required className="w-full p-5 bg-slate-50 rounded-[22px] border-2 border-slate-100 focus:border-amber-500 outline-none font-bold text-sm" placeholder="TELEFON" value={form.telefon} onChange={e => setForm({...form, telefon: e.target.value})} />
           </div>
 
           <div className="grid grid-cols-1 gap-4">
             <div className="space-y-1">
-              <label className="text-[10px] font-black uppercase text-slate-400 ml-2 italic tracking-widest">1. Alege Specialistul</label>
-              <select 
-                title="Selectează membrul echipei preferat sau oricine disponibil"
-                required 
-                className="w-full p-5 bg-slate-50 rounded-[22px] border-2 border-slate-100 focus:border-amber-500 outline-none font-black text-xs uppercase italic cursor-pointer"
-                value={form.specialist_id}
-                onChange={e => setForm({...form, specialist_id: e.target.value})}
-              >
-                <option value="Oricine">Oricine (Primul disponibil)</option>
-                {specialisti.map((sp, idx) => (
-                  <option key={sp.id || idx} value={sp.nume}>
-                    {(sp.nume || "Fără nume").toUpperCase()}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="space-y-1">
-              <label className="text-[10px] font-black uppercase text-slate-400 ml-2 italic tracking-widest">2. Alege Serviciul</label>
+              <label className="text-[10px] font-black uppercase text-slate-400 ml-2 italic tracking-widest">1. Alege Serviciul</label>
               <select 
                 title="Alege serviciul pe care dorești să îl rezervi"
                 required 
@@ -162,9 +165,27 @@ function RezervareContent() {
                 onChange={e => setForm({...form, serviciu: e.target.value})}
               >
                 <option value="">Selectează serviciul...</option>
-                {servicii.map((s, idx) => (
-                  <option key={s.id || idx} value={s.nume}>
-                    {(s.nume || "Serviciu").toUpperCase()} — {s.pret || 0} RON
+                {serviciiFiltrate.map((s, idx) => (
+                  <option key={s.id || idx} value={s.nume || s.name}>
+                    {((s.nume || s.name) || "Serviciu").toUpperCase()} — {s.pret || s.price || 0} RON
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="space-y-1">
+              <label className="text-[10px] font-black uppercase text-slate-400 ml-2 italic tracking-widest">2. Alege Specialistul</label>
+              <select 
+                title="Selectează membrul echipei preferat"
+                required 
+                className="w-full p-5 bg-slate-50 rounded-[22px] border-2 border-slate-100 focus:border-amber-500 outline-none font-black text-xs uppercase italic cursor-pointer"
+                value={form.specialist_id}
+                onChange={e => setForm({...form, specialist_id: e.target.value})}
+              >
+                <option value="Oricine">Oricine (Primul disponibil)</option>
+                {specialistiFiltrati.map((sp, idx) => (
+                  <option key={sp.id || idx} value={sp.nume}>
+                    {(sp.nume || "Fără nume").toUpperCase()}
                   </option>
                 ))}
               </select>

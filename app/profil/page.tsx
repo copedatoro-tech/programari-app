@@ -9,6 +9,14 @@ const SUPABASE_URL = "https://zzrubdbngjfwurdwxtwf.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp6cnViZGJuZ2pmd3VyZHd4dHdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5MDkyMTgsImV4cCI6MjA4ODQ4NTIxOH0.6uw6yzCs5OfCP7xqWshzPQP36bCPxi2LU0QtpwsvnOo";
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+// --- CONFIGURARE LIMITE ABONAMENTE (Sincronizate cu baza de date) ---
+const LIMITE_ABONAMENTE: Record<string, { nume: string; limita: string; culoare: string }> = {
+  "start (gratuit)": { nume: "START (GRATUIT)", limita: "50 rezervări/lună", culoare: "text-slate-400" },
+  "pro": { nume: "PRO", limita: "200 rezervări/lună", culoare: "text-blue-500" },
+  "elite": { nume: "ELITE", limita: "1000 rezervări/lună", culoare: "text-amber-500" },
+  "team": { nume: "TEAM", limita: "Nelimitat (5000)", culoare: "text-purple-500" }
+};
+
 export default function ProfilPage() {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -23,6 +31,7 @@ export default function ProfilPage() {
   const [telefon, setTelefon] = useState("");
   const [functie, setFunctie] = useState(""); 
   const [avatarUrl, setAvatarUrl] = useState("");
+  const [subscriptionPlan, setSubscriptionPlan] = useState("start (gratuit)");
 
   const [pass1, setPass1] = useState("");
   const [pass2, setPass2] = useState("");
@@ -47,6 +56,8 @@ export default function ProfilPage() {
           setTelefon(profile.phone || "");
           setFunctie(profile.role || "Administrator");
           setAvatarUrl(profile.avatar_url || "");
+          // Folosim coloana plan_type identificată în screenshot
+          setSubscriptionPlan(profile.plan_type?.toLowerCase() || "start (gratuit)");
         }
       }
       setLoading(false);
@@ -68,6 +79,7 @@ export default function ProfilPage() {
           email: email, 
           phone: telefon,
           role: functie,
+          plan_type: subscriptionPlan, // Sincronizat cu coloana ta
           updated_at: new Date().toISOString(),
         });
 
@@ -108,6 +120,8 @@ export default function ProfilPage() {
 
   if (loading) return <div className="p-20 text-center font-black text-slate-400 animate-pulse italic uppercase tracking-[0.2em]">Sincronizare cont...</div>;
 
+  const currentPlanInfo = LIMITE_ABONAMENTE[subscriptionPlan] || LIMITE_ABONAMENTE["start (gratuit)"];
+
   return (
     <main className="min-h-screen bg-slate-100 py-10 px-4 font-sans space-y-8">
       
@@ -116,7 +130,11 @@ export default function ProfilPage() {
         <div className="bg-slate-900 p-8 flex items-center gap-6">
           <div className="relative w-24 h-24 shrink-0 group">
             <div className="w-full h-full rounded-[30px] overflow-hidden border-2 border-amber-500 bg-slate-800 relative shadow-2xl flex items-center justify-center">
-              {avatarUrl ? <Image src={avatarUrl} alt="Profil" fill className="object-cover" /> : <div className="text-4xl">👤</div>}
+              {avatarUrl ? (
+                <div className="relative w-full h-full">
+                   <Image src={avatarUrl} alt="Profil" fill className="object-cover" />
+                </div>
+              ) : <div className="text-4xl">👤</div>}
             </div>
             <label className="absolute inset-0 flex items-center justify-center bg-black/60 opacity-0 group-hover:opacity-100 transition-all cursor-pointer rounded-[30px] m-0.5">
               <input type="file" accept="image/*" className="hidden" onChange={handleUploadAvatar} disabled={updating} />
@@ -142,6 +160,18 @@ export default function ProfilPage() {
             </button>
             <button onClick={() => setShowPassModal(true)} className="px-5 py-2.5 bg-slate-800 text-white text-[9px] font-black rounded-2xl border border-slate-700 hover:bg-slate-700 transition-all uppercase italic">Schimbă Parola</button>
           </div>
+        </div>
+
+        {/* Secțiune Abonament */}
+        <div className="px-8 py-6 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
+            <div>
+                <p className="text-[9px] font-black text-slate-400 uppercase italic tracking-widest">Abonament Actual</p>
+                <h3 className={`text-lg font-black italic uppercase ${currentPlanInfo.culoare}`}>{currentPlanInfo.nume}</h3>
+            </div>
+            <div className="text-right">
+                <p className="text-[9px] font-black text-slate-400 uppercase italic tracking-widest">Limită resurse</p>
+                <p className="text-xs font-bold text-slate-700 uppercase italic">{currentPlanInfo.limita}</p>
+            </div>
         </div>
 
         {/* Formular Date Esențiale */}

@@ -42,6 +42,10 @@ export default function CalendarPage() {
   const [selectedProg, setSelectedProg] = useState<Programare | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // Stări pentru editare
+  const [isEditing, setIsEditing] = useState(false);
+  const [editForm, setEditForm] = useState<Programare | null>(null);
+
   useEffect(() => {
     fetchProgramari();
   }, []);
@@ -50,13 +54,11 @@ export default function CalendarPage() {
     setLoading(true);
     try {
       const { data: { session } } = await supabase.auth.getSession();
-      
       if (!session) {
         setProgramari([]);
         setLoading(false);
         return;
       }
-
       const { data, error } = await supabase
         .from('appointments')
         .select('*')
@@ -80,6 +82,54 @@ export default function CalendarPage() {
     }
   }
 
+  // --- LOGICĂ CRUD ---
+  const handleEditClick = () => {
+    setEditForm(selectedProg);
+    setIsEditing(true);
+  };
+
+  const handleCancelEdit = () => {
+    setIsEditing(false);
+    setEditForm(null);
+  };
+
+  const handleUpdate = async () => {
+    if (!editForm) return;
+    try {
+      const { error } = await supabase
+        .from('appointments')
+        .update({
+          title: editForm.nume,
+          date: editForm.data,
+          time: editForm.ora,
+          phone: editForm.telefon,
+          details: editForm.motiv
+        })
+        .eq('id', editForm.id);
+
+      if (error) throw error;
+
+      setProgramari(prev => prev.map(p => p.id === editForm.id ? editForm : p));
+      setSelectedProg(editForm);
+      setIsEditing(false);
+    } catch (err) {
+      console.error("Eroare la actualizare:", err);
+      alert("Nu s-a putut salva modificarea.");
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!selectedProg || !confirm("Ești sigur că vrei să ștergi această programare?")) return;
+    try {
+      const { error } = await supabase.from('appointments').delete().eq('id', selectedProg.id);
+      if (error) throw error;
+      setProgramari(prev => prev.filter(p => p.id !== selectedProg.id));
+      setSelectedProg(null);
+    } catch (err) {
+      console.error("Eroare la ștergere:", err);
+    }
+  };
+
   const programariByDate = useMemo(() => {
     const map: Record<string, Programare[]> = {};
     programari.forEach(p => {
@@ -95,6 +145,11 @@ export default function CalendarPage() {
     else if (viewMode === "week") nextDate.setDate(selectedDate.getDate() + (direction * 7));
     else nextDate.setDate(selectedDate.getDate() + direction);
     setSelectedDate(nextDate);
+  };
+
+  const goToDay = (date: Date) => {
+    setSelectedDate(date);
+    setViewMode("day");
   };
 
   const monthGrid = useMemo(() => {
@@ -117,6 +172,23 @@ export default function CalendarPage() {
 
   const hours = Array.from({ length: 24 }, (_, i) => i);
 
+  const AppointmentChip = ({ p, isCompact = true }: { p: Programare, isCompact?: boolean }) => (
+    <div className="relative group w-full">
+      <div 
+        onClick={(e) => { e.stopPropagation(); setSelectedProg(p); }}
+        className={`w-full cursor-pointer bg-slate-900 text-white rounded-lg truncate font-black uppercase italic shadow-sm border border-slate-700 hover:bg-amber-600 transition-all ${isCompact ? 'text-[9px] px-2 py-1.5' : 'text-xs p-3'}`}
+      >
+        {p.ora} {p.nume}
+      </div>
+      <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 bg-slate-900 text-white p-3 rounded-xl shadow-2xl opacity-0 group-hover:opacity-100 pointer-events-none transition-all z-[60] border border-amber-500/30 scale-95 group-hover:scale-100">
+        <p className="text-amber-500 font-black text-[10px] uppercase mb-1 italic tracking-tighter">{p.ora} - {p.nume}</p>
+        {p.telefon && <p className="text-[9px] text-slate-300 mb-1">📞 {p.telefon}</p>}
+        {p.motiv && <p className="text-[9px] text-slate-400 italic line-clamp-2">"{p.motiv}"</p>}
+        <div className="absolute top-full left-1/2 -translate-x-1/2 border-8 border-transparent border-t-slate-900"></div>
+      </div>
+    </div>
+  );
+
   if (loading) return (
     <div className="min-h-screen flex items-center justify-center bg-slate-50 font-black italic text-slate-400 uppercase tracking-widest animate-pulse">
       Sincronizare Calendar...
@@ -126,43 +198,92 @@ export default function CalendarPage() {
   return (
     <main className="min-h-screen bg-slate-50 p-4 md:p-8 flex flex-col items-center">
       
-      {/* MODAL DETALII */}
+      {/* MODAL DETALII ȘI EDITARE */}
       {selectedProg && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setSelectedProg(null)}>
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4" onClick={() => { setSelectedProg(null); setIsEditing(false); }}>
           <div className="bg-white rounded-[40px] w-full max-w-lg shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200" onClick={e => e.stopPropagation()}>
             <div className="bg-slate-900 p-8 text-white relative">
-              <button onClick={() => setSelectedProg(null)} className="absolute top-6 right-6 text-slate-400 hover:text-white text-2xl font-black">×</button>
-              <h3 className="text-amber-500 font-black uppercase tracking-widest text-xs mb-2">Detalii Programare</h3>
-              <p className="text-3xl font-black italic uppercase">{selectedProg.nume}</p>
+              <button onClick={() => { setSelectedProg(null); setIsEditing(false); }} className="absolute top-6 right-6 text-slate-400 hover:text-white text-2xl font-black">×</button>
+              <h3 className="text-amber-500 font-black uppercase tracking-widest text-xs mb-2">
+                {isEditing ? "Editare Detalii" : "Fișă Programare"}
+              </h3>
+              {isEditing ? (
+                <input 
+                  type="text" 
+                  className="bg-slate-800 text-white text-3xl font-black italic uppercase w-full border-b-2 border-amber-500 outline-none p-1"
+                  value={editForm?.nume}
+                  onChange={e => setEditForm(prev => prev ? {...prev, nume: e.target.value} : null)}
+                />
+              ) : (
+                <p className="text-3xl font-black italic uppercase">{selectedProg.nume}</p>
+              )}
             </div>
+            
             <div className="p-8 space-y-6">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center text-xl shadow-inner">🕒</div>
-                <div>
-                  <p className="text-xs font-black text-slate-400 uppercase">Data și Ora</p>
-                  <p className="font-bold text-slate-800">{selectedProg.data} | {selectedProg.ora}</p>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-slate-50 p-4 rounded-3xl border border-slate-100">
+                  <p className="text-xs font-black text-slate-400 uppercase">Data</p>
+                  {isEditing ? (
+                    <input type="date" className="w-full bg-transparent font-bold text-slate-800 outline-none" value={editForm?.data} onChange={e => setEditForm(prev => prev ? {...prev, data: e.target.value} : null)} />
+                  ) : (
+                    <p className="font-bold text-slate-800">{selectedProg.data}</p>
+                  )}
+                </div>
+                <div className="bg-slate-50 p-4 rounded-3xl border border-slate-100">
+                  <p className="text-xs font-black text-slate-400 uppercase">Ora</p>
+                  {isEditing ? (
+                    <input type="time" className="w-full bg-transparent font-bold text-slate-800 outline-none" value={editForm?.ora} onChange={e => setEditForm(prev => prev ? {...prev, ora: e.target.value} : null)} />
+                  ) : (
+                    <p className="font-bold text-slate-800">{selectedProg.ora}</p>
+                  )}
                 </div>
               </div>
-              {selectedProg.telefon && (
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center text-xl shadow-inner">📞</div>
-                  <div>
-                    <p className="text-xs font-black text-slate-400 uppercase">Telefon</p>
-                    <p className="font-bold text-slate-800">{selectedProg.telefon}</p>
-                  </div>
-                </div>
-              )}
+
+              <div className="bg-slate-50 p-4 rounded-3xl border border-slate-100">
+                <p className="text-xs font-black text-slate-400 uppercase">Telefon</p>
+                {isEditing ? (
+                  <input type="text" className="w-full bg-transparent font-bold text-slate-800 outline-none" value={editForm?.telefon} onChange={e => setEditForm(prev => prev ? {...prev, telefon: e.target.value} : null)} />
+                ) : (
+                  <p className="font-bold text-slate-800">{selectedProg.telefon || "Nespecificat"}</p>
+                )}
+              </div>
+
               <div className="bg-slate-50 p-6 rounded-3xl border border-slate-100 shadow-inner">
                 <p className="text-xs font-black text-slate-400 uppercase mb-2">Motiv / Detalii</p>
-                <p className="text-slate-700 font-medium italic">{selectedProg.motiv || "Fără detalii suplimentare."}</p>
+                {isEditing ? (
+                  <textarea 
+                    className="w-full bg-transparent text-slate-700 font-medium italic outline-none"
+                    rows={3}
+                    value={editForm?.motiv}
+                    onChange={e => setEditForm(prev => prev ? {...prev, motiv: e.target.value} : null)}
+                  />
+                ) : (
+                  <p className="text-slate-700 font-medium italic">{selectedProg.motiv || "Fără detalii suplimentare."}</p>
+                )}
               </div>
-              <button onClick={() => setSelectedProg(null)} className="w-full py-4 bg-slate-900 text-white rounded-2xl font-black shadow-lg hover:bg-slate-800 transition active:scale-95 uppercase text-xs tracking-widest">Închide Fișa</button>
+
+              <div className="flex flex-col gap-3">
+                {isEditing ? (
+                  <div className="flex gap-3">
+                    <button onClick={handleCancelEdit} className="flex-1 py-4 bg-slate-100 text-slate-600 rounded-2xl font-black uppercase text-[10px] tracking-widest">Anulează</button>
+                    <button onClick={handleUpdate} className="flex-[2] py-4 bg-green-600 text-white rounded-2xl font-black shadow-lg uppercase text-[10px] tracking-widest">Salvează</button>
+                  </div>
+                ) : (
+                  <>
+                    <div className="flex gap-3">
+                      <button onClick={() => setSelectedProg(null)} className="flex-1 py-4 bg-slate-100 text-slate-600 rounded-2xl font-black uppercase text-[10px] tracking-widest hover:bg-slate-200 transition">Închide</button>
+                      <button onClick={handleEditClick} className="flex-[2] py-4 bg-amber-600 text-white rounded-2xl font-black shadow-lg hover:bg-amber-700 transition active:scale-95 uppercase text-[10px] tracking-widest">Modifică Datele</button>
+                    </div>
+                    <button onClick={handleDelete} className="w-full py-3 text-red-500 font-black uppercase text-[9px] tracking-[0.2em] hover:text-red-700 transition">Șterge Programarea</button>
+                  </>
+                )}
+              </div>
             </div>
           </div>
         </div>
       )}
 
-      {/* HEADER PAGINĂ - REINSTAURAT BUTONUL DE NAVIGARE */}
+      {/* HEADER PAGINĂ */}
       <div className="w-full max-w-6xl flex justify-between items-center mb-6 px-4">
         <h1 className="text-3xl font-black text-slate-900 tracking-tighter uppercase italic">Calendar <span className="text-amber-600">Chronos</span></h1>
         <div className="flex gap-4">
@@ -200,17 +321,20 @@ export default function CalendarPage() {
                 const list = programariByDate[key] || [];
                 const isCurrentMonth = day.getMonth() === selectedDate.getMonth();
                 return (
-                  <button key={idx} onClick={() => { setSelectedDate(day); setViewMode("day"); }} 
-                    className={`min-h-[140px] p-3 flex flex-col items-start hover:bg-amber-50/50 transition-colors relative ${isCurrentMonth ? "bg-white" : "bg-slate-100 opacity-40"}`}>
+                  <div key={idx} onClick={() => goToDay(day)} 
+                    className={`min-h-[140px] p-3 flex flex-col items-start hover:bg-amber-50/50 transition-colors relative cursor-pointer ${isCurrentMonth ? "bg-white" : "bg-slate-100 opacity-40"}`}>
                     <span className={`text-xs font-black mb-2 px-2.5 py-1 rounded-lg ${sameDay(day, new Date()) ? "text-white bg-amber-600 shadow-lg" : "text-slate-400"}`}>{day.getDate()}</span>
                     <div className="w-full space-y-1.5">
-                      {list.slice(0, 4).map(p => (
-                        <div key={p.id} className="text-[9px] bg-slate-900 text-white px-2 py-1.5 rounded-lg truncate font-black uppercase italic shadow-sm border border-slate-700">
-                          {p.ora} {p.nume}
-                        </div>
+                      {list.slice(0, 3).map(p => (
+                        <AppointmentChip key={p.id} p={p} />
                       ))}
+                      {list.length > 3 && (
+                        <div className="text-[9px] font-black text-amber-600 uppercase italic px-1 pt-1 border-t border-slate-100 w-full text-left">
+                          + încă {list.length - 3}
+                        </div>
+                      )}
                     </div>
-                  </button>
+                  </div>
                 );
               })}
             </div>
@@ -221,10 +345,10 @@ export default function CalendarPage() {
               <div className="grid grid-cols-8 min-w-[1000px] gap-[1px] bg-slate-200">
                 <div className="p-4 bg-slate-100 font-black text-[10px] text-slate-400 sticky left-0 z-20 uppercase italic flex items-center justify-center">Ora</div>
                 {weekDays.map((d, i) => (
-                  <div key={i} className={`p-4 text-center ${sameDay(d, new Date()) ? "bg-amber-50" : "bg-slate-50"}`}>
+                  <button key={i} onClick={() => goToDay(d)} className={`p-4 text-center transition-colors hover:bg-amber-50 ${sameDay(d, new Date()) ? "bg-amber-50" : "bg-slate-50"}`}>
                     <div className="text-[10px] font-black text-slate-400 uppercase italic">{dayNamesShort[i]}</div>
                     <div className="text-xl font-black text-slate-800">{d.getDate()}</div>
-                  </div>
+                  </button>
                 ))}
                 {hours.map(h => (
                   <div key={h} className="contents">
@@ -232,13 +356,15 @@ export default function CalendarPage() {
                     {weekDays.map((d, i) => {
                       const progs = (programariByDate[formatDateKey(d)] || []).filter(p => parseInt(p.ora) === h);
                       return (
-                        <div key={i} className="min-h-[80px] bg-white p-1.5 hover:bg-slate-50/80 border-b border-slate-100">
-                          {progs.map(p => (
-                            <button key={p.id} onClick={() => setSelectedProg(p)} 
-                              className="w-full text-[9px] bg-slate-900 text-white p-2 rounded-xl font-black uppercase italic truncate mb-1 shadow-md border border-slate-800 hover:scale-[1.02] transition-transform">
-                              {p.nume}
-                            </button>
+                        <div key={i} onClick={() => goToDay(d)} className="min-h-[90px] bg-white p-2 hover:bg-slate-50/80 border-b border-slate-100 cursor-pointer transition-colors flex flex-col gap-1.5 relative">
+                          {progs.slice(0, 2).map(p => (
+                            <AppointmentChip key={p.id} p={p} />
                           ))}
+                          {progs.length > 2 && (
+                            <div className="text-[8px] font-black text-amber-600 uppercase italic px-1 mt-auto">
+                              +{progs.length - 2} altele
+                            </div>
+                          )}
                         </div>
                       );
                     })}
@@ -261,13 +387,15 @@ export default function CalendarPage() {
                 </div>
                 <div className="space-y-4">
                   {programariByDate[formatDateKey(selectedDate)]?.sort((a,b) => a.ora.localeCompare(b.ora)).map(p => (
-                    <button key={p.id} onClick={() => setSelectedProg(p)} 
-                      className="w-full flex items-center gap-6 p-7 bg-white border-2 border-slate-100 rounded-[30px] hover:border-amber-500 hover:shadow-xl transition-all text-left shadow-sm group">
-                      <span className="text-2xl font-black text-slate-900 group-hover:text-amber-600 w-24 italic">{p.ora}</span>
-                      <div className="h-12 w-[3px] bg-slate-100 group-hover:bg-amber-500 rounded-full transition-colors"></div>
-                      <span className="text-slate-800 font-black text-xl flex-1 uppercase italic tracking-tight">{p.nume}</span>
-                      <span className="text-[10px] font-black text-amber-600 uppercase italic opacity-0 group-hover:opacity-100 transition-opacity tracking-widest">Detalii →</span>
-                    </button>
+                    <div key={p.id} className="w-full relative group">
+                      <button onClick={() => setSelectedProg(p)}
+                        className="w-full flex items-center gap-6 p-7 bg-white border-2 border-slate-100 rounded-[30px] hover:border-amber-500 hover:shadow-xl transition-all text-left shadow-sm">
+                        <span className="text-2xl font-black text-slate-900 group-hover:text-amber-600 w-24 italic">{p.ora}</span>
+                        <div className="h-12 w-[3px] bg-slate-100 group-hover:bg-amber-500 rounded-full transition-colors"></div>
+                        <span className="text-slate-800 font-black text-xl flex-1 uppercase italic tracking-tight">{p.nume}</span>
+                        <span className="text-[10px] font-black text-amber-600 uppercase italic opacity-0 group-hover:opacity-100 transition-opacity tracking-widest">Detalii →</span>
+                      </button>
+                    </div>
                   )) || (
                     <div className="text-center py-24 border-4 border-dashed border-slate-100 rounded-[45px]">
                       <p className="text-slate-300 font-black uppercase italic tracking-tighter">Nicio programare pentru azi.</p>

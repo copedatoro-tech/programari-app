@@ -9,13 +9,29 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 const MY_DIRECT_ID = "ed9cd915-6684-422c-a214-4ac5c25e98f3";
 
+// --- CONFIGURARE LIMITE CONFORM STRATEGIEI TALE ---
+const LIMITE = {
+  STAFF: {
+    "start (gratuit)": 1,
+    "pro": 1,
+    "elite": 5,
+    "team": 999
+  },
+  SERVICII: {
+    "start (gratuit)": 5,
+    "pro": 15,
+    "elite": 999,
+    "team": 999
+  }
+};
+
 export default function ResursePage() {
   const [services, setServices] = useState<any[]>([]);
   const [staff, setStaff] = useState<any[]>([]);
+  const [userPlan, setUserPlan] = useState("start (gratuit)");
   const [loading, setLoading] = useState(true);
   const [newItem, setNewItem] = useState({ type: 'service', name: '', price: '', duration: '' });
   
-  // State pentru editare
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<any>(null);
 
@@ -28,11 +44,13 @@ export default function ResursePage() {
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select('services, staff')
+        .select('services, staff, plan_type')
         .eq('id', MY_DIRECT_ID)
         .single();
 
       if (data) {
+        setUserPlan(data.plan_type?.toLowerCase() || "start (gratuit)");
+        
         const proceseaza = (val: any) => {
           if (!val) return [];
           let curat = typeof val === 'string' ? JSON.parse(val) : val;
@@ -51,6 +69,22 @@ export default function ResursePage() {
 
   async function handleAdd() {
     if (!newItem.name) return;
+
+    // --- VERIFICARE LIMITE ---
+    if (newItem.type === 'service') {
+      const limitaServicii = LIMITE.SERVICII[userPlan as keyof typeof LIMITE.SERVICII] || 5;
+      if (services.length >= limitaServicii) {
+        alert(`⚠️ LIMITĂ ATINSĂ: Planul ${userPlan.toUpperCase()} permite maxim ${limitaServicii} servicii.`);
+        return;
+      }
+    } else {
+      const limitaStaff = LIMITE.STAFF[userPlan as keyof typeof LIMITE.STAFF] || 1;
+      if (staff.length >= limitaStaff) {
+        alert(`⚠️ LIMITĂ ATINSĂ: Planul ${userPlan.toUpperCase()} permite maxim ${limitaStaff} membru de echipă. Fă upgrade la ELITE pentru 5 persoane.`);
+        return;
+      }
+    }
+
     const id = crypto.randomUUID();
     let listaActualizata, coloana;
 
@@ -76,7 +110,6 @@ export default function ResursePage() {
     if (!error) type === 'services' ? setServices(listaNoua) : setStaff(listaNoua);
   }
 
-  // Funcții pentru editare
   const pornesteEditare = (item: any, tip: 'service' | 'staff') => {
     setEditingId(item.id);
     setEditForm({ ...item, tip });
@@ -113,10 +146,13 @@ export default function ResursePage() {
   return (
     <div className="min-h-screen bg-[#fcfcfc] p-8 md:p-16">
       <div className="max-w-6xl mx-auto">
-        <header className="mb-12">
-          <h1 className="text-5xl font-black italic uppercase tracking-tighter text-slate-900 border-l-8 border-amber-500 pl-6">
-            Gestiune <span className="text-amber-600">Servicii și Staff</span>
-          </h1>
+        <header className="mb-12 flex justify-between items-end">
+          <div>
+            <h1 className="text-5xl font-black italic uppercase tracking-tighter text-slate-900 border-l-8 border-amber-500 pl-6">
+              Gestiune <span className="text-amber-600">Servicii și Staff</span>
+            </h1>
+            <p className="ml-8 mt-2 text-[10px] font-black text-slate-400 uppercase tracking-widest italic">Abonament: <span className="text-amber-600">{userPlan}</span></p>
+          </div>
         </header>
 
         {/* Zona de adăugare */}
@@ -142,7 +178,7 @@ export default function ResursePage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
           {/* CATALOG SERVICII */}
           <div className="bg-white p-10 rounded-[40px] shadow-xl border border-slate-50">
-            <h2 className="text-[11px] font-black uppercase italic text-slate-400 mb-10 tracking-[0.3em] border-b pb-4">Catalog Servicii</h2>
+            <h2 className="text-[11px] font-black uppercase italic text-slate-400 mb-10 tracking-[0.3em] border-b pb-4">Catalog Servicii ({services.length})</h2>
             <div className="space-y-4">
               {services.length === 0 && <p className="text-center py-10 text-slate-300 italic font-bold uppercase text-[10px]">Așteptăm date noi...</p>}
               {services.map(s => (
@@ -160,7 +196,7 @@ export default function ResursePage() {
                       </div>
                     </div>
                   ) : (
-                    <div className="flex justify-between items-center" title={`Serviciu: ${s.nume || s.name}. Click pentru editare.`} onClick={() => pornesteEditare(s, 'service')}>
+                    <div className="flex justify-between items-center cursor-pointer" title={`Serviciu: ${s.nume || s.name}. Click pentru editare.`} onClick={() => pornesteEditare(s, 'service')}>
                       <div>
                         <p className="font-black uppercase italic text-sm text-slate-900">{s.nume || s.name}</p>
                         <p className="text-[10px] font-bold text-amber-600 mt-1">{s.pret || s.price} RON — {s.durata || s.duration} MIN</p>
@@ -175,7 +211,7 @@ export default function ResursePage() {
 
           {/* ECHIPA */}
           <div className="bg-white p-10 rounded-[40px] shadow-xl border border-slate-50">
-            <h2 className="text-[11px] font-black uppercase italic text-slate-400 mb-10 tracking-[0.3em] border-b pb-4">Echipă</h2>
+            <h2 className="text-[11px] font-black uppercase italic text-slate-400 mb-10 tracking-[0.3em] border-b pb-4">Echipă ({staff.length})</h2>
             <div className="space-y-4">
               {staff.length === 0 && <p className="text-center py-10 text-slate-300 italic font-bold uppercase text-[10px]">Niciun membru adăugat...</p>}
               {staff.map(p => (
@@ -205,7 +241,7 @@ export default function ResursePage() {
                       </div>
                     </div>
                   ) : (
-                    <div className="flex justify-between items-center" title={`Membru: ${p.nume || p.name}. Click pentru editare.`} onClick={() => pornesteEditare(p, 'staff')}>
+                    <div className="flex justify-between items-center cursor-pointer" title={`Membru: ${p.nume || p.name}. Click pentru editare.`} onClick={() => pornesteEditare(p, 'staff')}>
                       <div className="flex-1">
                         <p className="font-black uppercase italic text-sm text-white group-hover:text-amber-500">{p.nume || p.name}</p>
                         <div className="flex flex-wrap gap-1 mt-2">
