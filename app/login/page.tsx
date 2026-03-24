@@ -31,10 +31,25 @@ export default function LoginPage() {
     setLoading(true);
     setError("");
 
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    try {
+      const { data, error: authError } = await supabase.auth.signInWithPassword({ 
+        email, 
+        password 
+      });
 
-    if (error) {
-      setError("❌ Email sau parolă incorectă.");
+      if (authError) {
+        setError("❌ " + authError.message);
+        setLoading(false);
+        return;
+      }
+
+      if (data?.user) {
+        // Redirecționare imediată la succes
+        router.push("/profil");
+        router.refresh();
+      }
+    } catch (err) {
+      setError("❌ Eroare de conexiune. Încearcă din nou.");
       setLoading(false);
     }
   };
@@ -53,17 +68,39 @@ export default function LoginPage() {
         <form onSubmit={handleLogin} className="p-10 space-y-6">
           <div className="space-y-1.5">
             <label className="text-[11px] font-black uppercase text-slate-400 ml-2 italic tracking-widest">Email</label>
-            <input type="email" required className="w-full px-7 py-5 bg-slate-50 border-2 border-slate-100 rounded-2xl focus:border-amber-500 focus:outline-none font-bold text-sm shadow-inner" placeholder="nume@email.ro" value={email} onChange={(e) => setEmail(e.target.value)} />
+            <input 
+              type="email" 
+              required 
+              className="w-full px-7 py-5 bg-slate-50 border-2 border-slate-100 rounded-2xl focus:border-amber-500 focus:outline-none font-bold text-sm shadow-inner" 
+              placeholder="nume@email.ro" 
+              value={email} 
+              onChange={(e) => setEmail(e.target.value)} 
+            />
           </div>
 
           <div className="space-y-1.5">
             <label className="text-[11px] font-black uppercase text-slate-400 ml-2 italic tracking-widest">Parola</label>
-            <input type="password" required className="w-full px-7 py-5 bg-slate-50 border-2 border-slate-100 rounded-2xl focus:border-amber-500 focus:outline-none font-bold text-sm shadow-inner" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} />
+            <input 
+              type="password" 
+              required 
+              className="w-full px-7 py-5 bg-slate-50 border-2 border-slate-100 rounded-2xl focus:border-amber-500 focus:outline-none font-bold text-sm shadow-inner" 
+              placeholder="••••••••" 
+              value={password} 
+              onChange={(e) => setPassword(e.target.value)} 
+            />
           </div>
 
-          {error && <div className="p-3 bg-red-50 text-red-600 rounded-xl text-[11px] font-black uppercase italic text-center">{error}</div>}
+          {error && (
+            <div className="p-3 bg-red-50 text-red-600 rounded-xl text-[11px] font-black uppercase italic text-center animate-pulse">
+              {error}
+            </div>
+          )}
 
-          <button type="submit" disabled={loading} className="w-full py-6 mt-4 bg-slate-900 text-white rounded-[25px] font-black text-center text-sm tracking-[0.25em] hover:bg-amber-600 transition-all border-b-4 border-slate-700 uppercase italic shadow-xl">
+          <button 
+            type="submit" 
+            disabled={loading} 
+            className="w-full py-6 mt-4 bg-slate-900 text-white rounded-[25px] font-black text-center text-sm tracking-[0.25em] hover:bg-amber-600 transition-all border-b-4 border-slate-700 uppercase italic shadow-xl disabled:opacity-50"
+          >
             {loading ? "Se verifică..." : "Intră în Cont"}
           </button>
 
