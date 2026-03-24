@@ -1,0 +1,22 @@
+{
+  "name": "Chronos App",
+  "short_name": "Chronos",
+  "description": "Gestionare contacte și programări premium",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#f59e0b",
+  "icons": [
+    {
+      "src": "/logo-chronos.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/logo-chronos.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
