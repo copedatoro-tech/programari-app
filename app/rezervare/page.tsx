@@ -149,7 +149,7 @@ function RezervareContent() {
             <input type="tel" required className="w-full p-4 bg-slate-50 rounded-2xl border-2 border-transparent focus:border-amber-500 outline-none font-bold" placeholder="Telefon" value={form.telefon} onChange={e => setForm({...form, telefon: e.target.value})} />
           </div>
 
-          {/* SERVICIU (Actualizat pentru obiectele din /resurse) */}
+          {/* SERVICIU */}
           <div className="space-y-1">
             <label className="text-[9px] font-black uppercase text-slate-400 ml-2 italic">Alege Serviciul</label>
             <select 
@@ -167,11 +167,18 @@ function RezervareContent() {
             </select>
           </div>
 
-          {/* SPECIALIST */}
+          {/* SPECIALIST (STAFF) */}
           {specialisti.length > 0 && (
             <div className="space-y-1">
               <label className="text-[9px] font-black uppercase text-slate-400 ml-2 italic">Specialist Preferat</label>
               <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => setForm({...form, specialist_id: "Oricine"})}
+                  className={`p-3 rounded-xl border-2 font-black text-[9px] uppercase italic transition-all ${(!form.specialist_id || form.specialist_id === "Oricine") ? 'border-amber-500 bg-amber-50 text-amber-700' : 'border-slate-100 text-slate-400'}`}
+                >
+                  Oricine
+                </button>
                 {specialisti.map((sp, idx) => (
                   <button
                     key={idx}
@@ -194,7 +201,7 @@ function RezervareContent() {
             </div>
             <div className="space-y-1">
               <label className="text-[9px] font-black uppercase text-slate-400 ml-2 italic">Ora</label>
-              <button type="button" onClick={() => setShowPicker(true)} className="w-full p-4 bg-slate-900 text-amber-500 rounded-2xl font-black text-sm shadow-lg">
+              <button type="button" onClick={() => setShowPicker(true)} className="w-full p-4 bg-slate-900 text-amber-500 rounded-2xl font-black text-sm shadow-lg hover:bg-slate-800 transition-colors">
                 {form.ora} 🕒
               </button>
             </div>
@@ -205,10 +212,16 @@ function RezervareContent() {
           </button>
         </form>
 
-        {/* TIME PICKER MODAL (Păstrat stilul tău) */}
+        {/* TIME PICKER MODAL CU ÎNCHIDERE LA CLICK EXTERIOR */}
         {showPicker && (
-          <div className="absolute inset-0 bg-slate-900/95 backdrop-blur-sm z-50 flex items-center justify-center p-6">
-            <div className="bg-white w-full max-w-sm rounded-[35px] p-8">
+          <div 
+            className="fixed inset-0 bg-slate-900/95 backdrop-blur-sm z-50 flex items-center justify-center p-6"
+            onClick={() => setShowPicker(false)}
+          >
+            <div 
+              className="bg-white w-full max-w-sm rounded-[35px] p-8"
+              onClick={(e) => e.stopPropagation()}
+            >
               <h2 className="text-center font-black uppercase italic mb-6">Alege Ora</h2>
               <div className="flex gap-4 h-64 bg-slate-50 p-4 rounded-3xl mb-6">
                 <div className="flex-1 overflow-y-auto space-y-2 scrollbar-hide text-center">

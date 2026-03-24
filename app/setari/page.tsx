@@ -18,9 +18,7 @@ export default function SettingsPage() {
   const [manualBlocks, setManualBlocks] = useState<any>({});
   const [showDayModal, setShowDayModal] = useState(false);
   
-  // State pentru a stoca zilele care au cel puțin o programare
   const [daysWithBookings, setDaysWithBookings] = useState<string[]>([]);
-  
   const [isDirty, setIsDirty] = useState(false);
   
   const qrRef = useRef<HTMLDivElement>(null);
@@ -51,7 +49,6 @@ export default function SettingsPage() {
     }
   }, []);
 
-  // Funcție pentru a prelua zilele ocupate din luna curentă
   const fetchMonthlyAppointments = useCallback(async (userId: string, date: Date) => {
     const firstDay = new Date(date.getFullYear(), date.getMonth(), 1).toISOString().split('T')[0];
     const lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0).toISOString().split('T')[0];
@@ -250,7 +247,6 @@ export default function SettingsPage() {
               <div className={`w-1.5 h-1.5 rounded-full ${currentBlocks.length > 0 ? 'bg-orange-400' : 'bg-slate-200'} group-hover:bg-amber-400`}></div>
             )}
             
-            {/* Indicatorul pentru programări - Portocaliu ca să fie în linie cu designul */}
             {hasBookings && (
               <div className="flex flex-col items-end">
                 <span className="text-[7px] font-black text-amber-600 uppercase italic mb-1">Activă</span>
@@ -354,7 +350,7 @@ export default function SettingsPage() {
               </div>
               <div className="flex flex-wrap gap-2">
                 <button onClick={saveAsDefault} className="px-6 py-3 bg-amber-500 text-white rounded-2xl font-black text-[10px] uppercase italic shadow-lg hover:scale-105 transition-all">Setează ca Predefinit ⭐</button>
-                <button onClick={handleCloseModal} className="px-5 py-3 bg-slate-100 rounded-2xl font-black text-[10px] hover:bg-slate-200 uppercase">Închide</button>
+                {/* Butonul de închide de aici a fost eliminat conform solicitării */}
               </div>
             </div>
 
