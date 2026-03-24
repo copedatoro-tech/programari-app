@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import "./globals.css";
+import "../globals.css";
 import Link from "next/link";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -54,6 +54,7 @@ export default function RootLayout({
                 <Link
                   key={link.href}
                   href={link.href}
+                  title={link.name} // Regula: tooltip la hover pentru claritate
                   className="text-lg xl:text-xl font-black text-slate-500 hover:text-slate-900 transition-all relative py-2 group whitespace-nowrap"
                 >
                   {link.name}
@@ -64,13 +65,16 @@ export default function RootLayout({
 
             {/* 3. LOGARE */}
             <div className="flex items-center gap-4 flex-shrink-0">
-               <div className="h-10 w-[1px] bg-slate-200 mx-2"></div>
-               <button className="flex items-center gap-3 bg-slate-900 text-white px-6 py-3 rounded-2xl font-black text-xs hover:bg-slate-800 transition-all shadow-lg border-b-2 border-slate-700 active:border-b-0 active:translate-y-0.5">
+                <div className="h-10 w-[1px] bg-slate-200 mx-2"></div>
+                <button 
+                  title="Acces cont utilizator" // Regula: tooltip la hover
+                  className="flex items-center gap-3 bg-slate-900 text-white px-6 py-3 rounded-2xl font-black text-xs hover:bg-slate-800 transition-all shadow-lg border-b-2 border-slate-700 active:border-b-0 active:translate-y-0.5"
+                >
                   <span>LOGARE</span>
                   <div className="w-5 h-5 bg-amber-500 rounded-full flex items-center justify-center text-[10px] text-slate-900">
                     👤
                   </div>
-               </button>
+                </button>
             </div>
           </div>
         </header>

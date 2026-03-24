@@ -13,8 +13,9 @@ function RezervareContent() {
   const [fetchingConfig, setFetchingConfig] = useState(true);
   const [showPicker, setShowPicker] = useState(false);
   
-  const [specialisti, setSpecialisti] = useState<string[]>([]);
-  const [servicii, setServicii] = useState<string[]>([]);
+  // MODIFICARE: Obiecte în loc de string-uri pentru a stoca preț/durată
+  const [specialisti, setSpecialisti] = useState<any[]>([]);
+  const [servicii, setServicii] = useState<any[]>([]);
   const [manualBlocks, setManualBlocks] = useState<any>({});
 
   const today = new Date().toISOString().split('T')[0];
@@ -45,7 +46,7 @@ function RezervareContent() {
     
     setFetchingConfig(true);
     
-    // Luăm datele din profilul adminului (servicii și staff)
+    // Preluăm datele configurate în pagina /resurse
     const { data: profile, error } = await supabase
       .from('profiles')
       .select('services, staff, manual_blocks')
@@ -53,13 +54,10 @@ function RezervareContent() {
       .single();
 
     if (profile) {
-      // Dacă există servicii în baza de date, le punem. Dacă nu, punem un mesaj de eroare sau unul default.
-      setServicii(profile.services && profile.services.length > 0 ? profile.services : ["Serviciu Standard"]);
-      setSpecialisti(profile.staff && profile.staff.length > 0 ? profile.staff : []);
+      // Filtrăm și setăm serviciile și staff-ul din JSONB-ul din Supabase
+      setServicii(profile.services || []);
+      setSpecialisti(profile.staff || []);
       setManualBlocks(profile.manual_blocks || {});
-    } else {
-      // Dacă profilul nu e configurat deloc
-      setServicii(["Contactați administratorul pentru servicii"]);
     }
     setFetchingConfig(false);
   }, [adminId]);
@@ -84,7 +82,6 @@ function RezervareContent() {
     
     setLoading(true);
 
-    // Verificăm dacă ora e deja ocupată în 'appointments'
     const { data: existenta } = await supabase
       .from('appointments')
       .select('id')
@@ -107,7 +104,7 @@ function RezervareContent() {
       date: form.data,
       time: form.ora,
       service: form.serviciu,
-      staff_member: form.specialist_id || "Nespecificat",
+      staff_member: form.specialist_id || "Oricine",
       details: form.motiv,
       status: "pending",
       is_client_booking: true
@@ -116,87 +113,80 @@ function RezervareContent() {
     if (!error) {
       setTrimis(true);
     } else {
-      console.error(error);
       alert("Eroare la salvare. Încearcă din nou.");
     }
     setLoading(false);
   };
 
-  if (!adminId) return <div className="p-20 text-center font-black text-slate-300 tracking-tighter uppercase italic">Link de rezervare invalid (Lipsă ID)</div>;
+  if (!adminId) return <div className="p-20 text-center font-black text-slate-300 uppercase italic">Link invalid</div>;
   
-  if (fetchingConfig) return (
-    <div className="min-h-screen flex items-center justify-center bg-white">
-        <div className="text-center font-black text-slate-400 italic animate-pulse uppercase tracking-widest">
-            Se încarcă profilul...
-        </div>
-    </div>
-  );
+  if (fetchingConfig) return <div className="min-h-screen flex items-center justify-center font-black text-slate-400 italic uppercase">Se încarcă...</div>;
 
   if (trimis) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center p-6 text-center bg-white">
-        <div className="w-24 h-24 bg-emerald-500 text-white rounded-[40px] flex items-center justify-center text-4xl shadow-2xl mb-8 animate-bounce">✓</div>
-        <h1 className="text-3xl font-black uppercase italic tracking-tighter text-slate-900">Programare <span className="text-emerald-600">Trimisă</span></h1>
-        <div className="mt-8 p-8 bg-slate-900 rounded-[40px] max-w-sm text-white shadow-xl">
-          <p className="font-bold italic text-sm">
-            Te așteptăm, <span className="text-amber-500 uppercase">{form.nume}</span>!<br/><br/>
-            Serviciu: <span className="text-amber-500">{form.serviciu}</span><br/>
-            Data: <span className="text-amber-500">{form.data}</span><br/>
-            Ora: <span className="text-amber-500">{form.ora}</span>
-          </p>
-        </div>
-        <button onClick={() => window.location.reload()} className="mt-10 px-10 py-5 bg-slate-100 rounded-2xl font-black uppercase italic text-[10px] tracking-widest border border-slate-200">Rezervare nouă</button>
+        <div className="w-20 h-20 bg-emerald-500 text-white rounded-[30px] flex items-center justify-center text-3xl shadow-xl mb-6">✓</div>
+        <h1 className="text-2xl font-black uppercase italic text-slate-900">Programare <span className="text-emerald-600">Trimisă</span></h1>
+        <p className="mt-4 text-slate-500 font-bold italic">Vei fi contactat în scurt timp pentru confirmare.</p>
+        <button onClick={() => window.location.reload()} className="mt-8 px-8 py-4 bg-slate-900 text-white rounded-2xl font-black uppercase italic text-[10px]">Înapoi</button>
       </div>
     );
   }
 
   return (
     <main className="min-h-screen bg-slate-50 flex items-center justify-center p-4 font-sans text-slate-900">
-      <div className="w-full max-w-lg bg-white rounded-[40px] shadow-2xl border border-slate-100 overflow-hidden relative">
+      <div className="w-full max-w-lg bg-white rounded-[40px] shadow-2xl border border-slate-100 overflow-hidden">
         <div className="bg-slate-900 p-8 text-white text-center">
-          <h1 className="text-2xl font-black uppercase italic tracking-tighter">
-            Rezervare <span className="text-amber-500">Online</span>
+          <h1 className="text-xl font-black uppercase italic tracking-tighter">
+            Chronos <span className="text-amber-500">Booking</span>
           </h1>
         </div>
 
-        <form onSubmit={trimiteRezervare} className="p-8 space-y-4">
+        <form onSubmit={trimiteRezervare} className="p-8 space-y-5">
+          {/* IDENTITATE */}
           <div className="space-y-3">
-            <input type="text" required className="w-full p-4 bg-slate-50 rounded-2xl border-2 border-transparent focus:border-amber-500 outline-none font-bold shadow-sm" placeholder="Numele tău" value={form.nume} onChange={e => setForm({...form, nume: e.target.value})} />
-            <div className="grid grid-cols-2 gap-3">
-               <input type="tel" required className="w-full p-4 bg-slate-50 rounded-2xl border-2 border-transparent focus:border-amber-500 outline-none font-bold shadow-sm" placeholder="Telefon" value={form.telefon} onChange={e => setForm({...form, telefon: e.target.value})} />
-               <input type="email" className="w-full p-4 bg-slate-50 rounded-2xl border-2 border-transparent focus:border-amber-500 outline-none font-bold shadow-sm" placeholder="Email (opț)" value={form.email} onChange={e => setForm({...form, email: e.target.value})} />
-            </div>
+            <input type="text" required className="w-full p-4 bg-slate-50 rounded-2xl border-2 border-transparent focus:border-amber-500 outline-none font-bold" placeholder="Nume Complet" value={form.nume} onChange={e => setForm({...form, nume: e.target.value})} />
+            <input type="tel" required className="w-full p-4 bg-slate-50 rounded-2xl border-2 border-transparent focus:border-amber-500 outline-none font-bold" placeholder="Telefon" value={form.telefon} onChange={e => setForm({...form, telefon: e.target.value})} />
           </div>
 
-          <div className="grid grid-cols-1 gap-4">
+          {/* SERVICIU (Actualizat pentru obiectele din /resurse) */}
+          <div className="space-y-1">
+            <label className="text-[9px] font-black uppercase text-slate-400 ml-2 italic">Alege Serviciul</label>
+            <select 
+              required 
+              className="w-full p-4 bg-slate-50 rounded-2xl border-2 border-transparent focus:border-amber-500 outline-none font-bold text-xs uppercase italic"
+              value={form.serviciu}
+              onChange={e => setForm({...form, serviciu: e.target.value})}
+            >
+              <option value="">Alege un serviciu...</option>
+              {servicii.map((s, idx) => (
+                <option key={idx} value={s.name}>
+                  {s.name.toUpperCase()} — {s.price} RON ({s.duration} MIN)
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* SPECIALIST */}
+          {specialisti.length > 0 && (
             <div className="space-y-1">
-              <label className="text-[9px] font-black uppercase text-slate-400 ml-2 italic">Alege Serviciul</label>
-              <select 
-                required 
-                className="w-full p-4 bg-slate-50 rounded-2xl border-2 border-transparent focus:border-amber-500 outline-none font-bold text-sm"
-                value={form.serviciu}
-                onChange={e => setForm({...form, serviciu: e.target.value})}
-              >
-                <option value="">Ce serviciu dorești?</option>
-                {servicii.map((s, idx) => <option key={idx} value={s}>{s}</option>)}
-              </select>
-            </div>
-
-            {specialisti.length > 0 && (
-              <div className="space-y-1">
-                <label className="text-[9px] font-black uppercase text-slate-400 ml-2 italic">Specialist (Opțional)</label>
-                <select 
-                  className="w-full p-4 bg-slate-50 rounded-2xl border-2 border-transparent focus:border-amber-500 outline-none font-bold text-sm"
-                  value={form.specialist_id}
-                  onChange={e => setForm({...form, specialist_id: e.target.value})}
-                >
-                  <option value="">Oricine este disponibil</option>
-                  {specialisti.map((sp, idx) => <option key={idx} value={sp}>{sp}</option>)}
-                </select>
+              <label className="text-[9px] font-black uppercase text-slate-400 ml-2 italic">Specialist Preferat</label>
+              <div className="grid grid-cols-2 gap-2">
+                {specialisti.map((sp, idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={() => setForm({...form, specialist_id: sp.name})}
+                    className={`p-3 rounded-xl border-2 font-black text-[9px] uppercase italic transition-all ${form.specialist_id === sp.name ? 'border-amber-500 bg-amber-50 text-amber-700' : 'border-slate-100 text-slate-400'}`}
+                  >
+                    {sp.name}
+                  </button>
+                ))}
               </div>
-            )}
-          </div>
+            </div>
+          )}
 
+          {/* DATA ȘI ORA */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1">
               <label className="text-[9px] font-black uppercase text-slate-400 ml-2 italic">Data</label>
@@ -204,71 +194,38 @@ function RezervareContent() {
             </div>
             <div className="space-y-1">
               <label className="text-[9px] font-black uppercase text-slate-400 ml-2 italic">Ora</label>
-              <button type="button" onClick={() => setShowPicker(true)} className="w-full p-4 bg-slate-900 text-amber-500 rounded-2xl border-2 border-slate-800 font-black text-center shadow-lg text-sm">
+              <button type="button" onClick={() => setShowPicker(true)} className="w-full p-4 bg-slate-900 text-amber-500 rounded-2xl font-black text-sm shadow-lg">
                 {form.ora} 🕒
               </button>
             </div>
           </div>
 
-          <textarea 
-            rows={2}
-            className="w-full p-4 bg-slate-50 rounded-2xl border-2 border-transparent focus:border-amber-500 outline-none font-bold shadow-sm resize-none text-xs" 
-            placeholder="Mesaj suplimentar (opțional)..." 
-            value={form.motiv} 
-            onChange={e => setForm({...form, motiv: e.target.value})}
-          />
-
-          <button type="submit" disabled={loading} className="w-full py-5 bg-amber-600 text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em] italic shadow-xl hover:bg-slate-900 transition-all disabled:opacity-50">
-            {loading ? "Se trimite..." : "Confirmă Programarea ✨"}
+          <button type="submit" disabled={loading} className="w-full py-5 bg-amber-600 text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em] italic shadow-xl hover:bg-slate-900 transition-all">
+            {loading ? "SE TRIMITE..." : "REZERVĂ ACUM ✨"}
           </button>
         </form>
 
+        {/* TIME PICKER MODAL (Păstrat stilul tău) */}
         {showPicker && (
           <div className="absolute inset-0 bg-slate-900/95 backdrop-blur-sm z-50 flex items-center justify-center p-6">
-            <div className="bg-white w-full max-w-sm rounded-[35px] p-8 shadow-2xl">
-              <h2 className="text-center font-black uppercase italic text-slate-900 mb-6">Alege Ora</h2>
-              
-              <div className="flex gap-4 h-64 bg-slate-50 p-4 rounded-3xl border border-slate-100 mb-6">
-                <div className="flex-1 flex flex-col overflow-hidden">
-                  <span className="text-[8px] font-black uppercase text-center text-slate-400 mb-2">Ora</span>
-                  <div className="overflow-y-auto space-y-2 scrollbar-hide">
-                    {Array.from({ length: 13 }, (_, i) => (i + 8).toString().padStart(2, '0')).map(h => (
-                      <button 
-                        key={h} 
-                        type="button" 
-                        onClick={() => setSelectedHour(h)} 
-                        className={`w-full py-3 rounded-xl font-black text-sm transition-all ${selectedHour === h ? 'bg-amber-600 text-white' : 'text-slate-900 hover:bg-slate-200'}`}
-                      >
-                        {h}
-                      </button>
-                    ))}
-                  </div>
+            <div className="bg-white w-full max-w-sm rounded-[35px] p-8">
+              <h2 className="text-center font-black uppercase italic mb-6">Alege Ora</h2>
+              <div className="flex gap-4 h-64 bg-slate-50 p-4 rounded-3xl mb-6">
+                <div className="flex-1 overflow-y-auto space-y-2 scrollbar-hide text-center">
+                  {Array.from({ length: 13 }, (_, i) => (i + 8).toString().padStart(2, '0')).map(h => (
+                    <button key={h} type="button" onClick={() => setSelectedHour(h)} className={`w-full py-3 rounded-xl font-black text-sm ${selectedHour === h ? 'bg-amber-600 text-white' : 'text-slate-400'}`}>{h}</button>
+                  ))}
                 </div>
-
-                <div className="flex-1 flex flex-col border-l-2 border-slate-100 pl-4 overflow-hidden">
-                  <span className="text-[8px] font-black uppercase text-center text-slate-400 mb-2">Minut</span>
-                  <div className="overflow-y-auto space-y-2">
-                    {["00", "15", "30", "45"].map(m => {
-                      const blocked = isTimeBlocked(selectedHour, m);
-                      return (
-                        <button 
-                          key={m} 
-                          type="button" 
-                          disabled={blocked}
-                          onClick={() => setSelectedMinute(m)} 
-                          className={`w-full py-3 rounded-xl font-black text-sm transition-all ${selectedMinute === m ? 'bg-slate-900 text-white' : blocked ? 'opacity-20 bg-slate-200 line-through' : 'text-slate-900 hover:bg-slate-200'}`}
-                        >
-                          {m} {blocked ? '✕' : ''}
-                        </button>
-                      );
-                    })}
-                  </div>
+                <div className="flex-1 overflow-y-auto space-y-2 text-center border-l-2 border-slate-100 pl-4">
+                  {["00", "15", "30", "45"].map(m => {
+                    const blocked = isTimeBlocked(selectedHour, m);
+                    return (
+                      <button key={m} type="button" disabled={blocked} onClick={() => setSelectedMinute(m)} className={`w-full py-3 rounded-xl font-black text-sm ${selectedMinute === m ? 'bg-slate-900 text-white' : blocked ? 'opacity-20 line-through' : 'text-slate-400'}`}>{m}</button>
+                    );
+                  })}
                 </div>
               </div>
-
-              <button type="button" onClick={() => setShowPicker(false)} className="w-full py-4 bg-slate-900 text-white rounded-2xl font-black uppercase text-xs tracking-widest italic shadow-lg">
-                Gata (Ora {selectedHour}:{selectedMinute})
-              </button>
+              <button type="button" onClick={() => setShowPicker(false)} className="w-full py-4 bg-slate-900 text-white rounded-2xl font-black uppercase text-xs italic">Gata</button>
             </div>
           </div>
         )}
@@ -278,5 +235,5 @@ function RezervareContent() {
 }
 
 export default function RezervarePage() {
-  return <Suspense fallback={<div className="p-20 text-center font-black italic">Se încarcă aplicația...</div>}><RezervareContent /></Suspense>;
+  return <Suspense fallback={null}><RezervareContent /></Suspense>;
 }

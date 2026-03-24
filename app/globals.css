@@ -3,6 +3,7 @@
 :root {
   --background: #f8fafc; /* Un slate-50 curat */
   --foreground: #0f172a; /* Slate-900 */
+  --accent: #f59e0b;     /* Amber-500 pentru consistență */
 }
 
 body {
@@ -12,9 +13,44 @@ body {
   margin: 0;
   padding: 0;
   -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
 }
 
 /* Forțăm header-ul să fie mereu deasupra oricărui conținut */
-header {
+header, nav {
   z-index: 100 !important;
+}
+
+/* Stiluri Uniforme pentru Butoane (Regula de Design Uniform) */
+.btn-primary {
+  @apply px-4 py-2 rounded-xl font-black text-[11px] uppercase italic transition-all border-2 bg-slate-900 text-white border-slate-900 hover:bg-amber-600 hover:border-amber-600;
+}
+
+/* Stil pentru Pop-up-uri (Regula de închidere la click exterior) */
+.modal-overlay {
+  @apply fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[150] flex items-center justify-center p-4;
+}
+
+/* Tooltip/Hover info (Regula pentru Calendar și programări) */
+[title] {
+  position: relative;
+  cursor: help;
+}
+
+/* Scrollbar personalizat pentru un aspect profesional */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
 }

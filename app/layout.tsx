@@ -26,8 +26,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                                path === "/confidentialitate" || 
                                path === "/cookies";
 
-  // Pagina de sugestii este specială: ascundem meniul DOAR dacă nu ești logat
-  const shouldHideMenu = isStaticCustomerPage || (path === "/sugestii" && !isLoggedIn);
+  // Pagina de sugestii sau resurse sunt speciale: ascundem meniul DOAR dacă nu ești logat
+  const shouldHideMenu = isStaticCustomerPage || 
+                        ((path === "/sugestii" || path === "/resurse") && !isLoggedIn);
 
   // 1. GESTIONARE SESIUNE
   useEffect(() => {
@@ -44,11 +45,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     return () => subscription.unsubscribe();
   }, []);
 
-  // 2. PROTECȚIE RUTE ADMIN (Actualizat cu /dosare-clienti)
+  // 2. PROTECȚIE RUTE ADMIN
   useEffect(() => {
     const verifyAccess = async () => {
       const { data: { session } } = await supabase.auth.getSession();
-      // AM SCHIMBAT AICI: /istoric -> /dosare-clienti
+      
+      // /resurse rămâne accesibil publicului (fără meniu admin), dar protejat pentru funcțiile de editare din interior
       const strictAdminRoutes = ["/programari", "/dosare-clienti", "/contacte-utile", "/abonamente", "/rapoarte", "/setari", "/profil"];
       const isTryingToAccessStrictAdmin = strictAdminRoutes.some(route => path.startsWith(route));
 
@@ -79,10 +81,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     window.location.href = `${window.location.origin}/login`;
   };
 
-  // AM ACTUALIZAT RUTA ȘI AICI:
+  // NAVIGAȚIE ACTUALIZATĂ
   const nav = [
     { n: "📅 Programări", h: "/programari" },
-    { n: "📂 Dosare Clienți", h: "/dosare-clienti" }, // SCHIMBAT DIN /istoric
+    { n: "📂 Dosare Clienți", h: "/dosare-clienti" },
+    { n: "🛠️ Servicii & Staff", h: "/resurse" },
     { n: "📊 Rapoarte Analitice", h: "/rapoarte" },
     { n: "👥 Contacte Utile", h: "/contacte-utile" },
     { n: "⭐ Recenzii & Sugestii", h: "/sugestii" },
@@ -130,6 +133,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               {!shouldHideMenu && (
                 isLoggedIn ? (
                   <button 
+                    title="Meniu Principal"
                     onClick={() => setIsMenuOpen(!isMenuOpen)}
                     className={`px-4 py-2 rounded-xl font-black text-[11px] uppercase italic transition-all border-2
                       ${isMenuOpen ? 'bg-slate-900 text-white border-slate-900' : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300 shadow-sm'}`}
@@ -137,7 +141,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                     {isMenuOpen ? "ÎNCHIDE ✕" : "MENIU ☰"}
                   </button>
                 ) : (
-                  path !== "/sugestii" && (
+                  (path !== "/sugestii" && path !== "/resurse") && (
                     <Link href="/login" className="px-5 py-2 bg-slate-900 text-white rounded-xl font-black text-xs uppercase italic hover:bg-amber-600 transition-colors">
                       Login Admin
                     </Link>
@@ -155,7 +159,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   <p className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-300 italic">Navigație Sistem</p>
                 </div>
                 {nav.map((l) => (
-                  <Link key={l.h} href={l.h} className={`w-full p-4 rounded-[20px] font-black text-[11px] uppercase italic transition-all flex items-center justify-between ${path === l.h ? "bg-amber-500 text-white shadow-lg shadow-amber-200" : "bg-white text-slate-600 hover:bg-slate-50 border border-transparent hover:border-slate-100"}`}>
+                  <Link 
+                    key={l.h} 
+                    href={l.h} 
+                    title={l.n}
+                    className={`w-full p-4 rounded-[20px] font-black text-[11px] uppercase italic transition-all flex items-center justify-between ${path === l.h ? "bg-amber-500 text-white shadow-lg shadow-amber-200" : "bg-white text-slate-600 hover:bg-slate-50 border border-transparent hover:border-slate-100"}`}
+                  >
                     {l.n}
                     <span className="opacity-30 text-[10px]">→</span>
                   </Link>
