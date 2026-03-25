@@ -30,9 +30,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   const shouldHideMenu = isStaticCustomerPage || 
                         ((path === "/sugestii" || path === "/resurse") && !isLoggedIn);
 
-  // 1. GESTIONARE SESIUNE + ÎNREGISTRARE SERVICE WORKER (PENTRU DESCARCARE)
+  // 1. GESTIONARE SESIUNE + ÎNREGISTRARE SERVICE WORKER
   useEffect(() => {
-    // Verificăm sesiunea
     const checkInitialSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       setIsLoggedIn(!!session);
@@ -43,7 +42,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       setIsLoggedIn(!!session);
     });
 
-    // ÎNREGISTRARE SERVICE WORKER - Activează butonul de INSTALL
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', function() {
         navigator.serviceWorker.register('/sw.js').then(
@@ -64,7 +62,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       const strictAdminRoutes = ["/programari", "/dosare-clienti", "/contacte-utile", "/abonamente", "/rapoarte", "/setari", "/profil"];
       const isTryingToAccessStrictAdmin = strictAdminRoutes.some(route => path.startsWith(route));
 
-      if (isTryingToAccessStrictAdmin && !session) {
+      // Permitem accesul dacă este în mod DEMO (are parametrul ?demo=true)
+      const isDemo = new URLSearchParams(window.location.search).get("demo") === "true";
+
+      if (isTryingToAccessStrictAdmin && !session && !isDemo) {
         router.push("/login");
       }
     };
@@ -91,6 +92,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     window.location.href = `${window.location.origin}/login`;
   };
 
+  // FUNCȚIE DEMO
+  const handleDemoMode = () => {
+    router.push("/programari?demo=true");
+  };
+
   // NAVIGAȚIE
   const nav = [
     { n: "📅 Programări", h: "/programari" },
@@ -109,13 +115,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="ro">
       <head>
-        {/* CONFIGURARE PWA - PERMITE DESCARCAREA PE TELEFON/LAPTOP */}
         <link rel="manifest" href="/manifest.json" />
         <meta name="theme-color" content="#f59e0b" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <link rel="apple-touch-icon" href="/logo-chronos.png" />
-        
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0"/> 
         <title>Chronos - Management Profesional</title>
       </head>
@@ -144,7 +148,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               </div>
             )}
 
-            {/* Buton Meniu */}
+            {/* Buton Meniu / Demo */}
             <div className="flex items-center">
               {!shouldHideMenu && (
                 isLoggedIn ? (
@@ -158,9 +162,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   </button>
                 ) : (
                   (path !== "/sugestii" && path !== "/resurse") && (
-                    <Link href="/login" className="px-5 py-2 bg-slate-900 text-white rounded-xl font-black text-xs uppercase italic hover:bg-amber-600 transition-colors">
-                      Login Admin
-                    </Link>
+                    <button 
+                      onClick={handleDemoMode}
+                      className="px-5 py-2 bg-amber-500 text-white rounded-xl font-black text-[10px] uppercase italic hover:bg-slate-900 transition-all shadow-md tracking-tighter"
+                    >
+                      🚀 Testează Demo
+                    </button>
                   )
                 )
               )}

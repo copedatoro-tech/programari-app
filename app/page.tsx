@@ -8,7 +8,7 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [isSignUp, setIsSignUp] = useState(false); // Switch între Login și Înregistrare
+  const [isSignUp, setIsSignUp] = useState(false);
   const router = useRouter();
 
   const handleAuth = async (e: React.FormEvent) => {
@@ -16,37 +16,42 @@ export default function LoginPage() {
     setLoading(true);
     
     if (isSignUp) {
-      // --- CREEAZĂ CONT NOU ---
-      const { error } = await supabase.auth.signUp({
-        email,
-        password,
-      });
-
-      if (error) {
-        alert("⚠️ Eroare: " + error.message);
-      } else {
-        alert("✅ Cont creat cu succes! Acum te poți loga.");
+      const { error } = await supabase.auth.signUp({ email, password });
+      if (error) alert("⚠️ Eroare: " + error.message);
+      else {
+        alert("✅ Cont creat! Te poți loga.");
         setIsSignUp(false);
       }
     } else {
-      // --- LOGARE EXISTENTĂ ---
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-
-      if (error) {
-        alert("⚠️ Date incorecte: " + error.message);
-      } else {
-        router.push("/programari");
-      }
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) alert("⚠️ Date incorecte: " + error.message);
+      else router.push("/programari");
     }
     setLoading(false);
   };
 
+  const handleDemoMode = () => {
+    router.push("/programari?demo=true");
+  };
+
   return (
-    <main className="min-h-screen bg-slate-50 flex items-center justify-center p-6 font-sans">
-      <div className="bg-white p-10 md:p-16 rounded-[60px] shadow-2xl w-full max-w-md border border-slate-100 transition-all">
+    <main className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-6 font-sans relative">
+      
+      {/* HEADER - Aici am înlocuit Login Admin cu Butonul Demo */}
+      <header className="absolute top-0 w-full p-8 flex justify-between items-center">
+        <div className="flex items-center gap-2">
+          <span className="text-xl">⏳</span>
+          <span className="font-black italic tracking-tighter text-slate-900">CHRONOS.</span>
+        </div>
+        <button 
+          onClick={handleDemoMode}
+          className="bg-amber-500/10 text-amber-600 px-6 py-3 rounded-full font-black uppercase text-[10px] tracking-widest hover:bg-amber-500 hover:text-white transition-all shadow-sm border border-amber-500/20"
+        >
+          🚀 Testează Demo
+        </button>
+      </header>
+
+      <div className="bg-white p-10 md:p-16 rounded-[60px] shadow-2xl w-full max-w-md border border-slate-100 transition-all mt-12">
         
         {/* LOGO & TITLU */}
         <div className="text-center mb-12">
@@ -71,7 +76,7 @@ export default function LoginPage() {
               className="p-5 bg-slate-50 rounded-[25px] border-2 border-transparent focus:border-amber-500 outline-none font-bold text-slate-700 shadow-inner transition-all"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              required
+              required={!loading}
             />
           </div>
 
@@ -83,7 +88,7 @@ export default function LoginPage() {
               className="p-5 bg-slate-50 rounded-[25px] border-2 border-transparent focus:border-amber-500 outline-none font-bold text-slate-700 shadow-inner transition-all"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              required
+              required={!loading}
             />
           </div>
 
