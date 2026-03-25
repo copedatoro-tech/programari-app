@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
@@ -36,7 +36,8 @@ const monthNames = ["Ianuarie", "Februarie", "Martie", "Aprilie", "Mai", "Iunie"
 type Programare = { id: any; nume: string; data: string; ora: string; telefon?: string; motiv?: string; };
 type ViewMode = "day" | "week" | "month";
 
-export default function CalendarPage() {
+// Componenta care conține logica ce folosește useSearchParams
+function CalendarContent() {
   const searchParams = useSearchParams();
   const isDemo = searchParams.get("demo") === "true";
 
@@ -65,7 +66,6 @@ export default function CalendarPage() {
     try {
       const { data: { session } } = await supabase.auth.getSession();
       
-      // LOGICĂ DEMO: Dacă nu există sesiune sau suntem explicit în mod demo, injectăm date de test
       if (!session || isDemo) {
         const demoData: Programare[] = [
           { id: "demo-1", nume: "Client Test Demo", data: formatDateKey(new Date()), ora: "10:00", telefon: "0722000000", motiv: "Consultatție inițială (Mod Demo)" },
@@ -112,7 +112,6 @@ export default function CalendarPage() {
   const handleUpdate = async () => {
     if (!editForm) return;
     try {
-      // Bypass pentru Modul Demo
       if (String(editForm.id).includes("demo")) {
         setProgramari(prev => prev.map(p => p.id === editForm.id ? editForm : p));
         setSelectedProg(editForm);
@@ -145,7 +144,6 @@ export default function CalendarPage() {
   const handleDelete = async () => {
     if (!selectedProg || !confirm("Ești sigur că vrei să ștergi această programare?")) return;
     try {
-      // Bypass pentru Modul Demo
       if (String(selectedProg.id).includes("demo")) {
         setProgramari(prev => prev.filter(p => p.id !== selectedProg.id));
         setSelectedProg(null);
@@ -479,5 +477,18 @@ export default function CalendarPage() {
         .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
       `}</style>
     </main>
+  );
+}
+
+// Pagina principală exportată care include Suspense
+export default function CalendarPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-slate-50 font-black italic text-slate-400 uppercase tracking-widest animate-pulse">
+        Pregătire Calendar...
+      </div>
+    }>
+      <CalendarContent />
+    </Suspense>
   );
 }
