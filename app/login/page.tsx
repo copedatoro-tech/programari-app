@@ -6,8 +6,9 @@ import { createClient } from '@supabase/supabase-js';
 import Link from "next/link";
 import Image from "next/image";
 
-const SUPABASE_URL = "https://zzrubdbngjfwurdwxtwf.supabase.co"; 
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp6cnViZGJuZ2pmd3VyZHd4dHdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5MDkyMTgsImV4cCI6MjA4ODQ4NTIxOH0.6uw6yzCs5OfCP7xqWshzPQP36bCPxi2LU0QtpwsvnOo";
+// ACUM LUĂM CHEILE DIN FIȘIERUL .ENV.LOCAL (SECURE)
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
@@ -53,7 +54,7 @@ export default function LoginPage() {
     }
   };
 
-  // FUNCȚIA NOUĂ PENTRU LOGARE CU GOOGLE
+  // FUNCȚIA PENTRU LOGARE CU GOOGLE
   const handleGoogleLogin = async () => {
     setError("");
     try {
