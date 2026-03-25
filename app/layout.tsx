@@ -50,7 +50,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     const verifyAccess = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       
-      // /resurse rămâne accesibil publicului (fără meniu admin), dar protejat pentru funcțiile de editare din interior
       const strictAdminRoutes = ["/programari", "/dosare-clienti", "/contacte-utile", "/abonamente", "/rapoarte", "/setari", "/profil"];
       const isTryingToAccessStrictAdmin = strictAdminRoutes.some(route => path.startsWith(route));
 
@@ -99,7 +98,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="ro">
       <head>
+        {/* CONFIGURARE PWA - PERMITE DESCARCAREA PE TELEFON/LAPTOP */}
         <link rel="manifest" href="/manifest.json" />
+        <meta name="theme-color" content="#f59e0b" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <link rel="apple-touch-icon" href="/logo-chronos.png" />
+        
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0"/> 
         <title>Chronos - Management Profesional</title>
       </head>
