@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 
 // --- UTILITARE ---
@@ -36,6 +37,9 @@ type Programare = { id: any; nume: string; data: string; ora: string; telefon?: 
 type ViewMode = "day" | "week" | "month";
 
 export default function CalendarPage() {
+  const searchParams = useSearchParams();
+  const isDemo = searchParams.get("demo") === "true";
+
   const [programari, setProgramari] = useState<Programare[]>([]);
   const [viewMode, setViewMode] = useState<ViewMode>("month");
   const [selectedDate, setSelectedDate] = useState(new Date());
@@ -61,8 +65,8 @@ export default function CalendarPage() {
     try {
       const { data: { session } } = await supabase.auth.getSession();
       
-      // LOGICĂ DEMO: Dacă nu există sesiune, injectăm date de test
-      if (!session) {
+      // LOGICĂ DEMO: Dacă nu există sesiune sau suntem explicit în mod demo, injectăm date de test
+      if (!session || isDemo) {
         const demoData: Programare[] = [
           { id: "demo-1", nume: "Client Test Demo", data: formatDateKey(new Date()), ora: "10:00", telefon: "0722000000", motiv: "Consultatție inițială (Mod Demo)" },
           { id: "demo-2", nume: "Programare Test", data: formatDateKey(addDays(new Date(), 1)), ora: "14:30", telefon: "0733000000", motiv: "Procedură estetică" },
@@ -344,7 +348,12 @@ export default function CalendarPage() {
       <div className="w-full max-w-6xl flex justify-between items-center mb-6 px-4 mt-4">
         <h1 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tighter uppercase italic">Calendar <span className="text-amber-600">Chronos</span></h1>
         <div className="flex gap-4">
-            <Link href="/programari" className="px-5 py-2.5 bg-white border-2 border-slate-200 text-slate-700 rounded-2xl text-[10px] font-black uppercase hover:bg-slate-50 transition shadow-sm active:scale-95 italic">⬅ Înapoi la Programări</Link>
+            <Link 
+              href={isDemo ? "/programari?demo=true" : "/programari"} 
+              className="px-5 py-2.5 bg-white border-2 border-slate-200 text-slate-700 rounded-2xl text-[10px] font-black uppercase hover:bg-slate-50 transition shadow-sm active:scale-95 italic"
+            >
+              ⬅ Înapoi la Programări
+            </Link>
         </div>
       </div>
 

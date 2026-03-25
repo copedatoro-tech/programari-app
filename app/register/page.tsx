@@ -31,7 +31,6 @@ export default function RegisterPage() {
     if (authError) { setError(authError.message); setLoading(false); return; }
 
     if (authData.user) {
-      // Inserăm în profiles. Implicit am putea lăsa account_type pe "personal" sau "pending"
       await supabase.from('profiles').insert([{
         id: authData.user.id,
         full_name: form.nume,
@@ -50,48 +49,54 @@ export default function RegisterPage() {
     <main className="min-h-screen flex items-center justify-center p-6 bg-slate-50 font-sans text-slate-900">
       <div className="w-full max-w-md bg-white rounded-[40px] shadow-2xl border border-slate-200 overflow-hidden">
         
-        <div className="bg-slate-900 px-4 py-10 text-center relative flex flex-col items-center">
-          <Image src="/logo-chronos.png" alt="Chronos Logo" width={180} height={180} priority className="object-contain mb-2" />
-          <h1 className="text-2xl font-black text-white italic uppercase tracking-tighter">ÎNREGISTRARE</h1>
-          <p className="text-amber-500 text-[9px] font-black uppercase tracking-[0.2em]">Alătură-te comunității CHRONOS</p>
+        {/* HEADER IDENTIC CU PAGINA DE LOGIN */}
+        <div className="bg-slate-900 px-4 py-12 text-center relative flex flex-col items-center">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/10 rounded-full -mr-16 -mt-16 blur-3xl z-0"></div>
+          <Image src="/logo-chronos.png" alt="Chronos Logo" width={200} height={200} priority className="object-contain relative z-10 mb-4" />
+          <h2 className="text-3xl font-black uppercase text-white italic tracking-tighter relative z-10">ÎNREGISTRARE</h2>
+          <p className="text-amber-500 text-[10px] font-black uppercase tracking-[0.3em] mt-3 relative z-10">Alătură-te comunității CHRONOS</p>
         </div>
 
-        <form onSubmit={handleRegister} className="p-8 space-y-4">
-          <div className="space-y-1">
-            <label className="text-[10px] font-black uppercase text-slate-400 ml-2 italic">Nume Complet</label>
-            <input type="text" required className="w-full px-6 py-4 bg-slate-50 border-2 border-slate-100 rounded-2xl focus:border-amber-500 focus:outline-none font-bold text-sm shadow-inner" value={form.nume} onChange={(e) => setForm({...form, nume: e.target.value})} />
+        <form onSubmit={handleRegister} className="p-10 space-y-4">
+          <div className="space-y-1.5">
+            <label className="text-[11px] font-black uppercase text-slate-400 ml-2 italic tracking-widest">Nume Complet</label>
+            <input type="text" required className="w-full px-7 py-5 bg-slate-50 border-2 border-slate-100 rounded-2xl focus:border-amber-500 focus:outline-none font-bold text-sm shadow-inner" placeholder="Numele tău" value={form.nume} onChange={(e) => setForm({...form, nume: e.target.value})} />
           </div>
 
-          <div className="space-y-1">
-            <label className="text-[10px] font-black uppercase text-slate-400 ml-2 italic">Email</label>
-            <input type="email" required className="w-full px-6 py-4 bg-slate-50 border-2 border-slate-100 rounded-2xl focus:border-amber-500 focus:outline-none font-bold text-sm shadow-inner" value={form.email} onChange={(e) => setForm({...form, email: e.target.value})} />
+          <div className="space-y-1.5">
+            <label className="text-[11px] font-black uppercase text-slate-400 ml-2 italic tracking-widest">Email</label>
+            <input type="email" required className="w-full px-7 py-5 bg-slate-50 border-2 border-slate-100 rounded-2xl focus:border-amber-500 focus:outline-none font-bold text-sm shadow-inner" placeholder="nume@email.ro" value={form.email} onChange={(e) => setForm({...form, email: e.target.value})} />
           </div>
 
-          <div className="space-y-1">
-            <label className="text-[10px] font-black uppercase text-slate-400 ml-2 italic">Telefon</label>
-            <input type="tel" required className="w-full px-6 py-4 bg-slate-50 border-2 border-slate-100 rounded-2xl focus:border-amber-500 focus:outline-none font-bold text-sm shadow-inner" value={form.telefon} onChange={(e) => setForm({...form, telefon: e.target.value})} />
+          <div className="space-y-1.5">
+            <label className="text-[11px] font-black uppercase text-slate-400 ml-2 italic tracking-widest">Telefon</label>
+            <input type="tel" required className="w-full px-7 py-5 bg-slate-50 border-2 border-slate-100 rounded-2xl focus:border-amber-500 focus:outline-none font-bold text-sm shadow-inner" placeholder="07xx xxx xxx" value={form.telefon} onChange={(e) => setForm({...form, telefon: e.target.value})} />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1">
-              <label className="text-[10px] font-black uppercase text-slate-400 ml-2 italic">Parolă</label>
-              <input type="password" required className="w-full px-6 py-4 bg-slate-50 border-2 border-slate-100 rounded-2xl focus:border-amber-500 focus:outline-none font-bold text-sm shadow-inner" value={form.parola} onChange={(e) => setForm({...form, parola: e.target.value})} />
+            <div className="space-y-1.5">
+              <label className="text-[11px] font-black uppercase text-slate-400 ml-2 italic tracking-widest">Parolă</label>
+              <input type="password" required className="w-full px-7 py-5 bg-slate-50 border-2 border-slate-100 rounded-2xl focus:border-amber-500 focus:outline-none font-bold text-sm shadow-inner" placeholder="••••" value={form.parola} onChange={(e) => setForm({...form, parola: e.target.value})} />
             </div>
-            <div className="space-y-1">
-              <label className="text-[10px] font-black uppercase text-slate-400 ml-2 italic">Confirmă</label>
-              <input type="password" required className="w-full px-6 py-4 bg-slate-50 border-2 border-slate-100 rounded-2xl focus:border-amber-500 focus:outline-none font-bold text-sm shadow-inner" value={form.confirmParola} onChange={(e) => setForm({...form, confirmParola: e.target.value})} />
+            <div className="space-y-1.5">
+              <label className="text-[11px] font-black uppercase text-slate-400 ml-2 italic tracking-widest">Confirmă</label>
+              <input type="password" required className="w-full px-7 py-5 bg-slate-50 border-2 border-slate-100 rounded-2xl focus:border-amber-500 focus:outline-none font-bold text-sm shadow-inner" placeholder="••••" value={form.confirmParola} onChange={(e) => setForm({...form, confirmParola: e.target.value})} />
             </div>
           </div>
 
-          {error && <p className="text-[10px] font-black text-red-500 uppercase text-center italic py-2 bg-red-50 rounded-xl">{error}</p>}
+          {error && (
+            <div className="p-3 bg-red-50 text-red-600 rounded-xl text-[11px] font-black uppercase italic text-center animate-pulse">
+              {error}
+            </div>
+          )}
 
-          <button type="submit" disabled={loading} className="w-full py-5 mt-4 bg-slate-900 text-white rounded-[25px] font-black text-center text-sm tracking-[0.2em] hover:bg-amber-600 transition-all border-b-4 border-slate-700 uppercase italic shadow-xl">
+          <button type="submit" disabled={loading} className="w-full py-6 mt-4 bg-slate-900 text-white rounded-[25px] font-black text-center text-sm tracking-[0.25em] hover:bg-amber-600 transition-all border-b-4 border-slate-700 uppercase italic shadow-xl disabled:opacity-50">
             {loading ? "Se procesează..." : "Creează Cont"}
           </button>
 
-          <div className="text-center pt-2">
-            <Link href="/login" className="text-[9px] font-black text-slate-400 uppercase tracking-widest hover:text-slate-900 transition-colors">
-              ← Ai deja cont? Loghează-te
+          <div className="text-center pt-5">
+            <Link href="/login" className="text-[10px] font-black text-slate-400 uppercase tracking-widest hover:text-slate-900 transition-colors">
+              ← Ai deja cont? <span className="text-slate-900 underline underline-offset-2">Loghează-te aici</span>
             </Link>
           </div>
         </form>
