@@ -30,8 +30,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   const shouldHideMenu = isStaticCustomerPage || 
                         ((path === "/sugestii" || path === "/resurse") && !isLoggedIn);
 
-  // 1. GESTIONARE SESIUNE
+  // 1. GESTIONARE SESIUNE + ÎNREGISTRARE SERVICE WORKER (PENTRU DESCARCARE)
   useEffect(() => {
+    // Verificăm sesiunea
     const checkInitialSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       setIsLoggedIn(!!session);
@@ -41,6 +42,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setIsLoggedIn(!!session);
     });
+
+    // ÎNREGISTRARE SERVICE WORKER - Activează butonul de INSTALL
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function() {
+        navigator.serviceWorker.register('/sw.js').then(
+          function(registration) { console.log('Chronos SW active:', registration.scope); },
+          function(err) { console.log('Chronos SW fail:', err); }
+        );
+      });
+    }
 
     return () => subscription.unsubscribe();
   }, []);
@@ -80,7 +91,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     window.location.href = `${window.location.origin}/login`;
   };
 
-  // NAVIGAȚIE ACTUALIZATĂ
+  // NAVIGAȚIE
   const nav = [
     { n: "📅 Programări", h: "/programari" },
     { n: "📂 Dosare Clienți", h: "/dosare-clienti" },
