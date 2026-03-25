@@ -5,11 +5,11 @@ import { createClient } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 
-const SUPABASE_URL = "https://zzrubdbngjfwurdwxtwf.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp6cnViZGJuZ2pmd3VyZHd4dHdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5MDkyMTgsImV4cCI6MjA4ODQ4NTIxOH0.6uw6yzCs5OfCP7xqWshzPQP36bCPxi2LU0QtpwsvnOo";
+// UTILIZĂM CHEILE DIN .ENV PENTRU SECURITATE
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// --- CONFIGURARE LIMITE ABONAMENTE (Sincronizate cu baza de date) ---
 const LIMITE_ABONAMENTE: Record<string, { nume: string; limita: string; culoare: string }> = {
   "start (gratuit)": { nume: "START (GRATUIT)", limita: "50 rezervări/lună", culoare: "text-slate-400" },
   "pro": { nume: "PRO", limita: "200 rezervări/lună", culoare: "text-blue-500" },
@@ -25,7 +25,6 @@ export default function ProfilPage() {
 
   const router = useRouter();
 
-  // Date Profil Esențiale
   const [nume, setNume] = useState("");
   const [email, setEmail] = useState("");
   const [telefon, setTelefon] = useState("");
@@ -39,27 +38,49 @@ export default function ProfilPage() {
   useEffect(() => {
     const getUserData = async () => {
       const { data: { user } } = await supabase.auth.getUser();
+      
       if (!user) {
         router.push("/login");
-      } else {
-        setUser(user);
-        
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', user.id)
-          .single();
-
-        if (profile) {
-          setNume(profile.full_name || "");
-          setEmail(profile.email || user.email || "");
-          setTelefon(profile.phone || "");
-          setFunctie(profile.role || "Administrator");
-          setAvatarUrl(profile.avatar_url || "");
-          // Folosim coloana plan_type identificată în screenshot
-          setSubscriptionPlan(profile.plan_type?.toLowerCase() || "start (gratuit)");
-        }
+        return;
       }
+
+      setUser(user);
+      
+      // Încercăm să luăm profilul
+      let { data: profile, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .maybeSingle(); // maybeSingle nu dă eroare dacă nu găsește nimic
+
+      // DACĂ PROFILUL NU EXISTĂ (Utilizator nou), ÎL CREĂM ACUM
+      if (!profile && !error) {
+        const { data: newProfile, error: createError } = await supabase
+          .from('profiles')
+          .insert([
+            { 
+              id: user.id, 
+              email: user.email, 
+              full_name: user.user_metadata?.full_name || "",
+              plan_type: "start (gratuit)",
+              role: "Administrator"
+            }
+          ])
+          .select()
+          .single();
+        
+        if (!createError) profile = newProfile;
+      }
+
+      if (profile) {
+        setNume(profile.full_name || "");
+        setEmail(profile.email || user.email || "");
+        setTelefon(profile.phone || "");
+        setFunctie(profile.role || "Administrator");
+        setAvatarUrl(profile.avatar_url || "");
+        setSubscriptionPlan(profile.plan_type?.toLowerCase() || "start (gratuit)");
+      }
+      
       setLoading(false);
     };
     getUserData();
@@ -68,6 +89,7 @@ export default function ProfilPage() {
   const handleUpdateAll = async () => {
     setUpdating(true);
     try {
+      // Actualizare email în Auth dacă s-a schimbat
       if (email !== user.email) {
         await supabase.auth.updateUser({ email: email });
       }
@@ -79,7 +101,7 @@ export default function ProfilPage() {
           email: email, 
           phone: telefon,
           role: functie,
-          plan_type: subscriptionPlan, // Sincronizat cu coloana ta
+          plan_type: subscriptionPlan,
           updated_at: new Date().toISOString(),
         });
 
@@ -97,7 +119,7 @@ export default function ProfilPage() {
     setUpdating(true);
     const { error } = await supabase.auth.updateUser({ password: pass1 });
     if (error) alert(error.message);
-    else { alert("Parolă actualizată!"); setShowPassModal(false); }
+    else { alert("Parolă actualizată!"); setShowPassModal(false); setPass1(""); setPass2(""); }
     setUpdating(false);
   };
 
@@ -105,7 +127,7 @@ export default function ProfilPage() {
     if (!event.target.files || event.target.files.length === 0) return;
     setUpdating(true);
     const file = event.target.files[0];
-    const fileName = `avatar-${user.id}-${Date.now()}`;
+    const fileName = `avatars/${user.id}/${Date.now()}`;
     
     const { error: uploadError } = await supabase.storage.from('avatars').upload(fileName, file);
     
@@ -118,7 +140,13 @@ export default function ProfilPage() {
     setUpdating(false);
   };
 
-  if (loading) return <div className="p-20 text-center font-black text-slate-400 animate-pulse italic uppercase tracking-[0.2em]">Sincronizare cont...</div>;
+  if (loading) return (
+    <div className="min-h-screen flex items-center justify-center bg-slate-100">
+      <div className="p-20 text-center font-black text-slate-400 animate-pulse italic uppercase tracking-[0.2em]">
+        Sincronizare cont privat...
+      </div>
+    </div>
+  );
 
   const currentPlanInfo = LIMITE_ABONAMENTE[subscriptionPlan] || LIMITE_ABONAMENTE["start (gratuit)"];
 
@@ -127,34 +155,34 @@ export default function ProfilPage() {
       
       <div className="max-w-2xl mx-auto bg-white rounded-[40px] shadow-xl border border-slate-200 overflow-hidden">
         {/* Header Profil */}
-        <div className="bg-slate-900 p-8 flex items-center gap-6">
+        <div className="bg-slate-900 p-8 flex flex-col md:flex-row items-center gap-6">
           <div className="relative w-24 h-24 shrink-0 group">
             <div className="w-full h-full rounded-[30px] overflow-hidden border-2 border-amber-500 bg-slate-800 relative shadow-2xl flex items-center justify-center">
               {avatarUrl ? (
                 <div className="relative w-full h-full">
                    <Image src={avatarUrl} alt="Profil" fill className="object-cover" />
                 </div>
-              ) : <div className="text-4xl">👤</div>}
+              ) : <div className="text-4xl text-slate-500">👤</div>}
             </div>
             <label className="absolute inset-0 flex items-center justify-center bg-black/60 opacity-0 group-hover:opacity-100 transition-all cursor-pointer rounded-[30px] m-0.5">
               <input type="file" accept="image/*" className="hidden" onChange={handleUploadAvatar} disabled={updating} />
               <span className="text-[9px] font-black text-white uppercase text-center">Modifică Foto</span>
             </label>
           </div>
-          <div className="flex-1">
+          <div className="flex-1 text-center md:text-left">
             <h1 className="text-2xl font-black text-white uppercase italic tracking-tighter leading-none">
-                {nume || "Utilizator"}
+                {nume || "Utilizator Nou"}
             </h1>
-            <p className="text-amber-500 text-[10px] font-black uppercase tracking-[0.4em] mt-2 italic flex items-center gap-2">
+            <p className="text-amber-500 text-[10px] font-black uppercase tracking-[0.4em] mt-2 italic flex items-center justify-center md:justify-start gap-2">
               <span className="w-2 h-2 bg-amber-500 rounded-full animate-pulse"></span>
               {functie || "Administrator"}
             </p>
           </div>
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-2 w-full md:w-auto">
             <button 
               onClick={handleUpdateAll} 
               disabled={updating}
-              className="px-5 py-2.5 bg-amber-600 text-white text-[9px] font-black rounded-2xl border border-amber-700 hover:bg-amber-500 transition-all uppercase italic shadow-lg"
+              className="px-5 py-2.5 bg-amber-600 text-white text-[9px] font-black rounded-2xl border border-amber-700 hover:bg-amber-500 transition-all uppercase italic shadow-lg disabled:opacity-50"
             >
               {updating ? "SALVARE..." : "Salvează Profil"}
             </button>
@@ -165,7 +193,7 @@ export default function ProfilPage() {
         {/* Secțiune Abonament */}
         <div className="px-8 py-6 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
             <div>
-                <p className="text-[9px] font-black text-slate-400 uppercase italic tracking-widest">Abonament Actual</p>
+                <p className="text-[9px] font-black text-slate-400 uppercase italic tracking-widest">Abonament Personal</p>
                 <h3 className={`text-lg font-black italic uppercase ${currentPlanInfo.culoare}`}>{currentPlanInfo.nume}</h3>
             </div>
             <div className="text-right">
@@ -189,8 +217,8 @@ export default function ProfilPage() {
             <input type="text" value={telefon} onChange={(e) => setTelefon(e.target.value)} placeholder="07xx xxx xxx" className="p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl font-bold text-sm outline-none focus:border-amber-500" />
           </div>
           <div className="flex flex-col gap-2">
-            <label className="text-[10px] font-black text-slate-400 uppercase ml-2 tracking-widest">Funcție în cadrul afacerii</label>
-            <input type="text" value={functie} onChange={(e) => setFunctie(e.target.value)} placeholder="Ex: Manager, Mecanic Șef, Stilist..." className="p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl font-bold text-sm outline-none focus:border-amber-500" />
+            <label className="text-[10px] font-black text-slate-400 uppercase ml-2 tracking-widest">Funcție în afacere</label>
+            <input type="text" value={functie} onChange={(e) => setFunctie(e.target.value)} placeholder="Ex: Manager, Stilist..." className="p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl font-bold text-sm outline-none focus:border-amber-500" />
           </div>
         </div>
       </div>

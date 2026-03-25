@@ -12,6 +12,7 @@
     "@capacitor/cli": "^7.6.0",
     "@capacitor/core": "^8.2.0",
     "@stripe/stripe-js": "^8.10.0",
+    "@supabase/auth-helpers-nextjs": "^0.15.0",
     "@supabase/auth-ui-react": "^0.4.7",
     "@supabase/auth-ui-shared": "^0.1.8",
     "@supabase/supabase-js": "^2.99.2",
