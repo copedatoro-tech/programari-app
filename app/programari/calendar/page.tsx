@@ -60,11 +60,18 @@ export default function CalendarPage() {
     setLoading(true);
     try {
       const { data: { session } } = await supabase.auth.getSession();
+      
+      // LOGICĂ DEMO: Dacă nu există sesiune, injectăm date de test
       if (!session) {
-        setProgramari([]);
+        const demoData: Programare[] = [
+          { id: "demo-1", nume: "Client Test Demo", data: formatDateKey(new Date()), ora: "10:00", telefon: "0722000000", motiv: "Consultatție inițială (Mod Demo)" },
+          { id: "demo-2", nume: "Programare Test", data: formatDateKey(addDays(new Date(), 1)), ora: "14:30", telefon: "0733000000", motiv: "Procedură estetică" },
+        ];
+        setProgramari(demoData);
         setLoading(false);
         return;
       }
+
       const { data, error } = await supabase
         .from('appointments')
         .select('*')
@@ -101,6 +108,14 @@ export default function CalendarPage() {
   const handleUpdate = async () => {
     if (!editForm) return;
     try {
+      // Bypass pentru Modul Demo
+      if (String(editForm.id).includes("demo")) {
+        setProgramari(prev => prev.map(p => p.id === editForm.id ? editForm : p));
+        setSelectedProg(editForm);
+        setIsEditing(false);
+        return;
+      }
+
       const { error } = await supabase
         .from('appointments')
         .update({
@@ -126,6 +141,13 @@ export default function CalendarPage() {
   const handleDelete = async () => {
     if (!selectedProg || !confirm("Ești sigur că vrei să ștergi această programare?")) return;
     try {
+      // Bypass pentru Modul Demo
+      if (String(selectedProg.id).includes("demo")) {
+        setProgramari(prev => prev.filter(p => p.id !== selectedProg.id));
+        setSelectedProg(null);
+        return;
+      }
+
       const { error } = await supabase.from('appointments').delete().eq('id', selectedProg.id);
       if (error) throw error;
       setProgramari(prev => prev.filter(p => p.id !== selectedProg.id));
@@ -189,7 +211,7 @@ export default function CalendarPage() {
     <div className="relative group w-full" title={`${p.ora} - ${p.nume}`}>
       <div 
         onClick={(e) => { e.stopPropagation(); setSelectedProg(p); }}
-        className={`w-full cursor-pointer bg-slate-900 text-white rounded-lg truncate font-black uppercase italic shadow-sm border border-slate-700 hover:bg-amber-600 transition-all ${isCompact ? 'text-[9px] px-2 py-1.5' : 'text-xs p-3'}`}
+        className={`w-full cursor-pointer bg-slate-900 text-white rounded-lg truncate font-black uppercase italic shadow-sm border border-slate-700 hover:bg-amber-600 hover:scale-[1.02] active:scale-95 transition-all ${isCompact ? 'text-[9px] px-2 py-1.5' : 'text-xs p-3'}`}
       >
         {p.ora} {p.nume}
       </div>
@@ -207,8 +229,14 @@ export default function CalendarPage() {
       
       {/* MODAL DETALII ȘI EDITARE */}
       {selectedProg && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4" onClick={() => { setSelectedProg(null); setIsEditing(false); }}>
-          <div className="bg-white rounded-[40px] w-full max-w-lg shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200" onClick={e => e.stopPropagation()}>
+        <div 
+          className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4" 
+          onClick={() => { setSelectedProg(null); setIsEditing(false); }}
+        >
+          <div 
+            className="bg-white rounded-[40px] w-full max-w-lg shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200" 
+            onClick={e => e.stopPropagation()}
+          >
             <div className="bg-slate-900 p-8 text-white relative">
               <button onClick={() => { setSelectedProg(null); setIsEditing(false); }} className="absolute top-6 right-6 text-slate-400 hover:text-white text-2xl font-black">×</button>
               <h3 className="text-amber-500 font-black uppercase tracking-widest text-xs mb-2">
@@ -382,7 +410,6 @@ export default function CalendarPage() {
                 
                 {hours.map(h => (
                   <div key={h} className="contents">
-                    {/* COLOANA ORELOR CARE LIPSĂ */}
                     <div className="p-4 bg-slate-50 text-[10px] font-black text-slate-500 text-center sticky left-0 z-20 border-r border-slate-200 border-b border-slate-100">
                       {String(h).padStart(2, '0')}:00
                     </div>

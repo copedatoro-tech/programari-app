@@ -18,25 +18,32 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   const router = useRouter();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isDemoMode, setIsDemoMode] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
-  // Pagini care sunt pur "Client" (nu au meniu niciodată)
   const isStaticCustomerPage = path.startsWith("/rezervare") || 
                                path === "/termeni" || 
                                path === "/confidentialitate" || 
                                path === "/cookies";
 
-  // Pagina de sugestii sau resurse sunt speciale: ascundem meniul DOAR dacă nu ești logat
   const shouldHideMenu = isStaticCustomerPage || 
                         ((path === "/sugestii" || path === "/resurse") && !isLoggedIn);
 
-  // 1. GESTIONARE SESIUNE + ÎNREGISTRARE SERVICE WORKER
+  // 1. GESTIONARE SESIUNE + DEMO + SERVICE WORKER
   useEffect(() => {
     const checkInitialSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       setIsLoggedIn(!!session);
     };
+    
+    // Verificăm dacă URL-ul conține parametrul demo
+    const checkDemoStatus = () => {
+      const params = new URLSearchParams(window.location.search);
+      setIsDemoMode(params.get("demo") === "true");
+    };
+
     checkInitialSession();
+    checkDemoStatus();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setIsLoggedIn(!!session);
@@ -52,19 +59,19 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     }
 
     return () => subscription.unsubscribe();
-  }, []);
+  }, [path]); // Re-verificăm la schimbarea paginii
 
-  // 2. PROTECȚIE RUTE ADMIN
+  // 2. PROTECȚIE RUTE ADMIN (PERMISIVĂ PENTRU DEMO)
   useEffect(() => {
     const verifyAccess = async () => {
       const { data: { session } } = await supabase.auth.getSession();
+      const params = new URLSearchParams(window.location.search);
+      const isDemo = params.get("demo") === "true";
       
       const strictAdminRoutes = ["/programari", "/dosare-clienti", "/contacte-utile", "/abonamente", "/rapoarte", "/setari", "/profil"];
       const isTryingToAccessStrictAdmin = strictAdminRoutes.some(route => path.startsWith(route));
 
-      // Permitem accesul dacă este în mod DEMO (are parametrul ?demo=true)
-      const isDemo = new URLSearchParams(window.location.search).get("demo") === "true";
-
+      // DACĂ e rută privată ȘI NU are sesiune ȘI NU e demo -> trimite la LOGIN
       if (isTryingToAccessStrictAdmin && !session && !isDemo) {
         router.push("/login");
       }
@@ -92,7 +99,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     window.location.href = `${window.location.origin}/login`;
   };
 
-  // FUNCȚIE DEMO
   const handleDemoMode = () => {
     router.push("/programari?demo=true");
   };
@@ -126,7 +132,17 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       
       <body className="antialiased bg-slate-50 min-h-screen font-sans flex flex-col text-slate-900">
         
-        <nav className="w-full bg-white border-b-2 border-slate-100 sticky top-0 z-[100] shadow-sm" ref={menuRef}>
+        {/* BANNER MOD DEMO - Vizibil doar în mod demo pentru a converti vizitatorii */}
+        {isDemoMode && !isLoggedIn && (
+          <div className="bg-amber-600 text-white text-[10px] font-black py-2 px-4 text-center uppercase tracking-widest sticky top-0 z-[110] animate-pulse">
+            Ești în modul Demo. Datele nu se salvează. 
+            <Link href="/login" className="ml-3 underline decoration-white underline-offset-2 hover:text-slate-900 transition-colors">
+              Creează cont gratuit acum →
+            </Link>
+          </div>
+        )}
+
+        <nav className={`w-full bg-white border-b-2 border-slate-100 sticky ${isDemoMode && !isLoggedIn ? 'top-[30px]' : 'top-0'} z-[100] shadow-sm`} ref={menuRef}>
           <div className="px-4 py-3 flex items-center justify-between gap-2 max-w-[1400px] mx-auto">
             
             {/* BRANDING */}
@@ -140,10 +156,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </div>
 
             {/* Indicator Pagină */}
-            {isLoggedIn && !isStaticCustomerPage && (
+            {(isLoggedIn || isDemoMode) && !isStaticCustomerPage && (
               <div className="flex-1 flex justify-center px-2">
                 <span className="bg-slate-50 px-4 py-1.5 rounded-full text-[10px] md:text-xs font-black uppercase italic text-amber-600 border border-slate-200 tracking-widest text-center">
-                  {currentPage}
+                  {currentPage} {isDemoMode && !isLoggedIn && "(DEMO)"}
                 </span>
               </div>
             )}
@@ -151,7 +167,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             {/* Buton Meniu / Demo */}
             <div className="flex items-center">
               {!shouldHideMenu && (
-                isLoggedIn ? (
+                (isLoggedIn || (isDemoMode && path !== "/login")) ? (
                   <button 
                     title="Meniu Principal"
                     onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -175,7 +191,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           </div>
 
           {/* Meniu Dropdown */}
-          {isLoggedIn && isMenuOpen && (
+          {(isLoggedIn || isDemoMode) && isMenuOpen && (
             <div className="absolute top-[calc(100%+8px)] right-4 w-[calc(100%-32px)] max-w-[400px] bg-white border border-slate-100 rounded-[32px] shadow-[0_20px_50px_rgba(0,0,0,0.1)] animate-in fade-in zoom-in-95 duration-200 z-[99] overflow-hidden">
               <div className="p-3 grid grid-cols-1 gap-1.5">
                 <div className="px-4 py-2 mb-1 border-b border-slate-50">
@@ -184,7 +200,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 {nav.map((l) => (
                   <Link 
                     key={l.h} 
-                    href={l.h} 
+                    href={isLoggedIn ? l.h : `${l.h}?demo=true`} 
                     title={l.n}
                     className={`w-full p-4 rounded-[20px] font-black text-[11px] uppercase italic transition-all flex items-center justify-between ${path === l.h ? "bg-amber-500 text-white shadow-lg shadow-amber-200" : "bg-white text-slate-600 hover:bg-slate-50 border border-transparent hover:border-slate-100"}`}
                   >
@@ -193,10 +209,17 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   </Link>
                 ))}
                 <div className="mt-2 pt-2 border-t border-slate-50">
-                  <button onClick={handleLogout} className="w-full p-4 rounded-[20px] font-black text-[11px] uppercase italic transition-all flex items-center justify-between bg-red-50/50 text-red-500 hover:bg-red-500 hover:text-white group">
-                    Ieșire din cont 🚪
-                    <span className="opacity-0 group-hover:opacity-100 transition-opacity">Deconectare</span>
-                  </button>
+                  {isLoggedIn ? (
+                    <button onClick={handleLogout} className="w-full p-4 rounded-[20px] font-black text-[11px] uppercase italic transition-all flex items-center justify-between bg-red-50/50 text-red-500 hover:bg-red-500 hover:text-white group">
+                      Ieșire din cont 🚪
+                      <span className="opacity-0 group-hover:opacity-100 transition-opacity">Deconectare</span>
+                    </button>
+                  ) : (
+                    <Link href="/login" className="w-full p-4 rounded-[20px] font-black text-[11px] uppercase italic transition-all flex items-center justify-between bg-slate-900 text-white hover:bg-amber-600">
+                      Creează cont oficial 💎
+                      <span>→</span>
+                    </Link>
+                  )}
                 </div>
               </div>
             </div>
@@ -208,6 +231,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </main>
 
         <footer className="bg-white border-t border-slate-200 mt-6">
+          {/* ... footer-ul ramane neschimbat ... */}
           <div className="max-w-[1400px] mx-auto px-6 py-4">
             <div className="flex flex-col md:flex-row justify-between items-center gap-4">
               <div className="flex items-center gap-3 group">

@@ -3,6 +3,7 @@
 import { useState, useEffect, Suspense, useRef } from "react";
 import { supabase } from "@/lib/supabase";
 import Link from "next/link";
+import Image from "next/image";
 
 // --- TIPURI ---
 type DocumentAttachment = { id: number; name: string; url: string; };
@@ -31,13 +32,34 @@ type Programare = {
 
 const MY_DIRECT_ID = "ed9cd915-6684-422c-a214-4ac5c25e98f3";
 
-// --- CONFIGURARE LIMITE CONFORM NOII TALE STRATEGII ---
 const LIMITE_ABONAMENTE: Record<string, number> = {
   "start (gratuit)": 50,
   "pro": 200,
   "elite": 1000,
   "team": 5000 
 };
+
+const DATE_DEMO: Programare[] = [
+  {
+    id: "demo-1",
+    nume: "Client Demo Exemplu",
+    email: "demo@chronos.ro",
+    data: new Date().toISOString().split('T')[0],
+    ora: "10:00",
+    motiv: "Aceasta este o programare de test pentru prezentare.",
+    telefon: "0700000000",
+    poza: null,
+    reminderMinutes: 10,
+    reminderSound: true,
+    reminderVibration: true,
+    reminderVolume: 70,
+    sendToClient: true,
+    documente: [],
+    angajat_id: "demo-staff",
+    serviciu_id: "demo-service",
+    created_by_client: false
+  }
+];
 
 function ProgramariContent() {
   const [programari, setProgramari] = useState<Programare[]>([]);
@@ -65,6 +87,8 @@ function ProgramariContent() {
     serviciu_id: "" 
   });
 
+  const isDemo = typeof window !== 'undefined' && window.location.search.includes('demo=true');
+
   useEffect(() => {
     setFormular(prev => ({ ...prev, ora: `${tempHour}:${tempMin}` }));
   }, [tempHour, tempMin]);
@@ -77,7 +101,6 @@ function ProgramariContent() {
         setShowSuggestions(false);
       }
       const popupContainer = document.getElementById('popup-content');
-      // Închide popup-ul dacă se dă click în afara lui (Regula ta de design)
       if (popupProgramare && popupContainer && !popupContainer.contains(e.target as Node)) {
         setPopupProgramare(null);
       }
@@ -89,23 +112,37 @@ function ProgramariContent() {
 
   async function fetchInitialData() {
     setLoadingDB(true);
-    await Promise.all([
-      fetchProgramari(),
-      fetchResurseProfile(),
-      checkSubscriptionLimit()
-    ]);
+    
+    if (isDemo) {
+      setProgramari(DATE_DEMO);
+      setUserPlan("pro (demo)");
+      setCountLunaCurenta(1);
+      setAngajati([{ id: "demo-staff", nume: "Specialist Demo", specializare: "Test", culoare: "#f59e0b" }]);
+      setServicii([{ id: "demo-service", nume: "Serviciu Demo", durata: "30", pret: "100" }]);
+      setLoadingDB(false);
+      return;
+    }
+
+    try {
+      await Promise.all([
+        fetchProgramari(),
+        fetchResurseProfile(),
+        checkSubscriptionLimit()
+      ]);
+    } catch (err) {
+      console.error("Eroare la încărcarea datelor:", err);
+    }
     setLoadingDB(false);
   }
 
   async function fetchResurseProfile() {
     const { data } = await supabase
       .from('profiles')
-      .select('services, staff, plan_type') // Sincronizat cu coloana corectă
+      .select('services, staff, plan_type')
       .eq('id', MY_DIRECT_ID)
       .single();
 
     if (data) {
-      // Sincronizat cu denumirea nouă a planului
       setUserPlan(data.plan_type?.toLowerCase() || "start (gratuit)");
       
       const parseData = (val: any) => {
@@ -229,9 +266,14 @@ function ProgramariContent() {
   };
 
   const salveazaInCloud = async () => {
+    if (isDemo) {
+        alert("Mod Demo: Salvarea este dezactivată pentru prezentare.");
+        return;
+    }
+
     const limita = LIMITE_ABONAMENTE[userPlan] || 50;
     if (countLunaCurenta >= limita) {
-      alert(`⚠️ Abonamentul tău "${userPlan.toUpperCase()}" este limitat la ${limita} programări pe lună. Treci la planul următor pentru mai multe!`);
+      alert(`⚠️ Abonamentul tău "${userPlan.toUpperCase()}" este limitat la ${limita} programări pe lună.`);
       return;
     }
 
@@ -276,6 +318,10 @@ function ProgramariContent() {
 
   const eliminaProgramare = async (id: any, e: React.MouseEvent) => {
     e.stopPropagation();
+    if (isDemo) {
+        alert("Mod Demo: Ștergerea nu este permisă.");
+        return;
+    }
     if (confirm("Ștergi programarea?")) {
       await supabase.from('appointments').delete().eq('id', id);
       setProgramari(prev => prev.filter(p => p.id !== id));
@@ -299,7 +345,7 @@ function ProgramariContent() {
                     Gestiune <span className="text-amber-600">Programări</span>
                 </h1>
                 <p className="text-[10px] font-black uppercase italic text-slate-400 mt-2">
-                    Plan actual: <span className="text-amber-600 font-bold">{userPlan.toUpperCase()}</span> • {countLunaCurenta} / {LIMITE_ABONAMENTE[userPlan] || 50} luna aceasta
+                    Plan actual: <span className="text-amber-600 font-bold">{userPlan.toUpperCase()}</span> • {isDemo ? "VERSIUNE DEMO ACTIVĂ" : `${countLunaCurenta} / ${LIMITE_ABONAMENTE[userPlan] || 50} luna aceasta`}
                 </p>
             </div>
             <div className="flex flex-col gap-2 self-start md:self-auto items-end">
@@ -310,7 +356,7 @@ function ProgramariContent() {
                     </p>
                 </div>
                 <div className="flex gap-2">
-                  <Link href="/programari/calendar" className="bg-white px-6 py-3 rounded-2xl shadow-sm border border-slate-200 flex items-center gap-3 hover:bg-slate-50 transition-all group">
+                  <Link href={isDemo ? "/programari/calendar?demo=true" : "/programari/calendar"} className="bg-white px-6 py-3 rounded-2xl shadow-sm border border-slate-200 flex items-center gap-3 hover:bg-slate-50 transition-all group">
                       <span className="text-xs group-hover:scale-110 transition-transform">📅</span>
                       <p className="text-[11px] font-black uppercase italic text-slate-600">Calendar</p>
                   </Link>
@@ -327,7 +373,13 @@ function ProgramariContent() {
                     <img src={formular.poza} className="w-full h-full object-cover" alt="Client" />
                   ) : (
                     <div className="w-full h-full relative flex items-center justify-center bg-slate-50">
-                        <img src="/logo-chronos.png" alt="Chronos" className="w-full h-full object-contain p-4" />
+                        <Image 
+                          src="/logo-chronos.png" 
+                          alt="Chronos" 
+                          fill 
+                          sizes="(max-width: 176px) 100vw, 176px" 
+                          style={{ objectFit: 'contain', padding: '16px' }}
+                        />
                     </div>
                   )}
                   <input type="file" id="f-pick" className="hidden" accept="image/*" onChange={(e) => {
@@ -352,8 +404,8 @@ function ProgramariContent() {
                   <div className="absolute top-full left-0 right-0 z-[110] bg-white mt-2 rounded-3xl shadow-2xl border border-slate-100 overflow-hidden">
                     {filteredClients.map((c, idx) => (
                       <button key={idx} onClick={() => selecteazaClient(c)} className="w-full flex items-center gap-4 p-4 hover:bg-amber-50 border-b border-slate-50 last:border-0 text-left">
-                        <div className="w-10 h-10 rounded-xl bg-slate-100 overflow-hidden flex items-center justify-center">
-                            {c.poza ? <img src={c.poza} className="w-full h-full object-cover" /> : <img src="/logo-chronos.png" className="w-[80%] h-[80%] object-contain" />}
+                        <div className="w-10 h-10 rounded-xl bg-slate-100 overflow-hidden flex items-center justify-center relative">
+                            {c.poza ? <img src={c.poza} className="w-full h-full object-cover" /> : <Image src="/logo-chronos.png" alt="logo" fill sizes="40px" style={{ objectFit: 'contain', padding: '4px' }} />}
                         </div>
                         <div>
                           <p className="font-black text-xs uppercase italic">{c.nume}</p>
@@ -427,7 +479,6 @@ function ProgramariContent() {
             </div>
           </div>
           
-          {/* SECTIUNE DOCUMENTE + BUTON SALVARE */}
           <div className="mt-8 pt-8 border-t border-slate-100 flex flex-col lg:flex-row gap-4 items-center">
             
             <div className="flex-1 w-full bg-slate-100/50 p-4 rounded-[30px] border border-slate-200">
@@ -461,14 +512,14 @@ function ProgramariContent() {
 
             <button 
               onClick={salveazaInCloud} 
-              disabled={countLunaCurenta >= (LIMITE_ABONAMENTE[userPlan] || 50)}
-              className={`w-full lg:w-[280px] h-[85px] rounded-[30px] font-black uppercase shadow-xl transition-all italic flex flex-col items-center justify-center gap-0.5 group ${countLunaCurenta >= (LIMITE_ABONAMENTE[userPlan] || 50) ? 'bg-slate-300 cursor-not-allowed text-slate-500' : 'bg-amber-600 text-white hover:bg-slate-900'}`}
+              disabled={!isDemo && countLunaCurenta >= (LIMITE_ABONAMENTE[userPlan] || 50)}
+              className={`w-full lg:w-[280px] h-[85px] rounded-[30px] font-black uppercase shadow-xl transition-all italic flex flex-col items-center justify-center gap-0.5 group ${(!isDemo && countLunaCurenta >= (LIMITE_ABONAMENTE[userPlan] || 50)) ? 'bg-slate-300 cursor-not-allowed text-slate-500' : 'bg-amber-600 text-white hover:bg-slate-900'}`}
             >
               <span className="text-[10px] opacity-70">
-                {countLunaCurenta >= (LIMITE_ABONAMENTE[userPlan] || 50) ? '⚠ LIMITĂ ATINSĂ' : '✓ FINALIZARE'}
+                {isDemo ? 'MOD PREZENTARE' : (countLunaCurenta >= (LIMITE_ABONAMENTE[userPlan] || 50) ? '⚠ LIMITĂ ATINSĂ' : '✓ FINALIZARE')}
               </span>
               <span className="text-sm tracking-tighter">
-                {countLunaCurenta >= (LIMITE_ABONAMENTE[userPlan] || 50) ? 'Upgrade Necesar' : 'Salvează Programarea'}
+                {isDemo ? 'Salvare Indisponibilă' : (countLunaCurenta >= (LIMITE_ABONAMENTE[userPlan] || 50) ? 'Upgrade Necesar' : 'Salvează Programarea')}
               </span>
             </button>
 
@@ -490,8 +541,8 @@ function ProgramariContent() {
                   <div key={p.id} className="relative bg-white p-5 rounded-[35px] shadow-sm border border-amber-200 ring-2 ring-amber-100 transition-all cursor-pointer hover:shadow-lg" onClick={() => setPopupProgramare(p)}>
                       <button onClick={(e) => { e.stopPropagation(); eliminaProgramare(p.id, e); }} className="absolute top-4 right-4 text-red-500 font-black text-[10px] z-10 hover:scale-125 transition-transform">✕</button>
                       <div className="flex gap-3 items-center mb-4 pr-6">
-                          <div className="w-12 h-12 rounded-[18px] bg-slate-50 overflow-hidden border-2 border-white shadow-inner flex items-center justify-center" style={{ backgroundColor: spec?.culoare }}>
-                              {p.poza ? <img src={p.poza} className="w-full h-full object-cover" alt="client" /> : <img src="/logo-chronos.png" className="w-full h-full object-contain p-1" alt="logo" />}
+                          <div className="w-12 h-12 rounded-[18px] bg-slate-50 overflow-hidden border-2 border-white shadow-inner flex items-center justify-center relative" style={{ backgroundColor: spec?.culoare }}>
+                              {p.poza ? <img src={p.poza} className="w-full h-full object-cover" alt="client" /> : <Image src="/logo-chronos.png" alt="logo" fill sizes="48px" style={{ objectFit: 'contain', padding: '4px' }} />}
                           </div>
                           <div className="overflow-hidden flex-1">
                               <h4 className="font-black text-slate-800 uppercase text-[11px] truncate italic leading-tight">{p.nume}</h4>
@@ -514,10 +565,9 @@ function ProgramariContent() {
         <div className="fixed inset-0 flex items-center justify-center p-4 z-[99999]">
           <div className="absolute inset-0 bg-slate-900/95 backdrop-blur-md" onClick={() => setPopupProgramare(null)}></div>
           <div id="popup-content" className="bg-white w-full max-w-lg rounded-[55px] p-10 relative animate-in zoom-in duration-200 shadow-2xl">
-            {/* Tooltip la hover pentru butoane conform cerinței tale */}
             <div className="text-center">
-              <div className="w-32 h-32 bg-slate-50 rounded-[40px] mx-auto mb-6 overflow-hidden border-4 border-white shadow-xl flex items-center justify-center">
-                {popupProgramare.poza ? <img src={popupProgramare.poza} className="w-full h-full object-cover" alt="client" /> : <img src="/logo-chronos.png" className="w-full h-full object-contain p-2" alt="logo" />}
+              <div className="w-32 h-32 bg-slate-50 rounded-[40px] mx-auto mb-6 overflow-hidden border-4 border-white shadow-xl flex items-center justify-center relative">
+                {popupProgramare.poza ? <img src={popupProgramare.poza} className="w-full h-full object-cover" alt="client" /> : <Image src="/logo-chronos.png" alt="logo" fill sizes="128px" style={{ objectFit: 'contain', padding: '8px' }} />}
               </div>
               <h3 className="text-3xl font-black uppercase italic tracking-tighter text-slate-900">{popupProgramare.nume}</h3>
               <p className="text-amber-600 font-black text-[10px] uppercase mt-2 italic tracking-widest">
