@@ -157,7 +157,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   {isMenuOpen ? "ÎNCHIDE ✕" : "MENIU ☰"}
                 </button>
               ) : isDemoMode ? (
-                /* ÎN PAGINA DE PROGRAMĂRI (DEMO): Butonul trimite la creare cont */
                 <Link 
                   href="/login?view=sign_up"
                   className="px-4 py-2 bg-amber-500 text-white rounded-xl font-black text-[10px] uppercase italic hover:bg-slate-900 transition-all shadow-lg border-2 border-amber-400 animate-pulse"
@@ -165,7 +164,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   ✨ CREEAZĂ CONT
                 </Link>
               ) : (
-                /* PE PAGINA DE LOGIN: Butonul trimite la modul demo */
                 <button 
                   onClick={() => router.push("/programari?demo=true")}
                   className="px-5 py-2 bg-slate-900 text-white rounded-xl font-black text-[10px] uppercase italic hover:bg-amber-500 transition-all shadow-md flex items-center gap-2"
@@ -176,11 +174,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </div>
           </div>
 
-          {/* MENIUL DROPDOWN APARE DOAR DACĂ E LOGAT */}
+          {/* MENIUL DROPDOWN ACTUALIZAT CU SCROLL */}
           {isLoggedIn && isMenuOpen && (
-            <div className="absolute top-[calc(100%+8px)] right-4 w-[calc(100%-32px)] max-w-[400px] bg-white border border-slate-100 rounded-[32px] shadow-[0_20px_50px_rgba(0,0,0,0.1)] animate-in fade-in zoom-in-95 duration-200 z-[99] overflow-hidden">
-              <div className="p-3 grid grid-cols-1 gap-1.5">
-                <div className="px-4 py-2 mb-1 border-b border-slate-50">
+            <div className="absolute top-[calc(100%+8px)] right-4 w-[calc(100%-32px)] max-w-[400px] bg-white border border-slate-100 rounded-[32px] shadow-[0_20px_50px_rgba(0,0,0,0.1)] animate-in fade-in zoom-in-95 duration-200 z-[99] overflow-hidden flex flex-col max-h-[80vh]">
+              <div className="p-3 grid grid-cols-1 gap-1.5 overflow-y-auto scrollbar-hide">
+                <div className="px-4 py-2 mb-1 border-b border-slate-50 sticky top-0 bg-white z-10">
                   <p className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-300 italic">Administrare Sistem</p>
                 </div>
                 
@@ -195,7 +193,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   </Link>
                 ))}
                 
-                <div className="mt-2 pt-2 border-t border-slate-50">
+                <div className="mt-2 pt-2 border-t border-slate-50 sticky bottom-0 bg-white z-10">
                   <button onClick={handleLogout} className="w-full p-4 rounded-[20px] font-black text-[11px] uppercase italic transition-all flex items-center justify-between bg-red-50/50 text-red-500 hover:bg-red-500 hover:text-white group">
                     Ieșire din cont 🚪
                   </button>
@@ -210,7 +208,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </main>
 
         <footer className="bg-white border-t border-slate-200 mt-6">
-          {/* ... conținutul footer-ului rămâne neschimbat ... */}
           <div className="max-w-[1400px] mx-auto px-6 py-4 flex flex-col md:flex-row justify-between items-center gap-4">
               <div className="flex items-center gap-3">
                 <div className="w-9 h-9 relative bg-slate-50 rounded-lg border border-slate-100 p-0.5 shadow-inner">
