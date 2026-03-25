@@ -3,20 +3,23 @@
   "short_name": "Chronos",
   "description": "Gestionare contacte și programări premium",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
-  "background_color": "#0f172a",
+  "orientation": "portrait",
+  "background_color": "#ffffff",
   "theme_color": "#f59e0b",
   "icons": [
     {
       "src": "/logo-chronos.png",
-      "sizes": "192x192",
+      "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     },
     {
       "src": "/logo-chronos.png",
-      "sizes": "512x512",
-      "type": "image/png"
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ]
 }
