@@ -30,8 +30,6 @@ type Programare = {
   created_by_client?: boolean;
 };
 
-const MY_DIRECT_ID = "ed9cd915-6684-422c-a214-4ac5c25e98f3";
-
 const LIMITE_ABONAMENTE: Record<string, number> = {
   "start (gratuit)": 50,
   "pro": 200,
@@ -74,6 +72,7 @@ function ProgramariContent() {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [filteredClients, setFilteredClients] = useState<any[]>([]);
   const suggestionsRef = useRef<HTMLDivElement>(null);
+  const popupRef = useRef<HTMLDivElement>(null);
 
   const [showHourPicker, setShowHourPicker] = useState(false);
   const [tempHour, setTempHour] = useState("09");
@@ -89,6 +88,21 @@ function ProgramariContent() {
 
   const isDemo = typeof window !== 'undefined' && window.location.search.includes('demo=true');
 
+  // Resetare completă a stării pentru securitate (Logout/Switch account)
+  const resetAllData = () => {
+    setProgramari([]);
+    setAngajati([]);
+    setServicii([]);
+    setCountLunaCurenta(0);
+    setFormular({
+      id: 0, nume: "", email: "", data: new Date().toISOString().split('T')[0], ora: "09:00", motiv: "", telefon: "", poza: null,
+      reminderMinutes: 10, reminderSound: true, reminderVibration: true,
+      reminderVolume: 70, sendToClient: true, documente: [],
+      angajat_id: "",
+      serviciu_id: ""
+    });
+  };
+
   useEffect(() => {
     setFormular(prev => ({ ...prev, ora: `${tempHour}:${tempMin}` }));
   }, [tempHour, tempMin]);
@@ -96,19 +110,25 @@ function ProgramariContent() {
   useEffect(() => {
     fetchInitialData();
     
+    // Listener pentru starea de autentificare (Siguranță la Logout)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === "SIGNED_OUT") {
+        resetAllData();
+      }
+    });
+
     const handleClickOutside = (e: MouseEvent) => {
       if (suggestionsRef.current && !suggestionsRef.current.contains(e.target as Node)) {
         setShowSuggestions(false);
       }
-      const popupContainer = document.getElementById('popup-content');
-      if (popupProgramare && popupContainer && !popupContainer.contains(e.target as Node)) {
-        setPopupProgramare(null);
-      }
     };
     
     document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [popupProgramare]);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      subscription.unsubscribe();
+    };
+  }, []);
 
   async function fetchInitialData() {
     setLoadingDB(true);
@@ -124,10 +144,17 @@ function ProgramariContent() {
     }
 
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        resetAllData();
+        setLoadingDB(false);
+        return;
+      }
+
       await Promise.all([
-        fetchProgramari(),
-        fetchResurseProfile(),
-        checkSubscriptionLimit()
+        fetchProgramari(user.id),
+        fetchResurseProfile(user.id),
+        checkSubscriptionLimit(user.id)
       ]);
     } catch (err) {
       console.error("Eroare la încărcarea datelor:", err);
@@ -135,11 +162,11 @@ function ProgramariContent() {
     setLoadingDB(false);
   }
 
-  async function fetchResurseProfile() {
+  async function fetchResurseProfile(userId: string) {
     const { data } = await supabase
       .from('profiles')
       .select('services, staff, plan_type')
-      .eq('id', MY_DIRECT_ID)
+      .eq('id', userId)
       .single();
 
     if (data) {
@@ -148,7 +175,6 @@ function ProgramariContent() {
       const parseData = (val: any) => {
         if (!val) return [];
         let curat = typeof val === 'string' ? JSON.parse(val) : val;
-        if (typeof curat === 'string') curat = JSON.parse(curat);
         if (!Array.isArray(curat)) return [];
         
         return curat.map((item: any) => ({
@@ -164,10 +190,7 @@ function ProgramariContent() {
     }
   }
 
-  async function checkSubscriptionLimit() {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) return;
-
+  async function checkSubscriptionLimit(userId: string) {
     const inceputLuna = new Date();
     inceputLuna.setDate(1);
     const inceputLunaISO = inceputLuna.toISOString().split('T')[0];
@@ -175,20 +198,17 @@ function ProgramariContent() {
     const { count } = await supabase
       .from('appointments')
       .select('*', { count: 'exact', head: true })
-      .eq('user_id', session.user.id)
+      .eq('user_id', userId)
       .gte('date', inceputLunaISO);
 
     setCountLunaCurenta(count || 0);
   }
 
-  async function fetchProgramari() {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) return;
-    
+  async function fetchProgramari(userId: string) {
     const { data } = await supabase
       .from('appointments')
       .select('*')
-      .eq('user_id', session.user.id)
+      .eq('user_id', userId)
       .order('date', { ascending: false });
 
     if (data) {
@@ -271,14 +291,17 @@ function ProgramariContent() {
         return;
     }
 
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      alert("Sesiune expirată. Te rugăm să te reautentifici.");
+      return;
+    }
+
     const limita = LIMITE_ABONAMENTE[userPlan] || 50;
     if (countLunaCurenta >= limita) {
       alert(`⚠️ Abonamentul tău "${userPlan.toUpperCase()}" este limitat la ${limita} programări pe lună.`);
       return;
     }
-
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) return;
     
     if (!formular.nume || !formular.telefon) {
       alert("⚠️ Numele și Telefonul sunt obligatorii!");
@@ -286,7 +309,7 @@ function ProgramariContent() {
     }
 
     const payload = {
-      user_id: session.user.id,
+      user_id: user.id,
       title: formular.nume, 
       email: formular.email, 
       date: formular.data, 
@@ -356,10 +379,14 @@ function ProgramariContent() {
                     </p>
                 </div>
                 <div className="flex gap-2">
-                  <Link href={isDemo ? "/programari/calendar?demo=true" : "/programari/calendar"} className="bg-white px-6 py-3 rounded-2xl shadow-sm border border-slate-200 flex items-center gap-3 hover:bg-slate-50 transition-all group">
-                      <span className="text-xs group-hover:scale-110 transition-transform">📅</span>
-                      <p className="text-[11px] font-black uppercase italic text-slate-600">Calendar</p>
-                  </Link>
+                    <Link 
+                      href={isDemo ? "/programari/calendar?demo=true" : "/programari/calendar"} 
+                      className="bg-white px-6 py-3 rounded-2xl shadow-sm border border-slate-200 flex items-center gap-3 hover:bg-slate-50 transition-all group"
+                      title="Vezi toate programările în format calendar vizual"
+                    >
+                        <span className="text-xs group-hover:scale-110 transition-transform">📅</span>
+                        <p className="text-[11px] font-black uppercase italic text-slate-600">Calendar</p>
+                    </Link>
                 </div>
             </div>
         </div>
@@ -389,7 +416,7 @@ function ProgramariContent() {
                         r.readAsDataURL(e.target.files[0]);
                     }
                   }} />
-                  <label htmlFor="f-pick" className="absolute inset-0 cursor-pointer z-10"></label>
+                  <label htmlFor="f-pick" className="absolute inset-0 cursor-pointer z-10" title="Încarcă o poză pentru acest client"></label>
                 </div>
                 <div className="text-center">
                     <p className="text-[10px] font-black uppercase italic text-slate-400">Poza Profil Client</p>
@@ -450,7 +477,7 @@ function ProgramariContent() {
 
               <div className="flex flex-col gap-2 relative">
                 <label className="text-[10px] font-black uppercase ml-4 text-slate-400 italic">Ora</label>
-                <button type="button" onClick={() => setShowHourPicker(!showHourPicker)} className="w-full p-5 bg-slate-50 rounded-[25px] font-bold text-lg shadow-inner text-left flex justify-between items-center">
+                <button type="button" onClick={() => setShowHourPicker(!showHourPicker)} className="w-full p-5 bg-slate-50 rounded-[25px] font-bold text-lg shadow-inner text-left flex justify-between items-center" title="Apasă pentru a selecta ora programării">
                   {formular.ora} <span className="text-amber-600 text-[10px]">🕒</span>
                 </button>
                 {showHourPicker && (
@@ -482,15 +509,15 @@ function ProgramariContent() {
           <div className="mt-8 pt-8 border-t border-slate-100 flex flex-col lg:flex-row gap-4 items-center">
             
             <div className="flex-1 w-full bg-slate-100/50 p-4 rounded-[30px] border border-slate-200">
-               <div className="flex items-center justify-between mb-3 px-2">
+                <div className="flex items-center justify-between mb-3 px-2">
                   <span className="text-[9px] font-black uppercase text-slate-500 italic">Fișiere atașate</span>
                   <input type="file" id="doc-upload" className="hidden" multiple onChange={handleFileUpload} />
-                  <label htmlFor="doc-upload" className="bg-slate-900 text-white px-5 py-2.5 rounded-xl font-black text-[10px] uppercase italic cursor-pointer hover:bg-amber-600 transition-colors shadow-sm">
+                  <label htmlFor="doc-upload" className="bg-slate-900 text-white px-5 py-2.5 rounded-xl font-black text-[10px] uppercase italic cursor-pointer hover:bg-amber-600 transition-colors shadow-sm" title="Atașează documente sau poze suplimentare">
                     Adaugă Fișier +
                   </label>
-               </div>
+                </div>
 
-               <div className="flex flex-wrap gap-2 max-h-32 overflow-y-auto p-1 scrollbar-thin">
+                <div className="flex flex-wrap gap-2 max-h-32 overflow-y-auto p-1 scrollbar-thin">
                   {formular.documente.map((doc) => (
                     <div key={doc.id} className="relative flex items-center gap-2 w-auto max-w-[180px] h-10 pr-8 pl-2 bg-white border border-slate-200 rounded-xl shadow-sm group">
                       <div className="w-6 h-6 rounded-md bg-slate-50 flex-shrink-0 overflow-hidden">
@@ -507,13 +534,14 @@ function ProgramariContent() {
                   {formular.documente.length === 0 && (
                     <div className="w-full py-2 text-center opacity-20 italic text-[8px] uppercase font-black tracking-widest">Fără documente</div>
                   )}
-               </div>
+                </div>
             </div>
 
             <button 
               onClick={salveazaInCloud} 
               disabled={!isDemo && countLunaCurenta >= (LIMITE_ABONAMENTE[userPlan] || 50)}
               className={`w-full lg:w-[280px] h-[85px] rounded-[30px] font-black uppercase shadow-xl transition-all italic flex flex-col items-center justify-center gap-0.5 group ${(!isDemo && countLunaCurenta >= (LIMITE_ABONAMENTE[userPlan] || 50)) ? 'bg-slate-300 cursor-not-allowed text-slate-500' : 'bg-amber-600 text-white hover:bg-slate-900'}`}
+              title="Salvează datele introduse în baza de date securizată"
             >
               <span className="text-[10px] opacity-70">
                 {isDemo ? 'MOD PREZENTARE' : (countLunaCurenta >= (LIMITE_ABONAMENTE[userPlan] || 50) ? '⚠ LIMITĂ ATINSĂ' : '✓ FINALIZARE')}
@@ -538,8 +566,8 @@ function ProgramariContent() {
               const spec = angajati.find(a => a.id === p.angajat_id);
               const serv = servicii.find(s => s.id === p.serviciu_id);
               return (
-                  <div key={p.id} className="relative bg-white p-5 rounded-[35px] shadow-sm border border-amber-200 ring-2 ring-amber-100 transition-all cursor-pointer hover:shadow-lg" onClick={() => setPopupProgramare(p)}>
-                      <button onClick={(e) => { e.stopPropagation(); eliminaProgramare(p.id, e); }} className="absolute top-4 right-4 text-red-500 font-black text-[10px] z-10 hover:scale-125 transition-transform">✕</button>
+                  <div key={p.id} className="relative bg-white p-5 rounded-[35px] shadow-sm border border-amber-200 ring-2 ring-amber-100 transition-all cursor-pointer hover:shadow-lg" onClick={() => setPopupProgramare(p)} title="Apasă pentru detalii complete">
+                      <button onClick={(e) => { e.stopPropagation(); eliminaProgramare(p.id, e); }} className="absolute top-4 right-4 text-red-500 font-black text-[10px] z-10 hover:scale-125 transition-transform" title="Șterge definitiv această programare">✕</button>
                       <div className="flex gap-3 items-center mb-4 pr-6">
                           <div className="w-12 h-12 rounded-[18px] bg-slate-50 overflow-hidden border-2 border-white shadow-inner flex items-center justify-center relative" style={{ backgroundColor: spec?.culoare }}>
                               {p.poza ? <img src={p.poza} className="w-full h-full object-cover" alt="client" /> : <Image src="/logo-chronos.png" alt="logo" fill sizes="48px" style={{ objectFit: 'contain', padding: '4px' }} />}
@@ -564,7 +592,11 @@ function ProgramariContent() {
       {popupProgramare && (
         <div className="fixed inset-0 flex items-center justify-center p-4 z-[99999]">
           <div className="absolute inset-0 bg-slate-900/95 backdrop-blur-md" onClick={() => setPopupProgramare(null)}></div>
-          <div id="popup-content" className="bg-white w-full max-w-lg rounded-[55px] p-10 relative animate-in zoom-in duration-200 shadow-2xl">
+          <div 
+            ref={popupRef}
+            className="bg-white w-full max-w-lg rounded-[55px] p-10 relative animate-in zoom-in duration-200 shadow-2xl" 
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="text-center">
               <div className="w-32 h-32 bg-slate-50 rounded-[40px] mx-auto mb-6 overflow-hidden border-4 border-white shadow-xl flex items-center justify-center relative">
                 {popupProgramare.poza ? <img src={popupProgramare.poza} className="w-full h-full object-cover" alt="client" /> : <Image src="/logo-chronos.png" alt="logo" fill sizes="128px" style={{ objectFit: 'contain', padding: '8px' }} />}

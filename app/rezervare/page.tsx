@@ -69,13 +69,11 @@ function RezervareContent() {
     fetchAdminConfig();
   }, [fetchAdminConfig]);
 
-  // FILTRARE DINAMICĂ SPECIALIȘTI (bazată pe serviciul selectat)
   const specialistiFiltrati = useMemo(() => {
     if (!form.serviciu) return specialisti;
     return specialisti.filter(sp => (sp.servicii || []).includes(form.serviciu));
   }, [form.serviciu, specialisti]);
 
-  // FILTRARE DINAMICĂ SERVICII (bazată pe specialistul selectat)
   const serviciiFiltrate = useMemo(() => {
     if (form.specialist_id === "Oricine") return servicii;
     const specialistSelectat = specialisti.find(s => s.nume === form.specialist_id);
@@ -83,7 +81,6 @@ function RezervareContent() {
     return servicii.filter(s => specialistSelectat.servicii.includes(s.nume || s.name));
   }, [form.specialist_id, servicii, specialisti]);
 
-  // VALIDARE SELECȚIE: Dacă selecția devine invalidă după filtrare, o resetăm
   useEffect(() => {
     if (form.serviciu && !serviciiFiltrate.some(s => (s.nume || s.name) === form.serviciu)) {
       setForm(prev => ({ ...prev, serviciu: "" }));
@@ -101,6 +98,22 @@ function RezervareContent() {
 
   const trimiteRezervare = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // 1. SECURITATE: Validare format telefon
+    const telefonCurat = form.telefon.replace(/\s/g, "");
+    if (telefonCurat.length < 10) {
+      alert("⚠️ Te rugăm să introduci un număr de telefon valid.");
+      return;
+    }
+
+    // 2. SECURITATE: Prevenire Spam (Rate Limiting local)
+    const ultimaRezervare = localStorage.getItem("last_booking_timestamp");
+    const acum = Date.now();
+    if (ultimaRezervare && acum - parseInt(ultimaRezervare) < 60000) { // 1 minut pauză între rezervări
+      alert("⚠️ Te rugăm să aștepți un minut înainte de a trimite o altă rezervare.");
+      return;
+    }
+
     if (!form.nume || !form.telefon || !form.serviciu || !form.specialist_id) {
       alert("⚠️ Te rugăm să completezi toate câmpurile.");
       return;
@@ -109,8 +122,8 @@ function RezervareContent() {
     setLoading(true);
     const { error } = await supabase.from('appointments').insert([{
       user_id: adminId,
-      full_name: form.nume,
-      phone: form.telefon,
+      full_name: form.nume.trim(),
+      phone: telefonCurat,
       date: form.data,
       time: form.ora,
       service: form.serviciu,
@@ -120,6 +133,7 @@ function RezervareContent() {
     }]);
 
     if (!error) {
+      localStorage.setItem("last_booking_timestamp", acum.toString());
       setTrimis(true);
     } else {
       alert("Eroare: " + error.message);
@@ -134,6 +148,7 @@ function RezervareContent() {
       <div className="min-h-screen flex flex-col items-center justify-center p-6 text-center bg-white">
         <div className="w-24 h-24 bg-slate-900 text-amber-500 rounded-[35px] flex items-center justify-center text-4xl shadow-2xl mb-8 border-b-4 border-amber-600">✓</div>
         <h1 className="text-3xl font-black uppercase italic text-slate-900 tracking-tighter">REZERVARE TRIMISĂ</h1>
+        <p className="mt-4 text-slate-500 font-bold text-xs uppercase italic tracking-widest">Vei fi contactat în scurt timp pentru confirmare.</p>
         <button title="Reîncarcă pentru o nouă rezervare" onClick={() => window.location.reload()} className="mt-10 px-10 py-5 bg-slate-900 text-white rounded-2xl font-black uppercase italic text-[10px] tracking-widest hover:bg-amber-600 transition-colors">Înapoi</button>
       </div>
     );
@@ -210,7 +225,7 @@ function RezervareContent() {
             </div>
           </div>
 
-          <button title="Apasă pentru a trimite cererea ta de rezervare" type="submit" disabled={loading} className="w-full py-6 mt-4 bg-slate-900 text-white rounded-[25px] font-black text-xs uppercase tracking-[0.3em] italic shadow-2xl hover:bg-amber-600 transition-all">
+          <button title="Apasă pentru a trimite cererea ta de rezervare" type="submit" disabled={loading} className="w-full py-6 mt-4 bg-slate-900 text-white rounded-[25px] font-black text-xs uppercase tracking-[0.3em] italic shadow-2xl hover:bg-amber-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
             {loading ? "SE PROCESEAZĂ..." : "FINALIZEAZĂ REZERVAREA"}
           </button>
         </form>
@@ -261,5 +276,5 @@ function RezervareContent() {
 }
 
 export default function RezervarePage() {
-  return <Suspense fallback={null}><RezervareContent /></Suspense>;
+  return <Suspense fallback={<div className="min-h-screen flex items-center justify-center font-black text-slate-900 italic uppercase">Încărcare sistem...</div>}><RezervareContent /></Suspense>;
 }
