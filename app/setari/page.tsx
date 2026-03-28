@@ -1,11 +1,16 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
-import { supabase } from "@/lib/supabase";
+import { createBrowserClient } from "@supabase/ssr";
 import { QRCodeSVG } from "qrcode.react";
 import Link from "next/link";
 
 export default function SettingsPage() {
+  const supabase = createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
+
   const [userUrl, setUserUrl] = useState("");
   const [loading, setLoading] = useState(true);
   const [currentMonth, setCurrentMonth] = useState(new Date());
@@ -47,7 +52,7 @@ export default function SettingsPage() {
       if (profile.staff) setSpecialisti(profile.staff);
       setManualBlocks(profile.manual_blocks || {});
     }
-  }, []);
+  }, [supabase]);
 
   const fetchMonthlyAppointments = useCallback(async (userId: string, date: Date) => {
     const firstDay = new Date(date.getFullYear(), date.getMonth(), 1).toISOString().split('T')[0];
@@ -64,7 +69,7 @@ export default function SettingsPage() {
       const uniqueDays = Array.from(new Set(data.map(a => a.date)));
       setDaysWithBookings(uniqueDays);
     }
-  }, []);
+  }, [supabase]);
 
   useEffect(() => {
     const initPage = async () => {
@@ -90,7 +95,7 @@ export default function SettingsPage() {
       }
     };
     initPage();
-  }, [fetchProfileData, fetchMonthlyAppointments, currentMonth]);
+  }, [fetchProfileData, fetchMonthlyAppointments, currentMonth, supabase]);
 
   const handleWhatsAppShare = () => {
     if (!userUrl) return;
@@ -175,7 +180,7 @@ export default function SettingsPage() {
 
     setManualBlocks(newBlocks);
     await saveBlocksToSupabase(newBlocks);
-    alert(`✅ Programul a fost replicat.`);
+    alert(`✅ Programul a fost replicat pentru următoarele 52 de săptămâni.`);
     setShowDayModal(false);
   };
 
@@ -222,7 +227,7 @@ export default function SettingsPage() {
     const days = [];
 
     for (let i = 0; i < startDay; i++) {
-      days.push(<div key={`empty-${i}`} className="h-24 md:h-32 bg-slate-50/30 rounded-3xl"></div>);
+      days.push(<div key={`empty-${i}`} className="h-24 md:h-32 bg-slate-50/30 rounded-[35px]"></div>);
     }
 
     for (let d = 1; d <= totalDays; d++) {
@@ -233,26 +238,25 @@ export default function SettingsPage() {
       const hasBookings = daysWithBookings.includes(dateStr);
 
       days.push(
-        <button key={d} onClick={() => openDaySettings(dateStr)}
-          className={`h-24 md:h-32 p-4 rounded-[30px] border-2 transition-all flex flex-col justify-between items-start group relative
-            ${isFullyBlocked ? 'bg-red-50 border-red-100 shadow-inner' : 'bg-white border-slate-100 hover:border-amber-400 hover:shadow-xl'}`}>
+        <button key={d} 
+          title={`Click pentru a gestiona programul zilei de ${d}`}
+          onClick={() => openDaySettings(dateStr)}
+          className={`h-24 md:h-32 p-5 rounded-[35px] border-2 transition-all flex flex-col justify-between items-start group relative
+            ${isFullyBlocked ? 'bg-red-50 border-red-100' : 'bg-white border-slate-100 hover:border-amber-400 hover:shadow-xl shadow-sm'}`}>
           <div className="flex justify-between w-full items-start">
-            <span className={`text-xl font-black ${isToday ? 'text-amber-600 underline' : 'text-slate-900'}`}>{d}</span>
+            <span className={`text-xl font-black ${isToday ? 'text-amber-600 underline decoration-2' : 'text-slate-900'}`}>{d}</span>
+            {hasBookings && (
+              <div title="Există programări active în această zi" className="w-2.5 h-2.5 bg-amber-500 rounded-full border-2 border-white shadow-sm animate-pulse"></div>
+            )}
           </div>
           
           <div className="flex justify-between items-end w-full">
             {isFullyBlocked ? (
-              <span className="text-[8px] font-black uppercase text-red-500 italic bg-red-100 px-2 py-0.5 rounded">Închis</span>
+              <span className="text-[7px] font-black uppercase text-red-500 italic bg-red-100 px-2 py-0.5 rounded-lg tracking-tighter">ÎNCHIS</span>
             ) : (
-              <div className={`w-1.5 h-1.5 rounded-full ${currentBlocks.length > 0 ? 'bg-orange-400' : 'bg-slate-200'} group-hover:bg-amber-400`}></div>
+              <div className={`w-2 h-2 rounded-full ${currentBlocks.length > 0 ? 'bg-orange-400' : 'bg-slate-200'} group-hover:bg-amber-400 transition-colors`}></div>
             )}
-            
-            {hasBookings && (
-              <div className="flex flex-col items-end">
-                <span className="text-[7px] font-black text-amber-600 uppercase italic mb-1">Activă</span>
-                <div className="w-3 h-3 bg-amber-500 rounded-full border-2 border-white shadow-sm animate-pulse"></div>
-              </div>
-            )}
+            {hasBookings && <span className="text-[7px] font-black text-amber-600 uppercase italic">Activ</span>}
           </div>
         </button>
       );
@@ -260,7 +264,12 @@ export default function SettingsPage() {
     return days;
   };
 
-  if (loading) return <div className="min-h-screen flex items-center justify-center bg-slate-50 font-black text-slate-400 italic uppercase tracking-widest">Sincronizare...</div>;
+  if (loading) return (
+    <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50">
+      <div className="w-12 h-12 border-4 border-slate-200 border-t-amber-500 rounded-full animate-spin mb-4"></div>
+      <div className="font-black text-slate-400 italic uppercase tracking-[0.3em] text-xs">Sincronizare Setări...</div>
+    </div>
+  );
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-10 mb-20 font-sans text-slate-900">
@@ -274,113 +283,143 @@ export default function SettingsPage() {
         .print-container { display: none; }
       `}</style>
 
+      {/* Container pentru printare afiș QR */}
       <div className="print-container">
-        <h2 className="text-3xl font-black uppercase mb-10 italic tracking-tighter text-center">Scanează pentru Programare</h2>
-        <div className="p-10 border-[12px] border-slate-900 rounded-[60px]">
-          {userUrl && <QRCodeSVG value={userUrl} size={450} fgColor={"#000000"} includeMargin={true} level="H" />}
+        <h2 className="text-4xl font-black uppercase mb-12 italic tracking-tighter text-center">REZERVARE <span className="text-amber-500">RAPIDĂ</span></h2>
+        <div className="p-12 border-[16px] border-slate-900 rounded-[80px] shadow-2xl">
+          {userUrl && <QRCodeSVG value={userUrl} size={500} fgColor={"#000000"} includeMargin={true} level="H" />}
         </div>
-        <p className="mt-10 text-xl font-black uppercase text-amber-600 italic tracking-[0.3em] text-center">POWERED BY CHRONOS</p>
+        <div className="mt-12 text-center">
+          <p className="text-xl font-black uppercase text-slate-900 italic tracking-[0.2em]">Scanează pentru programare</p>
+          <p className="mt-4 text-sm font-bold text-amber-600 uppercase tracking-[0.4em]">POWERED BY CHRONOS BOOKING</p>
+        </div>
       </div>
 
-      <div className="flex justify-between items-center mb-10 border-b-2 border-slate-100 pb-6 no-print">
-        <h1 className="text-4xl ml-4 font-black tracking-tighter uppercase italic">Setări <span className="text-amber-600">Admin</span></h1>
-        <Link href="/programari" className="px-5 py-2.5 bg-white border-2 border-slate-900 rounded-xl font-black uppercase text-[9px] italic hover:bg-slate-900 hover:text-white transition-all shadow-sm">← Înapoi</Link>
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 border-b-2 border-slate-100 pb-8 no-print gap-4">
+        <div>
+          <h1 className="text-4xl font-black tracking-tighter uppercase italic">CONFIGURARE <span className="text-amber-600">SISTEM</span></h1>
+          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Gestionează disponibilitatea și link-ul de rezervare</p>
+        </div>
+        <Link href="/programari" title="Revino la panoul principal de programări" className="px-8 py-4 bg-white border-2 border-slate-900 rounded-[20px] font-black uppercase text-[10px] italic hover:bg-slate-900 hover:text-white transition-all shadow-lg border-b-4 border-slate-900 active:translate-y-1 active:border-b-0">
+          ← PANOU PRINCIPAL
+        </Link>
       </div>
 
-      <div className="no-print space-y-10">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
-          <div className="bg-white p-8 rounded-[40px] shadow-xl border border-slate-100 flex flex-col justify-between">
+      <div className="no-print space-y-12">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Link Rezervări */}
+          <div className="bg-white p-10 rounded-[45px] shadow-xl border border-slate-100 flex flex-col justify-between">
             <div>
-              <h2 className="text-[10px] font-black uppercase italic mb-4 text-slate-400 tracking-widest">Link Public de Rezervări</h2>
-              <div className="bg-amber-50 p-4 rounded-2xl border border-amber-100 mb-6 text-center italic">
-                <code className="text-[10px] font-black text-amber-700 break-all">{userUrl}</code>
+              <h2 className="text-[10px] font-black uppercase italic mb-6 text-slate-400 tracking-[0.3em]">Link Public de Rezervări</h2>
+              <div title="Acesta este link-ul pe care trebuie să îl trimiți clienților" className="bg-slate-50 p-6 rounded-[25px] border-2 border-slate-100 mb-8 text-center italic relative group">
+                <code className="text-[11px] font-black text-slate-700 break-all">{userUrl}</code>
+                <div className="absolute inset-0 bg-amber-500 opacity-0 group-hover:opacity-5 transition-opacity rounded-[25px]"></div>
               </div>
             </div>
-            <div className="flex gap-3">
-              <button onClick={() => { navigator.clipboard.writeText(userUrl); alert("Copiat!"); }} className="flex-1 py-4 bg-slate-900 text-white rounded-2xl font-black uppercase text-[9px] italic transition-all shadow-lg active:scale-95">Copiază</button>
+            <div className="flex gap-4">
+              <button title="Copiază adresa URL în memoria telefonului/calculatorului" onClick={() => { navigator.clipboard.writeText(userUrl); alert("✅ Link copiat!"); }} className="flex-1 py-5 bg-slate-900 text-white rounded-[22px] font-black uppercase text-[10px] italic transition-all shadow-xl hover:bg-amber-600 border-b-4 border-slate-700 active:scale-95">Copiază Link</button>
               <button 
+                title="Trimite link-ul rapid către un contact WhatsApp"
                 onClick={handleWhatsAppShare} 
-                className="flex-1 py-4 bg-[#25D366] text-white rounded-2xl font-black uppercase text-[9px] italic transition-all shadow-lg active:scale-95"
+                className="flex-1 py-5 bg-[#25D366] text-white rounded-[22px] font-black uppercase text-[10px] italic transition-all shadow-xl hover:opacity-90 border-b-4 border-green-700 active:scale-95"
               >
-                WhatsApp
+                WhatsApp Share
               </button>
             </div>
           </div>
 
-          <div className="bg-white p-8 rounded-[40px] shadow-xl border border-slate-100 flex items-center justify-between gap-6 group">
+          {/* Secțiune QR */}
+          <div className="bg-white p-10 rounded-[45px] shadow-xl border border-slate-100 flex items-center justify-between gap-8 group">
             <div className="flex-1">
-              <h2 className="text-[10px] font-black uppercase italic mb-4 text-slate-400 tracking-widest">Cod QR Clienți</h2>
-              <div className="grid grid-cols-1 gap-2">
-                <button onClick={() => window.print()} className="py-3 px-6 border-2 border-slate-900 rounded-2xl font-black uppercase text-[9px] italic hover:bg-slate-900 hover:text-white transition-all">Printează Afiș QR</button>
-                <button onClick={downloadQR} className="py-3 px-6 bg-slate-100 rounded-2xl font-black uppercase text-[9px] italic hover:bg-slate-200 transition-all text-slate-600">Salvează Imagine</button>
+              <h2 className="text-[10px] font-black uppercase italic mb-6 text-slate-400 tracking-[0.3em]">Cod QR pentru Salon</h2>
+              <div className="grid grid-cols-1 gap-3">
+                <button title="Deschide fereastra de imprimare pentru afișul QR" onClick={() => window.print()} className="py-4 px-6 border-2 border-slate-900 rounded-[20px] font-black uppercase text-[10px] italic hover:bg-slate-900 hover:text-white transition-all border-b-4 border-slate-900 shadow-md">PRINTEAZĂ AFIȘ</button>
+                <button title="Descarcă imaginea QR pentru postări pe social media" onClick={downloadQR} className="py-4 px-6 bg-slate-100 rounded-[20px] font-black uppercase text-[10px] italic hover:bg-slate-200 transition-all text-slate-500 border-b-4 border-slate-300">SALVEAZĂ IMAGINE</button>
               </div>
             </div>
-            <div ref={qrRef} className="p-4 bg-white rounded-3xl border-4 border-slate-50 shadow-inner group-hover:scale-105 transition-all">
-              {userUrl && <QRCodeSVG value={userUrl} size={110} fgColor={"#0f172a"} includeMargin={false} level="M" />}
+            <div title="Codul tău QR unic" ref={qrRef} className="p-6 bg-white rounded-[35px] border-4 border-slate-50 shadow-inner group-hover:rotate-3 transition-transform cursor-pointer">
+              {userUrl && <QRCodeSVG value={userUrl} size={130} fgColor={"#0f172a"} includeMargin={false} level="M" />}
             </div>
           </div>
         </div>
 
-        <div className="flex items-center justify-between mb-8 px-4">
-          <h2 className="text-2xl font-black uppercase italic text-slate-900 tracking-tighter">
-            {currentMonth.toLocaleString('ro-RO', { month: 'long', year: 'numeric' })}
-          </h2>
-          <div className="flex gap-2">
-            <button onClick={() => setCurrentMonth(new Date(currentMonth.setMonth(currentMonth.getMonth() - 1)))} className="p-4 bg-white border-2 border-slate-100 rounded-2xl hover:bg-slate-50 transition-all shadow-sm">←</button>
-            <button onClick={() => setCurrentMonth(new Date(currentMonth.setMonth(currentMonth.getMonth() + 1)))} className="p-4 bg-white border-2 border-slate-100 rounded-2xl hover:bg-slate-50 transition-all shadow-sm">→</button>
+        {/* Calendar Management */}
+        <div className="bg-white p-4 md:p-10 rounded-[50px] shadow-2xl border border-slate-100">
+          <div className="flex flex-col md:flex-row items-center justify-between mb-10 px-4 gap-6">
+            <h2 className="text-3xl font-black uppercase italic text-slate-900 tracking-tighter border-l-8 border-amber-500 pl-6">
+              {currentMonth.toLocaleString('ro-RO', { month: 'long', year: 'numeric' })}
+            </h2>
+            <div className="flex gap-3">
+              <button title="Navighează la luna precedentă" onClick={() => setCurrentMonth(new Date(currentMonth.setMonth(currentMonth.getMonth() - 1)))} className="p-5 bg-white border-2 border-slate-200 rounded-[22px] hover:border-amber-500 transition-all shadow-sm border-b-4 border-slate-300 active:translate-y-1 active:border-b-0">←</button>
+              <button title="Navighează la luna următoare" onClick={() => setCurrentMonth(new Date(currentMonth.setMonth(currentMonth.getMonth() + 1)))} className="p-5 bg-white border-2 border-slate-200 rounded-[22px] hover:border-amber-500 transition-all shadow-sm border-b-4 border-slate-300 active:translate-y-1 active:border-b-0">→</button>
+            </div>
           </div>
-        </div>
 
-        <div className="grid grid-cols-7 gap-4">
-          {["Lun", "Mar", "Mie", "Joi", "Vin", "Sâm", "Dum"].map(zi => (
-            <div key={zi} className="text-center text-[10px] font-black uppercase text-slate-400 italic mb-2 tracking-widest">{zi}</div>
-          ))}
-          {renderCalendar()}
+          <div className="grid grid-cols-7 gap-3 md:gap-5">
+            {["Luni", "Mar", "Mie", "Joi", "Vin", "Sâm", "Dum"].map(zi => (
+              <div key={zi} className="text-center text-[9px] font-black uppercase text-slate-400 italic mb-4 tracking-[0.2em]">{zi}</div>
+            ))}
+            {renderCalendar()}
+          </div>
         </div>
       </div>
 
+      {/* Modal Zi Lucrătoare */}
       {showDayModal && selectedDate && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 no-print">
-          <div className="absolute inset-0 bg-slate-900/90 backdrop-blur-sm" onClick={handleCloseModal}></div>
-          <div className="bg-white w-full max-w-4xl rounded-[50px] p-8 md:p-12 relative animate-in zoom-in shadow-2xl max-h-[90vh] overflow-y-auto border-4 border-slate-100 text-slate-900">
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-10 border-b pb-8">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 no-print" onClick={handleCloseModal}>
+          <div className="absolute inset-0 bg-slate-900/95 backdrop-blur-md"></div>
+          <div className="bg-white w-full max-w-5xl rounded-[55px] p-8 md:p-14 relative animate-in zoom-in duration-300 shadow-2xl max-h-[95vh] overflow-y-auto border-t-[12px] border-amber-500" onClick={e => e.stopPropagation()}>
+            <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8 mb-12 border-b-2 border-slate-50 pb-10">
               <div>
-                <p className="text-[10px] font-black text-amber-600 uppercase italic tracking-widest mb-1">Setări Disponibilitate:</p>
-                <h3 className="text-3xl font-black uppercase italic text-slate-900 tracking-tighter">{selectedDate}</h3>
+                <p className="text-[10px] font-black text-amber-600 uppercase italic tracking-[0.3em] mb-2">Gestionare Program:</p>
+                <h3 className="text-4xl font-black uppercase italic text-slate-900 tracking-tighter">{new Date(selectedDate).toLocaleDateString('ro-RO', { weekday: 'long', day: 'numeric', month: 'long' })}</h3>
               </div>
-              <div className="flex flex-wrap gap-2">
-                <button onClick={saveAsDefault} className="px-6 py-3 bg-amber-500 text-white rounded-2xl font-black text-[10px] uppercase italic shadow-lg hover:scale-105 transition-all">Setează ca Predefinit ⭐</button>
-                {/* Butonul de închide de aici a fost eliminat conform solicitării */}
+              <div className="flex flex-wrap gap-3">
+                <button title="Replică acest program pentru toate zilele de acest tip din calendar" onClick={saveAsDefault} className="px-8 py-4 bg-amber-500 text-white rounded-[22px] font-black text-[11px] uppercase italic shadow-xl hover:bg-slate-900 transition-all border-b-4 border-amber-700 active:translate-y-1">Setează ca Predefinit ⭐</button>
+                <button title="Închide fereastra fără a salva" onClick={handleCloseModal} className="p-4 bg-slate-100 text-slate-400 rounded-full hover:bg-red-50 hover:text-red-500 transition-all">✕</button>
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
-              <div className="md:col-span-1">
-                 <h4 className="text-[9px] font-black uppercase text-slate-400 italic mb-4 tracking-widest">Opțiuni Rapide:</h4>
-                 <div className="flex flex-col gap-3">
-                    <button onClick={toggleFullDay} className={`py-4 rounded-2xl font-black text-[10px] uppercase italic border-2 transition-all ${(manualBlocks[selectedDate] || []).length >= dynamicTimeSlots.length ? 'bg-emerald-50 border-emerald-200 text-emerald-600' : 'bg-red-50 border-red-200 text-red-600'}`}>
-                      {(manualBlocks[selectedDate] || []).length >= dynamicTimeSlots.length ? '✓ Deschide Ziua' : '✕ Închide Ziua'}
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-12">
+              <div className="lg:col-span-1 space-y-8">
+                  <div>
+                    <h4 className="text-[10px] font-black uppercase text-slate-400 italic mb-5 tracking-widest border-b pb-2">Configurare Rapidă</h4>
+                    <button title="Comută între întreaga zi disponibilă sau întreaga zi închisă" onClick={toggleFullDay} className={`w-full py-5 rounded-[22px] font-black text-[11px] uppercase italic border-2 border-b-4 transition-all ${(manualBlocks[selectedDate] || []).length >= dynamicTimeSlots.length ? 'bg-emerald-50 border-emerald-200 text-emerald-600 border-b-emerald-400' : 'bg-red-50 border-red-200 text-red-600 border-b-red-400'}`}>
+                      {(manualBlocks[selectedDate] || []).length >= dynamicTimeSlots.length ? '✓ DESCHIDE ZIUA' : '✕ ÎNCHIDE COMPLET'}
                     </button>
-                    <h4 className="text-[9px] font-black uppercase text-slate-400 italic mt-6 mb-2 tracking-widest">Durată Slot:</h4>
-                    {[15, 30, 60].map(v => (
-                      <button key={v} onClick={() => { setBookingInterval(v); setIsDirty(true); }} className={`py-4 rounded-2xl font-black text-[10px] border-2 transition-all ${bookingInterval === v ? 'border-amber-500 bg-amber-50 text-amber-700 shadow-md' : 'border-slate-100 text-slate-400'}`}>{v} MINUTE</button>
-                    ))}
-                 </div>
+                  </div>
+
+                  <div>
+                    <h4 className="text-[10px] font-black uppercase text-slate-400 italic mb-5 tracking-widest border-b pb-2">Interval Sloturi</h4>
+                    <div className="grid grid-cols-1 gap-3">
+                      {[15, 30, 60].map(v => (
+                        <button key={v} title={`Schimbă durata fiecărei programări la ${v} minute`} onClick={() => { setBookingInterval(v); setIsDirty(true); }} className={`py-4 rounded-[18px] font-black text-[10px] border-2 border-b-4 transition-all ${bookingInterval === v ? 'border-amber-500 bg-amber-50 text-amber-700 shadow-md border-b-amber-600' : 'border-slate-100 text-slate-300 border-b-slate-200'}`}>{v} MINUTE</button>
+                      ))}
+                    </div>
+                  </div>
               </div>
-              <div className="md:col-span-3">
-                 <h4 className="text-[9px] font-black uppercase text-slate-400 italic mb-4 tracking-widest">Blochează ore manual:</h4>
-                 <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3">
+
+              <div className="lg:col-span-3">
+                  <h4 className="text-[10px] font-black uppercase text-slate-400 italic mb-6 tracking-widest border-b pb-2">Blochează/Deblochează Ore Specific</h4>
+                  <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 xl:grid-cols-6 gap-4">
                     {dynamicTimeSlots.map(slot => (
-                      <button key={slot} disabled={existingBookings.includes(slot)} onClick={() => toggleHourBlock(slot)}
-                        className={`py-4 rounded-2xl font-black text-[10px] border-2 transition-all italic ${existingBookings.includes(slot) ? 'bg-amber-100 border-amber-200 text-amber-800 cursor-not-allowed opacity-50' : (manualBlocks[selectedDate] || []).includes(slot) ? 'bg-red-500 border-red-600 text-white shadow-md' : 'bg-white border-slate-100 text-slate-600 hover:border-amber-400'}`}>
+                      <button 
+                        key={slot} 
+                        disabled={existingBookings.includes(slot)} 
+                        onClick={() => toggleHourBlock(slot)}
+                        title={existingBookings.includes(slot) ? `Există deja o programare la ora ${slot}` : `Apasă pentru a ${ (manualBlocks[selectedDate] || []).includes(slot) ? 'debloca' : 'bloca' } intervalul`}
+                        className={`py-5 rounded-[22px] font-black text-xs border-2 border-b-4 transition-all italic relative ${existingBookings.includes(slot) ? 'bg-amber-100 border-amber-200 text-amber-800 cursor-not-allowed opacity-50 border-b-amber-300' : (manualBlocks[selectedDate] || []).includes(slot) ? 'bg-slate-900 border-slate-950 text-white shadow-xl border-b-slate-700' : 'bg-white border-slate-100 text-slate-500 hover:border-amber-400 border-b-slate-200'}`}>
                         {slot} {existingBookings.includes(slot) ? '👤' : ''}
                       </button>
                     ))}
-                 </div>
+                  </div>
               </div>
             </div>
-            <div className="mt-12 pt-6 border-t border-slate-50 text-center">
-               <button onClick={handleConfirmChanges} className="px-16 py-5 bg-slate-900 text-white rounded-[25px] font-black text-xs uppercase italic tracking-widest hover:bg-amber-600 transition-all shadow-xl active:scale-95">Confirmă Modificările</button>
+
+            <div className="mt-16 pt-10 border-t-2 border-slate-50 text-center">
+               <button title="Salvează definitiv modificările pentru această zi" onClick={handleConfirmChanges} className="px-20 py-6 bg-slate-900 text-white rounded-[30px] font-black text-xs uppercase italic tracking-[0.3em] hover:bg-amber-600 transition-all shadow-2xl active:scale-95 border-b-4 border-slate-700">
+                 SALVEAZĂ MODIFICĂRILE
+               </button>
             </div>
           </div>
         </div>

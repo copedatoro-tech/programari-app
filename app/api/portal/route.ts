@@ -2,61 +2,64 @@ import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { createClient } from "@supabase/supabase-js";
 
-// Folosim variabila corectă pe care am văzut-o în Vercel-ul tău
+// Inițializare Stripe
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "", {
-  apiVersion: "2023-10-16" as any, // Folosim o versiune stabilă pentru a evita erori de tip
+  apiVersion: "2023-10-16" as any,
 });
 
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://zzrubdbngjfwurdwxtwf.supabase.co";
-const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY || "");
+// Pentru rutele de tip API (Server Side), folosim Service Role pentru a avea drepturi depline
+const supabaseAdmin = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL || "",
+  process.env.SUPABASE_SERVICE_ROLE_KEY || ""
+);
 
 export async function POST(req: Request) {
   try {
-    // 1. Verificăm configurația serverului
-    if (!SUPABASE_SERVICE_ROLE_KEY) {
-      return new NextResponse("Eroare Configurare: Lipsă SERVICE_ROLE_KEY în Vercel.", { status: 500 });
+    // 1. Verificăm configurația cheilor
+    if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
+      return NextResponse.json({ error: "Eroare Configurare: Service Role Key lipsește." }, { status: 500 });
     }
 
-    // 2. Verificăm sesiunea utilizatorului
+    // 2. Verificăm token-ul de autentificare al utilizatorului
     const authHeader = req.headers.get("Authorization");
     const token = authHeader?.replace("Bearer ", "");
 
-    if (!token) return new NextResponse("Eroare: Lipsă Token de autentificare.", { status: 401 });
-
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
-
-    if (authError || !user) {
-      return new NextResponse("Eroare: Utilizator neautorizat sau sesiune expirată.", { status: 401 });
+    if (!token) {
+      return NextResponse.json({ error: "Eroare: Neautorizat (Lipsă Token)." }, { status: 401 });
     }
 
-    // 3. Căutăm ID-ul Stripe în baza de date
-    const { data: profile, error: dbError } = await supabase
+    // Validăm utilizatorul prin Supabase Admin
+    const { data: { user }, error: authError } = await supabaseAdmin.auth.getUser(token);
+
+    if (authError || !user) {
+      return NextResponse.json({ error: "Eroare: Sesiune invalidă." }, { status: 401 });
+    }
+
+    // 3. Preluăm stripe_customer_id din tabelul profiles
+    const { data: profile, error: dbError } = await supabaseAdmin
       .from("profiles")
       .select("stripe_customer_id")
       .eq("id", user.id)
       .single();
 
-    if (dbError) {
-      console.error("Supabase Database Error:", dbError);
+    if (dbError || !profile?.stripe_customer_id) {
+      console.error("DB Error sau ID Lipsă:", dbError);
+      return NextResponse.json({ error: "Clientul Stripe nu a fost găsit în baza de date." }, { status: 404 });
     }
 
-    // Mesaj specific dacă ID-ul lipsește (Cauza problemei tale)
-    if (!profile?.stripe_customer_id) {
-      return new NextResponse("Customer not found", { status: 404 });
-    }
+    // 4. Creăm sesiunea pentru Portalul de Billing
+    // Folosim o logică de fallback pentru URL-ul de returnare
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || new URL(req.url).origin;
 
-    // 4. Generăm link-ul către Portal
     const session = await stripe.billingPortal.sessions.create({
       customer: profile.stripe_customer_id,
-      return_url: `${process.env.NEXT_PUBLIC_BASE_URL || new URL(req.url).origin}/abonamente`,
+      return_url: `${baseUrl}/setari`, // Trimitem utilizatorul înapoi la Setări
     });
 
     return NextResponse.json({ url: session.url });
 
   } catch (err: any) {
-    console.error("Portal Critical Error:", err.message);
-    return new NextResponse("Eroare Server: " + err.message, { status: 500 });
+    console.error("Portal Error:", err.message);
+    return NextResponse.json({ error: "Eroare Server: " + err.message }, { status: 500 });
   }
 }

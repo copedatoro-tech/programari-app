@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 type ContactUniversal = {
   id: number;
@@ -8,7 +8,7 @@ type ContactUniversal = {
   rol: string; 
   telefon: string;
   email: string;
-  note: string; // Câmp nou pentru detalii
+  note: string;
 };
 
 export default function ContacteUtilePage() {
@@ -16,27 +16,44 @@ export default function ContacteUtilePage() {
   const [form, setForm] = useState({ nume: "", rol: "", telefon: "", email: "", note: "" });
   const [contactEditat, setContactEditat] = useState<ContactUniversal | null>(null);
   const [userPlan, setUserPlan] = useState("START (GRATUIT)");
+  const modalRef = useRef<HTMLDivElement>(null);
 
   const limitaContacte = userPlan === "START (GRATUIT)" ? 5 : 
                          userPlan === "CHRONOS PRO" ? 100 : 9999;
 
+  // Încărcare date
   useEffect(() => {
     const saved = localStorage.getItem("contacte_universale");
     const savedPlan = localStorage.getItem("user_plan") || "START (GRATUIT)";
     setUserPlan(savedPlan);
     if (saved) {
-      try { setContacte(JSON.parse(saved)); } catch {}
+      try { setContacte(JSON.parse(saved)); } catch (e) { console.error(e); }
     }
   }, []);
 
+  // Salvare automată
   useEffect(() => {
     localStorage.setItem("contacte_universale", JSON.stringify(contacte));
   }, [contacte]);
 
+  // Închidere la click exterior pentru modal
+  useEffect(() => {
+    const handleOutsideClick = (e: MouseEvent) => {
+      if (modalRef.current && !modalRef.current.contains(e.target as Node)) {
+        setContactEditat(null);
+      }
+    };
+    if (contactEditat) document.addEventListener("mousedown", handleOutsideClick);
+    return () => document.removeEventListener("mousedown", handleOutsideClick);
+  }, [contactEditat]);
+
   const adaugaContact = () => {
-    if (!form.nume || !form.telefon) return;
+    if (!form.nume || !form.telefon) {
+      alert("Numele și Telefonul sunt obligatorii!");
+      return;
+    }
     if (contacte.length >= limitaContacte) {
-      alert(`Limita planului ${userPlan} atinsă!`);
+      alert(`Limita planului ${userPlan} atinsă! Treceți la un plan superior pentru mai multe contacte.`);
       return;
     }
     const nou = { ...form, id: Date.now() };
@@ -45,8 +62,10 @@ export default function ContacteUtilePage() {
   };
 
   const stergeContact = (id: number) => {
-    setContacte(contacte.filter(c => c.id !== id));
-    setContactEditat(null);
+    if (confirm("Sigur dorești să elimini acest contact definitiv?")) {
+      setContacte(contacte.filter(c => c.id !== id));
+      setContactEditat(null);
+    }
   };
 
   const salveazaEditare = () => {
@@ -56,121 +75,162 @@ export default function ContacteUtilePage() {
   };
 
   return (
-    <div className="p-4 md:p-8 max-w-6xl mx-auto mb-20">
+    <div className="p-6 md:p-12 max-w-7xl mx-auto mb-20">
       
       {/* HEADER PAGINĂ */}
-      <div className="mb-6 flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-slate-200 pb-4">
+      <div className="mb-12 flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white p-10 rounded-[50px] shadow-2xl shadow-slate-200/50 border border-slate-100">
         <div>
-          <h2 className="text-2xl font-black text-slate-900 tracking-tighter italic uppercase">
-            Contacte <span className="text-amber-600">Utile</span>
+          <h2 className="text-4xl font-black text-slate-900 tracking-tighter italic uppercase">
+            Contacte <span className="text-amber-600 font-black">Utile</span>
           </h2>
-          <p className="text-slate-400 font-bold mt-1 uppercase text-[9px] tracking-[0.2em]">
-            Rețeaua de parteneri • {userPlan}
+          <p className="text-slate-400 font-black mt-2 uppercase text-[10px] tracking-[0.3em] italic">
+            Managementul Rețelei de Parteneri • {userPlan}
           </p>
         </div>
-        <div className="bg-slate-900 text-white px-3 py-1.5 rounded-lg shadow-sm text-[10px] font-black uppercase tracking-widest">
-           {contacte.length} / {limitaContacte > 1000 ? "∞" : limitaContacte} Contacte
+        <div 
+          title="Capacitatea actuală conform planului tău"
+          className="bg-slate-900 text-white px-8 py-4 rounded-[25px] shadow-xl text-[11px] font-black uppercase tracking-widest italic border-b-4 border-slate-700"
+        >
+           {contacte.length} / {limitaContacte > 1000 ? "∞" : limitaContacte} Capacitate
         </div>
       </div>
 
-      {/* FORMULAR ADĂUGARE COMPACT */}
-      <section className="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 mb-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
-          <input type="text" placeholder="Nume Complet" value={form.nume} onChange={e => setForm({...form, nume: e.target.value})} className="p-2.5 bg-slate-50 border border-slate-200 rounded-lg outline-none focus:ring-2 ring-amber-500/20 focus:border-amber-500 font-bold text-xs transition-all" />
-          <input type="text" placeholder="Rol (ex: Furnizor, Medic)" value={form.rol} onChange={e => setForm({...form, rol: e.target.value})} className="p-2.5 bg-slate-50 border border-slate-200 rounded-lg outline-none focus:ring-2 ring-amber-500/20 focus:border-amber-500 font-bold text-xs transition-all" />
-          <input type="tel" placeholder="Telefon" value={form.telefon} onChange={e => setForm({...form, telefon: e.target.value})} className="p-2.5 bg-slate-50 border border-slate-200 rounded-lg outline-none focus:ring-2 ring-amber-500/20 focus:border-amber-500 font-bold text-xs transition-all" />
-          <input type="email" placeholder="Email (opțional)" value={form.email} onChange={e => setForm({...form, email: e.target.value})} className="p-2.5 bg-slate-50 border border-slate-200 rounded-lg outline-none focus:ring-2 ring-amber-500/20 focus:border-amber-500 font-bold text-xs transition-all" />
+      {/* FORMULAR ADĂUGARE */}
+      <section className="bg-white p-8 md:p-10 rounded-[50px] shadow-2xl shadow-slate-200/50 border border-slate-100 mb-12 relative overflow-hidden group">
+        <div className="absolute top-0 left-0 w-2 h-full bg-amber-500 group-hover:w-3 transition-all"></div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="space-y-2">
+            <label className="text-[10px] font-black text-slate-400 uppercase ml-2 tracking-widest">Nume Complet</label>
+            <input type="text" placeholder="EX: POPESCU ION" value={form.nume} onChange={e => setForm({...form, nume: e.target.value.toUpperCase()})} className="w-full p-5 bg-slate-50 border-2 border-slate-50 rounded-[22px] outline-none focus:border-amber-500 font-bold text-xs transition-all italic uppercase" />
+          </div>
+          <div className="space-y-2">
+            <label className="text-[10px] font-black text-slate-400 uppercase ml-2 tracking-widest">Rol / Categorie</label>
+            <input type="text" placeholder="EX: FURNIZOR, MEDIC" value={form.rol} onChange={e => setForm({...form, rol: e.target.value.toUpperCase()})} className="w-full p-5 bg-slate-50 border-2 border-slate-50 rounded-[22px] outline-none focus:border-amber-500 font-bold text-xs transition-all italic uppercase" />
+          </div>
+          <div className="space-y-2">
+            <label className="text-[10px] font-black text-slate-400 uppercase ml-2 tracking-widest">Telefon Contact</label>
+            <input type="tel" placeholder="07XX XXX XXX" value={form.telefon} onChange={e => setForm({...form, telefon: e.target.value})} className="w-full p-5 bg-slate-50 border-2 border-slate-50 rounded-[22px] outline-none focus:border-amber-500 font-bold text-xs transition-all italic uppercase" />
+          </div>
+          <div className="space-y-2">
+            <label className="text-[10px] font-black text-slate-400 uppercase ml-2 tracking-widest">Email (Opțional)</label>
+            <input type="email" placeholder="CONTACT@EMAIL.COM" value={form.email} onChange={e => setForm({...form, email: e.target.value})} className="w-full p-5 bg-slate-50 border-2 border-slate-50 rounded-[22px] outline-none focus:border-amber-500 font-bold text-xs transition-all italic uppercase" />
+          </div>
         </div>
-        <div className="mt-3 flex gap-3">
-            <input type="text" placeholder="Detalii speciale sau note importante..." value={form.note} onChange={e => setForm({...form, note: e.target.value})} className="flex-1 p-2.5 bg-slate-50 border border-slate-200 rounded-lg outline-none focus:ring-2 ring-amber-500/20 focus:border-amber-500 font-bold text-xs transition-all" />
-            <button onClick={adaugaContact} className="px-6 bg-slate-900 text-white rounded-lg font-black text-[10px] uppercase tracking-widest hover:bg-amber-600 transition-all shadow-md active:scale-95">
-              + SALVEAZĂ
+        <div className="mt-8 flex flex-col md:flex-row gap-6">
+            <input type="text" placeholder="DETALII SPECIALE, CODURI SAU PROGRAM..." value={form.note} onChange={e => setForm({...form, note: e.target.value})} className="flex-1 p-5 bg-slate-50 border-2 border-slate-50 rounded-[22px] outline-none focus:border-amber-500 font-bold text-xs transition-all italic uppercase" />
+            <button 
+              onClick={adaugaContact} 
+              title="Salvează acest partener în baza de date securizată"
+              className="px-12 bg-slate-900 text-white rounded-[25px] font-black text-[12px] uppercase tracking-[0.2em] italic hover:bg-amber-600 transition-all shadow-xl border-b-4 border-slate-700 active:border-b-0 active:translate-y-1 py-5 md:py-0"
+            >
+              + SALVEAZĂ CONTACT
             </button>
         </div>
       </section>
 
-      {/* LISTA CONTACTE - CARDURI ELEGANTE */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      {/* GRID CONTACTE */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {contacte.map(c => (
-          <div key={c.id} onClick={() => setContactEditat(c)} className="bg-white border border-slate-100 rounded-xl p-4 shadow-sm hover:shadow-md transition-all cursor-pointer group relative overflow-hidden flex flex-col justify-between hover:border-amber-300">
-            <div>
-              <div className="flex items-start justify-between mb-3">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-slate-100 text-slate-900 rounded-lg flex items-center justify-center text-xs font-black uppercase">{c.nume.charAt(0)}</div>
-                  <div>
-                    <h4 className="text-sm font-black text-slate-800 tracking-tight leading-none">{c.nume}</h4>
-                    <span className="text-[8px] font-black text-amber-600 uppercase tracking-tighter">{c.rol || "Partener"}</span>
-                  </div>
-                </div>
+          <div 
+            key={c.id} 
+            onClick={() => setContactEditat(c)} 
+            title="Apasă pentru a edita detaliile contactului"
+            className="bg-white border-2 border-slate-50 rounded-[45px] p-8 shadow-xl shadow-slate-200/40 transition-all cursor-pointer group hover:scale-[1.03] hover:shadow-2xl hover:border-amber-200 flex flex-col min-h-[300px] relative overflow-hidden"
+          >
+            <div className="flex items-center gap-5 mb-8">
+              <div className="w-16 h-16 bg-slate-900 text-amber-500 rounded-2xl flex items-center justify-center text-2xl font-black italic shadow-lg group-hover:rotate-6 transition-transform">
+                {c.nume.charAt(0)}
               </div>
-
-              <div className="space-y-1.5 mb-4">
-                <div className="flex items-center gap-2 text-slate-500">
-                   <span className="text-[10px] font-bold">📞 {c.telefon}</span>
-                </div>
-                {c.email && (
-                  <div className="flex items-center gap-2 text-slate-500">
-                     <span className="text-[10px] font-bold truncate">📧 {c.email}</span>
-                  </div>
-                )}
-                {c.note && (
-                  <div className="mt-2 p-2 bg-amber-50/50 rounded-lg border border-amber-100/50 italic">
-                    <p className="text-[9px] text-slate-600 font-medium leading-relaxed">"{c.note}"</p>
-                  </div>
-                )}
+              <div>
+                <h4 className="text-xl font-black text-slate-900 tracking-tighter italic uppercase">{c.nume}</h4>
+                <span className="text-[10px] font-black text-amber-600 uppercase tracking-widest">{c.rol || "PARTENER"}</span>
               </div>
             </div>
 
-            <div className="grid grid-cols-3 gap-1.5 mt-auto pt-2 border-t border-slate-50" onClick={e => e.stopPropagation()}>
-              <a href={`tel:${c.telefon}`} className="py-1.5 bg-slate-900 text-white rounded-md font-black text-[8px] text-center uppercase tracking-widest hover:bg-slate-800">APEL</a>
-              <a href={`https://wa.me/${c.telefon.replace(/\D/g, '')}`} target="_blank" className="py-1.5 bg-[#25D366] text-white rounded-md font-black text-[8px] text-center uppercase tracking-widest">WAPP</a>
+            <div className="space-y-3 mb-8 flex-grow">
+              <div className="flex items-center gap-3 text-slate-600 bg-slate-50 p-4 rounded-2xl">
+                 <span className="text-[10px] font-black italic uppercase text-slate-400">TEL:</span>
+                 <span className="text-sm font-bold">{c.telefon}</span>
+              </div>
+              {c.email && (
+                <div className="flex items-center gap-3 text-slate-600 bg-slate-50 p-4 rounded-2xl">
+                   <span className="text-[10px] font-black italic uppercase text-slate-400">MAIL:</span>
+                   <span className="text-sm font-bold truncate">{c.email}</span>
+                </div>
+              )}
+              {c.note && (
+                <div className="mt-4 p-5 bg-amber-50/50 rounded-[25px] border border-amber-100 italic relative">
+                  <p className="text-[11px] text-slate-700 font-bold leading-relaxed">"{c.note}"</p>
+                </div>
+              )}
+            </div>
+
+            <div className="grid grid-cols-3 gap-3" onClick={e => e.stopPropagation()}>
+              <a href={`tel:${c.telefon}`} title="Sună acum partenerul" className="py-4 bg-slate-900 text-white rounded-[18px] font-black text-[10px] text-center uppercase tracking-widest italic hover:bg-black transition-all">APEL</a>
+              <a href={`https://wa.me/${c.telefon.replace(/\D/g, '')}`} target="_blank" title="Trimite mesaj pe WhatsApp" className="py-4 bg-[#25D366] text-white rounded-[18px] font-black text-[10px] text-center uppercase tracking-widest italic hover:scale-105 transition-all">WAPP</a>
               {c.email ? (
-                <a href={`mailto:${c.email}`} className="py-1.5 bg-amber-500 text-white rounded-md font-black text-[8px] text-center uppercase tracking-widest">MAIL</a>
+                <a href={`mailto:${c.email}`} title="Trimite un email rapid" className="py-4 bg-amber-600 text-white rounded-[18px] font-black text-[10px] text-center uppercase tracking-widest italic hover:bg-amber-700 transition-all">MAIL</a>
               ) : (
-                <div className="py-1.5 bg-slate-100 text-slate-300 rounded-md font-black text-[8px] text-center uppercase tracking-widest">MAIL</div>
+                <div className="py-4 bg-slate-100 text-slate-300 rounded-[18px] font-black text-[10px] text-center uppercase tracking-widest italic cursor-not-allowed">MAIL</div>
               )}
             </div>
           </div>
         ))}
       </div>
 
-      {/* MODAL EDITARE COMPLET */}
+      {/* MODAL EDITARE */}
       {contactEditat && (
-        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[100] flex items-center justify-center p-4" onClick={() => setContactEditat(null)}>
-          <div className="bg-white w-full max-w-sm rounded-2xl p-6 shadow-2xl" onClick={e => e.stopPropagation()}>
-            <div className="text-center mb-6">
-                <h3 className="text-sm font-black text-slate-900 uppercase italic">Detalii Contact</h3>
-                <div className="h-1 w-12 bg-amber-500 mx-auto mt-1 rounded-full"></div>
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[100] flex items-center justify-center p-6 animate-in fade-in duration-300">
+          <div 
+            ref={modalRef}
+            className="bg-white w-full max-w-xl rounded-[50px] p-10 shadow-2xl relative border-2 border-slate-50" 
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="text-center mb-10">
+                <h3 className="text-3xl font-black text-slate-900 uppercase italic tracking-tighter">Editare <span className="text-amber-600 font-black">Contact</span></h3>
+                <div className="h-2 w-20 bg-amber-500 mx-auto mt-4 rounded-full shadow-lg shadow-amber-200"></div>
             </div>
             
-            <div className="space-y-3">
-              <div>
-                <label className="text-[8px] font-black text-slate-400 uppercase ml-1">Nume Complet</label>
-                <input type="text" value={contactEditat.nume} onChange={e => setContactEditat({...contactEditat, nume: e.target.value})} className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-lg outline-none font-bold text-xs focus:border-amber-500" />
+            <div className="space-y-6">
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-slate-400 uppercase ml-3 tracking-widest">Nume Complet</label>
+                <input type="text" value={contactEditat.nume} onChange={e => setContactEditat({...contactEditat, nume: e.target.value.toUpperCase()})} className="w-full p-5 bg-slate-50 border-2 border-slate-50 rounded-[25px] outline-none font-bold text-sm focus:border-amber-500 italic uppercase" />
               </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="text-[8px] font-black text-slate-400 uppercase ml-1">Rol</label>
-                  <input type="text" value={contactEditat.rol} onChange={e => setContactEditat({...contactEditat, rol: e.target.value})} className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-lg outline-none font-bold text-xs focus:border-amber-500" />
+              <div className="grid grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-slate-400 uppercase ml-3 tracking-widest">Rol</label>
+                  <input type="text" value={contactEditat.rol} onChange={e => setContactEditat({...contactEditat, rol: e.target.value.toUpperCase()})} className="w-full p-5 bg-slate-50 border-2 border-slate-50 rounded-[25px] outline-none font-bold text-sm focus:border-amber-500 italic uppercase" />
                 </div>
-                <div>
-                  <label className="text-[8px] font-black text-slate-400 uppercase ml-1">Telefon</label>
-                  <input type="tel" value={contactEditat.telefon} onChange={e => setContactEditat({...contactEditat, telefon: e.target.value})} className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-lg outline-none font-bold text-xs focus:border-amber-500" />
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-slate-400 uppercase ml-3 tracking-widest">Telefon</label>
+                  <input type="tel" value={contactEditat.telefon} onChange={e => setContactEditat({...contactEditat, telefon: e.target.value})} className="w-full p-5 bg-slate-50 border-2 border-slate-50 rounded-[25px] outline-none font-bold text-sm focus:border-amber-500 italic uppercase" />
                 </div>
               </div>
-              <div>
-                <label className="text-[8px] font-black text-slate-400 uppercase ml-1">Email</label>
-                <input type="email" value={contactEditat.email} onChange={e => setContactEditat({...contactEditat, email: e.target.value})} className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-lg outline-none font-bold text-xs focus:border-amber-500" />
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-slate-400 uppercase ml-3 tracking-widest">Email</label>
+                <input type="email" value={contactEditat.email} onChange={e => setContactEditat({...contactEditat, email: e.target.value})} className="w-full p-5 bg-slate-50 border-2 border-slate-50 rounded-[25px] outline-none font-bold text-sm focus:border-amber-500 italic uppercase" />
               </div>
-              <div>
-                <label className="text-[8px] font-black text-slate-400 uppercase ml-1">Note / Detalii Speciale</label>
-                <textarea rows={3} value={contactEditat.note} onChange={e => setContactEditat({...contactEditat, note: e.target.value})} className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-lg outline-none font-bold text-xs focus:border-amber-500 resize-none" placeholder="Notează aici coduri de reducere, program sau detalii specifice..." />
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-slate-400 uppercase ml-3 tracking-widest">Note / Detalii</label>
+                <textarea rows={3} value={contactEditat.note} onChange={e => setContactEditat({...contactEditat, note: e.target.value})} className="w-full p-5 bg-slate-50 border-2 border-slate-50 rounded-[25px] outline-none font-bold text-sm focus:border-amber-500 resize-none italic uppercase" />
               </div>
             </div>
 
-            <div className="mt-6 space-y-2">
-              <button onClick={salveazaEditare} className="w-full py-3 bg-slate-900 text-white rounded-xl font-black text-[10px] tracking-widest shadow-lg shadow-slate-200 uppercase">Actualizează Contact</button>
-              <button onClick={() => stergeContact(contactEditat.id)} className="w-full py-2 text-red-500 font-black text-[9px] uppercase tracking-tighter opacity-50 hover:opacity-100 transition-opacity">Elimină definitiv</button>
+            <div className="mt-10 space-y-4">
+              <button 
+                onClick={salveazaEditare} 
+                title="Actualizează informațiile partenerului"
+                className="w-full py-6 bg-slate-900 text-white rounded-[25px] font-black text-[12px] tracking-[0.3em] shadow-xl border-b-4 border-slate-700 uppercase italic hover:bg-amber-600 transition-all active:translate-y-1 active:border-b-0"
+              >
+                Actualizează Datele
+              </button>
+              <button 
+                onClick={() => stergeContact(contactEditat.id)} 
+                title="Elimină definitiv acest contact din sistem"
+                className="w-full py-4 text-red-500 font-black text-[10px] uppercase tracking-widest opacity-60 hover:opacity-100 transition-opacity italic"
+              >
+                Elimină Contactul ✕
+              </button>
             </div>
           </div>
         </div>

@@ -2,272 +2,266 @@
 
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
-import Image from "next/image";
-import "./globals.css";
 import { useEffect, useState, useRef } from "react";
-import { supabase } from "@/lib/supabase"; 
+import { supabase } from "../lib/supabaseClient";
+import "./globals.css";
+
+// IMPORTURI CORECTATE: Fiind în același folder 'app', folosim ./components/
+import GDPRModal from "./components/GDPRModal";
+import TermeniModal from "./components/TermeniModal";
+import CookiesModal from "./components/CookiesModal";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   const path = usePathname();
   const router = useRouter();
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isDemoMode, setIsDemoMode] = useState(false);
   const [authLoaded, setAuthLoaded] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isDemo, setIsDemo] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
-  const isStaticCustomerPage = path.startsWith("/rezervare") || 
-                               path === "/termeni" || 
-                               path === "/confidentialitate" || 
-                               path === "/cookies";
+  // Stări pentru controlul modalelor
+  const [modalOpen, setModalOpen] = useState({
+    gdpr: false,
+    termeni: false,
+    cookies: false,
+  });
 
-  // 1. GESTIONARE SESIUNE + PROTECȚIE RUTE
+  const getPageTitle = () => {
+    switch (path) {
+      case "/programari": return "Programări";
+      case "/programari/calendar": return "Calendar Programări";
+      case "/dosare-clienti": return "Dosare Clienți";
+      case "/resurse": return "Resurse";
+      case "/abonamente": return "Abonamente";
+      case "/rapoarte": return "Analiză & Rapoarte";
+      case "/sugestii": return "Sugestii Sistem";
+      case "/setari": return "Setări";
+      case "/profil": return "Profil Utilizator";
+      default: return "Sistem Chronos";
+    }
+  };
+
+  const isPublicPage = 
+    path === "/login" || 
+    path === "/" || 
+    path === "/register" || 
+    path === "/forgot-password";
+
   useEffect(() => {
-    let mounted = true;
-
     const syncAuth = async () => {
+      if (!supabase || typeof supabase.auth === 'undefined') {
+        setAuthLoaded(true);
+        return;
+      }
+
       try {
         const { data: { session } } = await supabase.auth.getSession();
-        if (!mounted) return;
-
-        const loggedIn = !!session;
-        setIsLoggedIn(loggedIn);
+        const demoActive = localStorage.getItem("chronos_demo") === "true";
+        
+        const authenticated = !!session || demoActive;
+        setIsLoggedIn(!!session);
+        setIsDemo(demoActive);
         setAuthLoaded(true);
 
-        const params = new URLSearchParams(window.location.search);
-        const isDemo = params.get("demo") === "true";
-        setIsDemoMode(isDemo);
-
-        const strictAdminRoutes = ["/programari", "/dosare-clienti", "/contacte-utile", "/abonamente", "/rapoarte", "/setari", "/profil", "/resurse", "/sugestii"];
-        const isTryingToAccessStrictAdmin = strictAdminRoutes.some(route => path.startsWith(route));
-
-        if (loggedIn && (path === "/login" || path === "/register")) {
-          router.replace("/profil");
-        } else if (!loggedIn && isTryingToAccessStrictAdmin && !isDemo) {
+        if (!isPublicPage && !authenticated) {
           router.replace("/login");
         }
       } catch (error) {
-        console.error("Auth sync error:", error);
+        setAuthLoaded(true);
       }
     };
 
     syncAuth();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (mounted) {
-        const loggedIn = !!session;
-        setIsLoggedIn(loggedIn);
-        if (loggedIn && (path === "/login" || path === "/register")) {
-          router.replace("/profil");
-        }
-      }
-    });
+    let subscription: any = null;
+    if (supabase && supabase.auth) {
+      try {
+        const { data } = supabase.auth.onAuthStateChange((_event, session) => {
+          const demoActive = localStorage.getItem("chronos_demo") === "true";
+          setIsLoggedIn(!!session);
+          
+          if (session) {
+            setIsDemo(false);
+            localStorage.removeItem("chronos_demo");
+          } else if (!isPublicPage && !demoActive) {
+            router.replace("/login");
+          }
+        });
+        subscription = data?.subscription;
+      } catch (e) {}
+    }
 
     return () => {
-      mounted = false;
-      subscription.unsubscribe();
+      if (subscription && typeof subscription.unsubscribe === 'function') {
+        subscription.unsubscribe();
+      }
     };
-  }, [path, router]);
+  }, [path, router, isPublicPage]);
 
-  // 2. ÎNCHIDERE LA CLICK EXTERIOR + PATH CHANGE
+  // Închidere meniu la click exterior
   useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
         setIsMenuOpen(false);
       }
-    }
+    };
     if (isMenuOpen) document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [isMenuOpen]);
 
-  useEffect(() => {
-    setIsMenuOpen(false);
-  }, [path]);
-
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    window.location.href = "/login";
-  };
-
-  const nav = [
-    { n: "📅 Programări", h: "/programari" },
-    { n: "📂 Dosare Clienți", h: "/dosare-clienti" },
-    { n: "🛠️ Servicii & Staff", h: "/resurse" },
-    { n: "📊 Rapoarte Analitice", h: "/rapoarte" },
-    { n: "👥 Contacte Utile", h: "/contacte-utile" },
-    { n: "⭐ Recenzii & Sugestii", h: "/sugestii" },
-    { n: "💎 Abonamente", h: "/abonamente" },
-    { n: "⚙️ Setări", h: "/setari" },
-  ];
-
-  const currentPageLabel = [...nav, { n: "👤 Profil", h: "/profil" }].find(item => path === item.h || path.startsWith(item.h + "/"))?.n || "Chronos";
-
   return (
     <html lang="ro">
-      <head>
-        <link rel="manifest" href="/manifest.json" />
-        <meta name="theme-color" content="#f59e0b" />
-        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0"/> 
-        <title>Chronos - Management Profesional</title>
-      </head>
-      
-      <body className="antialiased bg-slate-50 min-h-screen font-sans flex flex-col text-slate-900">
-        
-        {isDemoMode && !isLoggedIn && (
-          <div className="bg-slate-900 text-white text-[10px] font-black py-2.5 px-4 text-center uppercase tracking-[0.2em] sticky top-0 z-[110] border-b border-amber-500/30">
-            <span className="text-amber-500">●</span> Mod Previzualizare Activ <span className="mx-2 text-slate-700">|</span> 
-            <Link 
-              href="/login?view=sign_up" 
-              title="Creează un cont pentru a salva datele"
-              className="text-amber-400 hover:text-white transition-colors underline underline-offset-4"
-            >
-              Salvează-ți agenda creată acum →
-            </Link>
-          </div>
-        )}
+      <body className="antialiased bg-slate-50 min-h-screen flex flex-col font-sans text-slate-900">
+        {authLoaded ? (
+          <>
+            {!isPublicPage && (
+              <nav className="w-full bg-white border-b-4 border-slate-100 sticky top-0 z-[100] shadow-sm" ref={menuRef}>
+                <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center relative">
+                  
+                  <div className="flex items-center gap-4">
+                    <Link 
+                      href="/programari" 
+                      title="Mergi la Panoul de Control Chronos"
+                      className="flex items-center gap-5 group"
+                    >
+                      <img src="/logo-chronos.png" alt="Chronos Logo" className="w-16 h-16 object-contain group-hover:rotate-3 transition-transform duration-300" />
+                      <div className="text-2xl font-black italic uppercase tracking-tighter group-hover:text-amber-600 transition-all">
+                        CHRONOS<span className="text-amber-500">.</span>
+                      </div>
+                    </Link>
+                  </div>
 
-        <nav className={`w-full bg-white border-b-2 border-slate-100 sticky ${isDemoMode && !isLoggedIn ? 'top-[35px]' : 'top-0'} z-[100] shadow-sm`} ref={menuRef}>
-          <div className="px-4 py-3 flex items-center justify-between gap-2 max-w-[1400px] mx-auto">
-            
-            <div className="flex items-center gap-2 md:gap-3 pointer-events-none select-none">
-              <div className="w-10 h-10 md:w-11 md:h-11 relative rounded-xl overflow-hidden border border-slate-100 bg-white shadow-sm">
-                <Image 
-                  src="/logo-chronos.png" 
-                  alt="Logo Chronos" 
-                  fill 
-                  sizes="(max-width: 768px) 44px, 44px"
-                  style={{ objectFit: 'cover' }} 
-                  className="scale-150" 
-                  priority 
-                />
-              </div>
-              <h1 className="text-lg md:text-xl font-black italic uppercase tracking-tighter text-slate-900">
-                CHRONOS<span className="text-amber-500">.</span>
-              </h1>
-            </div>
+                  <div className="absolute left-1/2 -translate-x-1/2 hidden lg:block">
+                    <div className="border-2 border-amber-500 px-6 py-2 rounded-xl bg-amber-50/50 shadow-sm" title={`Ești pe pagina: ${getPageTitle()}`}>
+                      <h2 className="text-sm font-black uppercase italic tracking-widest text-slate-900 leading-none">
+                         {getPageTitle()}
+                      </h2>
+                    </div>
+                  </div>
 
-            {(isLoggedIn || isDemoMode) && !isStaticCustomerPage && (
-              <div className="flex-1 flex justify-center px-2">
-                <span className="bg-slate-50 px-4 py-1.5 rounded-full text-[9px] md:text-xs font-black uppercase italic text-amber-600 border border-slate-200 tracking-widest text-center">
-                  {isDemoMode && !isLoggedIn ? "Calendar Demo" : currentPageLabel}
-                </span>
-              </div>
+                  <div className="flex items-center gap-4">
+                    {isDemo && (
+                      <span className="hidden sm:block bg-amber-100 text-amber-700 text-[9px] px-3 py-1.5 rounded-full font-black uppercase tracking-widest border border-amber-200 animate-pulse">
+                        Mod Demo Activat
+                      </span>
+                    )}
+                    <button 
+                      title={isMenuOpen ? "Închide meniul principal" : "Deschide meniul de navigare"}
+                      onClick={() => setIsMenuOpen(!isMenuOpen)}
+                      className={`px-6 py-3 rounded-[20px] font-black text-[10px] uppercase italic tracking-widest transition-all border-b-4 active:translate-y-1 active:border-b-0 shadow-md ${
+                        isMenuOpen 
+                        ? "bg-amber-500 border-amber-700 text-white" 
+                        : "bg-slate-900 border-slate-700 text-white hover:bg-slate-800 ring-2 ring-amber-500/50 border-2 border-amber-500"
+                      }`}
+                    >
+                      {isMenuOpen ? "ÎNCHIDE ✕" : "MENIU ☰"}
+                    </button>
+                  </div>
+                </div>
+
+                {isMenuOpen && (
+                  <div className="absolute top-[calc(100%+10px)] right-6 w-72 bg-white border-2 border-slate-100 rounded-[30px] shadow-2xl p-3 z-[110] flex flex-col max-h-[80vh]">
+                    <div className="space-y-1 overflow-y-auto pr-1 scrollbar-thin">
+                      {[
+                        { href: "/programari", icon: "📅", label: "Programări" },
+                        { href: "/programari/calendar", icon: "🗓️", label: "Calendar" },
+                        { href: "/dosare-clienti", icon: "👥", label: "Dosare Clienți" },
+                        { href: "/resurse", icon: "📦", label: "Resurse" },
+                        { href: "/abonamente", icon: "💎", label: "Abonamente" },
+                        { href: "/rapoarte", icon: "📊", label: "Analiză & Rapoarte" },
+                        { href: "/sugestii", icon: "💡", label: "Sugestii Sistem" },
+                        { href: "/profil", icon: "👤", label: "Contul Meu" },
+                        { href: "/setari", icon: "⚙️", label: "Setări" }
+                      ].map((item) => (
+                        <Link 
+                          key={item.href}
+                          href={item.href} 
+                          onClick={() => setIsMenuOpen(false)} 
+                          title={`Deschide secțiunea ${item.label}`}
+                          className={`flex items-center gap-3 p-3 rounded-[20px] font-black text-[11px] uppercase italic transition-all group ${path === item.href ? "bg-amber-500 text-white shadow-inner" : "hover:bg-slate-50 text-slate-900"}`}
+                        >
+                          <span className={`p-2 rounded-lg ${path === item.href ? "bg-amber-600" : "bg-white shadow-sm"}`}>
+                            {item.icon}
+                          </span> 
+                          {item.label}
+                        </Link>
+                      ))}
+                    </div>
+
+                    <div className="mt-2 pt-2 border-t-2 border-slate-50 sticky bottom-0 bg-white">
+                      <button 
+                        title="Deconectare securizată din contul Chronos"
+                        onClick={async () => { 
+                          setIsMenuOpen(false);
+                          if (supabase && supabase.auth) {
+                            await supabase.auth.signOut(); 
+                          }
+                          localStorage.clear(); 
+                          window.location.href="/login"; 
+                        }}
+                        className="w-full text-left p-3 text-red-500 font-black text-[11px] uppercase italic hover:bg-red-50 rounded-[20px] transition-all flex items-center gap-3"
+                      >
+                        <span className="bg-red-100 p-2 rounded-lg">🚪</span> IEȘIRE SISTEM
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </nav>
             )}
 
-            <div className="flex items-center">
-              {isLoggedIn ? (
-                <button 
-                  title={isMenuOpen ? "Închide meniul" : "Deschide meniul principal Chronos"}
-                  onClick={() => setIsMenuOpen(!isMenuOpen)}
-                  className={`px-4 py-2 rounded-xl font-black text-[10px] uppercase italic transition-all border-2 flex items-center gap-2
-                    ${isMenuOpen ? 'bg-slate-900 text-white border-slate-900' : 'bg-white text-slate-600 border-slate-200 shadow-sm'}`}
-                >
-                  {isMenuOpen ? "ÎNCHIDE ✕" : "MENIU ☰"}
-                </button>
-              ) : isDemoMode ? (
-                <Link 
-                  title="Creează un cont nou pentru a salva datele"
-                  href="/login?view=sign_up"
-                  className="px-4 py-2 bg-amber-500 text-white rounded-xl font-black text-[10px] uppercase italic hover:bg-slate-900 transition-all shadow-lg border-2 border-amber-400 animate-pulse"
-                >
-                  ✨ CREEAZĂ CONT
-                </Link>
-              ) : (
-                <button 
-                  title="Testează funcționalitățile platformei fără cont"
-                  onClick={() => router.push("/programari?demo=true")}
-                  className="px-5 py-2 bg-slate-900 text-white rounded-xl font-black text-[10px] uppercase italic hover:bg-amber-500 transition-all shadow-md flex items-center gap-2"
-                >
-                  🚀 TESTEAZĂ DEMO
-                </button>
-              )}
-            </div>
-          </div>
+            <main className="flex-grow">{children}</main>
 
-          {isLoggedIn && isMenuOpen && (
-            <div className="absolute top-[calc(100%+8px)] right-4 w-[calc(100%-32px)] max-w-[400px] bg-white border border-slate-100 rounded-[32px] shadow-[0_20px_50px_rgba(0,0,0,0.1)] animate-in fade-in zoom-in-95 duration-200 z-[99] overflow-hidden flex flex-col max-h-[85vh]">
-              <div className="p-3 grid grid-cols-1 gap-1.5 overflow-y-auto scrollbar-hide">
-                <div className="px-4 py-2 mb-1 border-b border-slate-50 sticky top-0 bg-white z-10">
-                  <p className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-300 italic">Administrare Sistem</p>
+            <footer className="w-full bg-white border-t-4 border-slate-100 py-4 px-10 mt-auto">
+              <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+                <div className="flex items-center gap-4">
+                  <img src="/logo-chronos.png" alt="Chronos Logo" className="w-10 h-10 object-contain" />
+                  <p className="text-slate-900 font-black text-[10px] uppercase italic tracking-widest">
+                    © 2026 CHRONOS <span className="text-slate-300 mx-1">|</span> PREMIUM SYSTEM
+                  </p>
                 </div>
                 
-                {nav.map((l) => (
-                  <Link 
-                    key={l.h} 
-                    href={l.h} 
-                    onClick={() => setIsMenuOpen(false)}
-                    title={`Spre pagina ${l.n}`}
-                    className={`w-full p-4 rounded-[20px] font-black text-[11px] uppercase italic transition-all flex items-center justify-between ${path === l.h ? "bg-amber-500 text-white shadow-lg shadow-amber-200" : "bg-white text-slate-600 hover:bg-slate-50 border border-transparent hover:border-slate-100"}`}
-                  >
-                    {l.n}
-                    <span className="opacity-30 text-[10px]">→</span>
-                  </Link>
-                ))}
-                
-                <div className="mt-2 pt-2 border-t border-slate-50">
-                  <p className="px-4 py-2 text-[9px] font-black uppercase tracking-[0.2em] text-slate-300 italic">Contul Meu</p>
-                  <Link 
-                    href="/profil" 
-                    onClick={() => setIsMenuOpen(false)}
-                    title="Vizualizează profilul tău de utilizator"
-                    className={`w-full p-4 rounded-[20px] font-black text-[11px] uppercase italic transition-all flex items-center justify-between ${path === "/profil" ? "bg-amber-500 text-white shadow-lg" : "bg-slate-50 text-slate-900 hover:bg-amber-100"}`}
-                  >
-                    👤 Profil Utilizator
-                    <span className="opacity-30 text-[10px]">→</span>
-                  </Link>
-                </div>
-
-                <div className="mt-2 pt-2 border-t border-slate-50 sticky bottom-0 bg-white z-10">
+                <div className="flex gap-6">
                   <button 
-                    onClick={handleLogout} 
-                    title="Deconectează-te de la sistem"
-                    className="w-full p-4 rounded-[20px] font-black text-[11px] uppercase italic transition-all flex items-center justify-between bg-red-50/50 text-red-500 hover:bg-red-500 hover:text-white group"
+                    onClick={() => setModalOpen({ ...modalOpen, termeni: true })}
+                    className="text-[11px] font-black uppercase italic text-slate-900 hover:text-amber-500 transition-colors"
                   >
-                    Ieșire din cont 🚪
+                    Termeni
+                  </button>
+                  <button 
+                    onClick={() => setModalOpen({ ...modalOpen, gdpr: true })}
+                    className="text-[11px] font-black uppercase italic text-slate-900 hover:text-amber-500 transition-colors"
+                  >
+                    Confidențialitate
+                  </button>
+                  <button 
+                    onClick={() => setModalOpen({ ...modalOpen, cookies: true })}
+                    className="text-[11px] font-black uppercase italic text-slate-900 hover:text-amber-500 transition-colors"
+                  >
+                    Cookies
                   </button>
                 </div>
               </div>
-            </div>
-          )}
-        </nav>
+            </footer>
 
-        <main className="flex-grow">
-          {children}
-        </main>
-
-        <footer className="bg-white border-t border-slate-200 mt-6">
-          <div className="max-w-[1400px] mx-auto px-6 py-4 flex flex-col md:flex-row justify-between items-center gap-4">
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 relative bg-slate-50 rounded-lg border border-slate-100 p-0.5 shadow-inner">
-                  <Image 
-                    src="/logo-chronos.png" 
-                    alt="Logo Suport" 
-                    fill 
-                    sizes="36px"
-                    style={{ objectFit: 'cover' }}
-                    className="scale-125" 
-                  />
-                </div>
-                <div className="flex flex-col text-left">
-                  <span className="text-[10px] font-black text-slate-900 uppercase italic leading-none mb-1">Suport Tehnic</span>
-                  <a 
-                    href="mailto:copedatoro@gmail.com" 
-                    title="Trimite un e-mail către suport"
-                    className="text-[12px] font-bold text-amber-600 hover:text-amber-700 underline underline-offset-2 transition-all"
-                  >
-                    copedatoro@gmail.com
-                  </a>
-                </div>
-              </div>
-              <div className="flex flex-wrap justify-center gap-x-5 gap-y-2">
-                <Link href="/sugestii" title="Trimite-ne o sugestie" className="text-[10px] font-black text-amber-600 uppercase tracking-widest hover:text-amber-700">Sugestii ⭐</Link>
-                <Link href="/termeni" title="Vezi termenii și condițiile" className="text-[10px] font-black text-slate-500 uppercase tracking-widest hover:text-amber-600">Termeni</Link>
-                <Link href="/confidentialitate" title="Politica de confidențialitate" className="text-[10px] font-black text-slate-500 uppercase tracking-widest hover:text-amber-600">Confidențialitate</Link>
-                <Link href="/cookies" title="Politica de cookies" className="text-[10px] font-black text-slate-500 uppercase tracking-widest hover:text-amber-600">Cookies</Link>
-              </div>
-              <p className="text-[8px] font-bold text-slate-300 uppercase tracking-[0.2em]">© 2026 Chronos System</p>
+            <GDPRModal 
+              isOpen={modalOpen.gdpr} 
+              onClose={() => setModalOpen({ ...modalOpen, gdpr: false })} 
+            />
+            <TermeniModal 
+              isOpen={modalOpen.termeni} 
+              onClose={() => setModalOpen({ ...modalOpen, termeni: false })} 
+            />
+            <CookiesModal 
+              isOpen={modalOpen.cookies} 
+              onClose={() => setModalOpen({ ...modalOpen, cookies: false })} 
+            />
+          </>
+        ) : (
+          <div className="h-screen w-full flex items-center justify-center font-black italic text-slate-900 uppercase text-xs animate-pulse">
+            Sincronizare Chronos...
           </div>
-        </footer>
+        )}
       </body>
     </html>
   );

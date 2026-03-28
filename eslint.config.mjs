@@ -5,13 +5,30 @@ import nextTs from "eslint-config-next/typescript";
 const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTs,
-  // Override default ignores of eslint-config-next.
+  
+  // Override & Global Ignores
   globalIgnores([
-    // Default ignores of eslint-config-next:
+    // Foldere de build și export (Next.js & Capacitor)
     ".next/**",
     "out/**",
     "build/**",
+    "dist/**",
+    
+    // Configurații automate și tipuri generate
     "next-env.d.ts",
+    ".tsbuildinfo",
+    
+    // Native Mobile (Capacitor)
+    "android/**",
+    "ios/**",
+    "capacitor.config.ts", // Optional: ignori dacă nu vrei linting pe config-ul de mobil
+    
+    // Dependințe și Log-uri
+    "node_modules/**",
+    "*.log",
+    
+    // Fișiere de mediu
+    ".env*",
   ]),
 ]);
 

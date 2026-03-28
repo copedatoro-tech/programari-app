@@ -4,8 +4,10 @@ import { createClient } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
 
 // CONFIGURARE SUPABASE
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+// Verificăm existența variabilelor pentru a evita erori la inițializare
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
+const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
+
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 export default function IstoricPage() {
@@ -19,23 +21,32 @@ export default function IstoricPage() {
   const [notaNoua, setNotaNoua] = useState("");
   const [notaDeVizualizat, setNotaDeVizualizat] = useState<any | null>(null);
   
-  // Stări noi pentru editarea vizitei
+  // Stări pentru editarea vizitei
   const [vizitaDeEditat, setVizitaDeEditat] = useState<any | null>(null);
 
   useEffect(() => {
     const verificaSesiune = async () => {
-      const { data: { session }, error } = await supabase.auth.getSession();
-      
-      if (error || !session) {
-        setUserId(null);
-        setClientiGrupati([]);
-        router.push("/");
-        return;
-      }
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (error || !session) {
+          setUserId(null);
+          setClientiGrupati([]);
+          router.push("/");
+          return;
+        }
 
-      setUserId(session.user.id);
-      const plan = localStorage.getItem("user_plan") || "START (GRATUIT)";
-      setUserPlan(plan);
+        setUserId(session.user.id);
+        
+        // Verificare sigură pentru localStorage (doar pe client)
+        if (typeof window !== "undefined") {
+          const plan = localStorage.getItem("user_plan") || "START (GRATUIT)";
+          setUserPlan(plan);
+        }
+      } catch (err) {
+        console.error("Eroare sesiune:", err);
+        router.push("/");
+      }
     };
 
     verificaSesiune();
@@ -50,7 +61,9 @@ export default function IstoricPage() {
       }
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      if (subscription) subscription.unsubscribe();
+    };
   }, [router]);
 
   useEffect(() => {
@@ -107,7 +120,7 @@ export default function IstoricPage() {
       setNotaNoua("");
       preiaProgramariDinSupabase(userId);
       const updatedVizite = [...dosarSelectat.vizite];
-      updatedVizite[0].details = notaNoua;
+      updatedVizite[0] = { ...updatedVizite[0], details: notaNoua };
       setDosarSelectat({ ...dosarSelectat, vizite: updatedVizite });
     }
   };
@@ -167,8 +180,6 @@ export default function IstoricPage() {
       } else {
         setDosarSelectat({ ...dosarSelectat, vizite: viziteRamase });
       }
-    } else {
-      alert("Eroare la ștergere.");
     }
   };
 
@@ -209,38 +220,60 @@ export default function IstoricPage() {
 
   return (
     <main className="min-h-screen bg-slate-50 p-6 md:p-12 font-sans text-slate-900">
-      <div className="max-w-6xl mx-auto">
+      <div className="max-w-7xl mx-auto">
 
-        <div className="mb-10 text-center md:text-left">
-          <h1 className="text-4xl font-black italic uppercase tracking-tighter text-slate-900 leading-none">
-            Dosare <span className="text-amber-600">Clienți</span>
-          </h1>
-          <p className="text-slate-400 font-bold text-[10px] uppercase tracking-[0.3em] mt-3 italic">
-            Database • {clientiGrupati.length} Profile unice
-          </p>
+        {/* HEADER PAGINĂ PREMIUM */}
+        <div className="mb-12 flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white p-10 rounded-[50px] shadow-2xl shadow-slate-200/50 border-2 border-slate-50">
+          <div>
+            <h1 className="text-4xl md:text-6xl font-black italic uppercase tracking-tighter text-slate-900 leading-none">
+              DOSARE <span className="text-amber-600">CLIENȚI</span>
+            </h1>
+            <p className="text-slate-400 font-black text-[10px] uppercase tracking-[0.4em] mt-4 italic">
+              MANAGEMENTUL BAZEI DE DATE • {clientiGrupati.length} PROFILE UNICE
+            </p>
+          </div>
+          <div className="bg-slate-900 text-white px-10 py-5 rounded-[25px] shadow-2xl text-[12px] font-black uppercase tracking-widest italic border-b-4 border-slate-700">
+              PLAN ACTIV: {userPlan}
+          </div>
         </div>
 
-        <div className="relative mb-10">
+        {/* SEARCH BAR STILIZAT */}
+        <div className="relative mb-16 group">
           <input
             type="text"
-            placeholder="Caută în dosarele clienților..."
-            className="w-full p-5 pl-14 bg-white border-2 border-slate-100 rounded-[25px] outline-none focus:border-amber-500 font-bold shadow-sm transition-all"
+            placeholder="CAUTĂ ÎN DOSARE DUPĂ NUME..."
+            className="w-full p-8 pl-20 bg-white border-2 border-slate-100 rounded-[35px] outline-none focus:border-amber-500 font-black shadow-2xl shadow-slate-200/40 transition-all text-xl italic uppercase tracking-tight"
             value={cautare}
             onChange={(e) => setCautare(e.target.value)}
           />
-          <span className="absolute left-6 top-1/2 -translate-y-1/2 text-xl opacity-30">🔍</span>
+          <span className="absolute left-8 top-1/2 -translate-y-1/2 text-3xl group-focus-within:rotate-12 transition-transform">🔍</span>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {/* GRID DOSARE */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
           {incarcare ? (
-            <p className="text-center col-span-3 font-black text-slate-300 animate-pulse uppercase italic">Se încarcă baza de date...</p>
+            <div className="col-span-full py-32 text-center">
+                <div className="w-20 h-20 border-8 border-amber-500 border-t-transparent rounded-full animate-spin mx-auto mb-6"></div>
+                <p className="font-black text-slate-300 uppercase italic tracking-[0.3em]">SINCRONIZARE CU SUPABASE...</p>
+            </div>
           ) : rezultateFiltrate.map((client, index) => (
-            <div key={index} onClick={() => setDosarSelectat(client)} className="bg-white p-6 rounded-[35px] border-2 border-slate-100 hover:border-amber-400 hover:shadow-xl transition-all cursor-pointer group relative overflow-hidden" title={`Deschide dosarul lui ${client.nume}`}>
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-slate-900 text-amber-500 rounded-[15px] flex items-center justify-center text-lg font-black italic">{client.nume.charAt(0)}</div>
+            <div 
+              key={index} 
+              onClick={() => setDosarSelectat(client)} 
+              className="bg-white p-10 rounded-[45px] border-2 border-slate-50 hover:border-amber-400 shadow-xl shadow-slate-200/40 hover:shadow-2xl hover:scale-[1.03] transition-all cursor-pointer group relative overflow-hidden" 
+              title={`Accesează istoricul complet pentru ${client.nume}`}
+            >
+              <div className="absolute top-0 right-0 w-32 h-32 bg-slate-50 rounded-bl-[80px] -mr-10 -mt-10 group-hover:bg-amber-50 transition-colors"></div>
+              <div className="flex items-center gap-6 relative z-10">
+                <div className="w-20 h-20 bg-slate-900 text-amber-500 rounded-[22px] flex items-center justify-center text-3xl font-black italic shadow-xl group-hover:rotate-6 transition-transform">
+                  {client.nume.charAt(0)}
+                </div>
                 <div>
-                  <h3 className="text-lg font-black text-slate-900 uppercase italic tracking-tighter group-hover:text-amber-600 transition-colors leading-none">{client.nume}</h3>
-                  <p className="text-[8px] font-black text-slate-400 uppercase mt-1 tracking-widest italic">Ultima vizită: {client.ultimaVizita}</p>
+                  <h3 className="text-2xl font-black text-slate-900 uppercase italic tracking-tighter group-hover:text-amber-600 transition-colors leading-none mb-3">{client.nume}</h3>
+                  <div className="flex flex-col gap-1">
+                    <span className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] italic">ULTIMA VIZITĂ:</span>
+                    <span className="text-xs font-black text-slate-900 italic">{client.ultimaVizita}</span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -249,55 +282,90 @@ export default function IstoricPage() {
 
         {/* MODAL DOSAR CLIENT */}
         {dosarSelectat && (
-          <div className="fixed inset-0 bg-slate-900/95 backdrop-blur-md z-[100] flex items-center justify-center p-4" onClick={() => setDosarSelectat(null)}>
-            <div className="bg-white w-full max-w-5xl rounded-[40px] overflow-hidden shadow-2xl relative flex flex-col max-h-[90vh]" onClick={e => e.stopPropagation()}>
+          <div 
+            className="fixed inset-0 bg-slate-900/90 backdrop-blur-xl z-[100] flex items-center justify-center p-4 md:p-8" 
+            onClick={() => setDosarSelectat(null)}
+          >
+            <div 
+              className="bg-white w-full max-w-6xl rounded-[60px] overflow-hidden shadow-[0_0_100px_rgba(0,0,0,0.3)] relative flex flex-col max-h-[95vh] border-4 border-white/20" 
+              onClick={e => e.stopPropagation()}
+            >
 
-              <div className="p-8 bg-slate-900 text-white flex justify-between items-center border-b border-white/5">
-                <div className="flex items-center gap-6">
-                  <div>
-                    <p className="text-amber-500 font-black text-[9px] uppercase tracking-[0.3em] mb-1">Fișă Client</p>
-                    <h2 className="text-3xl font-black uppercase italic tracking-tighter leading-none">{dosarSelectat.nume}</h2>
+              <div className="p-10 md:p-14 bg-slate-900 text-white flex justify-between items-center relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-80 h-80 bg-amber-600/15 rounded-full -mr-20 -mt-20 blur-[100px]"></div>
+                <div className="flex items-center gap-10 relative z-10">
+                  <div className="hidden md:flex w-24 h-24 bg-amber-600 rounded-[30px] rotate-6 items-center justify-center text-4xl font-black italic shadow-2xl shadow-amber-900/40 border-4 border-amber-400/30">
+                    {dosarSelectat.nume.charAt(0)}
                   </div>
+                  <div>
+                    <p className="text-amber-500 font-black text-[11px] uppercase tracking-[0.5em] mb-3 italic">DOSAR DIGITAL SECURIZAT</p>
+                    <h2 className="text-4xl md:text-6xl font-black uppercase italic tracking-tighter leading-none">{dosarSelectat.nume}</h2>
+                  </div>
+                </div>
+                
+                <div className="flex items-center gap-5 relative z-10">
                   {dosarSelectat.telefon && (
-                    <a href={`https://wa.me/${dosarSelectat.telefon.replace(/\D/g, '')}`} target="_blank" className="bg-[#25D366] hover:scale-105 p-3 rounded-2xl transition-all shadow-lg flex items-center gap-2" title="Contact WhatsApp">
-                      <span className="text-xl">💬</span>
-                      <span className="text-[10px] font-black uppercase hidden md:inline">WhatsApp</span>
+                    <a 
+                      href={`https://wa.me/${dosarSelectat.telefon.replace(/\D/g, '')}`} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="bg-[#25D366] hover:bg-[#20ba5a] p-5 rounded-[22px] transition-all shadow-2xl flex items-center gap-4 group/wa hover:scale-105 active:scale-95" 
+                      title="Deschide conversația WhatsApp"
+                    >
+                      <span className="text-3xl group-hover:scale-110 transition-transform">💬</span>
+                      <span className="text-[12px] font-black uppercase hidden lg:inline tracking-widest">WhatsApp</span>
                     </a>
                   )}
+                  <button 
+                    onClick={() => setDosarSelectat(null)} 
+                    className="bg-white/10 hover:bg-red-500 w-16 h-16 rounded-[22px] flex items-center justify-center transition-all text-white border-2 border-white/10 shadow-2xl hover:rotate-90" 
+                    title="Închide fișa clientului"
+                  >
+                    <span className="text-3xl font-light">✕</span>
+                  </button>
                 </div>
-                <button onClick={() => setDosarSelectat(null)} className="bg-white/10 hover:bg-white/20 w-10 h-10 rounded-full flex items-center justify-center transition-all text-white font-bold" title="Închide Dosar">✕</button>
               </div>
 
               <div className="flex flex-col md:flex-row flex-grow overflow-hidden bg-slate-50">
 
-                <div className="w-full md:w-2/3 p-8 overflow-y-auto border-r border-slate-200">
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6 italic flex items-center gap-2">
-                    <span className="text-lg">📅</span> Istoric Activitate
-                  </p>
-                  <div className="space-y-4">
+                <div className="w-full md:w-3/5 lg:w-2/3 p-10 md:p-16 overflow-y-auto border-r-2 border-slate-100 custom-scrollbar">
+                  <div className="flex items-center justify-between mb-12">
+                    <h4 className="text-[14px] font-black text-slate-400 uppercase tracking-[0.4em] italic flex items-center gap-4">
+                      <span className="w-10 h-10 bg-slate-200 rounded-xl flex items-center justify-center text-lg shadow-sm">📅</span> CRONOLOGIE VIZITE
+                    </h4>
+                    <span className="text-[11px] font-black bg-slate-200 text-slate-600 px-5 py-2 rounded-full uppercase italic tracking-widest">{dosarSelectat.vizite.length} PROGRAMĂRI</span>
+                  </div>
+
+                  <div className="space-y-8">
                     {dosarSelectat.vizite.map((v: any, i: number) => {
                       const areAcces = verificaAcces(v.date);
                       return (
-                        <div key={i} className={`p-5 rounded-[25px] border-2 bg-white flex flex-col gap-2 relative group/item ${areAcces ? 'border-slate-100' : 'border-dashed opacity-50'}`}>
+                        <div key={i} className={`group/item p-8 rounded-[40px] border-2 bg-white shadow-sm hover:shadow-2xl hover:border-amber-300 transition-all relative ${areAcces ? 'border-white' : 'border-dashed opacity-50 grayscale'}`}>
                           
-                          <div className="flex justify-between items-center border-b border-slate-50 pb-2">
-                            <p className="text-[10px] font-black text-amber-600 uppercase italic">{v.date} — {v.time || "Ora nespecificată"}</p>
+                          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b-2 border-slate-50 pb-6 mb-6">
+                            <div className="flex items-center gap-6">
+                                <div className="p-4 bg-amber-50 rounded-[20px] border border-amber-100">
+                                    <p className="text-[10px] font-black text-amber-600 uppercase italic tracking-widest mb-1">{v.date}</p>
+                                    <p className="text-lg font-black text-slate-900 italic leading-none">{v.time || "--:--"}</p>
+                                </div>
+                                <div className="h-10 w-[2px] bg-slate-100 hidden md:block"></div>
+                                <p className="text-lg font-black text-slate-800 uppercase italic tracking-tighter">{v.service || "SERVICIU NESPECIFICAT"}</p>
+                            </div>
                             
-                            {/* Butoane Acțiuni Vizită */}
-                            <div className="flex gap-2">
+                            <div className="flex gap-3 md:opacity-0 group-hover/item:opacity-100 transition-opacity">
                               {areAcces && (
                                 <>
                                   <button 
                                     onClick={() => setVizitaDeEditat({ ...v })}
-                                    className="w-8 h-8 flex items-center justify-center rounded-lg bg-slate-50 text-slate-400 hover:bg-amber-100 hover:text-amber-600 transition-all text-xs"
-                                    title="Modifică vizita"
+                                    className="w-12 h-12 flex items-center justify-center rounded-[18px] bg-slate-50 text-slate-600 hover:bg-amber-500 hover:text-white transition-all shadow-md hover:scale-110 active:scale-90"
+                                    title="Modifică detaliile vizitei"
                                   >
                                     ✏️
                                   </button>
                                   <button 
                                     onClick={() => stergeVizitaDefinitiv(v.id)}
-                                    className="w-8 h-8 flex items-center justify-center rounded-lg bg-slate-50 text-slate-400 hover:bg-red-100 hover:text-red-600 transition-all text-xs"
-                                    title="Elimină vizita"
+                                    className="w-12 h-12 flex items-center justify-center rounded-[18px] bg-slate-50 text-slate-600 hover:bg-red-500 hover:text-white transition-all shadow-md hover:scale-110 active:scale-90"
+                                    title="Șterge definitiv programarea"
                                   >
                                     🗑️
                                   </button>
@@ -305,94 +373,116 @@ export default function IstoricPage() {
                               )}
                             </div>
                           </div>
-                          <p className="text-xs font-bold text-slate-800 uppercase italic">{v.service || "Fără titlu serviciu"}</p>
+                          
+                          {v.details && (
+                             <div className="bg-slate-50/80 p-6 rounded-[25px] italic text-sm font-black text-slate-500 border-2 border-white shadow-inner">
+                               "{v.details}"
+                             </div>
+                          )}
                         </div>
                       );
                     })}
                   </div>
                 </div>
 
-                <div className="w-full md:w-1/3 p-8 bg-white overflow-y-auto">
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6 italic flex items-center gap-2">
-                    <span className="text-lg">📝</span> Note Dosar
-                  </p>
+                <div className="w-full md:w-2/5 lg:w-1/3 p-10 md:p-16 bg-white overflow-y-auto custom-scrollbar">
+                  <h4 className="text-[14px] font-black text-slate-400 uppercase tracking-[0.4em] italic mb-10 flex items-center gap-4">
+                    <span className="w-10 h-10 bg-amber-100 rounded-xl flex items-center justify-center text-lg shadow-sm">📝</span> ÎNSEMNĂRI
+                  </h4>
 
-                  <div className="space-y-4 mb-8">
+                  <div className="space-y-6 mb-12">
                     <textarea
-                      className="w-full bg-slate-50 border-2 border-slate-100 p-4 rounded-[20px] font-bold text-slate-900 text-sm outline-none focus:border-amber-400 transition-all resize-none"
-                      rows={4}
-                      placeholder="Adaugă o notă nouă..."
+                      className="w-full bg-slate-50 border-2 border-slate-100 p-8 rounded-[35px] font-black text-slate-900 text-sm outline-none focus:border-amber-400 transition-all resize-none italic shadow-inner uppercase tracking-tight"
+                      rows={6}
+                      placeholder="ADAUGĂ O OBSERVAȚIE..."
                       value={notaNoua}
                       onChange={(e) => setNotaNoua(e.target.value)}
                     />
-                    <button onClick={adaugaNotaInBaza} className="w-full bg-slate-900 text-white py-3 rounded-xl font-black text-[10px] uppercase tracking-[0.2em] hover:bg-amber-500 hover:text-slate-900 transition-all shadow-md" title="Salvează nota">
-                      Salvează în dosar
+                    <button 
+                      onClick={adaugaNotaInBaza} 
+                      className="w-full bg-slate-900 text-white py-6 rounded-[25px] font-black text-[12px] uppercase tracking-[0.3em] italic hover:bg-amber-600 transition-all shadow-2xl border-b-4 border-slate-700 active:border-b-0 active:translate-y-1"
+                    >
+                      SALVEAZĂ ÎN FIȘĂ
                     </button>
                   </div>
 
-                  <div className="space-y-3">
-                    <p className="text-[9px] font-black text-slate-300 uppercase tracking-widest border-b border-slate-100 pb-2">Însemnări</p>
-                    {dosarSelectat.vizite.filter((v: any) => v.details).map((v: any, idx: number) => (
-                      <div
-                        key={idx}
-                        onClick={() => setNotaDeVizualizat({ ...v })}
-                        className="bg-amber-50/50 p-4 rounded-2xl border-l-4 border-amber-400 group relative cursor-pointer hover:bg-amber-100 transition-colors"
-                        title="Click pentru a edita nota"
-                      >
-                        <button
-                          onClick={(e) => stergeNota(e, v.id)}
-                          className="absolute top-2 right-2 w-6 h-6 flex items-center justify-center rounded-full bg-white/50 text-slate-400 hover:bg-red-500 hover:text-white transition-all text-[10px] font-bold"
-                          title="Șterge textul notei"
-                        >
-                          ✕
-                        </button>
-                        <p className="text-[8px] font-black text-slate-400 mb-1 uppercase tracking-tighter">{v.date}</p>
-                        <p className="text-xs font-bold text-slate-700 italic leading-relaxed line-clamp-3">{v.details}</p>
-                        <p className="mt-2 text-[8px] font-black uppercase text-amber-600 opacity-60 italic">Editează ➔</p>
-                      </div>
-                    ))}
+                  <div className="space-y-6">
+                    <p className="text-[11px] font-black text-slate-300 uppercase tracking-[0.3em] border-b-2 border-slate-50 pb-4 italic">ARHIVĂ NOTE</p>
+                    {dosarSelectat.vizite.filter((v: any) => v.details).length === 0 ? (
+                        <div className="py-20 text-center border-2 border-dashed border-slate-100 rounded-[40px]">
+                            <p className="text-[11px] text-slate-300 italic font-black uppercase tracking-widest">Niciun istoric salvat.</p>
+                        </div>
+                    ) : (
+                        dosarSelectat.vizite.filter((v: any) => v.details).map((v: any, idx: number) => (
+                          <div
+                            key={idx}
+                            onClick={() => setNotaDeVizualizat({ ...v })}
+                            className="bg-white p-7 rounded-[35px] border-2 border-slate-50 group relative cursor-pointer hover:shadow-2xl hover:border-amber-200 transition-all hover:-rotate-1"
+                          >
+                            <button
+                              onClick={(e) => stergeNota(e, v.id)}
+                              className="absolute top-6 right-6 w-8 h-8 flex items-center justify-center rounded-xl bg-slate-50 text-slate-400 hover:bg-red-500 hover:text-white transition-all text-xs font-black shadow-sm"
+                            >
+                              ✕
+                            </button>
+                            <span className="text-[10px] font-black text-amber-600 mb-3 block uppercase tracking-widest italic">{v.date}</span>
+                            <p className="text-[13px] font-black text-slate-700 italic leading-relaxed line-clamp-3 uppercase tracking-tight">"{v.details}"</p>
+                            <div className="mt-5 flex items-center justify-end">
+                                <span className="text-[9px] font-black uppercase text-slate-300 italic group-hover:text-amber-600 transition-colors">EDITEAZĂ ➔</span>
+                            </div>
+                          </div>
+                        ))
+                    )}
                   </div>
                 </div>
               </div>
 
-              <div className="p-6 border-t border-slate-100 text-center bg-white">
-                <button onClick={() => setDosarSelectat(null)} className="px-10 py-3 bg-slate-100 text-slate-500 rounded-full font-black text-[10px] uppercase tracking-widest hover:bg-slate-200 transition-all" title="Închide">Închide Fișa</button>
+              <div className="p-10 border-t-2 border-slate-50 text-center bg-white flex justify-center">
+                <button 
+                  onClick={() => setDosarSelectat(null)} 
+                  className="px-20 py-5 bg-slate-100 text-slate-500 rounded-full font-black text-[12px] uppercase tracking-[0.4em] italic hover:bg-slate-200 transition-all border-2 border-slate-200/50 shadow-xl shadow-slate-200/50"
+                >
+                  ÎNCHIDE DOSARUL
+                </button>
               </div>
             </div>
           </div>
         )}
 
-        {/* POP-UP EDITOR VIZITĂ (NOU) */}
+        {/* EDITOR VIZITĂ */}
         {vizitaDeEditat && (
-          <div className="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-[150] flex items-center justify-center p-6" onClick={() => setVizitaDeEditat(null)}>
-            <div className="bg-white w-full max-w-md rounded-[35px] p-8 shadow-2xl relative border-2 border-slate-100" onClick={e => e.stopPropagation()}>
-              <h3 className="text-xl font-black uppercase italic mb-6 text-slate-900 tracking-tighter">Modifică Vizita</h3>
+          <div className="fixed inset-0 bg-slate-900/95 backdrop-blur-md z-[150] flex items-center justify-center p-6" onClick={() => setVizitaDeEditat(null)}>
+            <div className="bg-white w-full max-w-md rounded-[55px] p-12 shadow-[0_0_80px_rgba(0,0,0,0.4)] relative border-4 border-white/20" onClick={e => e.stopPropagation()}>
+              <div className="text-center mb-10">
+                <h3 className="text-3xl font-black uppercase italic text-slate-900 tracking-tighter">MODIFICĂ <span className="text-amber-600">VIZITA</span></h3>
+                <div className="h-2 w-16 bg-amber-600 mx-auto mt-4 rounded-full"></div>
+              </div>
               
-              <div className="space-y-4">
+              <div className="space-y-6">
                 <div>
-                  <label className="text-[9px] font-black uppercase text-slate-400 ml-2 mb-1 block tracking-widest">Serviciu Prestatt</label>
+                  <label className="text-[11px] font-black uppercase text-slate-400 ml-5 mb-3 block tracking-[0.2em] italic">SERVICIU PRESTAT</label>
                   <input 
                     type="text" 
-                    className="w-full bg-slate-50 border-2 border-slate-100 p-4 rounded-2xl font-bold outline-none focus:border-amber-400 transition-all"
-                    value={vizitaDeEditat.service}
+                    className="w-full bg-slate-50 border-2 border-slate-100 p-6 rounded-[25px] font-black outline-none focus:border-amber-400 transition-all italic uppercase"
+                    value={vizitaDeEditat.service || ""}
                     onChange={e => setVizitaDeEditat({...vizitaDeEditat, service: e.target.value})}
                   />
                 </div>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-5">
                   <div>
-                    <label className="text-[9px] font-black uppercase text-slate-400 ml-2 mb-1 block tracking-widest">Dată</label>
+                    <label className="text-[11px] font-black uppercase text-slate-400 ml-5 mb-3 block tracking-[0.2em] italic">DATĂ NOUĂ</label>
                     <input 
                       type="date" 
-                      className="w-full bg-slate-50 border-2 border-slate-100 p-4 rounded-2xl font-bold outline-none focus:border-amber-400 transition-all"
-                      value={vizitaDeEditat.date}
+                      className="w-full bg-slate-50 border-2 border-slate-100 p-6 rounded-[25px] font-black outline-none focus:border-amber-400 transition-all italic"
+                      value={vizitaDeEditat.date || ""}
                       onChange={e => setVizitaDeEditat({...vizitaDeEditat, date: e.target.value})}
                     />
                   </div>
                   <div>
-                    <label className="text-[9px] font-black uppercase text-slate-400 ml-2 mb-1 block tracking-widest">Oră</label>
+                    <label className="text-[11px] font-black uppercase text-slate-400 ml-5 mb-3 block tracking-[0.2em] italic">ORA</label>
                     <input 
                       type="time" 
-                      className="w-full bg-slate-50 border-2 border-slate-100 p-4 rounded-2xl font-bold outline-none focus:border-amber-400 transition-all"
+                      className="w-full bg-slate-50 border-2 border-slate-100 p-6 rounded-[25px] font-black outline-none focus:border-amber-400 transition-all italic"
                       value={vizitaDeEditat.time || ""}
                       onChange={e => setVizitaDeEditat({...vizitaDeEditat, time: e.target.value})}
                     />
@@ -400,38 +490,62 @@ export default function IstoricPage() {
                 </div>
               </div>
 
-              <div className="flex gap-3 mt-8">
-                <button onClick={() => setVizitaDeEditat(null)} className="flex-1 py-4 bg-slate-100 text-slate-400 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-slate-200 transition-all">Anulează</button>
-                <button onClick={salveazaEditareVizita} className="flex-1 py-4 bg-slate-900 text-amber-500 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-amber-500 hover:text-slate-900 transition-all shadow-lg">Salvează</button>
+              <div className="flex flex-col gap-4 mt-12">
+                <button 
+                  onClick={salveazaEditareVizita} 
+                  className="w-full py-6 bg-slate-900 text-white rounded-[25px] font-black text-[13px] uppercase tracking-[0.3em] italic hover:bg-amber-600 transition-all shadow-2xl border-b-4 border-slate-700 active:border-b-0 active:translate-y-1"
+                >
+                  ACTUALIZEAZĂ ACUM
+                </button>
+                <button 
+                  onClick={() => setVizitaDeEditat(null)} 
+                  className="w-full py-4 text-slate-300 font-black text-[11px] uppercase tracking-widest hover:text-red-500 transition-colors italic"
+                >
+                  ANULEAZĂ MODIFICĂRILE
+                </button>
               </div>
             </div>
           </div>
         )}
 
-        {/* POP-UP EDITOR NOTĂ */}
+        {/* EDITOR NOTĂ */}
         {notaDeVizualizat && (
-          <div className="fixed inset-0 bg-slate-900/70 backdrop-blur-md z-[120] flex items-center justify-center p-6" onClick={() => setNotaDeVizualizat(null)}>
-            <div className="bg-white w-full max-w-lg rounded-[40px] p-8 shadow-2xl relative border-4 border-amber-400" onClick={e => e.stopPropagation()}>
-              <div className="flex justify-between items-center mb-6 border-b border-slate-100 pb-4">
-                <p className="text-[11px] font-black text-amber-600 uppercase tracking-[0.2em] italic">Editează Notă • {notaDeVizualizat.date}</p>
-                <button onClick={() => setNotaDeVizualizat(null)} className="text-slate-300 hover:text-slate-900 text-xl font-bold transition-colors" title="Închide editorul">✕</button>
+          <div className="fixed inset-0 bg-slate-900/95 backdrop-blur-md z-[120] flex items-center justify-center p-6" onClick={() => setNotaDeVizualizat(null)}>
+            <div className="bg-white w-full max-w-2xl rounded-[60px] p-12 shadow-2xl relative border-4 border-amber-500/10" onClick={e => e.stopPropagation()}>
+              <div className="flex justify-between items-center mb-10 border-b-2 border-slate-50 pb-8">
+                <div>
+                    <p className="text-[12px] font-black text-amber-600 uppercase tracking-[0.4em] italic mb-2">EDITOR ÎNSEMNĂRI</p>
+                    <h3 className="text-2xl md:text-3xl font-black text-slate-900 italic uppercase tracking-tighter">VIZITA DIN {notaDeVizualizat.date}</h3>
+                </div>
+                <button onClick={() => setNotaDeVizualizat(null)} className="w-14 h-14 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-400 hover:text-red-500 transition-all shadow-sm border border-slate-100">✕</button>
               </div>
               <textarea
-                className="w-full min-h-[200px] bg-slate-50 border-2 border-slate-100 p-6 rounded-[25px] font-bold text-slate-800 text-lg leading-relaxed italic outline-none focus:border-amber-400 transition-all resize-none"
-                value={notaDeVizualizat.details}
+                className="w-full min-h-[300px] bg-slate-50 border-2 border-slate-100 p-10 rounded-[40px] font-black text-slate-800 text-xl leading-relaxed italic outline-none focus:border-amber-400 transition-all resize-none shadow-inner uppercase tracking-tight"
+                value={notaDeVizualizat.details || ""}
                 onChange={(e) => setNotaDeVizualizat({ ...notaDeVizualizat, details: e.target.value })}
-                placeholder="Modifică detaliile notei aici..."
                 autoFocus
               />
-              <div className="flex gap-4 mt-8">
-                <button onClick={() => setNotaDeVizualizat(null)} className="flex-1 py-4 bg-slate-100 text-slate-400 rounded-[20px] font-black text-[11px] uppercase tracking-widest hover:bg-slate-200 transition-all">Anulează</button>
-                <button onClick={actualizeazaNotaExistenta} className="flex-[2] py-4 bg-slate-900 text-white rounded-[20px] font-black text-[11px] uppercase tracking-widest hover:bg-amber-500 hover:text-slate-900 transition-all shadow-lg">Salvează Modificările</button>
+              <div className="flex flex-col md:flex-row gap-5 mt-12">
+                <button onClick={() => setNotaDeVizualizat(null)} className="flex-1 py-6 bg-slate-100 text-slate-400 rounded-[25px] font-black text-[12px] uppercase tracking-widest hover:bg-slate-200 transition-all italic">ABANDONEAZĂ</button>
+                <button 
+                  onClick={actualizeazaNotaExistenta} 
+                  className="flex-[2] py-6 bg-slate-900 text-white rounded-[25px] font-black text-[12px] uppercase tracking-[0.3em] italic hover:bg-amber-600 transition-all shadow-2xl border-b-4 border-slate-700 active:border-b-0 active:translate-y-1"
+                >
+                  SALVEAZĂ MODIFICĂRILE
+                </button>
               </div>
             </div>
           </div>
         )}
 
       </div>
+
+      <style jsx global>{`
+        .custom-scrollbar::-webkit-scrollbar { width: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f8fafc; border-radius: 20px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 20px; border: 3px solid #f8fafc; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #cbd5e1; }
+      `}</style>
     </main>
   );
 }

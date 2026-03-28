@@ -1,9 +1,15 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'com.example.app',
-  appName: 'npm install @capacitor/android @capacitor/ios',
-  webDir: 'public'
+  appId: 'com.chronos.management',
+  appName: 'Chronos',
+  webDir: 'out', // Important pentru Next.js static export
+  server: {
+    androidScheme: 'https'
+  },
+  ios: {
+    contentInset: 'always'
+  }
 };
 
 export default config;
