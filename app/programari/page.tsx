@@ -31,10 +31,10 @@ type Programare = {
 };
 
 const LIMITE_ABONAMENTE: Record<string, number> = {
-  "start (gratuit)": 30,
-  "chronos pro": 150,
-  "chronos elite": 500,
-  "chronos team": 10000 
+  "start (gratuit)": 50,
+  "chronos pro": 200,
+  "chronos elite": 1000,
+  "chronos team": 999999 
 };
 
 function ProgramariContent() {
@@ -66,6 +66,9 @@ function ProgramariContent() {
     angajat_id: "",
     serviciu_id: "" 
   });
+
+  const limitaCurenta = isTrialing ? 1000 : (LIMITE_ABONAMENTE[userPlan] || 50);
+  const esteLimitat = countLunaCurenta >= limitaCurenta;
 
   const resetAllData = () => {
     setProgramari([]);
@@ -227,14 +230,13 @@ function ProgramariContent() {
 
   const salveazaInCloud = async () => {
     if (!supabase) return;
+    if (esteLimitat) {
+      alert(`⚠️ Limita atinsă! Planul tău permite doar ${limitaCurenta} programări pe lună.`);
+      return;
+    }
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
     
-    const limita = isTrialing ? 500 : (LIMITE_ABONAMENTE[userPlan] || 30);
-    if (countLunaCurenta >= limita) {
-      alert(`⚠️ Abonamentul tău (${userPlan.toUpperCase()}) este limitat la ${limita} programări.`);
-      return;
-    }
     if (!formular.nume || !formular.telefon) {
       alert("⚠️ Numele și Telefonul sunt obligatorii!");
       return;
@@ -317,7 +319,7 @@ function ProgramariContent() {
                     Gestiune <span className="text-amber-600">Programări</span>
                 </h1>
                 <p className="text-[10px] font-black uppercase italic text-slate-400 mt-2">
-                    Plan actual: <span className="text-amber-600 font-bold">{userPlan.toUpperCase()}</span> • {countLunaCurenta} / {isTrialing ? 500 : (LIMITE_ABONAMENTE[userPlan] || 30)} luna aceasta
+                    Plan actual: <span className="text-amber-600 font-bold">{userPlan.toUpperCase()}</span> • {countLunaCurenta} / {limitaCurenta} luna aceasta
                 </p>
             </div>
             <div className="flex flex-col gap-2 self-start md:self-auto items-end">
@@ -331,7 +333,7 @@ function ProgramariContent() {
                     <Link 
                       href="/programari/calendar" 
                       className="bg-white px-6 py-3 rounded-2xl shadow-sm border border-slate-200 flex items-center gap-3 hover:bg-slate-50 transition-all group"
-                      title="Vezi Calendarul complet al programărilor"
+                      title="Vezi Calendarul complet al programărilor pentru o vizualizare de ansamblu"
                     >
                         <span className="text-xs group-hover:scale-110 transition-transform">📅</span>
                         <p className="text-[11px] font-black uppercase italic text-slate-600">Calendar</p>
@@ -372,7 +374,7 @@ function ProgramariContent() {
                 {showSuggestions && (
                   <div className="absolute top-full left-0 right-0 z-[110] bg-white mt-2 rounded-3xl shadow-2xl border border-slate-100 overflow-hidden">
                     {filteredClients.map((c, idx) => (
-                      <button key={idx} onClick={() => selecteazaClient(c)} className="w-full flex items-center gap-4 p-4 hover:bg-amber-50 border-b border-slate-50 last:border-0 text-left transition-colors" title={`Selectează clientul ${c.nume}`}>
+                      <button key={idx} onClick={() => selecteazaClient(c)} className="w-full flex items-center gap-4 p-4 hover:bg-amber-50 border-b border-slate-50 last:border-0 text-left transition-colors" title={`Selectează clientul existent ${c.nume}`}>
                         <div className="w-10 h-10 rounded-xl bg-slate-100 overflow-hidden flex items-center justify-center relative">
                             {c.poza ? <img src={c.poza} className="w-full h-full object-cover" /> : <Image src="/logo-chronos.png" alt="logo" fill sizes="40px" style={{ objectFit: 'contain', padding: '4px' }} />}
                         </div>
@@ -423,7 +425,7 @@ function ProgramariContent() {
                   type="button" 
                   onClick={() => setShowHourPicker(!showHourPicker)} 
                   className="w-full p-5 bg-slate-50 rounded-[25px] font-bold text-lg shadow-inner text-left flex justify-between items-center border-2 border-transparent hover:border-amber-500 transition-all"
-                  title="Selectează ora exactă a programării"
+                  title="Selectează ora exactă a programării dintr-un selector rapid"
                 >
                   {formular.ora} <span className="text-amber-600 text-[10px]">🕒</span>
                 </button>
@@ -441,7 +443,7 @@ function ProgramariContent() {
                         ))}
                       </div>
                     </div>
-                    <button type="button" onClick={() => setShowHourPicker(false)} className="w-full mt-4 py-3 bg-slate-900 text-white rounded-xl font-black text-[10px] uppercase italic hover:bg-amber-600 transition-colors" title="Confirmă ora selectată">Confirmă Ora</button>
+                    <button type="button" onClick={() => setShowHourPicker(false)} className="w-full mt-4 py-3 bg-slate-900 text-white rounded-xl font-black text-[10px] uppercase italic hover:bg-amber-600 transition-colors" title="Confirmă ora selectată pentru programare">Confirmă Ora</button>
                   </div>
                 )}
               </div>
@@ -458,7 +460,7 @@ function ProgramariContent() {
                 <div className="flex items-center justify-between mb-3 px-2">
                   <span className="text-[9px] font-black uppercase text-slate-500 italic">Fișiere atașate</span>
                   <input type="file" id="doc-upload" className="hidden" multiple onChange={handleFileUpload} />
-                  <label htmlFor="doc-upload" className="bg-slate-900 text-white px-5 py-2.5 rounded-xl font-black text-[10px] uppercase italic cursor-pointer hover:bg-amber-600 transition-colors shadow-sm" title="Atașează documente sau poze suplimentare">
+                  <label htmlFor="doc-upload" className="bg-slate-900 text-white px-5 py-2.5 rounded-xl font-black text-[10px] uppercase italic cursor-pointer hover:bg-amber-600 transition-colors shadow-sm" title="Atașează documente, analize sau poze suplimentare pentru fișa clientului">
                     Adaugă Fișier +
                   </label>
                 </div>
@@ -473,7 +475,7 @@ function ProgramariContent() {
                         )}
                       </div>
                       <span className="text-[8px] font-black text-slate-600 truncate uppercase italic">{doc.name}</span>
-                      <button onClick={() => eliminaDocument(doc.id)} className="absolute right-1.5 w-5 h-5 bg-red-50 text-red-500 rounded-lg flex items-center justify-center text-[10px] font-black hover:bg-red-500 hover:text-white transition-all" title="Elimină acest fișier">✕</button>
+                      <button onClick={() => eliminaDocument(doc.id)} className="absolute right-1.5 w-5 h-5 bg-red-50 text-red-500 rounded-lg flex items-center justify-center text-[10px] font-black hover:bg-red-500 hover:text-white transition-all" title="Elimină definitiv acest fișier atașat">✕</button>
                     </div>
                   ))}
                 </div>
@@ -481,12 +483,16 @@ function ProgramariContent() {
 
             <button 
               onClick={salveazaInCloud} 
-              disabled={countLunaCurenta >= (isTrialing ? 500 : (LIMITE_ABONAMENTE[userPlan] || 30))}
-              className={`w-full lg:w-[280px] h-[85px] rounded-[30px] font-black uppercase shadow-xl transition-all italic flex flex-col items-center justify-center gap-0.5 group ${countLunaCurenta >= (isTrialing ? 500 : (LIMITE_ABONAMENTE[userPlan] || 30)) ? 'bg-slate-300 cursor-not-allowed text-slate-500' : 'bg-amber-600 text-white hover:bg-slate-900'}`}
-              title="Salvează programarea definitiv în sistem"
+              disabled={esteLimitat}
+              className={`w-full lg:w-[280px] h-[85px] rounded-[30px] font-black uppercase shadow-xl transition-all italic flex flex-col items-center justify-center gap-0.5 group ${esteLimitat ? 'bg-slate-300 cursor-not-allowed text-slate-500 opacity-60' : 'bg-amber-600 text-white hover:bg-slate-900'}`}
+              title={esteLimitat ? "Ai atins limita maximă de programări pentru planul tău" : "Salvează programarea definitiv în sistem și actualizează calendarul"}
             >
-              <span className="text-[10px] opacity-70">✓ FINALIZARE</span>
-              <span className="text-sm tracking-tighter">Salvează Programarea</span>
+              <span className="text-[10px] opacity-70">
+                {esteLimitat ? "⚠️ LIMITĂ ATINSĂ" : "✓ FINALIZARE"}
+              </span>
+              <span className="text-sm tracking-tighter">
+                {esteLimitat ? "Actualizează Planul" : "Salvează Programarea"}
+              </span>
             </button>
           </div>
         </section>
@@ -502,8 +508,8 @@ function ProgramariContent() {
               const spec = angajati.find(a => a.id === p.angajat_id);
               const serv = servicii.find(s => s.id === p.serviciu_id);
               return (
-                  <div key={p.id} className="relative bg-white p-5 rounded-[35px] shadow-sm border border-amber-200 ring-2 ring-amber-100 transition-all cursor-pointer hover:shadow-lg hover:scale-[1.02]" onClick={() => setPopupProgramare(p)} title={`Click pentru detalii complete: ${p.nume}`}>
-                      <button onClick={(e) => { e.stopPropagation(); eliminaProgramare(p.id, e); }} className="absolute top-4 right-4 text-red-500 font-black text-[10px] z-10 hover:scale-125 transition-transform" title="Șterge definitiv această programare">✕</button>
+                  <div key={p.id} className="relative bg-white p-5 rounded-[35px] shadow-sm border border-amber-200 ring-2 ring-amber-100 transition-all cursor-pointer hover:shadow-lg hover:scale-[1.02]" onClick={() => setPopupProgramare(p)} title={`Click pentru a vedea detaliile complete pentru ${p.nume}`}>
+                      <button onClick={(e) => { e.stopPropagation(); eliminaProgramare(p.id, e); }} className="absolute top-4 right-4 text-red-500 font-black text-[10px] z-10 hover:scale-125 transition-transform" title="Șterge definitiv această programare din baza de date">✕</button>
                       <div className="flex gap-3 items-center mb-4 pr-6">
                           <div className="w-12 h-12 rounded-[18px] bg-slate-50 overflow-hidden border-2 border-white shadow-inner flex items-center justify-center relative" style={{ backgroundColor: spec?.culoare }}>
                               {p.poza ? <img src={p.poza} className="w-full h-full object-cover" alt="client" /> : <Image src="/logo-chronos.png" alt="logo" fill sizes="48px" style={{ objectFit: 'contain', padding: '4px' }} />}
@@ -528,7 +534,7 @@ function ProgramariContent() {
         {popupProgramare && (
             <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[200] flex items-center justify-center p-4 animate-in fade-in duration-300">
                 <div ref={popupRef} className="bg-white w-full max-w-lg rounded-[50px] overflow-hidden shadow-2xl border border-slate-100 relative animate-in zoom-in duration-300">
-                    <button onClick={() => setPopupProgramare(null)} className="absolute top-8 right-8 w-10 h-10 bg-slate-50 rounded-2xl flex items-center justify-center font-black text-slate-400 hover:bg-red-50 hover:text-red-500 transition-all z-10" title="Închide detaliile programării">✕</button>
+                    <button onClick={() => setPopupProgramare(null)} className="absolute top-8 right-8 w-10 h-10 bg-slate-50 rounded-2xl flex items-center justify-center font-black text-slate-400 hover:bg-red-50 hover:text-red-500 transition-all z-10" title="Închide fereastra cu detaliile programării">✕</button>
                     
                     <div className="h-32 bg-slate-900 relative">
                         <div className="absolute -bottom-12 left-10 w-24 h-24 rounded-[30px] bg-white p-2 shadow-xl border border-slate-50">
@@ -568,7 +574,7 @@ function ProgramariContent() {
                                 <p className="text-[9px] font-black text-slate-400 uppercase italic mb-3">Documente atașate</p>
                                 <div className="flex flex-wrap gap-2">
                                     {popupProgramare.documente.map(doc => (
-                                        <a key={doc.id} href={doc.url} download={doc.name} className="flex items-center gap-2 bg-amber-50 border border-amber-100 px-3 py-2 rounded-xl group hover:bg-amber-600 transition-all" title={`Descarcă ${doc.name}`}>
+                                        <a key={doc.id} href={doc.url} download={doc.name} className="flex items-center gap-2 bg-amber-50 border border-amber-100 px-3 py-2 rounded-xl group hover:bg-amber-600 transition-all" title={`Descarcă fișierul: ${doc.name}`}>
                                             <span className="text-xs group-hover:filter group-hover:invert">📄</span>
                                             <span className="text-[8px] font-black text-amber-800 uppercase italic group-hover:text-white truncate max-w-[100px]">{doc.name}</span>
                                         </a>

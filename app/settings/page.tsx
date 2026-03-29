@@ -13,14 +13,16 @@ export default function AdminSettingsHub() {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   ), []);
 
-  // --- STATE-URI GENERALE ---
   const [loading, setLoading] = useState(true);
   const [userId, setUserId] = useState<string | null>(null);
   const [userUrl, setUserUrl] = useState("");
-  const [userPlan, setUserPlan] = useState("START (GRATUIT)");
+  const [userPlan, setUserPlan] = useState("CHRONOS FREE");
   const [mounted, setMounted] = useState(false);
 
-  // --- STATE-URI CALENDAR & BLOCARI ---
+  const hasBookingAccess = useMemo(() => {
+    return ["CHRONOS ELITE", "CHRONOS TEAM"].includes(userPlan.toUpperCase());
+  }, [userPlan]);
+
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [bookingInterval, setBookingInterval] = useState(15);
@@ -33,7 +35,6 @@ export default function AdminSettingsHub() {
   const modalRef = useRef<HTMLDivElement>(null);
   const qrContainerRef = useRef<HTMLDivElement>(null);
 
-  // --- GENERARE SLOTURI ORARE ---
   const generateSlots = useCallback((step: number) => {
     const slots = [];
     for (let hour = 8; hour < 20; hour++) {
@@ -46,7 +47,6 @@ export default function AdminSettingsHub() {
 
   const dynamicTimeSlots = useMemo(() => generateSlots(bookingInterval), [bookingInterval, generateSlots]);
 
-  // --- FETCH DATE DIN SUPABASE ---
   const fetchMonthlyAppointments = useCallback(async (uid: string, date: Date) => {
     const firstDay = new Date(date.getFullYear(), date.getMonth(), 1).toISOString().split('T')[0];
     const lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0).toISOString().split('T')[0];
@@ -68,7 +68,7 @@ export default function AdminSettingsHub() {
 
       const { data: profile } = await supabase.from('profiles').select('*').eq('id', session.user.id).single();
       if (profile) {
-        setUserPlan(profile.plan_type || "START (GRATUIT)");
+        setUserPlan(profile.plan_type?.toUpperCase() || "CHRONOS FREE");
         setManualBlocks(profile.manual_blocks || {});
         setBookingInterval(profile.booking_interval || 15);
         await fetchMonthlyAppointments(session.user.id, currentMonth);
@@ -78,8 +78,8 @@ export default function AdminSettingsHub() {
     initAdmin();
   }, [supabase, router, currentMonth, fetchMonthlyAppointments]);
 
-  // --- FUNCȚII QR & SHARE ---
   const downloadQRCode = () => {
+    if (!hasBookingAccess) return;
     const svg = qrContainerRef.current?.querySelector("svg");
     if (!svg) return;
     const svgData = new XMLSerializer().serializeToString(svg);
@@ -100,11 +100,11 @@ export default function AdminSettingsHub() {
   };
 
   const shareOnWhatsApp = () => {
+    if (!hasBookingAccess) return;
     const text = `Bună! Poți folosi acest link pentru a face o programare: ${userUrl}`;
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
   };
 
-  // --- GESTIUNE CALENDAR ---
   const saveBlocksToSupabase = async (updatedBlocks: any) => {
     if (!userId) return;
     const { error } = await supabase.from('profiles').update({ 
@@ -113,7 +113,7 @@ export default function AdminSettingsHub() {
     }).eq('id', userId);
     if (!error) {
       setIsDirty(false);
-      alert("✅ Modificări salvate cu succes!");
+      alert("✅ Modificări înregistrate!");
     }
   };
 
@@ -141,13 +141,11 @@ export default function AdminSettingsHub() {
 
   const handleCloseModal = () => {
     if (isDirty) {
-      if (!confirm("Ai modificări nesalvate. Sigur vrei să închizi?")) return;
+      saveBlocksToSupabase(manualBlocks);
     }
-    setIsDirty(false);
     setShowDayModal(false);
   };
 
-  // --- RENDER CALENDAR ---
   const renderCalendar = () => {
     const year = currentMonth.getFullYear();
     const month = currentMonth.getMonth();
@@ -168,12 +166,12 @@ export default function AdminSettingsHub() {
           const { data } = await supabase.from("appointments").select("time").eq("date", dateStr).eq("user_id", userId);
           setExistingBookings(data ? data.map(b => b.time.substring(0, 5)) : []);
           setShowDayModal(true);
-        }} title={`Configurează orarul pentru ${d}`} className={`h-24 md:h-32 p-5 rounded-[35px] border-2 transition-all flex flex-col justify-between items-start relative overflow-hidden ${isBlocked ? 'bg-red-50 border-red-100' : 'bg-white border-slate-100 hover:border-amber-400 shadow-sm'}`}>
-          <span className={`text-xl font-black ${isToday ? 'text-amber-600 underline decoration-2' : 'text-slate-900'}`}>{d}</span>
+        }} className={`h-24 md:h-32 p-5 rounded-[35px] border-2 transition-all flex flex-col justify-between items-start relative overflow-hidden shadow-sm transform hover:scale-105 hover:z-10 hover:shadow-xl ${isBlocked ? 'bg-red-50 border-red-300' : 'bg-white border-amber-400 hover:border-amber-600'}`}>
+          <span className={`text-xl font-black ${isToday ? 'text-amber-600' : 'text-slate-900'}`}>{d}</span>
           {hasBooking && (
             <div className="flex flex-col items-start gap-1 w-full">
-               <div className="w-2 h-2 bg-amber-500 rounded-full animate-pulse shadow-lg shadow-amber-500/50"></div>
-               <span className="text-[7px] font-black uppercase text-amber-600 leading-none">Rezervare Activă</span>
+               <div className="w-2 h-2 bg-amber-500 rounded-full shadow-lg shadow-amber-500/50"></div>
+               <span className="text-[7px] font-black uppercase text-amber-600 leading-none tracking-tighter">Rezervare</span>
             </div>
           )}
         </button>
@@ -182,7 +180,7 @@ export default function AdminSettingsHub() {
     return days;
   };
 
-  if (loading || !mounted) return <div className="min-h-screen flex items-center justify-center font-black italic text-slate-900 animate-spin uppercase tracking-widest text-xs">Sincronizare Setări...</div>;
+  if (loading || !mounted) return <div className="min-h-screen flex items-center justify-center font-black text-slate-900 animate-pulse uppercase tracking-widest text-[10px]">Sincronizare Hub...</div>;
 
   return (
     <div className="min-h-screen bg-[#fcfcfc] p-4 md:p-12 font-sans text-slate-900 flex flex-col">
@@ -191,119 +189,136 @@ export default function AdminSettingsHub() {
         .print-only { display: none; }
       `}</style>
       
-      {/* SECTIUNE PRINTARE QR */}
-      <div className="print-only text-center p-20">
-        <h2 className="text-4xl font-black uppercase italic mb-10">REZERVARE <span className="text-amber-500">RAPIDĂ</span></h2>
-        <div className="inline-block p-10 border-[16px] border-slate-900 rounded-[60px]">{userUrl && <QRCodeSVG value={userUrl} size={400} />}</div>
-      </div>
+      {hasBookingAccess && (
+        <div className="print-only text-center p-20">
+          <h2 className="text-4xl font-black uppercase italic mb-10">REZERVARE <span className="text-amber-500">RAPIDĂ</span></h2>
+          <div className="inline-block p-10 border-[16px] border-slate-900 rounded-[60px]">{userUrl && <QRCodeSVG value={userUrl} size={400} />}</div>
+        </div>
+      )}
 
       <div className="max-w-7xl mx-auto no-print flex-grow w-full">
-        {/* HEADER */}
         <header className="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 gap-6">
           <div>
-            <h1 className="text-4xl md:text-6xl font-black italic uppercase tracking-tighter border-l-8 border-amber-500 pl-6 leading-none">Settings <span className="text-amber-600">Admin</span></h1>
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-4 ml-8 italic">Status Abonament: {userPlan}</p>
+            <h1 className="text-4xl md:text-5xl font-black italic uppercase tracking-tighter border-l-8 border-amber-500 pl-6 leading-none">Settings <span className="text-amber-600 italic">Hub</span></h1>
+            <div className="flex items-center gap-2 mt-4 ml-8">
+                <span className="text-[9px] font-black px-2 py-0.5 bg-slate-900 text-white rounded-md uppercase italic">{userPlan}</span>
+                <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest italic">Acces Admin Activ</p>
+            </div>
           </div>
-          <Link href="/programari" title="Înapoi la Panoul de Control" className="px-8 py-4 bg-white border-2 border-slate-900 rounded-[20px] font-black uppercase text-[10px] italic hover:bg-slate-900 hover:text-white transition-all shadow-lg border-b-4 border-slate-900 active:translate-y-1 active:border-b-0">← Panou Principal</Link>
+          <Link href="/programari" className="px-8 py-4 bg-white border-2 border-slate-900 rounded-[20px] font-black uppercase text-[10px] italic hover:bg-slate-900 hover:text-white transition-all shadow-lg active:translate-y-1">← Panou Control</Link>
         </header>
 
         <div className="grid grid-cols-1 gap-12 mb-20">
-          {/* QR & LINK */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <div className="bg-white p-10 rounded-[45px] shadow-xl border border-slate-100 flex flex-col justify-between">
+          <div className="bg-white p-6 md:p-10 rounded-[50px] shadow-2xl border border-slate-100">
+            <div className="flex flex-col md:flex-row items-center justify-between mb-10 gap-4">
               <div>
-                <h2 className="text-[10px] font-black uppercase italic mb-6 text-slate-400 tracking-widest">Link Rezervări & WhatsApp</h2>
-                <code className="block bg-slate-50 p-6 rounded-[25px] text-[11px] font-black text-slate-700 break-all border-2 border-slate-100 mb-8 italic">{userUrl}</code>
+                <h2 className="text-3xl font-black uppercase italic border-l-8 border-amber-500 pl-6">{currentMonth.toLocaleString('ro-RO', { month: 'long', year: 'numeric' })}</h2>
+                <p className="text-[9px] font-black text-slate-400 uppercase italic mt-1 ml-8">Gestionare Disponibilitate Calendar</p>
               </div>
-              <div className="flex flex-col sm:flex-row gap-4">
-                <button title="Copiază link-ul în clipboard" onClick={() => { navigator.clipboard.writeText(userUrl); alert("✅ Link copiat!"); }} className="flex-1 py-5 bg-slate-900 text-white rounded-[22px] font-black uppercase text-[10px] italic border-b-4 border-slate-700 active:scale-95 transition-all">Copiază Link</button>
-                <button title="Trimite link-ul prin WhatsApp" onClick={shareOnWhatsApp} className="flex-1 py-5 bg-[#25D366] text-white rounded-[22px] font-black uppercase text-[10px] italic border-b-4 border-[#128C7E] active:scale-95 transition-all">WhatsApp 📱</button>
+              <div className="flex gap-3">
+                <button onClick={() => setCurrentMonth(new Date(currentMonth.setMonth(currentMonth.getMonth() - 1)))} className="p-5 bg-white border-2 border-slate-200 rounded-[22px] hover:border-amber-500 transition-all shadow-md active:translate-y-1">←</button>
+                <button onClick={() => setCurrentMonth(new Date(currentMonth.setMonth(currentMonth.getMonth() + 1)))} className="p-5 bg-white border-2 border-slate-200 rounded-[22px] hover:border-amber-500 transition-all shadow-md active:translate-y-1">→</button>
               </div>
             </div>
-            
-            <div className="bg-white p-10 rounded-[45px] shadow-xl border border-slate-100 flex flex-col items-center justify-center gap-8">
-              <div ref={qrContainerRef} className="p-6 bg-white rounded-[35px] border-4 border-slate-50 shadow-inner group hover:scale-105 transition-transform">
-                {userUrl && <QRCodeSVG value={userUrl} size={150} fgColor="#0f172a" level="H" />}
-              </div>
-              <div className="flex gap-4 w-full">
-                <button title="Printează codul QR pentru locație" onClick={() => window.print()} className="flex-1 py-4 border-2 border-slate-900 rounded-[20px] font-black uppercase text-[10px] italic border-b-4 border-slate-900 active:scale-95 transition-all">Printează QR</button>
-                <button title="Descarcă codul QR în calculator" onClick={downloadQRCode} className="flex-1 py-4 bg-amber-500 text-white rounded-[20px] font-black uppercase text-[10px] italic border-b-4 border-amber-700 active:scale-95 transition-all">Salvează Cod 💾</button>
-              </div>
+            <div className="grid grid-cols-7 gap-3 md:gap-5">
+              {["Luni", "Marți", "Miercuri", "Joi", "Vineri", "Sâmbătă", "Duminică"].map(z => (
+                <div key={z} className="text-center p-3 border-2 border-amber-400 rounded-[20px] bg-amber-50/30">
+                  <span className="text-[10px] font-black uppercase text-slate-900 tracking-widest italic">{z}</span>
+                </div>
+              ))}
+              {renderCalendar()}
             </div>
           </div>
 
-          {/* CALENDAR */}
-          <div className="bg-white p-6 md:p-10 rounded-[50px] shadow-2xl border border-slate-100">
-            <div className="flex flex-col md:flex-row items-center justify-between mb-10 gap-4">
-              <h2 className="text-3xl font-black uppercase italic border-l-8 border-amber-500 pl-6">{currentMonth.toLocaleString('ro-RO', { month: 'long', year: 'numeric' })}</h2>
-              <div className="flex gap-3">
-                <button title="Luna anterioară" onClick={() => setCurrentMonth(new Date(currentMonth.setMonth(currentMonth.getMonth() - 1)))} className="p-5 bg-white border-2 border-slate-200 rounded-[22px] border-b-4 border-slate-300 active:translate-y-1 active:border-b-0 hover:border-amber-500">←</button>
-                <button title="Luna următoare" onClick={() => setCurrentMonth(new Date(currentMonth.setMonth(currentMonth.getMonth() + 1)))} className="p-5 bg-white border-2 border-slate-200 rounded-[22px] border-b-4 border-slate-300 active:translate-y-1 active:border-b-0 hover:border-amber-500">→</button>
+          <div className="relative group">
+            <div className={`grid grid-cols-1 lg:grid-cols-2 gap-8 transition-all duration-500 ${!hasBookingAccess ? 'blur-md pointer-events-none opacity-40 select-none' : ''}`}>
+              <div className="bg-white p-10 rounded-[45px] shadow-xl border border-slate-100 flex flex-col justify-between">
+                <div>
+                  <h2 className="text-[10px] font-black uppercase italic mb-6 text-slate-400 tracking-widest">Link Rezervări Online</h2>
+                  <code className="block bg-slate-50 p-6 rounded-[25px] text-[11px] font-black text-slate-700 break-all border-2 border-slate-100 mb-8 italic">{userUrl}</code>
+                </div>
+                <div className="flex flex-col sm:flex-row gap-4">
+                  <button onClick={() => { navigator.clipboard.writeText(userUrl); alert("✅ Link copiat!"); }} className="flex-1 py-5 bg-slate-900 text-white rounded-[22px] font-black uppercase text-[10px] italic hover:scale-[1.02] transition-all">Copiază Link</button>
+                  <button onClick={shareOnWhatsApp} className="flex-1 py-5 bg-[#25D366] text-white rounded-[22px] font-black uppercase text-[10px] italic hover:scale-[1.02] transition-all">Share WhatsApp</button>
+                </div>
+              </div>
+              
+              <div className="bg-white p-10 rounded-[45px] shadow-xl border border-slate-100 flex flex-col items-center justify-center gap-8">
+                <div ref={qrContainerRef} className="p-6 bg-white rounded-[35px] border-4 border-slate-50 shadow-inner">
+                  {userUrl && <QRCodeSVG value={userUrl} size={150} fgColor="#0f172a" level="H" />}
+                </div>
+                <div className="flex gap-4 w-full">
+                  <button onClick={() => window.print()} className="flex-1 py-4 border-2 border-slate-900 rounded-[20px] font-black uppercase text-[10px] italic hover:bg-slate-50 transition-all">Printează QR</button>
+                  <button onClick={downloadQRCode} className="flex-1 py-4 bg-amber-500 text-white rounded-[20px] font-black uppercase text-[10px] italic shadow-lg shadow-amber-500/20 active:scale-95 transition-all">Descarcă 💾</button>
+                </div>
               </div>
             </div>
-            <div className="grid grid-cols-7 gap-3 md:gap-4">
-              {["Lun", "Mar", "Mie", "Joi", "Vin", "Sâm", "Dum"].map(z => <div key={z} className="text-center text-[9px] font-black uppercase text-slate-300 tracking-[0.2em] italic">{z}</div>)}
-              {renderCalendar()}
-            </div>
+
+            {!hasBookingAccess && (
+              <div className="absolute inset-0 z-50 flex items-center justify-center">
+                <div className="bg-white/80 backdrop-blur-xl p-10 rounded-[40px] border-2 border-amber-500 shadow-2xl text-center max-w-md transform transition-transform group-hover:scale-105">
+                  <div className="w-16 h-16 bg-amber-500 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg"><span className="text-3xl text-black">🔒</span></div>
+                  <h3 className="text-2xl font-black italic uppercase text-slate-900 mb-4 tracking-tighter">Booking Online Inactiv</h3>
+                  <p className="text-slate-600 text-xs font-bold uppercase leading-relaxed mb-8 italic">Treci la planul <span className="text-amber-600">ELITE</span> sau <span className="text-amber-600">TEAM</span> pentru a activa link-ul tău unic.</p>
+                  <Link href="/abonamente" className="inline-block bg-slate-900 text-white px-10 py-4 rounded-2xl font-black italic uppercase text-[10px] tracking-widest hover:bg-amber-500 transition-all">Deblochează Acum</Link>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
 
-      {/* FOOTER - SIMPLU */}
       <footer className="no-print mt-auto border-t border-slate-100 py-10 text-center">
-        <p className="text-[9px] font-black uppercase italic text-slate-300 tracking-tighter">© 2026 Chronos Admin Hub. Toate drepturile rezervate.</p>
+        <p className="text-[9px] font-black uppercase italic text-slate-300 tracking-widest tracking-tighter">© 2026 Chronos Management Ecosystem. All Rights Reserved.</p>
       </footer>
 
-      {/* MODAL GESTIUNE ZI (CALENDAR) */}
       {showDayModal && selectedDate && (
-        <div 
-          className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-slate-900/90 backdrop-blur-md"
-          onClick={handleCloseModal}
-        >
-          <div 
-            ref={modalRef}
-            className="bg-white w-full max-w-5xl rounded-[55px] p-8 md:p-14 relative shadow-2xl border-t-[12px] border-amber-500 overflow-y-auto max-h-[90vh]"
-            onClick={e => e.stopPropagation()}
-          >
-            <div className="flex flex-col md:flex-row justify-between mb-12 gap-6 border-b border-slate-50 pb-8">
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-slate-900/95 backdrop-blur-md" onClick={handleCloseModal}>
+          <div ref={modalRef} className="bg-white w-full max-w-5xl rounded-[55px] p-8 md:p-14 relative shadow-[0_0_100px_rgba(0,0,0,0.5)] border-t-[15px] border-amber-500 overflow-y-auto max-h-[95vh]" onClick={e => e.stopPropagation()}>
+            <div className="flex flex-col md:flex-row justify-between mb-12 gap-6 border-b-2 border-slate-100 pb-8">
               <div>
-                <p className="text-[10px] font-black text-amber-600 uppercase italic mb-2 tracking-widest">Configurare Orar Specific:</p>
-                <h3 className="text-4xl font-black uppercase italic text-slate-900">{new Date(selectedDate).toLocaleDateString('ro-RO', { weekday: 'long', day: 'numeric', month: 'long' })}</h3>
+                <p className="text-[11px] font-black text-amber-600 uppercase italic mb-2 tracking-widest">Setări Disponibilitate:</p>
+                <h3 className="text-4xl font-black uppercase italic text-slate-900 tracking-tighter">{new Date(selectedDate).toLocaleDateString('ro-RO', { weekday: 'long', day: 'numeric', month: 'long' })}</h3>
               </div>
-              <div className="flex flex-wrap gap-3">
-                <button title="Aplică acest program pentru 1 an întreg" onClick={saveAsDefaultRepeat} className="px-8 py-4 bg-amber-500 text-white rounded-[22px] font-black text-[11px] uppercase italic border-b-4 border-amber-700 shadow-lg hover:bg-slate-900 transition-all active:translate-y-1">Setează Predefinit ⭐</button>
-                <button title="Închide fereastra" onClick={handleCloseModal} className="p-4 bg-slate-100 text-slate-400 rounded-full hover:bg-red-50 hover:text-red-500 transition-all">✕</button>
+              <div className="flex flex-wrap items-center gap-3">
+                <button onClick={saveAsDefaultRepeat} className="px-8 py-4 bg-white border-2 border-amber-500 text-amber-600 rounded-[22px] font-black text-[11px] uppercase italic hover:bg-amber-500 hover:text-white transition-all shadow-md transform hover:scale-105">Setează Predefinit ⭐</button>
               </div>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-12">
-              <div className="lg:col-span-1 space-y-8">
-                <div>
-                  <h4 className="text-[9px] font-black uppercase text-slate-400 mb-4 tracking-widest border-b pb-2 italic">Granularitate (min)</h4>
-                  <div className="grid grid-cols-1 gap-3">
-                    {[15, 30, 60].map(v => (
-                      <button key={v} onClick={() => { setBookingInterval(v); setIsDirty(true); }} className={`py-4 rounded-[18px] font-black text-[10px] border-2 border-b-4 transition-all ${bookingInterval === v ? 'border-amber-500 bg-amber-50 text-amber-700 border-b-amber-600 shadow-md' : 'border-slate-100 text-slate-300 border-b-slate-200 hover:border-slate-300'}`}>
-                        INTERVAL {v} MIN
-                      </button>
-                    ))}
-                  </div>
+              <div className="lg:col-span-1">
+                <h4 className="text-[10px] font-black uppercase text-slate-900 mb-6 tracking-widest italic border-b-2 border-amber-500 pb-2 inline-block">Durată Ședințe</h4>
+                <div className="grid grid-cols-1 gap-4">
+                  {[15, 30, 60].map(v => (
+                    <button 
+                      key={v} 
+                      onClick={() => { setBookingInterval(v); setIsDirty(true); }} 
+                      className={`py-5 rounded-[22px] font-black text-[12px] border-2 transition-all shadow-sm flex items-center justify-center gap-2 transform hover:scale-105 ${
+                        bookingInterval === v 
+                        ? 'border-amber-500 bg-amber-500 text-white shadow-amber-500/30' 
+                        : 'border-amber-400 bg-white text-slate-900 hover:border-amber-600'
+                      }`}
+                    >
+                      {v} MINUTE
+                    </button>
+                  ))}
                 </div>
               </div>
+              
               <div className="lg:col-span-3">
-                <h4 className="text-[9px] font-black uppercase text-slate-400 mb-6 tracking-widest border-b pb-2 italic">Apasă pe oră pentru a BLOCHA (Negru) sau DEBLOCA (Alb)</h4>
-                <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-4">
+                <h4 className="text-[10px] font-black uppercase text-slate-900 mb-6 tracking-widest italic border-b-2 border-amber-500 pb-2 inline-block">Sloturi Orare (Apasă pentru blocare)</h4>
+                <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3">
                   {dynamicTimeSlots.map(slot => (
                     <button 
                       key={slot} 
                       disabled={existingBookings.includes(slot)}
                       onClick={() => toggleHourBlock(slot)} 
-                      title={existingBookings.includes(slot) ? "Slot ocupat de un client" : `Interval ${slot}`}
-                      className={`py-5 rounded-[22px] font-black text-xs border-2 border-b-4 transition-all italic relative ${
+                      className={`py-5 rounded-[22px] font-black text-xs border-2 transition-all italic relative shadow-sm transform hover:scale-110 hover:z-10 ${
                         existingBookings.includes(slot) 
-                        ? 'bg-amber-100 border-amber-200 text-amber-800 opacity-50 cursor-not-allowed border-b-amber-300' 
+                        ? 'bg-amber-100 border-amber-300 text-amber-800 opacity-50 cursor-not-allowed scale-100' 
                         : (manualBlocks[selectedDate] || []).includes(slot) 
-                          ? 'bg-slate-900 text-white border-slate-950 border-b-slate-700 shadow-lg' 
-                          : 'bg-white border-slate-100 text-slate-400 hover:border-amber-400 border-b-slate-200'
+                          ? 'bg-slate-900 text-white border-slate-950 scale-95 opacity-90' 
+                          : 'bg-white border-amber-400 text-slate-900 hover:border-amber-600 hover:bg-amber-50'
                       }`}
                     >
                       {slot} {existingBookings.includes(slot) ? '👤' : ''}
@@ -312,8 +327,14 @@ export default function AdminSettingsHub() {
                 </div>
               </div>
             </div>
-            <div className="mt-16 text-center border-t-2 border-slate-50 pt-10">
-              <button onClick={() => { saveBlocksToSupabase(manualBlocks); setShowDayModal(false); }} className="px-20 py-6 bg-slate-900 text-white rounded-[30px] font-black text-xs uppercase italic tracking-widest border-b-4 border-slate-700 shadow-2xl hover:bg-amber-600 transition-all active:scale-95">SALVEAZĂ MODIFICĂRILE</button>
+
+            <div className="mt-16 text-center border-t-2 border-slate-100 pt-10">
+              <button 
+                onClick={handleCloseModal} 
+                className="px-24 py-7 bg-slate-900 text-white rounded-[35px] font-black text-[14px] uppercase italic tracking-widest shadow-2xl hover:bg-amber-500 hover:text-black transition-all transform hover:scale-110 active:scale-95"
+              >
+                SALVEAZĂ
+              </button>
             </div>
           </div>
         </div>

@@ -6,35 +6,63 @@ import { createBrowserClient } from "@supabase/ssr";
 const plans = [
   {
     id: "CHRONOS FREE",
-    name: "CHRONOS FREE",
+    name: "Chronos Free",
     priceDisplay: "0",
-    features: ["📌 30 programări / lună", "📇 50 contacte", "👤 Solo", "📱 Aplicație mobilă"],
-    buttonText: "ALEGE FREE",
-    stripeLink: "#"
+    description: "Esențial pentru început de drum.",
+    features: [
+      "📌 30 Programări / lună",
+      "📇 30 Clienți (Capacitate)",
+      "👤 1 Profesionist (Solo)",
+      "🔒 Securitate date"
+    ],
+    buttonText: "Alege Free",
+    stripeLink: "#",
+    popular: false
   },
   {
     id: "CHRONOS PRO",
-    name: "CHRONOS PRO",
+    name: "Chronos Pro",
     priceDisplay: "49",
-    features: ["🚀 150 programări", "👥 500 contacte", "⏰ Remindere e-mail", "📊 Rapoarte"],
-    buttonText: "ALEGE PRO",
-    stripeLink: "https://buy.stripe.com/8x2eV76Qg5EugHF8lG0RG04"
+    description: "Pentru profesioniști în creștere.",
+    features: [
+      "🚀 150 Programări / lună",
+      "👥 150 Clienți (Capacitate)",
+      "📊 Raport sumar activitate",
+      "📧 Suport e-mail dedicat"
+    ],
+    buttonText: "Alege Pro",
+    stripeLink: "https://buy.stripe.com/8x2eV76Qg5EugHF8lG0RG04",
+    popular: true
   },
   {
     id: "CHRONOS ELITE",
-    name: "CHRONOS ELITE",
+    name: "Chronos Elite",
     priceDisplay: "99",
-    features: ["✨ 500 programări", "💰 Plăți & Avans", "📈 Statistici", "👥 5 Profesioniști"],
-    buttonText: "ALEGE ELITE",
-    stripeLink: "https://buy.stripe.com/28EaER6Qgff4bnl59u0RG02"
+    description: "Puterea comunicării directe.",
+    features: [
+      "✨ 500 Programări / lună",
+      "👥 500 Clienți (Capacitate)",
+      "📲 WhatsApp Direct",
+      "👨‍⚕️ 5 Profesioniști"
+    ],
+    buttonText: "Alege Elite",
+    stripeLink: "https://buy.stripe.com/28EaER6Qgff4bnl59u0RG02",
+    popular: false
   },
   {
     id: "CHRONOS TEAM",
-    name: "CHRONOS TEAM",
+    name: "Chronos Team",
     priceDisplay: "199",
-    features: ["💎 NELIMITAT", "👥 50 Profesioniști", "🔐 Roluri staff", "📊 Analiză echipă"],
-    buttonText: "ALEGE TEAM",
-    stripeLink: "https://buy.stripe.com/8x2eV76QgaYO9fdeK40RG06"
+    description: "Control total pentru clinici.",
+    features: [
+      "💎 Programări Nelimitate",
+      "♾️ Clienți Nelimitați",
+      "📊 Analiză avansată echipă",
+      "👥 Până la 50 membri"
+    ],
+    buttonText: "Alege Team",
+    stripeLink: "https://buy.stripe.com/8x2eV76QgaYO9fdeK40RG06",
+    popular: false
   }
 ];
 
@@ -56,13 +84,11 @@ export default function AbonamentePage() {
 
     const fetchData = async () => {
       const { data: { user: authUser } } = await supabase.auth.getUser();
-
       if (!authUser) {
         setUser(null);
         setCurrentPlan("CHRONOS FREE");
         return;
       }
-
       setUser(authUser);
 
       const { data: profile } = await supabase
@@ -95,7 +121,6 @@ export default function AbonamentePage() {
           return;
         }
       }
-
       setCurrentPlan(profile.plan_type?.toUpperCase() || "CHRONOS FREE");
     };
 
@@ -104,7 +129,6 @@ export default function AbonamentePage() {
 
   const handleActivateTrial = async () => {
     if (!user) return;
-
     const { error } = await supabase
       .from("profiles")
       .update({
@@ -115,7 +139,6 @@ export default function AbonamentePage() {
       .eq("id", user.id);
 
     if (error) {
-      console.error("Eroare Supabase:", error);
       alert(`Eroare la activare: ${error.message}`);
     } else {
       window.location.reload();
@@ -124,128 +147,136 @@ export default function AbonamentePage() {
 
   const handlePlanClick = (plan: any) => {
     if (isTrialActive) {
-      const confirmChange = window.confirm("⚠️ Ești în perioada de probă CHRONOS TEAM. Dacă schimbi planul acum, pierzi accesul gratuit. Continui?");
+      const confirmChange = window.confirm("⚠️ Ești în perioada de probă TEAM. Dacă schimbi planul acum, pierzi accesul gratuit. Continui?");
       if (!confirmChange) return;
     }
-
-    if (plan.id === "CHRONOS FREE" && currentPlan === "CHRONOS FREE") {
-        return;
-    }
-
+    if (plan.id === "CHRONOS FREE" && currentPlan === "CHRONOS FREE") return;
     if (plan.stripeLink !== "#") {
-        window.location.href = plan.stripeLink;
+      window.location.href = plan.stripeLink;
     }
   };
 
   if (!mounted) return null;
 
   return (
-    <main className="min-h-screen bg-[#fcfcfc] py-10 px-6 font-sans text-slate-900">
-      <div className="w-full max-w-6xl mx-auto">
+    <main className="min-h-screen bg-slate-50 py-16 px-4 md:px-8 font-sans">
+      <div className="max-w-7xl mx-auto">
+        
+        {/* Header Elegance */}
+        <div className="text-center mb-16 space-y-4">
+          <h1 className="text-4xl md:text-5xl font-black italic tracking-tighter text-slate-900 uppercase">
+            Planuri <span className="text-amber-500">Chronos</span>
+          </h1>
+          <p className="text-slate-500 font-medium text-lg max-w-2xl mx-auto">
+            Alege structura potrivită pentru afacerea ta. Simplitate, eficiență și control absolut.
+          </p>
+        </div>
 
-        {/* BANNER STATUS */}
-        <div className="mb-12 rounded-[30px] shadow-2xl overflow-hidden bg-black border border-white/10">
-          <div className="px-10 py-8 flex flex-col md:flex-row items-center justify-between gap-8">
-            
-            <div className="text-center md:text-left">
-              <p className="text-amber-500 text-[10px] font-black uppercase italic tracking-[0.2em] mb-1">
-                {isTrialActive ? "SESIUNE TRIAL ACTIVĂ" : "STATUS ABONAMENT"}
-              </p>
-              <h2 className="text-3xl font-black italic uppercase tracking-tighter text-white">
-                {currentPlan}
-              </h2>
-              <p className="text-slate-500 text-[11px] font-bold mt-1 uppercase">
-                {user ? user.email : "Vizitator"}
-              </p>
+        {/* Banner Status - Minimalist */}
+        {user && (
+          <div className="mb-16 max-w-4xl mx-auto bg-white border border-slate-200 rounded-[40px] p-8 shadow-sm flex flex-col md:flex-row items-center justify-between gap-6 transition-all hover:shadow-md">
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-widest text-amber-500 mb-1">Statusul tău curent</p>
+              <h2 className="text-2xl font-black italic uppercase text-slate-900">{currentPlan}</h2>
+              <p className="text-slate-400 text-xs font-bold uppercase">{user.email}</p>
             </div>
-
-            <div className="flex flex-col items-center md:items-end">
+            
+            <div className="flex items-center gap-4">
               {isTrialActive ? (
                 <div className="flex gap-2">
                   {[ 
-                    { l: "ZILE", v: timeLeft.zile }, 
-                    { l: "ORE", v: timeLeft.ore }, 
-                    { l: "MIN", v: timeLeft.minute } 
+                    { l: "Zile", v: timeLeft.zile }, 
+                    { l: "Ore", v: timeLeft.ore }, 
+                    { l: "Min", v: timeLeft.minute } 
                   ].map((t, i) => (
-                    <div key={i} className="bg-amber-500 px-4 py-2 rounded-xl text-center min-w-[70px] shadow-lg">
-                      <div className="text-2xl font-black text-black leading-none">{t.v}</div>
-                      <div className="text-[8px] font-black text-black/70 uppercase">{t.l}</div>
+                    <div key={i} className="bg-slate-900 w-16 h-16 rounded-2xl flex flex-col items-center justify-center shadow-lg">
+                      <span className="text-white font-black text-xl leading-none">{t.v}</span>
+                      <span className="text-[8px] text-slate-400 font-bold uppercase">{t.l}</span>
                     </div>
                   ))}
                 </div>
               ) : (
-                <>
-                  {!user ? (
-                    <button 
-                      onClick={() => window.location.href = "/login"} 
-                      className="bg-white text-black px-8 py-3 rounded-xl font-black italic uppercase text-[12px] hover:bg-amber-500 transition-all"
-                    >
-                      Login pentru Trial
-                    </button>
-                  ) : !trialUsed && (
-                    <button 
-                      onClick={handleActivateTrial} 
-                      className="bg-amber-500 text-black px-8 py-4 rounded-xl font-black italic uppercase text-[12px] hover:scale-105 transition-all shadow-[0_0_20px_rgba(245,158,11,0.3)] border-b-4 border-amber-700 active:border-b-0"
-                    >
-                      Activează 10 zile TEAM
-                    </button>
-                  )}
-                </>
+                !trialUsed && (
+                  <button 
+                    onClick={handleActivateTrial} 
+                    className="bg-amber-500 text-black px-8 py-4 rounded-2xl font-black italic uppercase text-xs hover:bg-black hover:text-white transition-all duration-300 shadow-xl shadow-amber-500/20"
+                  >
+                    Activează 10 zile TEAM
+                  </button>
+                )
               )}
             </div>
           </div>
-        </div>
+        )}
 
-        {/* GRID PLANURI */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {/* Pricing Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 items-stretch">
           {plans.map((plan, index) => {
             const isSelected = currentPlan === plan.id;
-
+            
             return (
               <div 
-                key={index} 
-                className={`bg-white rounded-[35px] p-8 shadow-xl border-2 flex flex-col transition-all duration-300 relative ${
-                  isSelected ? "border-amber-500 scale-105 z-10 ring-8 ring-amber-500/5" : "border-slate-50 hover:border-slate-200"
+                key={index}
+                className={`relative flex flex-col bg-white rounded-[45px] p-10 transition-all duration-500 border-2 ${
+                  isSelected 
+                    ? "border-amber-500 shadow-2xl scale-[1.02] z-10" 
+                    : "border-transparent shadow-xl shadow-slate-200/50 hover:border-slate-200 hover:translate-y-[-5px]"
                 }`}
               >
-                
-                {isSelected && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-amber-500 text-black text-[9px] font-black px-4 py-1 rounded-full uppercase italic shadow-md">
-                    OPȚIUNE ACTIVĂ
+                {plan.popular && !isSelected && (
+                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-[9px] font-black px-4 py-1.5 rounded-full uppercase tracking-widest shadow-lg">
+                    Recomandat
                   </div>
                 )}
 
-                <h3 className={`text-lg font-black italic uppercase mb-1 ${isSelected ? 'text-amber-600' : 'text-slate-900'}`}>
-                  {plan.name}
-                </h3>
-                
-                <div className="mb-6 flex items-baseline gap-1">
-                  <span className="text-4xl font-black tracking-tighter">{plan.priceDisplay}</span>
-                  <span className="text-[10px] font-bold text-slate-400 uppercase italic">RON/LUNĂ</span>
+                {isSelected && (
+                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-amber-500 text-black text-[9px] font-black px-4 py-1.5 rounded-full uppercase tracking-widest shadow-lg">
+                    Plan Activ
+                  </div>
+                )}
+
+                <div className="mb-8">
+                  <h3 className="text-xl font-black italic uppercase text-slate-900 mb-2">{plan.name}</h3>
+                  <p className="text-slate-400 text-xs font-bold leading-relaxed h-8">{plan.description}</p>
                 </div>
 
-                <ul className="mb-8 space-y-3 flex-1">
-                  {plan.features.map((f, i) => (
-                    <li key={i} className="flex items-center gap-2 text-[11px] font-bold text-slate-600 uppercase italic leading-tight">
-                      <span className="text-amber-500 text-lg">✓</span> {f}
-                    </li>
+                <div className="mb-10 flex items-baseline gap-1">
+                  <span className="text-5xl font-black tracking-tighter text-slate-900">{plan.priceDisplay}</span>
+                  <span className="text-sm font-black text-slate-300 uppercase italic">Ron</span>
+                </div>
+
+                <div className="space-y-4 flex-1 mb-12">
+                  {plan.features.map((feature, i) => (
+                    <div key={i} className="flex items-center gap-3">
+                      <div className="flex-shrink-0 w-5 h-5 rounded-full bg-amber-50 flex items-center justify-center">
+                        <span className="text-amber-600 text-[10px] font-black">✓</span>
+                      </div>
+                      <span className="text-[11px] font-bold text-slate-600 uppercase italic tracking-tight">{feature}</span>
+                    </div>
                   ))}
-                </ul>
+                </div>
 
                 <button
                   onClick={() => handlePlanClick(plan)}
                   disabled={isSelected}
-                  className={`py-4 rounded-2xl font-black italic uppercase text-[10px] tracking-widest transition-all ${
+                  className={`w-full py-5 rounded-[22px] font-black italic uppercase text-[11px] tracking-widest transition-all duration-300 ${
                     isSelected 
-                      ? "bg-amber-500 text-black cursor-default border-b-4 border-amber-600 shadow-lg" 
-                      : "bg-slate-900 text-white hover:bg-amber-500 hover:text-black shadow-lg border-b-4 border-slate-800 active:border-b-0"
+                      ? "bg-slate-50 text-slate-400 cursor-default border border-slate-200" 
+                      : "bg-slate-900 text-white hover:bg-amber-500 hover:text-black shadow-xl shadow-slate-900/10 active:scale-95"
                   }`}
                 >
-                  {isSelected ? "ACTIVĂ" : plan.buttonText}
+                  {isSelected ? "Deja Activat" : plan.buttonText}
                 </button>
               </div>
             );
           })}
+        </div>
+
+        {/* Footer Info */}
+        <div className="mt-20 text-center">
+          <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.3em]">
+            Toate abonamentele includ actualizări automate și suport tehnic.
+          </p>
         </div>
       </div>
     </main>
