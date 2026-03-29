@@ -32,17 +32,16 @@ export default function LoginPage() {
       }
 
       if (data.session) {
-        // 2. Curățăm orice urmă de demo imediat
+        // 2. Curățăm orice urmă de demo imediat după login reușit [cite: 2026-03-21]
         localStorage.removeItem("chronos_demo");
 
         // 3. Forțăm refresh-ul sesiunii în instanța locală
         const { data: { session } } = await supabase.auth.getSession();
         
         if (session) {
-          // 4. Folosim router.push pentru o navigare controlată
-          // Direcționăm către /programari (sau orice pagină protejată)
+          // 4. Navigare controlată și refresh pentru a actualiza RootLayout [cite: 2026-03-19]
           router.push("/programari");
-          router.refresh(); // Forțează RootLayout să re-evalueze sesiunea
+          router.refresh(); 
         }
       }
     } catch (err) {
@@ -51,11 +50,17 @@ export default function LoginPage() {
     }
   };
 
+  // Funcție pentru modul Demo (Prezentare)
+  const handleDemoMode = () => {
+    localStorage.setItem("chronos_demo", "true");
+    window.location.href = "/programari";
+  };
+
   return (
     <main className="min-h-screen flex items-center justify-center p-6 bg-slate-50 font-sans text-slate-900">
       <div className="w-full max-w-md bg-white rounded-[40px] shadow-2xl shadow-slate-200/60 border-4 border-white overflow-hidden transform hover:scale-[1.01] transition-all duration-500">
 
-        {/* Header Secțiune */}
+        {/* Header Secțiune - Fundal Negru Premium */}
         <div className="bg-slate-900 px-4 py-12 text-center relative flex flex-col items-center overflow-hidden">
           <div className="absolute top-0 right-0 w-48 h-48 bg-amber-500/10 rounded-full -mr-20 -mt-20 blur-3xl z-0"></div>
           <div className="absolute bottom-0 left-0 w-32 h-32 bg-amber-500/5 rounded-full -ml-16 -mb-16 blur-2xl z-0"></div>
@@ -77,7 +82,7 @@ export default function LoginPage() {
           </p>
         </div>
 
-        {/* Formular */}
+        {/* Formular de Logare */}
         <form onSubmit={handleLogin} className="p-10 space-y-5 bg-white">
           
           <div className="space-y-4">
@@ -88,8 +93,8 @@ export default function LoginPage() {
                 placeholder="ADRESA EMAIL"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="input-chronos uppercase italic text-[11px] tracking-wider"
-                title="Introdu adresa de email pentru autentificare"
+                className="w-full p-5 bg-slate-50 border-2 border-slate-100 rounded-2xl font-bold text-[11px] uppercase italic tracking-wider focus:border-amber-500 outline-none transition-all"
+                title="Introdu adresa de email pentru autentificare [cite: 2026-03-23]"
               />
             </div>
 
@@ -100,12 +105,12 @@ export default function LoginPage() {
                 placeholder="PAROLA"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="input-chronos uppercase italic text-[11px] tracking-wider"
-                title="Introdu parola contului tău"
+                className="w-full p-5 bg-slate-50 border-2 border-slate-100 rounded-2xl font-bold text-[11px] uppercase italic tracking-wider focus:border-amber-500 outline-none transition-all"
+                title="Introdu parola contului tău [cite: 2026-03-23]"
               />
               <Link 
                 href="/forgot-password" 
-                title="Recuperează parola dacă ai uitat-o"
+                title="Recuperează parola dacă ai uitat-o [cite: 2026-03-23]"
                 className="inline-block mt-2 text-[9px] font-black uppercase italic text-slate-400 hover:text-amber-500 transition-colors mr-2"
               >
                 Ai uitat parola?
@@ -116,20 +121,30 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="btn-demo w-full py-4 text-xs"
-            title={loading ? "Se verifică datele..." : "Apasă pentru a intra în contul Chronos"}
+            className="w-full bg-slate-900 text-white p-5 rounded-2xl font-black italic uppercase tracking-widest hover:bg-slate-800 border-b-4 border-slate-700 active:border-b-0 active:translate-y-1 transition-all text-xs"
+            title={loading ? "Se verifică datele..." : "Apasă pentru a intra în contul Chronos [cite: 2026-03-23]"}
           >
             {loading ? "SE VERIFICĂ..." : "INTRĂ ÎN CONT"}
           </button>
 
-          <div className="pt-4 border-t-2 border-slate-50 flex flex-col items-center gap-3">
-            <p className="text-[10px] font-black uppercase italic text-slate-400">
+          {/* Secțiune Demo & Înregistrare */}
+          <div className="pt-4 border-t-2 border-slate-50 flex flex-col items-center gap-3 text-center">
+            <button 
+              type="button"
+              onClick={handleDemoMode}
+              className="text-[10px] font-black uppercase italic text-amber-600 hover:text-amber-700 transition-all tracking-widest"
+              title="Explorează aplicația fără cont [cite: 2026-03-23]"
+            >
+              EXPLOREAZĂ MOD PREZENTARE (DEMO)
+            </button>
+
+            <p className="text-[10px] font-black uppercase italic text-slate-400 mt-2">
               Nu ai un cont încă?
             </p>
             <Link 
               href="/register" 
-              className="btn-chronos w-full py-3 text-[9px] bg-slate-100 !text-slate-900 border-slate-200 !shadow-none hover:!bg-slate-200"
-              title="Creează un cont nou în sistemul Chronos"
+              className="w-full py-3 text-[9px] font-black uppercase italic bg-slate-100 text-slate-900 rounded-xl border-2 border-slate-200 hover:bg-slate-200 transition-all text-center"
+              title="Creează un cont nou în sistemul Chronos [cite: 2026-03-23]"
             >
               CREEAZĂ CONT NOU
             </Link>

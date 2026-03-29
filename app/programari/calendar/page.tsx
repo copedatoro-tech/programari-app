@@ -4,6 +4,7 @@ import { useState, useEffect, useMemo, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams, usePathname } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
+import Image from "next/image";
 
 // --- UTILITARE ---
 function sameDay(a: Date, b: Date) {
@@ -38,7 +39,7 @@ type ViewMode = "day" | "week" | "month";
 
 function CalendarContent() {
   const searchParams = useSearchParams();
-  const pathname = usePathname(); // Pentru a detecta pagina curentă
+  const pathname = usePathname();
   const isDemo = searchParams.get("demo") === "true";
 
   const [programari, setProgramari] = useState<Programare[]>([]);
@@ -347,32 +348,32 @@ function CalendarContent() {
         </div>
       )}
 
-      {/* HEADER PAGINĂ ACTUALIZAT */}
+      {/* HEADER PAGINĂ */}
       <div className="w-full max-w-6xl flex flex-col md:flex-row justify-between items-center mb-6 px-6 py-4 mt-4 gap-6 bg-white rounded-[30px] shadow-sm border border-slate-100">
         <div className="flex items-center gap-4">
-          <div className="w-12 h-12 bg-slate-900 rounded-2xl flex items-center justify-center shadow-lg border border-amber-500/20">
-            <span className="text-amber-500 text-2xl font-black italic">C</span>
+          <div className="relative w-14 h-14 bg-slate-900 rounded-2xl flex items-center justify-center shadow-lg border border-amber-500/20 overflow-hidden">
+            <Image 
+              src="/logo-chronos.png" 
+              alt="Logo Chronos" 
+              fill 
+              className="object-contain p-2"
+            />
           </div>
           <div className="flex flex-col">
             <h1 title="Sistemul de Calendar Chronos" className="text-2xl font-black text-slate-900 tracking-tighter uppercase italic leading-none">
               Calendar <span className="text-amber-600">Chronos</span>
             </h1>
             <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] italic mt-1">
-              {pathname === "/calendar" ? "Panou Control Calendar" : "Gestionare Programări"}
+              Panou Control Calendar
             </p>
           </div>
         </div>
 
-        <nav className="flex items-center gap-2 bg-slate-100 p-1.5 rounded-[22px] border border-slate-200">
-          <Link 
-            href="/calendar" 
-            className={`px-6 py-2.5 rounded-[18px] text-[10px] font-black uppercase italic transition-all ${pathname === "/calendar" ? "bg-white text-slate-900 shadow-md border border-slate-200/50" : "text-slate-400 hover:text-slate-600"}`}
-          >
-            Calendar
-          </Link>
+        <nav className="flex items-center">
           <Link 
             href="/programari" 
-            className={`px-6 py-2.5 rounded-[18px] text-[10px] font-black uppercase italic transition-all ${pathname === "/programari" ? "bg-white text-slate-900 shadow-md border border-slate-200/50" : "text-slate-400 hover:text-slate-600"}`}
+            className="px-8 py-3 bg-amber-500 text-white rounded-[22px] text-[10px] font-black uppercase italic transition-all hover:bg-amber-600 shadow-lg shadow-amber-200/50 active:scale-95"
+            title="Adaugă o programare nouă în sistem"
           >
             + Programare Nouă
           </Link>
