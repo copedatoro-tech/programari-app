@@ -1,7 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  output: 'export', 
+  // Am comentat linia de mai jos pentru a permite rutele dinamice de auth pe Vercel
+  // output: 'export', 
   images: {
     unoptimized: true, 
     remotePatterns: [
