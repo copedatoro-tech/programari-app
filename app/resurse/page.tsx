@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, useMemo } from 'react';
 import { createBrowserClient } from '@supabase/ssr';
 import { useRouter } from 'next/navigation';
 
+// CONFIGURARE LIMITE STRICTE
 const LIMITE: Record<string, any> = {
   STAFF: { "start (gratuit)": 1, "chronos pro": 1, "chronos elite": 5, "chronos team": 50 },
   SERVICII: { "start (gratuit)": 5, "chronos pro": 15, "chronos elite": 999, "chronos team": 999 }
@@ -39,6 +40,7 @@ export default function ResursePage() {
   const oreOptiuni = Array.from({ length: 25 }, (_, i) => i);
   const minuteOptiuni = [0, 15, 30, 45];
 
+  // Regula de închidere la click exterior pentru pop-up/editare
   useEffect(() => {
     let mounted = true;
 
@@ -122,21 +124,21 @@ export default function ResursePage() {
     }
   }
 
+  // Verificări stricte de limite înainte de adăugare
   async function handleAdd() {
     if (!newItem.name || !userId || isDemo) return;
 
-    if (newItem.type === 'service') {
-      const limitaServicii = LIMITE.SERVICII[userPlan] || 5;
-      if (services.length >= limitaServicii) {
-        alert(`Limită atinsă! Planul ${userPlan.toUpperCase()} permite maxim ${limitaServicii} servicii.`);
+    const limitaServicii = LIMITE.SERVICII[userPlan] || 5;
+    const limitaStaff = LIMITE.STAFF[userPlan] || 1;
+
+    if (newItem.type === 'service' && services.length >= limitaServicii) {
+        alert(`⚠️ Limită atinsă! Planul tău actual (${userPlan.toUpperCase()}) permite doar ${limitaServicii} servicii.`);
         return;
-      }
-    } else {
-      const limitaStaff = LIMITE.STAFF[userPlan] || 1;
-      if (staff.length >= limitaStaff) {
-        alert(`Limită atinsă! Planul ${userPlan.toUpperCase()} permite maxim ${limitaStaff} experți.`);
+    }
+
+    if (newItem.type === 'staff' && staff.length >= limitaStaff) {
+        alert(`⚠️ Limită atinsă! Planul tău actual (${userPlan.toUpperCase()}) permite doar ${limitaStaff} experți.`);
         return;
-      }
     }
 
     const id = crypto.randomUUID();
@@ -222,7 +224,7 @@ export default function ResursePage() {
     }
   };
 
-  const limitaAtinsa = newItem.type === 'service' 
+  const limitaCurentaAtingata = newItem.type === 'service' 
     ? services.length >= (LIMITE.SERVICII[userPlan] || 5)
     : staff.length >= (LIMITE.STAFF[userPlan] || 1);
 
@@ -251,188 +253,202 @@ export default function ResursePage() {
           </div>
           <button 
             onClick={() => router.push('/programari')}
-            className="px-8 py-4 bg-white border-2 border-slate-900 rounded-[20px] font-black uppercase text-[10px] italic hover:bg-slate-900 hover:text-white transition-all shadow-lg border-b-4 border-slate-900 active:translate-y-1 active:border-b-0"
+            className="px-8 py-4 bg-white border-2 border-slate-900 rounded-[20px] font-black uppercase text-[10px] italic hover:bg-slate-900 hover:text-white transition-all shadow-lg border-b-4 border-slate-900 active:translate-y-1 active:border-b-0 active:scale-95"
+            title="Întoarce-te la panoul principal de programări"
           >
             ← PANOU PRINCIPAL
           </button>
         </header>
 
-        {/* Formular Adăugare */}
+        {/* Secțiune Adăugare - Cu feedback pentru limite */}
         <div className={`bg-white p-6 rounded-[35px] shadow-2xl mb-16 flex flex-wrap gap-4 border border-slate-100 items-center transition-all ${isDemo ? 'opacity-40 pointer-events-none grayscale' : ''}`}>
-          <select 
-            title="Tip resursă"
-            className="bg-slate-50 p-5 rounded-2xl font-black uppercase italic text-[11px] outline-none border-2 border-transparent focus:border-amber-500 transition-all cursor-pointer"
-            value={newItem.type} onChange={e => setNewItem({...newItem, type: e.target.value})}
-          >
-            <option value="service">SERVICIU NOU</option>
-            <option value="staff">EXPERT NOU</option>
-          </select>
+          <div className="flex flex-col gap-1">
+             <span className="text-[8px] font-black text-slate-400 ml-3 uppercase">Categorie</span>
+             <select 
+                title="Alege tipul de resursă pe care dorești să o adaugi"
+                className="bg-slate-50 p-5 rounded-2xl font-black uppercase italic text-[11px] outline-none border-2 border-transparent focus:border-amber-500 transition-all cursor-pointer"
+                value={newItem.type} onChange={e => setNewItem({...newItem, type: e.target.value})}
+             >
+                <option value="service">SERVICIU NOU</option>
+                <option value="staff">EXPERT NOU</option>
+             </select>
+          </div>
 
-          <input 
-            title="Denumire"
-            className="flex-1 min-w-[180px] bg-slate-50 p-5 rounded-2xl font-black uppercase italic text-[11px] outline-none border-2 border-transparent focus:border-amber-500 transition-all" 
-            placeholder={newItem.type === 'service' ? "DENUMIRE SERVICIU..." : "NUME EXPERT..."} 
-            value={newItem.name} 
-            onChange={e => setNewItem({...newItem, name: e.target.value})} 
-          />
+          <div className="flex-1 min-w-[180px] flex flex-col gap-1">
+             <span className="text-[8px] font-black text-slate-400 ml-3 uppercase">Denumire</span>
+             <input 
+                title={newItem.type === 'service' ? "Introdu numele serviciului (ex: Tuns Clasic)" : "Introdu numele angajatului sau al expertului"}
+                className="bg-slate-50 p-5 rounded-2xl font-black uppercase italic text-[11px] outline-none border-2 border-transparent focus:border-amber-500 transition-all shadow-inner" 
+                placeholder={newItem.type === 'service' ? "EX: TUNS BARBĂ..." : "EX: ANDREI POPESCU..."} 
+                value={newItem.name} 
+                onChange={e => setNewItem({...newItem, name: e.target.value})} 
+             />
+          </div>
 
           {newItem.type === 'service' && (
-            <div className="flex items-center gap-2 bg-slate-100 p-2 rounded-2xl">
+            <div className="flex items-center gap-2 bg-slate-100 p-2 rounded-2xl border border-slate-200">
               <div className="flex flex-col">
-                <span className="text-[8px] font-black ml-3 mb-1 text-slate-400">ORE</span>
-                <select 
-                  className="bg-white px-4 py-3 rounded-xl font-black text-[11px] outline-none"
-                  value={newItem.hour} onChange={e => setNewItem({...newItem, hour: e.target.value})}
-                >
-                  {oreOptiuni.map(h => <option key={h} value={h}>{h} H</option>)}
-                </select>
+                <span className="text-[8px] font-black ml-3 mb-1 text-slate-400 uppercase">Durată</span>
+                <div className="flex gap-1">
+                    <select 
+                      title="Selectează numărul de ore pentru durata serviciului"
+                      className="bg-white px-4 py-3 rounded-xl font-black text-[11px] outline-none shadow-sm"
+                      value={newItem.hour} onChange={e => setNewItem({...newItem, hour: e.target.value})}
+                    >
+                      {oreOptiuni.map(h => <option key={h} value={h}>{h} H</option>)}
+                    </select>
+                    <select 
+                      title="Selectează numărul de minute pentru durata serviciului"
+                      className="bg-white px-4 py-3 rounded-xl font-black text-[11px] outline-none shadow-sm"
+                      value={newItem.minute} onChange={e => setNewItem({...newItem, minute: e.target.value})}
+                    >
+                      {minuteOptiuni.map(m => <option key={m} value={m}>{m} MIN</option>)}
+                    </select>
+                </div>
               </div>
               <div className="flex flex-col">
-                <span className="text-[8px] font-black ml-3 mb-1 text-slate-400">MIN</span>
-                <select 
-                  className="bg-white px-4 py-3 rounded-xl font-black text-[11px] outline-none"
-                  value={newItem.minute} onChange={e => setNewItem({...newItem, minute: e.target.value})}
-                >
-                  {minuteOptiuni.map(m => <option key={m} value={m}>{m} MIN</option>)}
-                </select>
+                <span className="text-[8px] font-black ml-3 mb-1 text-slate-400 uppercase">Preț (RON)</span>
+                <input 
+                    title="Introdu prețul acestui serviciu în RON"
+                    type="number"
+                    className="w-24 bg-white p-4 rounded-xl font-black uppercase italic text-[11px] outline-none shadow-sm" 
+                    placeholder="RON" 
+                    value={newItem.price} 
+                    onChange={e => setNewItem({...newItem, price: e.target.value})} 
+                />
               </div>
-              <input 
-                title="Preț (RON)"
-                type="number"
-                className="w-24 bg-white p-4 rounded-xl font-black uppercase italic text-[11px] outline-none" 
-                placeholder="RON" 
-                value={newItem.price} 
-                onChange={e => setNewItem({...newItem, price: e.target.value})} 
-              />
             </div>
           )}
 
           <button 
-            title={limitaAtinsa ? "Limită plan atinsă" : "Adaugă resursă"}
+            title={limitaCurentaAtingata ? `Ai atins numărul maxim de ${newItem.type === 'service' ? 'servicii' : 'experți'} pentru acest plan` : "Confirmă și salvează noua resursă"}
             onClick={handleAdd} 
-            disabled={limitaAtinsa}
-            className={`px-10 py-5 rounded-2xl font-black uppercase italic text-[11px] transition-all shadow-lg border-b-4 active:translate-y-1 active:border-b-0 ${
-              limitaAtinsa 
-              ? 'bg-slate-200 text-slate-400 border-slate-300 cursor-not-allowed' 
+            disabled={limitaCurentaAtingata}
+            className={`px-10 py-5 self-end h-[60px] rounded-2xl font-black uppercase italic text-[11px] transition-all shadow-lg border-b-4 active:translate-y-1 active:border-b-0 active:scale-95 ${
+              limitaCurentaAtingata 
+              ? 'bg-slate-200 text-slate-400 border-slate-300 cursor-not-allowed opacity-60' 
               : 'bg-slate-900 text-amber-500 border-slate-800 hover:bg-amber-500 hover:text-black'
             }`}
           >
-            {limitaAtinsa ? 'LIMITĂ ATINSĂ' : 'CONFIRMĂ +'}
+            {limitaCurentaAtingata ? 'LIMITĂ PLAN ATINSĂ ⚠️' : 'CONFIRMĂ ADAUGARE +'}
           </button>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
           {/* SECȚIUNE SERVICII */}
-          <div className="bg-white p-10 rounded-[50px] shadow-xl border border-slate-50">
+          <div className="bg-white p-10 rounded-[50px] shadow-xl border border-slate-50 relative">
             <h2 className="text-[11px] font-black uppercase italic text-slate-400 mb-10 tracking-[0.3em] border-b pb-6">
               SERVICII ACTIVE ({services.length} / {LIMITE.SERVICII[userPlan] || 5})
             </h2>
             <div className="space-y-4">
               {services.map(s => (
-                <div key={s.id} className="group bg-slate-50 rounded-[28px] border-l-8 border-amber-500 hover:bg-white transition-all border border-transparent hover:border-slate-100 overflow-hidden relative">
+                <div key={s.id} className="group bg-slate-50 rounded-[28px] border-l-8 border-amber-500 hover:bg-white transition-all border border-transparent hover:border-slate-100 overflow-hidden relative shadow-sm">
                   {editingId === s.id ? (
-                    <div ref={editContainerRef} className="p-8 space-y-4 bg-white">
-                      <input className="w-full p-4 rounded-xl border-2 border-slate-100 font-black uppercase italic text-[11px]" value={editForm?.nume || ""} onChange={e => setEditForm({...editForm, nume: e.target.value})} placeholder="NUME" />
+                    <div ref={editContainerRef} className="p-8 space-y-4 bg-white animate-in slide-in-from-top-2 duration-200">
+                      <input className="w-full p-4 rounded-xl border-2 border-slate-100 font-black uppercase italic text-[11px] shadow-inner" value={editForm?.nume || ""} onChange={e => setEditForm({...editForm, nume: e.target.value})} placeholder="DENUMIRE SERVICIU" />
                       <div className="flex gap-2 items-end">
                         <div className="flex-1">
                           <label className="text-[9px] font-black text-slate-400 ml-1">PREȚ RON</label>
-                          <input className="w-full p-4 rounded-xl border-2 border-slate-100 font-black text-[11px]" value={editForm?.pret || ""} onChange={e => setEditForm({...editForm, pret: e.target.value})} />
+                          <input className="w-full p-4 rounded-xl border-2 border-slate-100 font-black text-[11px] shadow-inner" value={editForm?.pret || ""} onChange={e => setEditForm({...editForm, pret: e.target.value})} />
                         </div>
                         <div className="flex-1">
                           <label className="text-[9px] font-black text-slate-400 ml-1">ORE</label>
-                          <select className="w-full p-4 rounded-xl border-2 border-slate-100 font-black text-[11px]" value={editForm?.hour || "0"} onChange={e => setEditForm({...editForm, hour: e.target.value})}>
+                          <select className="w-full p-4 rounded-xl border-2 border-slate-100 font-black text-[11px] shadow-inner" value={editForm?.hour || "0"} onChange={e => setEditForm({...editForm, hour: e.target.value})}>
                             {oreOptiuni.map(h => <option key={h} value={h}>{h} H</option>)}
                           </select>
                         </div>
                         <div className="flex-1">
                           <label className="text-[9px] font-black text-slate-400 ml-1">MIN</label>
-                          <select className="w-full p-4 rounded-xl border-2 border-slate-100 font-black text-[11px]" value={editForm?.minute || "0"} onChange={e => setEditForm({...editForm, minute: e.target.value})}>
+                          <select className="w-full p-4 rounded-xl border-2 border-slate-100 font-black text-[11px] shadow-inner" value={editForm?.minute || "0"} onChange={e => setEditForm({...editForm, minute: e.target.value})}>
                             {minuteOptiuni.map(m => <option key={m} value={m}>{m} MIN</option>)}
                           </select>
                         </div>
                       </div>
                       <div className="flex gap-3 mt-4">
-                        <button onClick={salveazaEditare} className="flex-1 bg-slate-900 text-amber-500 p-4 rounded-xl text-[10px] font-black uppercase italic">SALVEAZĂ</button>
-                        <button onClick={() => { setEditingId(null); setEditForm(null); }} className="flex-1 bg-slate-100 p-4 rounded-xl text-[10px] font-black uppercase italic text-slate-400">ANULEAZĂ</button>
+                        <button onClick={salveazaEditare} className="flex-1 bg-slate-900 text-amber-500 p-4 rounded-xl text-[10px] font-black uppercase italic hover:bg-amber-600 hover:text-white transition-all active:scale-95 shadow-md">SALVEAZĂ MODIFICĂRI</button>
+                        <button onClick={() => { setEditingId(null); setEditForm(null); }} className="flex-1 bg-slate-100 p-4 rounded-xl text-[10px] font-black uppercase italic text-slate-400 hover:bg-slate-200 transition-all active:scale-95">ANULEAZĂ</button>
                       </div>
                     </div>
                   ) : (
-                    <div className="p-6 flex justify-between items-center cursor-pointer" onClick={() => activeazaEditare(s, 'service')}>
+                    <div className="p-6 flex justify-between items-center cursor-pointer active:scale-[0.98] transition-transform" onClick={() => activeazaEditare(s, 'service')} title="Click pentru a edita detaliile acestui serviciu">
                       <div>
-                        <p className="font-black uppercase italic text-[13px] text-slate-900">{s.nume || s.name}</p>
+                        <p className="font-black uppercase italic text-[13px] text-slate-900 group-hover:text-amber-600 transition-colors">{s.nume || s.name}</p>
                         <p className="text-[10px] font-bold text-slate-400 mt-1 uppercase italic tracking-widest">
                           {s.pret || s.price} RON — {Math.floor(parseInt(s.durata)/60) > 0 ? `${Math.floor(parseInt(s.durata)/60)}H ` : ''}{parseInt(s.durata)%60} MIN
                         </p>
                       </div>
                       {!isDemo && (
-                        <button title="Șterge serviciu" onClick={(e) => { e.stopPropagation(); handleDelete(s.id, 'services'); }} className="opacity-0 group-hover:opacity-100 bg-white text-red-500 p-4 rounded-2xl shadow-md border border-red-500 transition-opacity">✕</button>
+                        <button title="Șterge definitiv acest serviciu din listă" onClick={(e) => { e.stopPropagation(); handleDelete(s.id, 'services'); }} className="opacity-0 group-hover:opacity-100 bg-white text-red-500 w-10 h-10 flex items-center justify-center rounded-xl shadow-md border border-red-100 hover:bg-red-500 hover:text-white transition-all active:scale-90">✕</button>
                       )}
                     </div>
                   )}
                 </div>
               ))}
+              {services.length === 0 && <p className="text-[10px] font-black text-slate-300 uppercase italic text-center py-10">Nu ai adăugat niciun serviciu încă.</p>}
             </div>
           </div>
 
           {/* SECȚIUNE ECHIPĂ */}
-          <div className="bg-white p-10 rounded-[50px] shadow-xl border border-slate-50">
+          <div className="bg-white p-10 rounded-[50px] shadow-xl border border-slate-50 relative">
             <h2 className="text-[11px] font-black uppercase italic text-slate-400 mb-10 tracking-[0.3em] border-b pb-6 text-right">
               ECHIPĂ EXPERȚI ({staff.length} / {LIMITE.STAFF[userPlan] || 1})
             </h2>
             <div className="space-y-4">
               {staff.map(p => (
-                <div key={p.id} className="group bg-slate-900 rounded-[28px] border-l-8 border-slate-700 hover:border-amber-500 transition-all overflow-hidden relative">
+                <div key={p.id} className="group bg-slate-900 rounded-[28px] border-l-8 border-slate-700 hover:border-amber-500 transition-all overflow-hidden relative shadow-lg">
                   {editingId === p.id ? (
-                    <div ref={editContainerRef} className="p-8 space-y-6 bg-slate-800">
+                    <div ref={editContainerRef} className="p-8 space-y-6 bg-slate-800 animate-in slide-in-from-bottom-2 duration-200">
                       <div>
-                        <label className="text-[9px] font-black text-slate-500 ml-1 uppercase">Nume Expert</label>
-                        <input className="w-full p-4 rounded-xl border-2 border-slate-700 bg-slate-900 text-white font-black uppercase italic text-[11px]" value={editForm?.nume || ""} onChange={e => setEditForm({...editForm, nume: e.target.value})} />
+                        <label className="text-[9px] font-black text-slate-500 ml-1 uppercase mb-1 block">Nume Expert</label>
+                        <input className="w-full p-4 rounded-xl border-2 border-slate-700 bg-slate-900 text-white font-black uppercase italic text-[11px] shadow-inner" value={editForm?.nume || ""} onChange={e => setEditForm({...editForm, nume: e.target.value})} />
                       </div>
                       <div>
-                        <label className="text-[9px] font-black text-slate-500 ml-1 uppercase mb-3 block">Servicii Oferite</label>
-                        <div className="grid grid-cols-2 gap-2">
+                        <label className="text-[9px] font-black text-slate-500 ml-1 uppercase mb-3 block">Servicii Alocate</label>
+                        <div className="grid grid-cols-2 gap-2 max-h-40 overflow-y-auto pr-2 scrollbar-hide">
                           {services.map(s => (
                             <button
                               key={s.id}
                               onClick={() => toggleServiciuStaff(s.nume || s.name)}
-                              className={`p-3 rounded-xl text-[9px] font-black uppercase italic transition-all border-2 ${
+                              className={`p-3 rounded-xl text-[9px] font-black uppercase italic transition-all border-2 active:scale-95 ${
                                 (editForm?.servicii || []).includes(s.nume || s.name)
-                                  ? 'bg-amber-500 border-amber-500 text-slate-900'
+                                  ? 'bg-amber-500 border-amber-500 text-slate-900 shadow-md'
                                   : 'bg-slate-900 border-slate-700 text-slate-500 hover:border-slate-600'
                               }`}
+                              title={`Alocă serviciul ${s.nume || s.name} acestui expert`}
                             >
                               {s.nume || s.name}
                             </button>
                           ))}
                         </div>
-                        {services.length === 0 && <p className="text-[9px] italic text-slate-600">Adaugă servicii în lista din stânga mai întâi.</p>}
+                        {services.length === 0 && <p className="text-[9px] italic text-slate-600 mt-2">⚠️ Adaugă servicii în lista din stânga mai întâi.</p>}
                       </div>
                       <div className="flex gap-3 pt-4">
-                        <button onClick={salveazaEditare} className="flex-1 bg-amber-500 text-slate-900 p-4 rounded-xl text-[10px] font-black uppercase italic">SALVEAZĂ</button>
-                        <button onClick={() => { setEditingId(null); setEditForm(null); }} className="flex-1 bg-slate-700 p-4 rounded-xl text-[10px] font-black uppercase italic text-slate-300">ANULEAZĂ</button>
+                        <button onClick={salveazaEditare} className="flex-1 bg-amber-500 text-slate-900 p-4 rounded-xl text-[10px] font-black uppercase italic hover:bg-white transition-all active:scale-95 shadow-md">SALVEAZĂ EXPERT</button>
+                        <button onClick={() => { setEditingId(null); setEditForm(null); }} className="flex-1 bg-slate-700 p-4 rounded-xl text-[10px] font-black uppercase italic text-slate-300 hover:bg-slate-600 transition-all active:scale-95">ÎNCHIDE</button>
                       </div>
                     </div>
                   ) : (
-                    <div className="p-6 flex justify-between items-center cursor-pointer" onClick={() => activeazaEditare(p, 'staff')}>
+                    <div className="p-6 flex justify-between items-center cursor-pointer active:scale-[0.98] transition-transform" onClick={() => activeazaEditare(p, 'staff')} title="Click pentru a edita profilul sau serviciile acestui expert">
                       <div className="flex-1">
                         <p className="font-black uppercase italic text-[13px] text-white group-hover:text-amber-500 transition-colors">{p.nume || p.name}</p>
                         <div className="flex flex-wrap gap-1.5 mt-3">
                           {(p.servicii || []).length > 0 ? (
                             p.servicii.map((serv: string, idx: number) => (
-                              <span key={idx} className="text-[8px] bg-slate-800 text-slate-400 px-3 py-1 rounded-full border border-slate-700 uppercase font-black">{serv}</span>
+                              <span key={idx} className="text-[8px] bg-slate-800 text-slate-400 px-3 py-1 rounded-full border border-slate-700 uppercase font-black tracking-tighter">{serv}</span>
                             ))
                           ) : (
-                            <span className="text-[8px] text-red-500/50 uppercase font-black italic">Niciun serviciu alocat</span>
+                            <span className="text-[8px] text-red-500/50 uppercase font-black italic">Niciun serviciu alocat momentan</span>
                           )}
                         </div>
                       </div>
                       {!isDemo && (
-                        <button title="Șterge expert" onClick={(e) => { e.stopPropagation(); handleDelete(p.id, 'staff'); }} className="opacity-0 group-hover:opacity-100 bg-slate-800 text-red-400 p-4 rounded-2xl border border-slate-700 transition-opacity">✕</button>
+                        <button title="Șterge definitiv acest expert" onClick={(e) => { e.stopPropagation(); handleDelete(p.id, 'staff'); }} className="opacity-0 group-hover:opacity-100 bg-slate-800 text-red-400 w-10 h-10 flex items-center justify-center rounded-xl border border-slate-700 hover:bg-red-500 hover:text-white transition-all active:scale-90">✕</button>
                       )}
                     </div>
                   )}
                 </div>
               ))}
+              {staff.length === 0 && <p className="text-[10px] font-black text-slate-600 uppercase italic text-center py-10">Nu ai adăugat niciun expert încă.</p>}
             </div>
           </div>
         </div>
