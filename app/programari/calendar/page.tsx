@@ -46,6 +46,14 @@ type Programare = {
 };
 type ViewMode = "day" | "week" | "month";
 
+// Interfață pentru abonament
+type Subscription = {
+  plan: 'free' | 'pro' | 'business';
+  max_appointments: number;
+  max_experts: number;
+  is_trial?: boolean;
+};
+
 function CalendarContent() {
   const searchParams = useSearchParams();
   const isDemo = searchParams.get("demo") === "true";
@@ -53,6 +61,8 @@ function CalendarContent() {
   const [programari, setProgramari] = useState<Programare[]>([]);
   const [listaExperti, setListaExperti] = useState<string[]>([]);
   const [listaServicii, setListaServicii] = useState<string[]>([]);
+  const [userSubscription, setUserSubscription] = useState<Subscription | null>(null);
+  
   const [viewMode, setViewMode] = useState<ViewMode>("month");
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [loading, setLoading] = useState(true);
@@ -93,7 +103,46 @@ function CalendarContent() {
 
       const userId = session?.user?.id;
 
-      // 1. Fetch Programări
+      // 1. Fetch Date Profil (Abonament, Experți, Servicii) din tabelul "profiles"
+      if (userId) {
+          const { data: profileData } = await supabase
+            .from('profiles')
+            .select('plan_type, staff, services, trial_activated, trial_expiry')
+            .eq('id', userId)
+            .single();
+
+          if (profileData) {
+            const rawPlan = (profileData.plan_type || 'free').toLowerCase();
+            const isTrialActive = profileData.trial_activated && new Date(profileData.trial_expiry) > new Date();
+            
+            const planFinal = isTrialActive ? 'pro' : rawPlan;
+
+            setUserSubscription({
+                plan: planFinal,
+                max_appointments: planFinal === 'free' ? 50 : planFinal === 'pro' ? 500 : 9999,
+                max_experts: planFinal === 'free' ? 2 : 20,
+                is_trial: isTrialActive
+            });
+
+            // MODIFICARE: Extragem doar numele din obiectele JSON pentru Experți
+            if (Array.isArray(profileData.staff)) {
+              const numeExperti = profileData.staff
+                .map((item: any) => typeof item === 'object' ? item.nume : item)
+                .filter(Boolean);
+              setListaExperti(numeExperti);
+            }
+
+            // MODIFICARE: Extragem doar numele din obiectele JSON pentru Servicii
+            if (Array.isArray(profileData.services)) {
+              const numeServicii = profileData.services
+                .map((item: any) => typeof item === 'object' ? item.nume : item)
+                .filter(Boolean);
+              setListaServicii(numeServicii);
+            }
+          }
+      }
+
+      // 2. Fetch Programări
       let apptsQuery = supabase.from('appointments').select('*');
       if (!isDemo && userId) apptsQuery = apptsQuery.eq('user_id', userId);
       
@@ -114,24 +163,21 @@ function CalendarContent() {
         setProgramari(formatted);
       }
 
-      // --- CONEXIUNEA TA CU LISTA DE EXPERȚI ---
-      const { data: resData } = await supabase.from('resurse').select('name');
-      if (resData) {
-        setListaExperti(resData.map((r: any) => r.name).filter(Boolean));
-      }
-
-      // --- CONEXIUNEA TA CU LISTA DE SERVICII ---
-      const { data: servData } = await supabase.from('servicii').select('nume');
-      if (servData) {
-        setListaServicii(servData.map((s: any) => s.nume).filter(Boolean));
-      }
-
     } catch (err) {
       console.error("Eroare la sincronizare date:", err);
     } finally {
       setLoading(false);
     }
   }
+
+  const checkSubscriptionLimits = () => {
+      if (!userSubscription) return true;
+      if (userSubscription.plan === 'free' && programari.length >= userSubscription.max_appointments) {
+          alert(`⚠️ Limită atinsă: Planul FREE permite maxim ${userSubscription.max_appointments} programări. Treci la PRO pentru nelimitat!`);
+          return false;
+      }
+      return true;
+  };
 
   const handleOpenEdit = (p: Programare) => setEditForm({ ...p });
   const handleCloseModal = () => setEditForm(null);
@@ -159,6 +205,9 @@ function CalendarContent() {
   };
 
   const sendWhatsAppReminder = () => {
+    if (userSubscription?.plan === 'free') {
+        return alert("Funcția WhatsApp Reminder este disponibilă doar în planul PRO sau BUSINESS.");
+    }
     if (!editForm?.telefon) return alert("Lipsă telefon.");
     const cleanPhone = editForm.telefon.replace(/\D/g, "");
     const formattedPhone = cleanPhone.startsWith('0') ? '4' + cleanPhone : cleanPhone;
@@ -283,9 +332,14 @@ function CalendarContent() {
               </div>
 
               <div className="bg-green-50/50 p-6 rounded-[30px] border border-green-100 space-y-3">
-                <p className="text-[10px] font-black text-green-600 uppercase italic tracking-widest flex items-center gap-2"><span>💬</span> Notificare WhatsApp</p>
+                <p className="text-[10px] font-black text-green-600 uppercase italic tracking-widest flex items-center gap-2">
+                  <span>💬</span> Notificare WhatsApp 
+                  {userSubscription?.plan === 'free' && <span className="ml-auto text-[8px] bg-amber-500 text-white px-2 py-0.5 rounded-full">PRO</span>}
+                </p>
                 <textarea className="w-full bg-white border border-green-200 rounded-2xl p-4 text-[11px] font-bold text-slate-700 outline-none italic" rows={3} value={customMessage} onChange={(e) => setCustomMessage(e.target.value)} />
-                <button onClick={sendWhatsAppReminder} className="w-full bg-green-600 text-white py-4 rounded-2xl text-[10px] font-black uppercase italic hover:bg-green-700 transition shadow-lg active:scale-95">Trimite pe WhatsApp</button>
+                <button onClick={sendWhatsAppReminder} className={`w-full py-4 rounded-2xl text-[10px] font-black uppercase italic transition shadow-lg active:scale-95 ${userSubscription?.plan === 'free' ? 'bg-slate-300 text-slate-500 cursor-not-allowed' : 'bg-green-600 text-white hover:bg-green-700'}`}>
+                    {userSubscription?.plan === 'free' ? 'Funcție Blocată (Upgrade)' : 'Trimite pe WhatsApp'}
+                </button>
               </div>
 
               <div className="flex flex-col gap-3 pb-4">
@@ -300,7 +354,7 @@ function CalendarContent() {
         </div>
       )}
 
-      {/* HEADER CU FILTRE CONECTATE LA SUPABASE */}
+      {/* HEADER CU FILTRE */}
       <div className="w-full max-w-6xl flex flex-col items-center mb-6 px-6 py-6 mt-4 gap-6 bg-white rounded-[40px] shadow-sm border border-slate-100">
         <div className="w-full flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="flex items-center gap-4">
@@ -309,7 +363,7 @@ function CalendarContent() {
             </div>
             <div className="flex flex-col">
               <h1 className="text-2xl font-black text-slate-900 tracking-tighter uppercase italic leading-none">Calendar <span className="text-amber-600">Chronos</span></h1>
-              <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] italic mt-1">Conectat la Supabase</p>
+              <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] italic mt-1">Conectat la Supabase • Plan: {userSubscription?.plan.toUpperCase()}{userSubscription?.is_trial ? ' (TRIAL)' : ''}</p>
             </div>
           </div>
 
@@ -327,20 +381,25 @@ function CalendarContent() {
           </div>
 
           <nav className="flex items-center">
-            <Link href="/programari" className="px-8 py-4 bg-amber-500 text-white rounded-[22px] text-[10px] font-black uppercase italic transition-all hover:bg-amber-600 shadow-lg active:scale-95">+ Programare Nouă</Link>
+            <Link 
+                href={checkSubscriptionLimits() ? "/programari" : "#"} 
+                className={`px-8 py-4 rounded-[22px] text-[10px] font-black uppercase italic transition-all shadow-lg active:scale-95 ${checkSubscriptionLimits() ? 'bg-amber-500 text-white hover:bg-amber-600' : 'bg-slate-200 text-slate-400 cursor-not-allowed'}`}
+            >
+                + Programare Nouă
+            </Link>
           </nav>
         </div>
 
-        {/* BUTOANE FILTRU CONECTATE LA LISTELE DIN SUPABASE */}
+        {/* FILTRE SELECTOR */}
         <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-slate-50">
           <div className="relative">
-            <p className="text-[9px] font-black text-slate-400 uppercase italic mb-1 ml-4">Selectează Expertul</p>
+            <p className="text-[9px] font-black text-slate-400 uppercase italic mb-1 ml-4">Filtrează după Expert</p>
             <select 
               value={selectedExpert} 
               onChange={(e) => setSelectedExpert(e.target.value)}
               className="w-full bg-slate-50 border-2 border-slate-100 rounded-[22px] py-3 px-6 text-[11px] font-black text-slate-700 uppercase italic outline-none focus:border-slate-900 transition-all appearance-none cursor-pointer"
             >
-              <option value="">Caută după Expert</option>
+              <option value="">Toți Experții</option>
               {listaExperti.map(exp => (
                 <option key={exp} value={exp}>{exp}</option>
               ))}
@@ -349,31 +408,23 @@ function CalendarContent() {
           </div>
 
           <div className="relative">
-            <p className="text-[9px] font-black text-slate-400 uppercase italic mb-1 ml-4">Selectează Serviciul</p>
+            <p className="text-[9px] font-black text-slate-400 uppercase italic mb-1 ml-4">Filtrează după Serviciu</p>
             <select 
               value={selectedServiciu} 
               onChange={(e) => setSelectedServiciu(e.target.value)}
               className="w-full bg-amber-50 border-2 border-amber-100 rounded-[22px] py-3 px-6 text-[11px] font-black text-amber-700 uppercase italic outline-none focus:border-amber-500 transition-all appearance-none cursor-pointer"
             >
-              <option value="">Caută după Serviciu</option>
+              <option value="">Toate Serviciile</option>
               {listaServicii.map(ser => (
                 <option key={ser} value={ser}>{ser}</option>
               ))}
             </select>
             <span className="absolute right-6 bottom-3.5 text-amber-400 pointer-events-none">▼</span>
           </div>
-          
-          {(searchTerm || selectedExpert || selectedServiciu) && (
-            <button 
-              onClick={() => {setSearchTerm(""); setSelectedExpert(""); setSelectedServiciu("");}} 
-              className="md:col-span-2 self-center text-[9px] font-black text-red-500 uppercase italic underline hover:text-red-700"
-            >
-              Resetează toate filtrele ×
-            </button>
-          )}
         </div>
       </div>
 
+      {/* ZONA CALENDAR */}
       <div className="w-full max-w-6xl bg-white rounded-[40px] shadow-2xl border border-slate-200 overflow-hidden mb-20">
         <div className="p-4 md:p-8 border-b border-slate-100 flex flex-col md:flex-row items-center justify-between gap-6 bg-white">
           <div className="flex items-center gap-4">
