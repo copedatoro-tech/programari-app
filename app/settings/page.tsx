@@ -84,7 +84,6 @@ export default function AdminSettingsHub() {
         setBookingInterval(profile.booking_interval || 15);
         setSlug(profile.slug || "");
         
-        // CONSTRUCȚIE DINAMICĂ: Se adaptează automat la mediu (Localhost sau Vercel)
         const baseUrl = getBaseUrl();
         const identifier = profile.slug ? `s=${profile.slug}` : `id=${currentUid}`;
         setUserUrl(`${baseUrl}/rezervare?${identifier}`);
@@ -153,12 +152,38 @@ export default function AdminSettingsHub() {
     }
   };
 
-  const toggleHourBlock = (hour: string) => {
+  const toggleHourBlock = (baseSlot: string) => {
     if (!selectedDate) return;
     setIsDirty(true);
-    const current = manualBlocks[selectedDate] || [];
-    const updated = current.includes(hour) ? current.filter((h: string) => h !== hour) : [...current, hour];
-    setManualBlocks({ ...manualBlocks, [selectedDate]: updated });
+    
+    const currentDayBlocks = [...(manualBlocks[selectedDate] || [])];
+    
+    // Generăm lista de mini-sloturi de 15 minute care aparțin de slotul vizibil
+    // Exemplu: Dacă suntem pe vizualizare de 60 min și dăm click pe 08:00,
+    // trebuie să acoperim 08:00, 08:15, 08:30, 08:45.
+    const subSlots: string[] = [];
+    const [h, m] = baseSlot.split(':').map(Number);
+    
+    for (let i = 0; i < bookingInterval; i += 15) {
+      const totalMinutes = m + i;
+      const slotH = h + Math.floor(totalMinutes / 60);
+      const slotM = totalMinutes % 60;
+      subSlots.push(`${slotH.toString().padStart(2, '0')}:${slotM.toString().padStart(2, '0')}`);
+    }
+
+    // Verificăm dacă slotul principal este deja blocat
+    const isAlreadyBlocked = currentDayBlocks.includes(baseSlot);
+    
+    let updatedDayBlocks;
+    if (isAlreadyBlocked) {
+      // Deblocăm toate sub-sloturile
+      updatedDayBlocks = currentDayBlocks.filter(slot => !subSlots.includes(slot));
+    } else {
+      // Blocăm toate sub-sloturile, evitând duplicatele
+      updatedDayBlocks = Array.from(new Set([...currentDayBlocks, ...subSlots]));
+    }
+
+    setManualBlocks({ ...manualBlocks, [selectedDate]: updatedDayBlocks });
   };
 
   const saveAsDefaultRepeat = async () => {
@@ -191,7 +216,10 @@ export default function AdminSettingsHub() {
     for (let d = 1; d <= totalDays; d++) {
       const dateStr = `${year}-${(month + 1).toString().padStart(2, '0')}-${d.toString().padStart(2, '0')}`;
       const isToday = new Date().toISOString().split('T')[0] === dateStr;
-      const isBlocked = (manualBlocks[dateStr] || []).length >= (dynamicTimeSlots.length - 2);
+      
+      // Calculăm dacă ziua e blocată raportat la sloturi de 15 min (baza sistemului)
+      const slots15 = generateSlots(15);
+      const isBlocked = (manualBlocks[dateStr] || []).length >= (slots15.length - 2);
       const hasBooking = daysWithBookings.includes(dateStr);
 
       days.push(
@@ -286,7 +314,6 @@ export default function AdminSettingsHub() {
           </div>
         </header>
 
-        {/* SECȚIUNEA LINK ȘI QR - SUS */}
         <div className="relative group mb-12">
           <div className={`grid grid-cols-1 lg:grid-cols-2 gap-8 transition-all duration-500 ${!hasBookingAccess ? 'blur-md pointer-events-none opacity-40 select-none' : ''}`}>
             <div className="bg-white p-10 rounded-[45px] shadow-xl border border-slate-100 flex flex-col justify-between">
@@ -323,7 +350,6 @@ export default function AdminSettingsHub() {
           )}
         </div>
 
-        {/* CALENDARUL - JOS */}
         <div className="grid grid-cols-1 gap-12 mb-20">
           <div className="bg-white p-6 md:p-10 rounded-[50px] shadow-xl border border-slate-100">
             <div className="flex flex-col md:flex-row items-center justify-between mb-10 gap-4">
@@ -375,6 +401,7 @@ export default function AdminSettingsHub() {
                 <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3">
                   {dynamicTimeSlots.map(slot => {
                     const isReserved = existingBookings.includes(slot);
+                    // Verificăm dacă slotul vizibil este marcat ca blocat în baza de date
                     const isBlocked = (manualBlocks[selectedDate] || []).includes(slot);
                     
                     return (
