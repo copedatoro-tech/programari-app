@@ -8,26 +8,28 @@ export async function middleware(req: NextRequest) {
 
   const { pathname } = req.nextUrl
 
-  // DEFINIM EXCEPȚIILE (Pagini care trebuie să fie accesibile FĂRĂ LOGIN)
+  // 1. DEFINIM EXCEPȚIILE (Pagini accesibile fără login)
   const isPublicPage = 
     pathname === '/login' || 
     pathname === '/register' || 
     pathname === '/forgot-password' ||
-    pathname === '/settings' || 
-    pathname === '/rezervare' || // <--- AM ADĂUGAT RUTA DE REZERVARE
-    pathname.startsWith('/rezervare') || // Pentru a permite și parametri gen ?id=...
+    pathname.startsWith('/rezervare') || // Permite accesul clienților la calendar
     pathname.startsWith('/_next') || 
-    pathname.includes('/api/') ||
-    pathname.endsWith('.png') || // Permitem logo-ul să se încarce
-    pathname.endsWith('.jpg') ||
-    pathname.endsWith('.svg');
+    pathname.startsWith('/api/auth') || // Necesar pentru procesul de login
+    pathname.match(/\.(png|jpg|jpeg|svg|gif|ico)$/); // Permite încărcarea imaginilor/logo-ului
 
-  // Verificăm sesiunea DOAR dacă nu este pagină publică
-  if (!isPublicPage) {
-    const { data: { session } } = await supabase.auth.getSession()
-    if (!session) {
-      return NextResponse.redirect(new URL('/login', req.url))
-    }
+  // 2. VERIFICĂM SESIUNEA
+  const { data: { session } } = await supabase.auth.getSession()
+
+  // 3. LOGICA DE REDIRECȚIONARE
+  // Dacă NU este pagină publică și NU avem sesiune -> trimitem la login
+  if (!isPublicPage && !session) {
+    return NextResponse.redirect(new URL('/login', req.url))
+  }
+
+  // Dacă ești logat și încerci să intri pe Login, te trimitem în Dashboard
+  if (session && (pathname === '/login' || pathname === '/register')) {
+    return NextResponse.redirect(new URL('/programari', req.url))
   }
 
   return res
@@ -35,6 +37,9 @@ export async function middleware(req: NextRequest) {
 
 export const config = {
   matcher: [
+    /*
+     * Se aplică pe toate rutele, cu excepția fișierelor statice interne Next.js
+     */
     '/((?!_next/static|_next/image|favicon.ico).*)',
   ],
 }
