@@ -39,6 +39,7 @@ export default function AdminSettingsHub() {
 
   const getBaseUrl = useCallback(() => {
     if (typeof window !== "undefined") {
+      // Returnează originea (ex: https://chronos.ro)
       return window.location.origin;
     }
     return "";
@@ -84,9 +85,10 @@ export default function AdminSettingsHub() {
         setSlug(profile.slug || "");
         
         const baseUrl = getBaseUrl();
-        // Corecție: Asigurăm formatul corect al link-ului pentru a fi citit public
-        const identifier = profile.slug ? `s=${profile.slug}` : `id=${currentUid}`;
-        setUserUrl(`${baseUrl}/rezervare?${identifier}`);
+        // Generăm URL-ul final pentru clienți
+        const identifier = profile.slug ? profile.slug : currentUid;
+        // Modificat pentru a folosi o structură de link curată: /rezervare/slug sau /rezervare/id
+        setUserUrl(`${baseUrl}/rezervare/${identifier}`);
         
         await fetchMonthlyAppointments(currentUid, currentMonth);
       }
@@ -118,7 +120,7 @@ export default function AdminSettingsHub() {
 
   const shareOnWhatsApp = () => {
     if (!hasBookingAccess) return;
-    const text = `Bună! Poți folosi acest link pentru a face o programare: ${userUrl}`;
+    const text = `Bună! Poți folosi acest link pentru a face o programare la mine: ${userUrl}`;
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
   };
 
@@ -311,11 +313,11 @@ export default function AdminSettingsHub() {
           <div className={`grid grid-cols-1 lg:grid-cols-2 gap-8 transition-all duration-500 ${!hasBookingAccess ? 'blur-md pointer-events-none opacity-40 select-none' : ''}`}>
             <div className="bg-white p-10 rounded-[45px] shadow-xl border border-slate-100 flex flex-col justify-between">
               <div>
-                <h2 className="text-[10px] font-black uppercase italic mb-6 text-slate-400 tracking-widest">Link Rezervări Online</h2>
+                <h2 className="text-[10px] font-black uppercase italic mb-6 text-slate-400 tracking-widest">Link Rezervări Online (Public)</h2>
                 <code className="block bg-slate-50 p-6 rounded-[25px] text-[11px] font-black text-amber-600 break-all border-2 border-slate-100 mb-8 italic">{userUrl}</code>
               </div>
               <div className="flex flex-col sm:flex-row gap-4">
-                <button onClick={() => { navigator.clipboard.writeText(userUrl); alert("✅ Link copiat!"); }} className="flex-1 py-5 bg-amber-500 text-black rounded-[22px] font-black uppercase text-[10px] italic hover:scale-[1.02] transition-all">Copiază Link</button>
+                <button onClick={() => { navigator.clipboard.writeText(userUrl); alert("✅ Link copiat! Trimite-l clienților tăi."); }} className="flex-1 py-5 bg-amber-500 text-black rounded-[22px] font-black uppercase text-[10px] italic hover:scale-[1.02] transition-all">Copiază Link</button>
                 <button onClick={shareOnWhatsApp} className="flex-1 py-5 bg-[#25D366] text-white rounded-[22px] font-black uppercase text-[10px] italic hover:scale-[1.02] transition-all">Share WhatsApp</button>
               </div>
             </div>
