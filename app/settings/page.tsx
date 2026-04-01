@@ -39,7 +39,6 @@ export default function AdminSettingsHub() {
 
   const getBaseUrl = useCallback(() => {
     if (typeof window !== "undefined") {
-      // Returnează originea (ex: https://chronos.ro)
       return window.location.origin;
     }
     return "";
@@ -85,10 +84,9 @@ export default function AdminSettingsHub() {
         setSlug(profile.slug || "");
         
         const baseUrl = getBaseUrl();
-        // Generăm URL-ul final pentru clienți
         const identifier = profile.slug ? profile.slug : currentUid;
-        // Modificat pentru a folosi o structură de link curată: /rezervare/slug sau /rezervare/id
-        setUserUrl(`${baseUrl}/rezervare/${identifier}`);
+        const finalUrl = `${baseUrl}/rezervare/${identifier}`;
+        setUserUrl(finalUrl);
         
         await fetchMonthlyAppointments(currentUid, currentMonth);
       }
@@ -282,13 +280,15 @@ export default function AdminSettingsHub() {
         .print-only { display: none; }
       `}</style>
       
-      {hasBookingAccess && (
+      {/* QR Code pentru Print - Folosește userUrl direct */}
+      {hasBookingAccess && userUrl && (
         <div className="print-only">
           <h2 className="text-4xl font-black uppercase italic mb-10 text-center text-black">REZERVARE <span className="text-amber-500">RAPIDĂ</span></h2>
           <div className="p-10 border-[16px] border-black rounded-[60px] bg-white">
-            {userUrl && <QRCodeSVG value={userUrl} size={400} level="H" includeMargin={true} />}
+            <QRCodeSVG value={userUrl} size={400} level="H" includeMargin={true} />
           </div>
           <p className="mt-10 font-black uppercase tracking-widest text-slate-500 italic">Scanază pentru a programa</p>
+          <p className="mt-4 text-[10px] text-slate-300 font-mono">{userUrl}</p>
         </div>
       )}
 
