@@ -50,6 +50,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     path === "/register" || 
     path === "/forgot-password";
 
+  // 1. Logica de Sincronizare Auth (Sesiune initiala)
   useEffect(() => {
     const syncAuth = async () => {
       if (!supabase || typeof supabase.auth === 'undefined') {
@@ -59,14 +60,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
       try {
         const { data: { session } } = await supabase.auth.getSession();
-        const loggedIn = !!session;
-        setIsLoggedIn(loggedIn);
-        setAuthLoaded(true);
-
-        if (!isPublicPage && !loggedIn) {
-          router.replace("/login");
-        }
+        setIsLoggedIn(!!session);
       } catch (error) {
+        console.error("Auth error:", error);
+      } finally {
         setAuthLoaded(true);
       }
     };
@@ -74,27 +71,32 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     syncAuth();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      const loggedIn = !!session;
-      setIsLoggedIn(loggedIn);
-      if (!loggedIn && !isPublicPage) {
-        router.replace("/login");
-      }
+      setIsLoggedIn(!!session);
     });
 
     return () => {
       if (subscription) subscription.unsubscribe();
     };
-  }, [path, router, isPublicPage]);
+  }, []); // Dependențe goale pentru a rula o singură dată la mount
 
-  // Închidere meniu la click exterior (Regulă Uniformă)
+  // 2. Logica de Redirecționare (Separată pentru a evita eroarea de dependențe)
+  useEffect(() => {
+    if (authLoaded && !isLoggedIn && !isPublicPage) {
+      router.replace("/login");
+    }
+  }, [authLoaded, isLoggedIn, isPublicPage, router]);
+
+  // Închidere meniu la click exterior
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
         setIsMenuOpen(false);
       }
     };
-    if (isMenuOpen) document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    if (isMenuOpen) {
+      document.addEventListener("click", handleClickOutside);
+    }
+    return () => document.removeEventListener("click", handleClickOutside);
   }, [isMenuOpen]);
 
   const handleLogout = async () => {
@@ -117,7 +119,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {authLoaded ? (
           <>
             {!isPublicPage && (
-              <nav className="w-full bg-white border-b-4 border-slate-100 sticky top-0 z-[100] shadow-sm" ref={menuRef}>
+              <nav className="w-full bg-white border-b-4 border-slate-100 sticky top-0 z-[100] shadow-sm">
                 <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center relative">
                   
                   <div className="flex items-center gap-4">
@@ -146,10 +148,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2 md:gap-4">
+                  {/* Zona Buton + Pop-up */}
+                  <div className="flex items-center gap-2 md:gap-4 relative" ref={menuRef}>
                     <button 
-                      onClick={() => setIsMenuOpen(!isMenuOpen)}
-                      className={`px-6 py-3 rounded-[20px] font-black text-[10px] uppercase italic tracking-widest transition-all border-b-4 active:translate-y-1 active:border-b-0 shadow-md ${
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setIsMenuOpen(!isMenuOpen);
+                      }}
+                      className={`px-6 py-3 rounded-[20px] font-black text-[10px] uppercase italic tracking-widest transition-all border-b-4 active:translate-y-1 active:border-b-0 shadow-md z-[120] ${
                         isMenuOpen 
                         ? "bg-amber-500 border-amber-700 text-white" 
                         : "bg-slate-900 border-slate-700 text-white hover:bg-slate-800 ring-2 ring-amber-500/50 border-2 border-amber-500"
@@ -157,50 +163,53 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                     >
                       {isMenuOpen ? "ÎNCHIDE ✕" : "MENIU ☰"}
                     </button>
+
+                    {/* Pop-up Meniu */}
+                    {isMenuOpen && (
+                      <div 
+                        onClick={(e) => e.stopPropagation()}
+                        className="absolute top-[calc(100%+15px)] right-0 w-72 bg-white border-4 border-slate-900 rounded-[30px] shadow-[0_20px_50px_rgba(0,0,0,0.2)] p-3 z-[110] flex flex-col max-h-[80vh]"
+                      >
+                        <div className="space-y-1 overflow-y-auto pr-1 scrollbar-thin">
+                          {[
+                            { href: "/programari", icon: "📅", label: "Programări" },
+                            { href: "/programari/calendar", icon: "🗓️", label: "Calendar" },
+                            { href: "/dosare-clienti", icon: "👥", label: "Dosare Clienți" },
+                            { href: "/resurse", icon: "📦", label: "Resurse" },
+                            { href: "/abonamente", icon: "💎", label: "Abonamente" },
+                            { href: "/rapoarte", icon: "📊", label: "Analiză & Rapoarte" },
+                            { href: "/sugestii", icon: "💡", label: "Sugestii Sistem" },
+                            { href: "/settings", icon: "⚙️", label: "Settings Admin" },
+                            { href: "/profil", icon: "👤", label: "Contul Meu" },
+                          ].map((item) => (
+                            <Link 
+                              key={item.href}
+                              href={item.href} 
+                              onClick={() => setIsMenuOpen(false)}
+                              className={`flex items-center gap-3 p-4 rounded-[20px] font-black text-[11px] uppercase italic transition-all ${
+                                path === item.href 
+                                ? "bg-amber-500 text-white shadow-lg" 
+                                : "hover:bg-slate-100 text-slate-900"
+                              }`}
+                            >
+                              <span className="text-lg">{item.icon}</span>
+                              {item.label}
+                            </Link>
+                          ))}
+                        </div>
+
+                        <div className="mt-2 pt-2 border-t-2 border-slate-100 bg-white">
+                          <button 
+                            onClick={handleLogout}
+                            className="w-full text-left p-4 text-red-500 font-black text-[11px] uppercase italic hover:bg-red-50 rounded-[20px] transition-all flex items-center gap-3"
+                          >
+                            <span>🚪</span> IEȘIRE SISTEM
+                          </button>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
-
-                {/* Pop-up Meniu */}
-                {isMenuOpen && (
-                  <div className="absolute top-[calc(100%+10px)] right-6 w-72 bg-white border-2 border-slate-100 rounded-[30px] shadow-2xl p-3 z-[110] flex flex-col max-h-[80vh]">
-                    <div className="space-y-1 overflow-y-auto pr-1 scrollbar-thin">
-                      {[
-                        { href: "/programari", icon: "📅", label: "Programări" },
-                        { href: "/programari/calendar", icon: "🗓️", label: "Calendar" },
-                        { href: "/dosare-clienti", icon: "👥", label: "Dosare Clienți" },
-                        { href: "/resurse", icon: "📦", label: "Resurse" },
-                        { href: "/abonamente", icon: "💎", label: "Abonamente" },
-                        { href: "/rapoarte", icon: "📊", label: "Analiză & Rapoarte" },
-                        { href: "/sugestii", icon: "💡", label: "Sugestii Sistem" },
-                        { href: "/settings", icon: "⚙️", label: "Settings Admin" },
-                        { href: "/profil", icon: "👤", label: "Contul Meu" },
-                      ].map((item) => (
-                        <Link 
-                          key={item.href}
-                          href={item.href} 
-                          title={`Deschide pagina ${item.label}`}
-                          onClick={() => setIsMenuOpen(false)} 
-                          className={`flex items-center gap-3 p-3 rounded-[20px] font-black text-[11px] uppercase italic transition-all group ${path === item.href ? "bg-amber-500 text-white shadow-inner" : "hover:bg-slate-50 text-slate-900"}`}
-                        >
-                          <span className={`p-2 rounded-lg ${path === item.href ? "bg-amber-600" : "bg-white shadow-sm"}`}>
-                            {item.icon}
-                          </span> 
-                          {item.label}
-                        </Link>
-                      ))}
-                    </div>
-
-                    <div className="mt-2 pt-2 border-t-2 border-slate-50 sticky bottom-0 bg-white">
-                      <button 
-                        onClick={handleLogout}
-                        title="Ieșire securizată din sistem"
-                        className="w-full text-left p-3 text-red-500 font-black text-[11px] uppercase italic hover:bg-red-50 rounded-[20px] transition-all flex items-center gap-3"
-                      >
-                        <span className="bg-red-100 p-2 rounded-lg">🚪</span> IEȘIRE SISTEM
-                      </button>
-                    </div>
-                  </div>
-                )}
               </nav>
             )}
 
@@ -224,24 +233,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 </div>
                 
                 <div className="flex flex-wrap justify-center gap-8">
-                  <button 
-                    onClick={() => setModalOpen({ ...modalOpen, termeni: true })} 
-                    className="text-xs font-black uppercase italic text-slate-400 hover:text-amber-500 transition-colors tracking-tight"
-                  >
-                    Termeni și Condiții
-                  </button>
-                  <button 
-                    onClick={() => setModalOpen({ ...modalOpen, gdpr: true })} 
-                    className="text-xs font-black uppercase italic text-slate-400 hover:text-amber-500 transition-colors tracking-tight"
-                  >
-                    Politică de Confidențialitate
-                  </button>
-                  <button 
-                    onClick={() => setModalOpen({ ...modalOpen, cookies: true })} 
-                    className="text-xs font-black uppercase italic text-slate-400 hover:text-amber-500 transition-colors tracking-tight"
-                  >
-                    Politică Cookies
-                  </button>
+                  <button onClick={() => setModalOpen({ ...modalOpen, termeni: true })} className="text-xs font-black uppercase italic text-slate-400 hover:text-amber-500 transition-colors">Termeni și Condiții</button>
+                  <button onClick={() => setModalOpen({ ...modalOpen, gdpr: true })} className="text-xs font-black uppercase italic text-slate-400 hover:text-amber-500 transition-colors">Politică de Confidențialitate</button>
+                  <button onClick={() => setModalOpen({ ...modalOpen, cookies: true })} className="text-xs font-black uppercase italic text-slate-400 hover:text-amber-500 transition-colors">Politică Cookies</button>
                 </div>
               </div>
             </footer>
