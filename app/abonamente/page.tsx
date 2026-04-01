@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import { createBrowserClient } from "@supabase/ssr";
 
 const plans = [
@@ -69,10 +69,11 @@ const plans = [
 export default function AbonamentePage() {
   const [currentPlan, setCurrentPlan] = useState<string>("CHRONOS FREE");
   const [mounted, setMounted] = useState(false);
-  const [timeLeft, setTimeLeft] = useState({ zile: 0, ore: 0, minute: 0 });
+  const [timeLeft, setTimeLeft] = useState({ zile: 0, ore: 0, minute: 0, secunde: 0 });
   const [trialUsed, setTrialUsed] = useState(false);
   const [isTrialActive, setIsTrialActive] = useState(false);
   const [user, setUser] = useState<any>(null);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   const supabase = useMemo(() => createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -83,65 +84,119 @@ export default function AbonamentePage() {
     setMounted(true);
 
     const fetchData = async () => {
-      const { data: { user: authUser } } = await supabase.auth.getUser();
-      if (!authUser) {
-        setUser(null);
-        setCurrentPlan("CHRONOS FREE");
-        return;
-      }
-      setUser(authUser);
-
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("plan_type, trial_started_at, trial_used")
-        .eq("id", authUser.id)
-        .single();
-
-      if (!profile) {
-        setCurrentPlan("CHRONOS FREE");
-        return;
-      }
-
-      setTrialUsed(profile.trial_used || false);
-
-      if (profile.trial_started_at) {
-        const start = new Date(profile.trial_started_at);
-        const end = new Date(start.getTime() + 10 * 24 * 60 * 60 * 1000);
-        const acum = new Date();
-        const diffMs = end.getTime() - acum.getTime();
-
-        if (diffMs > 0) {
-          setIsTrialActive(true);
-          setCurrentPlan("CHRONOS TEAM");
-          setTimeLeft({
-            zile: Math.floor(diffMs / (1000 * 60 * 60 * 24)),
-            ore: Math.floor((diffMs / (1000 * 60 * 60)) % 24),
-            minute: Math.floor((diffMs / (1000 * 60)) % 60)
-          });
+      try {
+        const { data: { user: authUser } } = await supabase.auth.getUser();
+        if (!authUser) {
+          setUser(null);
+          setCurrentPlan("CHRONOS FREE");
           return;
         }
+        setUser(authUser);
+
+        const { data: profile, error } = await supabase
+          .from("profiles")
+          .select("plan_type, trial_started_at, trial_used")
+          .eq("id", authUser.id)
+          .single();
+
+        if (error) {
+          console.error("Error fetching profile:", error);
+          setCurrentPlan("CHRONOS FREE");
+          return;
+        }
+
+        if (!profile) {
+          setCurrentPlan("CHRONOS FREE");
+          return;
+        }
+
+        setTrialUsed(profile.trial_used || false);
+
+        // Logică consolidată: Dacă planul în DB este TEAM și există un trial început
+        if (profile.trial_started_at) {
+          const start = new Date(profile.trial_started_at);
+          const end = new Date(start.getTime() + 10 * 24 * 60 * 60 * 1000); 
+          const acum = new Date();
+          const diffMs = end.getTime() - acum.getTime();
+
+          if (diffMs > 0) {
+            setIsTrialActive(true);
+            setCurrentPlan("CHRONOS TEAM");
+            startTimer(end);
+          } else {
+            // Dacă trial-ul a expirat, facem update în DB să nu mai figureze ca TEAM dacă nu a plătit
+            setIsTrialActive(false);
+            if (profile.plan_type === "CHRONOS TEAM") {
+                await supabase.from("profiles").update({ plan_type: "CHRONOS FREE" }).eq("id", authUser.id);
+                setCurrentPlan("CHRONOS FREE");
+            } else {
+                setCurrentPlan(profile.plan_type?.toUpperCase() || "CHRONOS FREE");
+            }
+          }
+        } else {
+          setCurrentPlan(profile.plan_type?.toUpperCase() || "CHRONOS FREE");
+        }
+      } catch (err) {
+        console.error("Error in fetchData:", err);
       }
-      setCurrentPlan(profile.plan_type?.toUpperCase() || "CHRONOS FREE");
     };
 
     fetchData();
+
+    return () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+      }
+    };
   }, [supabase]);
+
+  const startTimer = (endTime: Date) => {
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+    }
+
+    const updateTimer = () => {
+      const acum = new Date();
+      const diffMs = endTime.getTime() - acum.getTime();
+
+      if (diffMs <= 0) {
+        if (timerRef.current) clearInterval(timerRef.current);
+        setIsTrialActive(false);
+        window.location.reload();
+        return;
+      }
+
+      const zile = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+      const ore = Math.floor((diffMs / (1000 * 60 * 60)) % 24);
+      const minute = Math.floor((diffMs / (1000 * 60)) % 60);
+      const secunde = Math.floor((diffMs / 1000) % 60);
+
+      setTimeLeft({ zile, ore, minute, secunde });
+    };
+
+    updateTimer();
+    timerRef.current = setInterval(updateTimer, 1000);
+  };
 
   const handleActivateTrial = async () => {
     if (!user) return;
-    const { error } = await supabase
-      .from("profiles")
-      .update({
-        plan_type: "CHRONOS TEAM",
-        trial_started_at: new Date().toISOString(),
-        trial_used: true
-      })
-      .eq("id", user.id);
+    try {
+      const { error } = await supabase
+        .from("profiles")
+        .update({
+          plan_type: "CHRONOS TEAM",
+          trial_started_at: new Date().toISOString(),
+          trial_used: true
+        })
+        .eq("id", user.id);
 
-    if (error) {
-      alert(`Eroare la activare: ${error.message}`);
-    } else {
-      window.location.reload();
+      if (error) {
+        alert(`Eroare la activare: ${error.message}`);
+      } else {
+        window.location.reload();
+      }
+    } catch (err) {
+      console.error("Error in handleActivateTrial:", err);
     }
   };
 
@@ -161,7 +216,7 @@ export default function AbonamentePage() {
   return (
     <main className="min-h-screen bg-slate-50 py-16 px-4 md:px-8 font-sans">
       <div className="max-w-7xl mx-auto">
-        
+
         {/* Header Elegance */}
         <div className="text-center mb-16 space-y-4">
           <h1 className="text-4xl md:text-5xl font-black italic tracking-tighter text-slate-900 uppercase">
@@ -180,14 +235,15 @@ export default function AbonamentePage() {
               <h2 className="text-2xl font-black italic uppercase text-slate-900">{currentPlan}</h2>
               <p className="text-slate-400 text-xs font-bold uppercase">{user.email}</p>
             </div>
-            
+
             <div className="flex items-center gap-4">
               {isTrialActive ? (
                 <div className="flex gap-2">
                   {[ 
-                    { l: "Zile", v: timeLeft.zile }, 
-                    { l: "Ore", v: timeLeft.ore }, 
-                    { l: "Min", v: timeLeft.minute } 
+                    { l: "Zile", v: timeLeft.zile },
+                    { l: "Ore", v: timeLeft.ore },
+                    { l: "Min", v: timeLeft.minute },
+                    { l: "Sec", v: timeLeft.secunde }
                   ].map((t, i) => (
                     <div key={i} className="bg-slate-900 w-16 h-16 rounded-2xl flex flex-col items-center justify-center shadow-lg">
                       <span className="text-white font-black text-xl leading-none">{t.v}</span>
@@ -197,8 +253,8 @@ export default function AbonamentePage() {
                 </div>
               ) : (
                 !trialUsed && (
-                  <button 
-                    onClick={handleActivateTrial} 
+                  <button
+                    onClick={handleActivateTrial}
                     className="bg-amber-500 text-black px-8 py-4 rounded-2xl font-black italic uppercase text-xs hover:bg-black hover:text-white transition-all duration-300 shadow-xl shadow-amber-500/20"
                   >
                     Activează 10 zile TEAM
@@ -213,13 +269,13 @@ export default function AbonamentePage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 items-stretch">
           {plans.map((plan, index) => {
             const isSelected = currentPlan === plan.id;
-            
+
             return (
-              <div 
+              <div
                 key={index}
                 className={`relative flex flex-col bg-white rounded-[45px] p-10 transition-all duration-500 border-2 ${
-                  isSelected 
-                    ? "border-amber-500 shadow-2xl scale-[1.02] z-10" 
+                  isSelected
+                    ? "border-amber-500 shadow-2xl scale-[1.02] z-10"
                     : "border-transparent shadow-xl shadow-slate-200/50 hover:border-slate-200 hover:translate-y-[-5px]"
                 }`}
               >
@@ -259,9 +315,10 @@ export default function AbonamentePage() {
                 <button
                   onClick={() => handlePlanClick(plan)}
                   disabled={isSelected}
+                  title={plan.name}
                   className={`w-full py-5 rounded-[22px] font-black italic uppercase text-[11px] tracking-widest transition-all duration-300 ${
-                    isSelected 
-                      ? "bg-slate-50 text-slate-400 cursor-default border border-slate-200" 
+                    isSelected
+                      ? "bg-amber-500 text-black cursor-default border border-slate-200"
                       : "bg-slate-900 text-white hover:bg-amber-500 hover:text-black shadow-xl shadow-slate-900/10 active:scale-95"
                   }`}
                 >

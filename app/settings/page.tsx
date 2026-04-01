@@ -37,7 +37,7 @@ export default function AdminSettingsHub() {
   const modalRef = useRef<HTMLDivElement>(null);
   const qrContainerRef = useRef<HTMLDivElement>(null);
 
-  // Această funcție detectează automat unde rulează site-ul (Local, Vercel, Domeniu propriu)
+  // Funcție pentru a detecta URL-ul de bază
   const getBaseUrl = useCallback(() => {
     if (typeof window !== "undefined") {
       return window.location.origin;
@@ -45,6 +45,7 @@ export default function AdminSettingsHub() {
     return "";
   }, []);
 
+  // Generăm sloturile pe baza intervalului selectat pentru BLOCARE (15, 30, 60)
   const generateSlots = useCallback((step: number) => {
     const slots = [];
     for (let hour = 8; hour < 20; hour++) {
@@ -158,9 +159,6 @@ export default function AdminSettingsHub() {
     
     const currentDayBlocks = [...(manualBlocks[selectedDate] || [])];
     
-    // Generăm lista de mini-sloturi de 15 minute care aparțin de slotul vizibil
-    // Exemplu: Dacă suntem pe vizualizare de 60 min și dăm click pe 08:00,
-    // trebuie să acoperim 08:00, 08:15, 08:30, 08:45.
     const subSlots: string[] = [];
     const [h, m] = baseSlot.split(':').map(Number);
     
@@ -171,15 +169,12 @@ export default function AdminSettingsHub() {
       subSlots.push(`${slotH.toString().padStart(2, '0')}:${slotM.toString().padStart(2, '0')}`);
     }
 
-    // Verificăm dacă slotul principal este deja blocat
     const isAlreadyBlocked = currentDayBlocks.includes(baseSlot);
     
     let updatedDayBlocks;
     if (isAlreadyBlocked) {
-      // Deblocăm toate sub-sloturile
       updatedDayBlocks = currentDayBlocks.filter(slot => !subSlots.includes(slot));
     } else {
-      // Blocăm toate sub-sloturile, evitând duplicatele
       updatedDayBlocks = Array.from(new Set([...currentDayBlocks, ...subSlots]));
     }
 
@@ -217,7 +212,6 @@ export default function AdminSettingsHub() {
       const dateStr = `${year}-${(month + 1).toString().padStart(2, '0')}-${d.toString().padStart(2, '0')}`;
       const isToday = new Date().toISOString().split('T')[0] === dateStr;
       
-      // Calculăm dacă ziua e blocată raportat la sloturi de 15 min (baza sistemului)
       const slots15 = generateSlots(15);
       const isBlocked = (manualBlocks[dateStr] || []).length >= (slots15.length - 2);
       const hasBooking = daysWithBookings.includes(dateStr);
@@ -388,7 +382,7 @@ export default function AdminSettingsHub() {
 
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-12">
               <div className="lg:col-span-1">
-                <h4 className="text-[10px] font-black uppercase text-slate-400 mb-6 tracking-widest italic border-b-2 border-amber-500 pb-2 inline-block">Durată Ședințe</h4>
+                <h4 className="text-[10px] font-black uppercase text-slate-400 mb-6 tracking-widest italic border-b-2 border-amber-500 pb-2 inline-block">Pas Blocare Program</h4>
                 <div className="grid grid-cols-1 gap-4">
                   {[15, 30, 60].map(v => (
                     <button key={v} onClick={() => { setBookingInterval(v); setIsDirty(true); }} className={`py-5 rounded-[22px] font-black text-[12px] border-2 transition-all shadow-sm ${bookingInterval === v ? 'border-amber-500 bg-amber-500 text-black' : 'border-slate-100 bg-slate-50 text-slate-900 hover:border-amber-500'}`}>{v} MINUTE</button>
@@ -397,11 +391,10 @@ export default function AdminSettingsHub() {
               </div>
               
               <div className="lg:col-span-3">
-                <h4 className="text-[10px] font-black uppercase text-slate-400 mb-6 tracking-widest italic border-b-2 border-amber-500 pb-2 inline-block">Sloturi Orare (Apasă pentru blocare)</h4>
+                <h4 className="text-[10px] font-black uppercase text-slate-400 mb-6 tracking-widest italic border-b-2 border-amber-500 pb-2 inline-block">Blocare Sloturi (Ajustare la {bookingInterval} min)</h4>
                 <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3">
                   {dynamicTimeSlots.map(slot => {
                     const isReserved = existingBookings.includes(slot);
-                    // Verificăm dacă slotul vizibil este marcat ca blocat în baza de date
                     const isBlocked = (manualBlocks[selectedDate] || []).includes(slot);
                     
                     return (
@@ -409,7 +402,7 @@ export default function AdminSettingsHub() {
                         key={slot} 
                         disabled={isReserved}
                         onClick={() => toggleHourBlock(slot)} 
-                        title={isReserved ? "Rezervat de un client" : isBlocked ? "Slot blocat manual" : "Slot disponibil"}
+                        title={isReserved ? "Rezervare Activă (Nu poate fi blocat)" : isBlocked ? "Slot blocat (Indisponibil)" : `Apasă pentru a bloca slotul`}
                         className={`py-5 rounded-[22px] font-black text-xs border-2 transition-all italic relative ${
                           isReserved 
                           ? 'bg-amber-100 border-amber-200 text-amber-600 opacity-50 cursor-not-allowed' 
@@ -431,7 +424,7 @@ export default function AdminSettingsHub() {
                 onClick={handleCloseModal} 
                 className="px-24 py-7 bg-amber-500 text-black rounded-[35px] font-black text-[14px] uppercase italic tracking-widest shadow-2xl hover:bg-amber-400 transition-all transform hover:scale-105"
               >
-                SALVEAZĂ
+                SALVEAZĂ PROGRAMUL
               </button>
             </div>
           </div>
