@@ -32,9 +32,6 @@ export default function LoginPage() {
       }
 
       if (data.session) {
-        // 2. Curățăm orice urmă de demo imediat după login reușit [cite: 2026-03-21]
-        localStorage.removeItem("chronos_demo");
-
         // 3. Forțăm refresh-ul sesiunii în instanța locală
         const { data: { session } } = await supabase.auth.getSession();
         
@@ -48,12 +45,6 @@ export default function LoginPage() {
       setLoading(false);
       alert("Eroare de conexiune la server.");
     }
-  };
-
-  // Funcție pentru modul Demo (Prezentare)
-  const handleDemoMode = () => {
-    localStorage.setItem("chronos_demo", "true");
-    window.location.href = "/programari";
   };
 
   return (
@@ -127,23 +118,14 @@ export default function LoginPage() {
             {loading ? "SE VERIFICĂ..." : "INTRĂ ÎN CONT"}
           </button>
 
-          {/* Secțiune Demo & Înregistrare */}
+          {/* Secțiune Înregistrare */}
           <div className="pt-4 border-t-2 border-slate-50 flex flex-col items-center gap-3 text-center">
-            <button 
-              type="button"
-              onClick={handleDemoMode}
-              className="text-[10px] font-black uppercase italic text-amber-600 hover:text-amber-700 transition-all tracking-widest"
-              title="Explorează aplicația fără cont [cite: 2026-03-23]"
-            >
-              EXPLOREAZĂ MOD PREZENTARE (DEMO)
-            </button>
-
             <p className="text-[10px] font-black uppercase italic text-slate-400 mt-2">
               Nu ai un cont încă?
             </p>
             <Link 
               href="/register" 
-              className="w-full py-3 text-[9px] font-black uppercase italic bg-slate-100 text-slate-900 rounded-xl border-2 border-slate-200 hover:bg-slate-200 transition-all text-center"
+              className="w-full py-3 text-[9px] font-black uppercase italic bg-amber-500 text-white rounded-xl border-b-4 border-amber-700 hover:bg-amber-600 transition-all text-center"
               title="Creează un cont nou în sistemul Chronos [cite: 2026-03-23]"
             >
               CREEAZĂ CONT NOU

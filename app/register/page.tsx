@@ -15,9 +15,7 @@ export default function RegisterPage() {
     email: "", 
     telefon: "", 
     parola: "", 
-    confirmParola: "",
-    expert: "",
-    serviciu: ""
+    confirmParola: ""
   });
   
   const supabase = createBrowserClient(
@@ -54,17 +52,13 @@ export default function RegisterPage() {
     setError("");
 
     try {
-      localStorage.removeItem("chronos_demo");
-
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: form.email,
         password: form.parola,
         options: { 
           data: { 
             full_name: form.nume, 
-            phone: form.telefon || null,
-            expert_preferat: form.expert,
-            serviciu_interes: form.serviciu
+            phone: form.telefon || null
           } 
         }
       });
@@ -83,9 +77,8 @@ export default function RegisterPage() {
           email: form.email,
           plan_type: 'start (gratuit)', 
           role: 'Administrator',
-          // Mapăm datele suplimentare dacă ai coloanele în DB
-          staff: form.expert ? [{ nume: form.expert }] : [],
-          services: form.serviciu ? [{ nume: form.serviciu }] : []
+          staff: [],
+          services: []
         }]);
 
         alert("✅ Cont creat cu succes! Acum te poți loga.");
@@ -151,38 +144,6 @@ export default function RegisterPage() {
               placeholder="EMAIL@EXEMPLU.RO" value={form.email} 
               onChange={(e) => setForm({...form, email: e.target.value})} 
             />
-          </div>
-
-          {/* Secțiune Nouă: Specialist și Serviciu */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6 bg-slate-50 rounded-[30px] border-2 border-slate-100 shadow-inner">
-             <div className="space-y-2">
-                <label className="text-[10px] font-black uppercase text-amber-600 ml-2 italic tracking-widest flex items-center gap-2">
-                  👤 Specialist Dorit
-                </label>
-                <select 
-                  className="w-full bg-white border-2 border-slate-200 rounded-2xl py-4 px-4 text-[13px] font-bold text-slate-700 uppercase italic outline-none focus:border-amber-500 transition-all"
-                  value={form.expert}
-                  onChange={(e) => setForm({...form, expert: e.target.value})}
-                >
-                  <option value="">Alege Specialist</option>
-                  <option value="Expert 1">Expert Principal</option>
-                  <option value="Expert 2">Expert Secundar</option>
-                </select>
-             </div>
-             <div className="space-y-2">
-                <label className="text-[10px] font-black uppercase text-amber-600 ml-2 italic tracking-widest flex items-center gap-2">
-                  ✂️ Serviciu Dorit
-                </label>
-                <select 
-                  className="w-full bg-white border-2 border-slate-200 rounded-2xl py-4 px-4 text-[13px] font-bold text-slate-700 uppercase italic outline-none focus:border-amber-500 transition-all"
-                  value={form.serviciu}
-                  onChange={(e) => setForm({...form, serviciu: e.target.value})}
-                >
-                  <option value="">Alege Serviciu</option>
-                  <option value="Serviciu 1">Tuns & Styling</option>
-                  <option value="Serviciu 2">Barba & Tratament</option>
-                </select>
-             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

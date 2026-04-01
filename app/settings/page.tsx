@@ -37,7 +37,6 @@ export default function AdminSettingsHub() {
   const modalRef = useRef<HTMLDivElement>(null);
   const qrContainerRef = useRef<HTMLDivElement>(null);
 
-  // Funcție pentru a detecta URL-ul de bază
   const getBaseUrl = useCallback(() => {
     if (typeof window !== "undefined") {
       return window.location.origin;
@@ -45,7 +44,6 @@ export default function AdminSettingsHub() {
     return "";
   }, []);
 
-  // Generăm sloturile pe baza intervalului selectat pentru BLOCARE (15, 30, 60)
   const generateSlots = useCallback((step: number) => {
     const slots = [];
     for (let hour = 8; hour < 20; hour++) {
@@ -86,6 +84,7 @@ export default function AdminSettingsHub() {
         setSlug(profile.slug || "");
         
         const baseUrl = getBaseUrl();
+        // Corecție: Asigurăm formatul corect al link-ului pentru a fi citit public
         const identifier = profile.slug ? `s=${profile.slug}` : `id=${currentUid}`;
         setUserUrl(`${baseUrl}/rezervare?${identifier}`);
         

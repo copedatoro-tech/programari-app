@@ -5,11 +5,32 @@ import { createBrowserClient } from '@supabase/ssr';
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 
-const LIMITE_ABONAMENTE: Record<string, { nume: string; limita: string; culoare: string }> = {
-  "start (gratuit)": { nume: "START (GRATUIT)", limita: "50 rezervări/lună", culoare: "text-slate-400" },
-  "pro": { nume: "PRO", limita: "200 rezervări/lună", culoare: "text-blue-500" },
-  "elite": { nume: "ELITE", limita: "500 rezervări/lună", culoare: "text-amber-500" },
-  "team": { nume: "TEAM", limita: "Nelimitat (5000)", culoare: "text-purple-500" }
+const LIMITE_ABONAMENTE: Record<string, { nume: any; limita: string; culoare: string }> = {
+  "chronos free": { 
+    nume: "START (GRATUIT)", 
+    limita: "50 rezervări/lună", 
+    culoare: "text-slate-400" 
+  },
+  "chronos pro": { 
+    nume: "PRO", 
+    limita: "200 rezervări/lună", 
+    culoare: "text-blue-500" 
+  },
+  "chronos elite": { 
+    nume: "ELITE", 
+    limita: "500 rezervări/lună", 
+    culoare: "text-amber-500" 
+  },
+  "chronos team": { 
+    nume: (
+      <span className="italic uppercase">
+        <span className="text-slate-900">CHRONOS</span>{" "}
+        <span className="text-amber-500">TEAM</span>
+      </span>
+    ), 
+    limita: "Nelimitat (5000)", 
+    culoare: "" // Culoarea este gestionată manual prin JSX mai sus
+  }
 };
 
 export default function ProfilPage() {
@@ -32,7 +53,8 @@ export default function ProfilPage() {
   const [telefon, setTelefon] = useState("");
   const [functie, setFunctie] = useState(""); 
   const [avatarUrl, setAvatarUrl] = useState("");
-  const [subscriptionPlan, setSubscriptionPlan] = useState("start (gratuit)");
+  const [subscriptionPlan, setSubscriptionPlan] = useState("chronos free");
+  const [isTrialActive, setIsTrialActive] = useState(false);
 
   const [pass1, setPass1] = useState("");
   const [pass2, setPass2] = useState("");
@@ -42,7 +64,7 @@ export default function ProfilPage() {
     let isMounted = true;
 
     const initAuth = async () => {
-      // 1. Verificare Demo (cea mai rapidă)
+      // 1. Verificare DEMO
       const demoActive = typeof window !== 'undefined' && localStorage.getItem("chronos_demo") === "true";
       if (demoActive) {
         if (isMounted) {
@@ -51,16 +73,14 @@ export default function ProfilPage() {
           setNume("Utilizator Demo");
           setEmail("demo@chronos.ro");
           setFunctie("Administrator (Demo)");
-          setSubscriptionPlan("elite");
+          setSubscriptionPlan("chronos elite");
           setLoading(false);
         }
         return;
       }
 
-      // 2. Verificare Sesiune Supabase
-      // Folosim getSession direct pentru a evita orice delay de listener
+      // 2. Preluare Sesiune
       const { data: { session } } = await supabase.auth.getSession();
-
       if (!session) {
         if (isMounted) {
           setLoading(false);
@@ -69,34 +89,35 @@ export default function ProfilPage() {
         return;
       }
 
-      // DACĂ EXISTĂ SESIUNE, AFIȘĂM PAGINA IMEDIAT (Fără să așteptăm profilul)
-      if (isMounted) {
-        const u = session.user;
-        setUser(u);
-        setIsDemo(false);
-        setEmail(u.email || "");
-        setNume(u.user_metadata?.full_name || "Utilizator Chronos");
-        setFunctie("Administrator Sistem");
-        setLoading(false); // <--- AICI e cheia: pagina devine vizibilă acum!
-      }
-
-      // 3. Încercăm să luăm datele din tabelul 'profiles' (opțional, în fundal)
+      const u = session.user;
+      
+      // 3. Preluare Profil din DB (Facem asta înainte de a opri loading-ul pentru a evita flicker-ul)
       try {
-        const { data: profile, error: pError } = await supabase
+        const { data: profile } = await supabase
           .from('profiles')
           .select('*')
-          .eq('id', session.user.id)
+          .eq('id', u.id)
           .maybeSingle();
 
-        if (profile && isMounted) {
-          setNume(profile.full_name || nume);
-          setTelefon(profile.phone || "");
-          setFunctie(profile.role || "Administrator Sistem");
-          setAvatarUrl(profile.avatar_url || "");
-          setSubscriptionPlan(profile.plan_type?.toLowerCase() || "start (gratuit)");
+        if (isMounted) {
+          setUser(u);
+          setEmail(u.email || "");
+          
+          // Sincronizăm toate datele deodată
+          setNume(profile?.full_name || u.user_metadata?.full_name || "Utilizator Chronos");
+          setTelefon(profile?.phone || "");
+          setFunctie(profile?.role || "Administrator Sistem");
+          setAvatarUrl(profile?.avatar_url || "");
+          setIsTrialActive(profile?.trial_activated === true);
+          
+          if (profile?.plan_type) {
+            setSubscriptionPlan(profile.plan_type.toLowerCase());
+          }
         }
       } catch (err) {
-        console.warn("Profilul nu a putut fi încărcat complet, dar utilizatorul rămâne logat.");
+        console.warn("Eroare la sincronizare date profil.");
+      } finally {
+        if (isMounted) setLoading(false);
       }
     };
 
@@ -104,26 +125,32 @@ export default function ProfilPage() {
     return () => { isMounted = false; };
   }, [router, supabase]);
 
+  const getPlanKey = () => {
+    const p = subscriptionPlan.toLowerCase();
+    if (p.includes("team")) return "chronos team";
+    if (p.includes("elite")) return "chronos elite";
+    if (p.includes("pro")) return "chronos pro";
+    return "chronos free";
+  };
+
+  const planKey = getPlanKey();
+  const currentPlanInfo = LIMITE_ABONAMENTE[planKey] || LIMITE_ABONAMENTE["chronos free"];
+
   const handleUpdateAll = async () => {
-    if (!user || isDemo) {
-        if (isDemo) alert("🔒 Modul DEMO nu permite salvarea modificărilor.");
-        return;
-    }
+    if (!user || isDemo) return;
     setUpdating(true);
     try {
       const { error } = await supabase.from('profiles').upsert({ 
           id: user.id, 
           full_name: nume, 
           avatar_url: avatarUrl, 
-          email: email, 
           phone: telefon,
           role: functie,
-          plan_type: subscriptionPlan,
           updated_at: new Date().toISOString(),
         }, { onConflict: 'id' });
 
       if (error) throw error;
-      alert("✅ Profil actualizat cu succes!");
+      alert("✅ Profil actualizat!");
     } catch (err: any) {
       alert("Eroare la salvare: " + err.message);
     } finally {
@@ -167,11 +194,9 @@ export default function ProfilPage() {
   if (!isClient || loading) return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-slate-900">
       <div className="w-12 h-12 border-4 border-slate-800 border-t-amber-500 rounded-full animate-spin mb-4"></div>
-      <p className="italic font-black text-amber-500/80 animate-pulse uppercase tracking-[0.3em] text-[10px]">Sincronizare Chronos...</p>
+      <p className="italic font-black text-amber-500/80 animate-pulse uppercase tracking-[0.3em] text-[10px]">Sincronizare Profil...</p>
     </div>
   );
-
-  const currentPlanInfo = LIMITE_ABONAMENTE[subscriptionPlan] || LIMITE_ABONAMENTE["start (gratuit)"];
 
   return (
     <main className="min-h-screen bg-slate-50 py-12 px-4 font-sans text-slate-900">
@@ -201,8 +226,12 @@ export default function ProfilPage() {
             <div className="inline-block px-3 py-1 bg-white/5 border border-white/10 rounded-full mb-4 text-amber-500 text-[9px] font-black uppercase tracking-[0.4em] italic">
                 {isDemo ? "MOD VIZUALIZARE" : `ID: ${user?.id?.substring(0, 8)}`}
             </div>
-            <h1 className="text-5xl font-black text-white uppercase italic tracking-tighter leading-none mb-2">{nume}</h1>
-            <p className="text-slate-400 text-xs font-bold uppercase tracking-widest italic">{functie}</p>
+            <h1 className="text-5xl font-black text-white uppercase italic tracking-tighter leading-none mb-2 min-h-[1em]">
+              {nume}
+            </h1>
+            <p className="text-slate-400 text-xs font-bold uppercase tracking-widest italic min-h-[1.2em]">
+              {functie}
+            </p>
           </div>
 
           <div className="flex flex-col gap-4 z-10">
@@ -224,12 +253,18 @@ export default function ProfilPage() {
           <div className="flex items-center gap-6">
             <div className="w-16 h-16 bg-white rounded-3xl flex items-center justify-center shadow-xl border border-slate-100 text-3xl">💎</div>
             <div>
-              <p className="text-[10px] font-black text-slate-400 uppercase italic">Nivel Licență</p>
-              <h3 className={`text-2xl font-black italic uppercase ${currentPlanInfo.culoare}`}>{currentPlanInfo.nume}</h3>
+              <p className="text-[10px] font-black text-slate-400 uppercase italic">Nivel Licență Activ</p>
+              <h3 className={`text-2xl font-black italic uppercase ${currentPlanInfo.culoare}`}>
+                {currentPlanInfo.nume} 
+                {(isTrialActive || subscriptionPlan.includes("trial")) && (
+                  <span className="ml-2 text-[10px] text-amber-600 animate-pulse">(TRIAL)</span>
+                )}
+              </h3>
+              <p className="text-[10px] font-bold text-slate-500 italic uppercase">Limită: {currentPlanInfo.limita}</p>
             </div>
           </div>
           <button onClick={() => router.push('/abonamente')} className="px-8 py-4 bg-slate-900 text-white text-[10px] font-black rounded-2xl uppercase italic hover:bg-amber-500 hover:text-slate-900 border-b-8 border-slate-800 transition-all">
-            Upgrade
+            Schimbă Abonamentul
           </button>
         </div>
 
@@ -250,7 +285,7 @@ export default function ProfilPage() {
                 value={item.val} 
                 onChange={item.set && item.editable ? (e) => item.set!(e.target.value) : undefined}
                 readOnly={!item.editable}
-                className={`w-full p-6 rounded-[25px] font-bold text-sm outline-none transition-all ${item.editable ? 'bg-slate-50 border-2 border-slate-100 focus:border-amber-500 focus:bg-white' : 'bg-slate-100 text-slate-400 italic'}`}
+                className={`w-full p-6 rounded-[25px] font-bold text-sm outline-none transition-all ${item.editable ? 'bg-slate-50 border-2 border-slate-100 focus:border-amber-500 focus:bg-white' : 'bg-slate-100 text-slate-600 italic'}`}
               />
             </div>
           ))}
@@ -266,7 +301,7 @@ export default function ProfilPage() {
         </div>
       </div>
 
-      {/* Modal - Închidere la click exterior */}
+      {/* Modal */}
       {showPassModal && (
         <div className="fixed inset-0 bg-slate-900/90 backdrop-blur-md z-[200] flex items-center justify-center p-6" onClick={() => setShowPassModal(false)}>
           <div className="bg-white w-full max-w-sm rounded-[50px] p-12 shadow-2xl space-y-10 border border-slate-100 relative" onClick={(e) => e.stopPropagation()}>
