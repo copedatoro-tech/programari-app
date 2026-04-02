@@ -4,25 +4,20 @@ import type { NextRequest } from 'next/server'
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // LOGICA DE DEBLOCARE: Dacă URL-ul conține "rezervare", lăsăm totul să treacă
-  // Am pus și varianta cu majuscule/minuscule pentru siguranță
-  if (pathname.toLowerCase().includes('rezervare')) {
+  // LISTA NEAGRĂ: Doar aceste rute au nevoie de Login
+  // Dacă ruta NU începe cu una din astea, o lăsăm să treacă DIRECT
+  const isProtectedArea = 
+    pathname.startsWith('/programari') || 
+    pathname.startsWith('/admin') || 
+    pathname.startsWith('/dashboard') ||
+    pathname.startsWith('/setari');
+
+  if (!isProtectedArea) {
+    // Orice altceva (inclusiv /rezervare/...) este lăsat să treacă fără nicio verificare
     return NextResponse.next();
   }
 
-  // Permitem rutele de bază necesare sistemului
-  if (
-    pathname.startsWith('/login') ||
-    pathname.startsWith('/register') ||
-    pathname.startsWith('/auth') ||
-    pathname.startsWith('/_next') ||
-    pathname.startsWith('/api') ||
-    pathname.match(/\.(png|jpg|jpeg|svg|gif|ico|webp|css|js)$/)
-  ) {
-    return NextResponse.next();
-  }
-
-  // VERIFICARE SESIUNE (doar pentru Admin/Dashboard)
+  // DOAR PENTRU ADMIN: Verificăm sesiunea
   const cookies = request.cookies.getAll();
   const hasSession = cookies.some(c => 
     c.name.includes('auth-token') || 
@@ -30,9 +25,10 @@ export function middleware(request: NextRequest) {
     c.name.includes('supabase-auth')
   );
 
-  // Dacă ești pe orice altă pagină (ex: /calendar) și nu ești logat -> Login
   if (!hasSession) {
-    return NextResponse.redirect(new URL('/login', request.url));
+    const url = request.nextUrl.clone();
+    url.pathname = '/login';
+    return NextResponse.redirect(url);
   }
 
   return NextResponse.next();
