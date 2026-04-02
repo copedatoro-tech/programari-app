@@ -15,10 +15,20 @@ export default function AdminSettingsHub() {
 
   const [loading, setLoading] = useState(true);
   const [userId, setUserId] = useState<string | null>(null);
-  const [userUrl, setUserUrl] = useState("");
   const [userPlan, setUserPlan] = useState("CHRONOS FREE");
   const [mounted, setMounted] = useState(false);
   const [slug, setSlug] = useState("");
+
+  // --- LOGICA REPARATĂ PENTRU URL ---
+  // Folosim useMemo pentru a genera URL-ul dinamic. 
+  // Dacă slug există, îl folosim, dacă nu, folosim userId.
+  const userUrl = useMemo(() => {
+    if (typeof window === "undefined" || (!slug && !userId)) return "";
+    const baseUrl = window.location.origin;
+    const identifier = slug || userId;
+    return `${baseUrl}/rezervare/${identifier}`;
+  }, [slug, userId]);
+  // ----------------------------------
 
   const hasBookingAccess = useMemo(() => {
     return ["CHRONOS ELITE", "CHRONOS TEAM"].includes(userPlan.toUpperCase());
@@ -35,13 +45,6 @@ export default function AdminSettingsHub() {
 
   const modalRef = useRef<HTMLDivElement>(null);
   const qrContainerRef = useRef<HTMLDivElement>(null);
-
-  const getBaseUrl = useCallback(() => {
-    if (typeof window !== "undefined") {
-      return window.location.origin;
-    }
-    return "";
-  }, []);
 
   const generateSlots = useCallback((step: number) => {
     const slots = [];
@@ -82,18 +85,12 @@ export default function AdminSettingsHub() {
         setBookingInterval(profile.booking_interval || 15);
         setSlug(profile.slug || "");
 
-        const baseUrl = getBaseUrl();
-        // Prioritizăm slug-ul salvat în baza de date pentru formatul URL-ului
-        const identifier = profile.slug ? profile.slug : currentUid;
-        const finalUrl = `${baseUrl}/rezervare/${identifier}`;
-        setUserUrl(finalUrl);
-
         await fetchMonthlyAppointments(currentUid, currentMonth);
       }
       setLoading(false);
     }
     initAdmin();
-  }, [supabase, router, currentMonth, fetchMonthlyAppointments, getBaseUrl]);
+  }, [supabase, router, currentMonth, fetchMonthlyAppointments]);
 
   const downloadQRCode = () => {
     if (!hasBookingAccess) return;
