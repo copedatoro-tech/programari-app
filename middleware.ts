@@ -4,14 +4,15 @@ import type { NextRequest } from 'next/server'
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // 1. Permitem accesul COMPLET PUBLIC pentru orice conține "rezervare"
-  if (pathname.toLowerCase().includes('/rezervare')) {
+  // 1. Permitem accesul COMPLET PUBLIC pentru orice începe cu /rezervare
+  // Folosim startsWith pentru a prinde /rezervare, /rezervare/slug, etc.
+  if (pathname.toLowerCase().startsWith('/rezervare')) {
     return NextResponse.next();
   }
 
   // 2. Permitem rutele de sistem, autentificare și fișierele statice
   if (
-    pathname.startsWith('/auth') || // Folderul tău din captura 151118.png
+    pathname.startsWith('/auth') || 
     pathname.startsWith('/login') ||
     pathname.startsWith('/register') ||
     pathname.startsWith('/_next') ||
@@ -22,12 +23,15 @@ export function middleware(request: NextRequest) {
   }
 
   // 3. Protecție Admin: Verificăm cookie-urile de sesiune
-  const hasSession = request.cookies.getAll().some(c => 
+  const cookies = request.cookies.getAll();
+  const hasSession = cookies.some(c => 
     c.name.includes('auth-token') || 
-    c.name.includes('sb-')
+    c.name.includes('sb-') ||
+    c.name.includes('supabase-auth')
   );
 
   if (!hasSession) {
+    // Redirecționăm la login doar dacă nu e o rută publică definită mai sus
     return NextResponse.redirect(new URL('/login', request.url));
   }
 
