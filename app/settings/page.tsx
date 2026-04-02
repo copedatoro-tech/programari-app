@@ -20,8 +20,7 @@ export default function AdminSettingsHub() {
   const [slug, setSlug] = useState("");
 
   // --- LOGICA REPARATĂ PENTRU URL ---
-  // Folosim useMemo pentru a genera URL-ul dinamic. 
-  // Dacă slug există, îl folosim, dacă nu, folosim userId.
+  // Această variabilă este acum „sursa adevărului” pentru ambele părți ale ecranului
   const userUrl = useMemo(() => {
     if (typeof window === "undefined" || (!slug && !userId)) return "";
     const baseUrl = window.location.origin;
@@ -273,7 +272,7 @@ export default function AdminSettingsHub() {
         .print-only { display: none; }
       `}</style>
 
-      {/* QR Code pentru Print */}
+      {/* QR Code pentru Print - REPARAT să folosească userUrl */}
       {hasBookingAccess && userUrl && (
         <div className="print-only">
           <h2 className="text-4xl font-black uppercase italic mb-10 text-center text-black">REZERVARE <span className="text-amber-500">RAPIDĂ</span></h2>
@@ -315,6 +314,7 @@ export default function AdminSettingsHub() {
               </div>
             </div>
 
+            {/* QR Code din interfață - REPARAT să folosească variabila userUrl */}
             <div className="bg-white p-10 rounded-[45px] shadow-xl border border-slate-100 flex flex-col items-center justify-center gap-8">
               <div ref={qrContainerRef} className="p-6 bg-white rounded-[35px] border-4 border-amber-500 shadow-sm">
                 {userUrl && <QRCodeSVG value={userUrl} size={150} fgColor="#000000" level="H" />}
