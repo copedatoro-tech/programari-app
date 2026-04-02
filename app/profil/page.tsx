@@ -29,7 +29,7 @@ const LIMITE_ABONAMENTE: Record<string, { nume: any; limita: string; culoare: st
       </span>
     ), 
     limita: "Nelimitat (5000)", 
-    culoare: "" // Culoarea este gestionată manual prin JSX mai sus
+    culoare: "" 
   }
 };
 
@@ -52,6 +52,7 @@ export default function ProfilPage() {
   const [email, setEmail] = useState("");
   const [telefon, setTelefon] = useState("");
   const [functie, setFunctie] = useState(""); 
+  const [slug, setSlug] = useState(""); 
   const [avatarUrl, setAvatarUrl] = useState("");
   const [subscriptionPlan, setSubscriptionPlan] = useState("chronos free");
   const [isTrialActive, setIsTrialActive] = useState(false);
@@ -59,12 +60,20 @@ export default function ProfilPage() {
   const [pass1, setPass1] = useState("");
   const [pass2, setPass2] = useState("");
 
+  const formatSlug = (text: string) => {
+    return text
+      .toLowerCase()
+      .trim()
+      .replace(/[^\w\s-]/g, '') 
+      .replace(/[\s_-]+/g, '-') 
+      .replace(/^-+|-+$/g, '');
+  };
+
   useEffect(() => {
     setIsClient(true);
     let isMounted = true;
 
     const initAuth = async () => {
-      // 1. Verificare DEMO
       const demoActive = typeof window !== 'undefined' && localStorage.getItem("chronos_demo") === "true";
       if (demoActive) {
         if (isMounted) {
@@ -73,13 +82,13 @@ export default function ProfilPage() {
           setNume("Utilizator Demo");
           setEmail("demo@chronos.ro");
           setFunctie("Administrator (Demo)");
+          setSlug("demo-salon");
           setSubscriptionPlan("chronos elite");
           setLoading(false);
         }
         return;
       }
 
-      // 2. Preluare Sesiune
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
         if (isMounted) {
@@ -91,7 +100,6 @@ export default function ProfilPage() {
 
       const u = session.user;
       
-      // 3. Preluare Profil din DB (Facem asta înainte de a opri loading-ul pentru a evita flicker-ul)
       try {
         const { data: profile } = await supabase
           .from('profiles')
@@ -102,11 +110,10 @@ export default function ProfilPage() {
         if (isMounted) {
           setUser(u);
           setEmail(u.email || "");
-          
-          // Sincronizăm toate datele deodată
           setNume(profile?.full_name || u.user_metadata?.full_name || "Utilizator Chronos");
           setTelefon(profile?.phone || "");
           setFunctie(profile?.role || "Administrator Sistem");
+          setSlug(profile?.slug || ""); 
           setAvatarUrl(profile?.avatar_url || "");
           setIsTrialActive(profile?.trial_activated === true);
           
@@ -125,17 +132,6 @@ export default function ProfilPage() {
     return () => { isMounted = false; };
   }, [router, supabase]);
 
-  const getPlanKey = () => {
-    const p = subscriptionPlan.toLowerCase();
-    if (p.includes("team")) return "chronos team";
-    if (p.includes("elite")) return "chronos elite";
-    if (p.includes("pro")) return "chronos pro";
-    return "chronos free";
-  };
-
-  const planKey = getPlanKey();
-  const currentPlanInfo = LIMITE_ABONAMENTE[planKey] || LIMITE_ABONAMENTE["chronos free"];
-
   const handleUpdateAll = async () => {
     if (!user || isDemo) return;
     setUpdating(true);
@@ -153,6 +149,47 @@ export default function ProfilPage() {
       alert("✅ Profil actualizat!");
     } catch (err: any) {
       alert("Eroare la salvare: " + err.message);
+    } finally {
+      setUpdating(false);
+    }
+  };
+
+  const handleUpdateSlug = async () => {
+    if (!user || isDemo) return;
+    setUpdating(true);
+    try {
+      const finalSlug = formatSlug(slug);
+
+      if (finalSlug.length < 3) {
+        alert("⚠️ Adresa unică (slug) trebuie să aibă minim 3 caractere.");
+        setUpdating(false);
+        return;
+      }
+
+      const { data: existingSlug } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('slug', finalSlug)
+        .neq('id', user.id)
+        .maybeSingle();
+
+      if (existingSlug) {
+        alert(`❌ Eroare: Numele "${finalSlug}" este deja rezervat de altcineva. Te rugăm să alegi o altă variantă.`);
+        setUpdating(false);
+        return;
+      }
+
+      const { error } = await supabase.from('profiles').update({ 
+          slug: finalSlug, 
+          updated_at: new Date().toISOString(),
+        }).eq('id', user.id);
+
+      if (error) throw error;
+      
+      setSlug(finalSlug);
+      alert("✅ Felicitări! Adresa ta unică a fost rezervată cu succes.");
+    } catch (err: any) {
+      alert("Eroare: " + err.message);
     } finally {
       setUpdating(false);
     }
@@ -254,13 +291,13 @@ export default function ProfilPage() {
             <div className="w-16 h-16 bg-white rounded-3xl flex items-center justify-center shadow-xl border border-slate-100 text-3xl">💎</div>
             <div>
               <p className="text-[10px] font-black text-slate-400 uppercase italic">Nivel Licență Activ</p>
-              <h3 className={`text-2xl font-black italic uppercase ${currentPlanInfo.culoare}`}>
-                {currentPlanInfo.nume} 
+              <h3 className={`text-2xl font-black italic uppercase ${LIMITE_ABONAMENTE[subscriptionPlan.toLowerCase()]?.culoare || 'text-slate-400'}`}>
+                {LIMITE_ABONAMENTE[subscriptionPlan.toLowerCase()]?.nume || "START"} 
                 {(isTrialActive || subscriptionPlan.includes("trial")) && (
                   <span className="ml-2 text-[10px] text-amber-600 animate-pulse">(TRIAL)</span>
                 )}
               </h3>
-              <p className="text-[10px] font-bold text-slate-500 italic uppercase">Limită: {currentPlanInfo.limita}</p>
+              <p className="text-[10px] font-bold text-slate-500 italic uppercase">Limită: {LIMITE_ABONAMENTE[subscriptionPlan.toLowerCase()]?.limita || "50"}</p>
             </div>
           </div>
           <button onClick={() => router.push('/abonamente')} className="px-8 py-4 bg-slate-900 text-white text-[10px] font-black rounded-2xl uppercase italic hover:bg-amber-500 hover:text-slate-900 border-b-8 border-slate-800 transition-all">
@@ -269,28 +306,64 @@ export default function ProfilPage() {
         </div>
 
         {/* Input fields */}
-        <div className="p-12 grid grid-cols-1 md:grid-cols-2 gap-10 bg-white">
-          {[
-            { label: "Nume Complet", val: nume, set: setNume, icon: "👤", editable: !isDemo },
-            { label: "Email", val: email, set: null, icon: "✉️", editable: false },
-            { label: "Telefon", val: telefon, set: setTelefon, icon: "📱", editable: !isDemo },
-            { label: "Rol", val: functie, set: setFunctie, icon: "💼", editable: !isDemo }
-          ].map((item, idx) => (
-            <div key={idx} className="space-y-3">
-              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4 italic flex items-center gap-2">
-                {item.icon} {item.label}
-              </label>
-              <input 
-                type="text" 
-                value={item.val} 
-                onChange={item.set && item.editable ? (e) => item.set!(e.target.value) : undefined}
-                readOnly={!item.editable}
-                className={`w-full p-6 rounded-[25px] font-bold text-sm outline-none transition-all ${item.editable ? 'bg-slate-50 border-2 border-slate-100 focus:border-amber-500 focus:bg-white' : 'bg-slate-100 text-slate-600 italic'}`}
-              />
+        <div className="p-12 space-y-12 bg-white">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+            {[
+              { label: "Nume Complet", val: nume, set: setNume, icon: "👤", editable: !isDemo },
+              { label: "Email", val: email, set: null, icon: "✉️", editable: false },
+              { label: "Telefon", val: telefon, set: setTelefon, icon: "📱", editable: !isDemo },
+              { label: "Rol", val: functie, set: setFunctie, icon: "💼", editable: !isDemo },
+            ].map((item, idx) => (
+              <div key={idx} className="space-y-3">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4 italic flex items-center gap-2">
+                  {item.icon} {item.label}
+                </label>
+                <input 
+                  type="text" 
+                  value={item.val} 
+                  onChange={item.set && item.editable ? (e) => item.set!(e.target.value) : undefined}
+                  readOnly={!item.editable}
+                  className={`w-full p-6 rounded-[25px] font-bold text-sm outline-none transition-all ${item.editable ? 'bg-slate-50 border-2 border-slate-100 focus:border-amber-500 focus:bg-white' : 'bg-slate-100 text-slate-600 italic'}`}
+                />
+              </div>
+            ))}
+          </div>
+
+          {/* SECȚIUNEA SPECIALĂ PENTRU SLUG CU BUTON DE ACTIVARE */}
+          <div className="bg-amber-50/30 p-8 md:p-10 rounded-[40px] border-2 border-dashed border-amber-200 space-y-6">
+            <div className="flex flex-col md:flex-row md:items-end gap-6">
+              <div className="flex-1 space-y-3">
+                <label className="text-[10px] font-black text-amber-600 uppercase tracking-[0.2em] ml-4 italic flex items-center gap-2">
+                  🔗 ADRESA TA UNICĂ DE REZERVARE (SLUG)
+                </label>
+                <div className="relative flex items-center">
+                  <span className="absolute left-6 text-slate-400 font-bold text-xs italic">/rezervare/</span>
+                  <input 
+                    type="text" 
+                    placeholder="nume-afacere"
+                    value={slug} 
+                    onChange={(e) => setSlug(formatSlug(e.target.value))}
+                    readOnly={isDemo}
+                    className={`w-full p-6 pl-28 rounded-[25px] font-black text-sm outline-none transition-all ${!isDemo ? 'bg-white border-2 border-amber-100 focus:border-amber-500' : 'bg-slate-100 text-slate-600 italic'}`}
+                  />
+                </div>
+              </div>
+              
+              <button 
+                onClick={handleUpdateSlug}
+                disabled={updating || isDemo}
+                className="px-10 py-6 bg-slate-900 text-amber-500 text-[10px] font-black rounded-[25px] uppercase italic border-b-8 border-slate-800 hover:bg-amber-500 hover:text-white transition-all shadow-xl"
+              >
+                {updating ? "Se verifică..." : "Rezervă Link Unic"}
+              </button>
             </div>
-          ))}
+            
+            <p className="ml-6 text-[9px] text-slate-400 italic">
+              *Atenție: Aceasta este adresa pe care o vei trimite clienților tăi. Verifică disponibilitatea apăsând butonul de mai sus.
+            </p>
+          </div>
           
-          <div className="md:col-span-2 pt-10 border-t border-slate-50 flex justify-center">
+          <div className="pt-6 border-t border-slate-50 flex justify-center">
             <button 
               onClick={() => { if(!isDemo) setShowPassModal(true); else alert("🔒 Dezactivat în Demo."); }} 
               className="flex items-center gap-4 px-8 py-4 rounded-full text-[11px] font-black uppercase italic transition-all bg-slate-50 text-slate-500 hover:text-amber-600 border border-transparent hover:border-amber-200"
@@ -301,7 +374,7 @@ export default function ProfilPage() {
         </div>
       </div>
 
-      {/* Modal */}
+      {/* Modal Parolă */}
       {showPassModal && (
         <div className="fixed inset-0 bg-slate-900/90 backdrop-blur-md z-[200] flex items-center justify-center p-6" onClick={() => setShowPassModal(false)}>
           <div className="bg-white w-full max-w-sm rounded-[50px] p-12 shadow-2xl space-y-10 border border-slate-100 relative" onClick={(e) => e.stopPropagation()}>

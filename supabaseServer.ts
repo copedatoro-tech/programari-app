@@ -18,7 +18,7 @@ export const createClient = async () => {
               cookieStore.set(name, value, options)
             )
           } catch (error) {
-            // Normal în Server Components
+            // Se ignoră dacă este apelat din Server Component
           }
         },
       },

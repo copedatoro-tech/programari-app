@@ -18,7 +18,6 @@ export default function AdminSettingsHub() {
   const [userUrl, setUserUrl] = useState("");
   const [userPlan, setUserPlan] = useState("CHRONOS FREE");
   const [mounted, setMounted] = useState(false);
-
   const [slug, setSlug] = useState("");
 
   const hasBookingAccess = useMemo(() => {
@@ -84,7 +83,7 @@ export default function AdminSettingsHub() {
         setSlug(profile.slug || "");
 
         const baseUrl = getBaseUrl();
-        // Dacă are slug folosim slug-ul, altfel UUID-ul — ambele sunt acceptate de pagina de rezervare
+        // Prioritizăm slug-ul salvat în baza de date pentru formatul URL-ului
         const identifier = profile.slug ? profile.slug : currentUid;
         const finalUrl = `${baseUrl}/rezervare/${identifier}`;
         setUserUrl(finalUrl);
@@ -157,7 +156,6 @@ export default function AdminSettingsHub() {
     setIsDirty(true);
 
     const currentDayBlocks = [...(manualBlocks[selectedDate] || [])];
-
     const subSlots: string[] = [];
     const [h, m] = baseSlot.split(':').map(Number);
 
@@ -169,7 +167,6 @@ export default function AdminSettingsHub() {
     }
 
     const isAlreadyBlocked = currentDayBlocks.includes(baseSlot);
-
     let updatedDayBlocks;
     if (isAlreadyBlocked) {
       updatedDayBlocks = currentDayBlocks.filter(slot => !subSlots.includes(slot));
@@ -210,7 +207,6 @@ export default function AdminSettingsHub() {
     for (let d = 1; d <= totalDays; d++) {
       const dateStr = `${year}-${(month + 1).toString().padStart(2, '0')}-${d.toString().padStart(2, '0')}`;
       const isToday = new Date().toISOString().split('T')[0] === dateStr;
-
       const slots15 = generateSlots(15);
       const isBlocked = (manualBlocks[dateStr] || []).length >= (slots15.length - 2);
       const hasBooking = daysWithBookings.includes(dateStr);

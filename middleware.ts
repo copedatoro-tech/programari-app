@@ -1,29 +1,37 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
-export default async function middleware(req: NextRequest) {
-  const { pathname } = req.nextUrl
-  
-  // DEBLOCARE: Permitem orice conține "rezervare" sau e pagină de login/statică
+export function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+
+  // 1. Permitem accesul COMPLET PUBLIC pentru orice conține "rezervare"
+  if (pathname.toLowerCase().includes('/rezervare')) {
+    return NextResponse.next();
+  }
+
+  // 2. Permitem rutele de sistem, autentificare și fișierele statice
   if (
-    pathname.includes('/rezervare') || 
-    pathname.includes('/login') ||
+    pathname.startsWith('/auth') || // Folderul tău din captura 151118.png
+    pathname.startsWith('/login') ||
+    pathname.startsWith('/register') ||
     pathname.startsWith('/_next') ||
     pathname.startsWith('/api') ||
-    pathname.match(/\.(png|jpg|jpeg|svg|gif|ico|webp)$/)
+    pathname.match(/\.(png|jpg|jpeg|svg|gif|ico|webp|css|js)$/)
   ) {
-    return NextResponse.next()
+    return NextResponse.next();
   }
 
-  // PROTECȚIE: Doar pentru restul paginilor (Admin/Dashboard)
-  const allCookies = req.cookies.getAll()
-  const hasToken = allCookies.some(c => c.name.includes('auth-token') || c.name.includes('sb-'))
+  // 3. Protecție Admin: Verificăm cookie-urile de sesiune
+  const hasSession = request.cookies.getAll().some(c => 
+    c.name.includes('auth-token') || 
+    c.name.includes('sb-')
+  );
 
-  if (!hasToken) {
-    return NextResponse.redirect(new URL('/login', req.url))
+  if (!hasSession) {
+    return NextResponse.redirect(new URL('/login', request.url));
   }
 
-  return NextResponse.next()
+  return NextResponse.next();
 }
 
 export const config = {
