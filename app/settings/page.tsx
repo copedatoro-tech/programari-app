@@ -18,8 +18,6 @@ export default function AdminSettingsHub() {
   const [userPlan, setUserPlan] = useState("CHRONOS FREE");
   const [mounted, setMounted] = useState(false);
   const [slug, setSlug] = useState("");
-
-  // --- SURSA UNICĂ DE ADEVĂR PENTRU LINK ȘI QR ---
   const [baseUrl, setBaseUrl] = useState("");
 
   useEffect(() => {
@@ -31,9 +29,7 @@ export default function AdminSettingsHub() {
   const userUrl = useMemo(() => {
     const identifier = slug?.trim() || userId?.trim();
     if (!baseUrl || !identifier) return "";
-    const url = `${baseUrl}/rezervare/${identifier}`;
-    console.log("[Chronos QR] URL generat:", url);
-    return url;
+    return `${baseUrl}/rezervare/${identifier}`;
   }, [slug, userId, baseUrl]);
 
   const hasBookingAccess = useMemo(() => {
@@ -102,27 +98,37 @@ export default function AdminSettingsHub() {
     if (!hasBookingAccess || !userUrl) return;
     const svg = qrContainerRef.current?.querySelector("svg");
     if (!svg) return;
-    const svgData = new XMLSerializer().serializeToString(svg);
+    
     const canvas = document.createElement("canvas");
-    const ctx = canvas.getContext("2d");
+    const svgData = new XMLSerializer().serializeToString(svg);
+    const svgBlob = new Blob([svgData], { type: "image/svg+xml;charset=utf-8" });
+    const url = URL.createObjectURL(svgBlob);
+    
     const img = new Image();
     img.onload = () => {
-      canvas.width = img.width;
-      canvas.height = img.height;
-      ctx?.drawImage(img, 0, 0);
-      const pngFile = canvas.toDataURL("image/png");
-      const downloadLink = document.createElement("a");
-      downloadLink.download = `Chronos-QR-${slug || userId}.png`;
-      downloadLink.href = pngFile;
-      downloadLink.click();
+      canvas.width = 1000; // Rezoluție mare pentru print
+      canvas.height = 1000;
+      const ctx = canvas.getContext("2d");
+      if (ctx) {
+        ctx.fillStyle = "white";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, 50, 50, 900, 900);
+        const pngFile = canvas.toDataURL("image/png");
+        const downloadLink = document.createElement("a");
+        downloadLink.download = `Chronos-QR-${slug || 'user'}.png`;
+        downloadLink.href = pngFile;
+        downloadLink.click();
+      }
+      URL.revokeObjectURL(url);
     };
-    img.src = "data:image/svg+xml;base64," + btoa(unescape(encodeURIComponent(svgData)));
+    img.src = url;
   };
 
   const shareOnWhatsApp = () => {
     if (!hasBookingAccess || !userUrl) return;
-    const text = `Bună! Poți folosi acest link pentru a face o programare la mine: ${userUrl}`;
-    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+    const text = `Bună! Aceasta este pagina mea de programări online pe Chronos:\n\n${userUrl}`;
+    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(text)}`;
+    window.open(whatsappUrl, '_blank');
   };
 
   const saveSettings = async () => {
@@ -135,23 +141,20 @@ export default function AdminSettingsHub() {
 
     if (!error) {
       setIsDirty(false);
-      alert("✅ Modificări salvate!");
+      alert("✅ Setări salvate cu succes!");
     } else {
-      alert("Eroare: " + error.message);
+      alert("Eroare la salvare: " + error.message);
     }
     setLoading(false);
   };
 
   const saveBlocksToSupabase = async (updatedBlocks: any) => {
     if (!userId) return;
-    const { error } = await supabase.from('profiles').update({
+    await supabase.from('profiles').update({
       manual_blocks: updatedBlocks,
       booking_interval: bookingInterval
     }).eq('id', userId);
-
-    if (!error) {
-      setIsDirty(false);
-    }
+    setIsDirty(false);
   };
 
   const toggleHourBlock = (baseSlot: string) => {
@@ -176,20 +179,6 @@ export default function AdminSettingsHub() {
     setManualBlocks({ ...manualBlocks, [selectedDate]: updatedDayBlocks });
   };
 
-  const saveAsDefaultRepeat = async () => {
-    if (!selectedDate || !confirm("Aplici acest program pentru toate zilele similare din următorul an?")) return;
-    const dateObj = new Date(selectedDate);
-    const currentBlocks = manualBlocks[selectedDate] || [];
-    const newBlocks = { ...manualBlocks };
-    for (let i = 1; i <= 52; i++) {
-      const next = new Date(dateObj);
-      next.setDate(dateObj.getDate() + (i * 7));
-      newBlocks[next.toISOString().split('T')[0]] = currentBlocks;
-    }
-    setManualBlocks(newBlocks);
-    await saveBlocksToSupabase(newBlocks);
-  };
-
   const handleCloseModal = () => {
     if (isDirty) saveBlocksToSupabase(manualBlocks);
     setShowDayModal(false);
@@ -202,7 +191,7 @@ export default function AdminSettingsHub() {
     const startDay = new Date(year, month, 1).getDay();
     const offset = startDay === 0 ? 6 : startDay - 1;
     const days = [];
-    for (let i = 0; i < offset; i++) days.push(<div key={`empty-${i}`} className="h-24 md:h-32 bg-slate-100 rounded-[35px]"></div>);
+    for (let i = 0; i < offset; i++) days.push(<div key={`empty-${i}`} className="h-24 md:h-32 bg-slate-50 rounded-[35px]"></div>);
     for (let d = 1; d <= totalDays; d++) {
       const dateStr = `${year}-${(month + 1).toString().padStart(2, '0')}-${d.toString().padStart(2, '0')}`;
       const isToday = new Date().toISOString().split('T')[0] === dateStr;
@@ -212,7 +201,6 @@ export default function AdminSettingsHub() {
       days.push(
         <button
           key={d}
-          title={hasBooking ? "Această zi are rezervări active" : "Gestionează disponibilitatea"}
           onClick={async () => {
             setSelectedDate(dateStr);
             const { data } = await supabase.from("appointments").select("time").eq("date", dateStr).eq("user_id", userId);
@@ -249,21 +237,25 @@ export default function AdminSettingsHub() {
       <style jsx global>{`
         @media print {
           .no-print { display: none !important; }
-          body { background: white !important; margin: 0; padding: 0; }
-          html, body { height: 100vh; overflow: hidden; }
-          .print-only { display: flex !important; flex-direction: column; align-items: center; justify-content: center; width: 100%; height: 100vh; position: absolute; top: 0; left: 0; }
+          body, html { background: white !important; margin: 0 !important; padding: 0 !important; }
+          .print-only { 
+            display: flex !important; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            width: 100%; 
+            height: 100vh;
+          }
         }
         .print-only { display: none; }
       `}</style>
 
-      {/* QR PRINT - LEGAT DE userUrl */}
+      {/* SECTION PRINT */}
       {hasBookingAccess && userUrl && (
         <div className="print-only">
-          <h2 className="text-4xl font-black uppercase italic mb-10 text-center text-black">REZERVARE <span className="text-amber-500">RAPIDĂ</span></h2>
-          <div className="p-10 border-[16px] border-black rounded-[60px] bg-white">
-            <QRCodeSVG value={userUrl} size={400} level="H" includeMargin={true} />
-          </div>
-          <p className="mt-10 font-black uppercase tracking-widest text-slate-500 italic">Scanează pentru a programa</p>
+          <h2 className="text-4xl font-black uppercase italic mb-10 text-black">REZERVARE <span className="text-amber-500">RAPIDĂ</span></h2>
+          <QRCodeSVG value={userUrl} size={400} level="H" includeMargin={true} />
+          <p className="mt-10 font-black uppercase tracking-widest text-slate-500 italic text-center">Scanează pentru a programa online rapid și simplu</p>
           <p className="mt-4 text-[10px] text-slate-300 font-mono">{userUrl}</p>
         </div>
       )}
@@ -277,62 +269,63 @@ export default function AdminSettingsHub() {
             </div>
           </div>
           <div className="flex gap-4">
-            {isDirty && <button onClick={saveSettings} className="px-8 py-4 bg-amber-500 text-black rounded-[20px] font-black uppercase text-[10px] italic shadow-lg animate-pulse">Salvează Modificări ✨</button>}
-            <Link href="/programari" className="px-8 py-4 bg-white border-2 border-slate-200 text-slate-400 rounded-[20px] font-black uppercase text-[10px] italic hover:border-amber-500 hover:text-amber-500 transition-all shadow-sm">← Panou Control</Link>
+            {isDirty && <button onClick={saveSettings} className="px-8 py-4 bg-amber-500 text-black rounded-[20px] font-black uppercase text-[10px] italic shadow-lg animate-pulse">Salvează ✨</button>}
+            <Link href="/programari" className="px-8 py-4 bg-white border-[3px] border-slate-900 text-slate-900 rounded-[20px] font-black uppercase text-[10px] italic hover:bg-slate-900 hover:text-white transition-all shadow-[0_4px_0_0_rgba(15,23,42,1)] active:translate-y-1 active:shadow-none">← Înapoi</Link>
           </div>
         </header>
 
+        {/* HUB CENTRAL */}
         <div className="relative group mb-12">
-          <div className={`grid grid-cols-1 lg:grid-cols-2 gap-8 transition-all duration-500 ${!hasBookingAccess ? 'blur-md pointer-events-none opacity-40 select-none' : ''}`}>
+          <div className={`bg-white rounded-[55px] shadow-2xl border border-slate-100 p-8 md:p-14 flex flex-col items-center transition-all duration-500 ${!hasBookingAccess ? 'blur-md pointer-events-none opacity-40 select-none' : ''}`}>
             
-            {/* STÂNGA - LINK TEXT */}
-            <div className="bg-white p-10 rounded-[45px] shadow-xl border border-slate-100 flex flex-col justify-between">
-              <div>
-                <h2 className="text-[10px] font-black uppercase italic mb-6 text-slate-400 tracking-widest">Link Rezervări Online (Public)</h2>
-                <code className="block bg-slate-50 p-6 rounded-[25px] text-lg font-black text-slate-900 break-all border-2 border-slate-100 mb-8">
-                  {userUrl || "Se generează..."}
+            <div className="w-full text-center mb-12">
+              <h2 className="text-[10px] font-black uppercase italic mb-4 text-slate-400 tracking-widest">Link-ul tău personal</h2>
+              <div className="bg-slate-50 p-6 rounded-[30px] border-2 border-slate-100 inline-block w-full max-w-3xl">
+                <code className="text-lg md:text-xl font-black text-slate-900 break-all">
+                  {userUrl || "Generare link..."}
                 </code>
               </div>
-              <div className="flex flex-col sm:flex-row gap-4">
+            </div>
+
+            <div className="flex flex-col md:flex-row items-center justify-center gap-8 md:gap-16 w-full">
+              <div className="flex flex-col gap-4 w-full md:w-64">
+                <span className="text-[9px] font-black uppercase text-amber-600 italic text-center md:text-left">Digital Share</span>
                 <button
                   onClick={() => {
                     if (!userUrl) return;
                     navigator.clipboard.writeText(userUrl);
                     alert("✅ Link copiat!");
                   }}
-                  className="flex-1 py-5 bg-amber-500 text-black rounded-[22px] font-black uppercase text-[10px] italic hover:scale-[1.02] transition-all"
+                  className="w-full py-5 bg-amber-500 text-black rounded-[22px] font-black uppercase text-[10px] italic hover:scale-[1.02] transition-all shadow-md"
                 >
                   Copiază Link
                 </button>
-                <button onClick={shareOnWhatsApp} className="flex-1 py-5 bg-[#25D366] text-white rounded-[22px] font-black uppercase text-[10px] italic hover:scale-[1.02] transition-all">
-                  Share WhatsApp
+                <button 
+                  onClick={shareOnWhatsApp} 
+                  className="w-full py-5 bg-[#25D366] text-white rounded-[22px] font-black uppercase text-[10px] italic hover:scale-[1.02] transition-all shadow-md"
+                >
+                  WhatsApp Share
                 </button>
               </div>
-            </div>
 
-            {/* DREAPTA - QR GENERAT DIN ACELAȘI userUrl */}
-            <div className="bg-white p-10 rounded-[45px] shadow-xl border border-slate-100 flex flex-col items-center justify-center gap-8">
-              <div ref={qrContainerRef} className="p-6 bg-white rounded-[35px] border-4 border-amber-500 shadow-sm">
-                {userUrl ? (
-                  <QRCodeSVG value={userUrl} size={150} fgColor="#000000" level="H" />
-                ) : (
-                  <div className="w-[150px] h-[150px] flex items-center justify-center text-[10px] font-black uppercase text-slate-300 italic">
-                    Generare QR...
-                  </div>
-                )}
+              <div className="flex flex-col items-center">
+                <div ref={qrContainerRef} className="p-8 bg-white rounded-[45px] border-[6px] border-amber-500 shadow-xl transition-transform hover:scale-105 min-h-[200px] min-w-[200px] flex items-center justify-center">
+                  {userUrl ? (
+                    <QRCodeSVG value={userUrl} size={200} fgColor="#000000" level="H" includeMargin={false} />
+                  ) : (
+                    <div className="text-[10px] font-black uppercase text-slate-300 italic text-center px-10">Generare Cod QR...</div>
+                  )}
+                </div>
+                <p className="mt-6 text-[9px] font-black text-slate-400 uppercase italic tracking-widest">Scan & Book</p>
               </div>
-              {/* MODIFICARE AICI: Link-ul de sub QR este acum mai mare, negru și bold */}
-              {userUrl && (
-                <p className="text-sm font-mono text-slate-900 font-bold break-all text-center px-4">
-                  {userUrl}
-                </p>
-              )}
-              <div className="flex gap-4 w-full">
-                <button onClick={() => window.print()} className="flex-1 py-4 border-2 border-slate-200 text-slate-400 rounded-[20px] font-black uppercase text-[10px] italic hover:border-amber-500 hover:text-amber-500 transition-all">
-                  Printează QR
+
+              <div className="flex flex-col gap-4 w-full md:w-64">
+                <span className="text-[9px] font-black uppercase text-slate-500 italic text-center md:text-right">Materiale Salon</span>
+                <button onClick={downloadQRCode} className="w-full py-5 bg-slate-900 text-white rounded-[22px] font-black uppercase text-[10px] italic hover:bg-black transition-all shadow-lg">
+                  Descarcă Imagine
                 </button>
-                <button onClick={downloadQRCode} className="flex-1 py-4 bg-amber-500 text-black rounded-[20px] font-black uppercase text-[10px] italic shadow-lg shadow-amber-500/20 hover:scale-105 transition-all">
-                  Descarcă 💾
+                <button onClick={() => window.print()} className="w-full py-5 bg-white border-[3px] border-slate-900 text-slate-900 rounded-[22px] font-black uppercase text-[10px] italic hover:bg-slate-50 transition-all shadow-[0_4px_0_0_rgba(15,23,42,1)] active:translate-y-1 active:shadow-none">
+                  Printează QR
                 </button>
               </div>
             </div>
@@ -372,6 +365,7 @@ export default function AdminSettingsHub() {
         </div>
       </div>
 
+      {/* MODAL PROGRAM */}
       {showDayModal && selectedDate && (
         <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-white/95 backdrop-blur-md">
           <div ref={modalRef} className="bg-white w-full max-w-5xl rounded-[55px] p-8 md:p-14 relative shadow-2xl border-t-[15px] border-amber-500 overflow-y-auto max-h-[95vh]">
