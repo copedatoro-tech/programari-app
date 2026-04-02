@@ -1,15 +1,16 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
-export async function proxy(req: NextRequest) {
+// SCHIMBARE CRITICĂ: Exportăm ca 'default' și redenumim funcția în 'middleware'
+export default async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl
 
   // Permitem rutele publice și fișierele statice
   if (
-    pathname === '/' || // Adăugat: Permitem pagina principală pentru campania publicitară
+    pathname === '/' || // Permitem landing page-ul pentru reclame
     pathname.startsWith('/_next') ||
     pathname.startsWith('/api') ||
-    pathname.startsWith('/rezervare') ||
+    pathname.startsWith('/rezervare') || // Permitem paginile de programare (QR code)
     pathname === '/login' ||
     pathname === '/register' ||
     pathname === '/forgot-password' ||
@@ -19,7 +20,6 @@ export async function proxy(req: NextRequest) {
   }
 
   // Verificăm dacă există orice cookie care conține "auth-token" 
-  // (Supabase folosește un prefix dinamic bazat pe ID-ul proiectului)
   const allCookies = req.cookies.getAll()
   const hasSupabaseToken = allCookies.some(cookie => cookie.name.includes('auth-token'))
 
