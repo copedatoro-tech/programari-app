@@ -2,7 +2,6 @@ import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 
 export const createClient = async () => {
-  // În Next.js 15+, cookies() este asincron
   const cookieStore = await cookies()
 
   return createServerClient(
@@ -13,14 +12,13 @@ export const createClient = async () => {
         getAll() {
           return cookieStore.getAll()
         },
-        // Am adăugat tipul pentru cookiesToSet și elementele sale
         setAll(cookiesToSet: { name: string; value: string; options: CookieOptions }[]) {
           try {
             cookiesToSet.forEach(({ name, value, options }) =>
               cookieStore.set(name, value, options)
             )
           } catch (error) {
-            // Ignorăm eroarea în Server Components conform regulii tale de operare
+            // Normal în Server Components
           }
         },
       },
