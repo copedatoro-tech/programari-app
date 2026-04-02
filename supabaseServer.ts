@@ -1,8 +1,8 @@
-import { createServerClient } from '@supabase/ssr'
+import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 
 export const createClient = async () => {
-  // În Next.js 15+, cookies() trebuie apelat cu await
+  // În Next.js 15+, cookies() este asincron
   const cookieStore = await cookies()
 
   return createServerClient(
@@ -13,14 +13,14 @@ export const createClient = async () => {
         getAll() {
           return cookieStore.getAll()
         },
-        setAll(cookiesToSet) {
+        // Am adăugat tipul pentru cookiesToSet și elementele sale
+        setAll(cookiesToSet: { name: string; value: string; options: CookieOptions }[]) {
           try {
             cookiesToSet.forEach(({ name, value, options }) =>
               cookieStore.set(name, value, options)
             )
           } catch (error) {
-            // Această eroare este normală în Server Components.
-            // Refresh-ul se ocupă middleware.ts, deci aici doar ignorăm eroarea.
+            // Ignorăm eroarea în Server Components conform regulii tale de operare
           }
         },
       },
