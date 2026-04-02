@@ -20,13 +20,21 @@ export default function AdminSettingsHub() {
   const [slug, setSlug] = useState("");
 
   // --- SURSA UNICĂ DE ADEVĂR PENTRU LINK ȘI QR ---
+  const [baseUrl, setBaseUrl] = useState("");
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setBaseUrl(window.location.origin);
+    }
+  }, []);
+
   const userUrl = useMemo(() => {
-    if (typeof window === "undefined") return "";
-    const baseUrl = window.location.origin;
-    const identifier = slug || userId;
-    if (!identifier) return "";
-    return `${baseUrl}/rezervare/${identifier}`;
-  }, [slug, userId]);
+    const identifier = slug?.trim() || userId?.trim();
+    if (!baseUrl || !identifier) return "";
+    const url = `${baseUrl}/rezervare/${identifier}`;
+    console.log("[Chronos QR] URL generat:", url);
+    return url;
+  }, [slug, userId, baseUrl]);
 
   const hasBookingAccess = useMemo(() => {
     return ["CHRONOS ELITE", "CHRONOS TEAM"].includes(userPlan.toUpperCase());
@@ -82,9 +90,9 @@ export default function AdminSettingsHub() {
         setManualBlocks(profile.manual_blocks || {});
         setBookingInterval(profile.booking_interval || 15);
         setSlug(profile.slug || "");
-
-        await fetchMonthlyAppointments(currentUid, currentMonth);
       }
+
+      await fetchMonthlyAppointments(currentUid, currentMonth);
       setLoading(false);
     }
     initAdmin();
@@ -276,30 +284,56 @@ export default function AdminSettingsHub() {
 
         <div className="relative group mb-12">
           <div className={`grid grid-cols-1 lg:grid-cols-2 gap-8 transition-all duration-500 ${!hasBookingAccess ? 'blur-md pointer-events-none opacity-40 select-none' : ''}`}>
-            {/* STÂNGA - TEXTUL */}
+            
+            {/* STÂNGA - LINK TEXT */}
             <div className="bg-white p-10 rounded-[45px] shadow-xl border border-slate-100 flex flex-col justify-between">
               <div>
                 <h2 className="text-[10px] font-black uppercase italic mb-6 text-slate-400 tracking-widest">Link Rezervări Online (Public)</h2>
-                <code className="block bg-slate-50 p-6 rounded-[25px] text-[11px] font-black text-amber-600 break-all border-2 border-slate-100 mb-8 italic">{userUrl || "Se generează..."}</code>
+                <code className="block bg-slate-50 p-6 rounded-[25px] text-lg font-black text-slate-900 break-all border-2 border-slate-100 mb-8">
+                  {userUrl || "Se generează..."}
+                </code>
               </div>
               <div className="flex flex-col sm:flex-row gap-4">
-                <button onClick={() => { navigator.clipboard.writeText(userUrl); alert("✅ Link copiat!"); }} className="flex-1 py-5 bg-amber-500 text-black rounded-[22px] font-black uppercase text-[10px] italic hover:scale-[1.02] transition-all">Copiază Link</button>
-                <button onClick={shareOnWhatsApp} className="flex-1 py-5 bg-[#25D366] text-white rounded-[22px] font-black uppercase text-[10px] italic hover:scale-[1.02] transition-all">Share WhatsApp</button>
+                <button
+                  onClick={() => {
+                    if (!userUrl) return;
+                    navigator.clipboard.writeText(userUrl);
+                    alert("✅ Link copiat!");
+                  }}
+                  className="flex-1 py-5 bg-amber-500 text-black rounded-[22px] font-black uppercase text-[10px] italic hover:scale-[1.02] transition-all"
+                >
+                  Copiază Link
+                </button>
+                <button onClick={shareOnWhatsApp} className="flex-1 py-5 bg-[#25D366] text-white rounded-[22px] font-black uppercase text-[10px] italic hover:scale-[1.02] transition-all">
+                  Share WhatsApp
+                </button>
               </div>
             </div>
 
-            {/* DREAPTA - CODUL QR LEGAT DE userUrl */}
+            {/* DREAPTA - QR GENERAT DIN ACELAȘI userUrl */}
             <div className="bg-white p-10 rounded-[45px] shadow-xl border border-slate-100 flex flex-col items-center justify-center gap-8">
               <div ref={qrContainerRef} className="p-6 bg-white rounded-[35px] border-4 border-amber-500 shadow-sm">
                 {userUrl ? (
                   <QRCodeSVG value={userUrl} size={150} fgColor="#000000" level="H" />
                 ) : (
-                  <div className="w-[150px] h-[150px] flex items-center justify-center text-[10px] font-black uppercase text-slate-300 italic">Generare QR...</div>
+                  <div className="w-[150px] h-[150px] flex items-center justify-center text-[10px] font-black uppercase text-slate-300 italic">
+                    Generare QR...
+                  </div>
                 )}
               </div>
+              {/* MODIFICARE AICI: Link-ul de sub QR este acum mai mare, negru și bold */}
+              {userUrl && (
+                <p className="text-sm font-mono text-slate-900 font-bold break-all text-center px-4">
+                  {userUrl}
+                </p>
+              )}
               <div className="flex gap-4 w-full">
-                <button onClick={() => window.print()} className="flex-1 py-4 border-2 border-slate-200 text-slate-400 rounded-[20px] font-black uppercase text-[10px] italic hover:border-amber-500 hover:text-amber-500 transition-all">Printează QR</button>
-                <button onClick={downloadQRCode} className="flex-1 py-4 bg-amber-500 text-black rounded-[20px] font-black uppercase text-[10px] italic shadow-lg shadow-amber-500/20 hover:scale-105 transition-all">Descarcă 💾</button>
+                <button onClick={() => window.print()} className="flex-1 py-4 border-2 border-slate-200 text-slate-400 rounded-[20px] font-black uppercase text-[10px] italic hover:border-amber-500 hover:text-amber-500 transition-all">
+                  Printează QR
+                </button>
+                <button onClick={downloadQRCode} className="flex-1 py-4 bg-amber-500 text-black rounded-[20px] font-black uppercase text-[10px] italic shadow-lg shadow-amber-500/20 hover:scale-105 transition-all">
+                  Descarcă 💾
+                </button>
               </div>
             </div>
           </div>
@@ -308,7 +342,9 @@ export default function AdminSettingsHub() {
             <div className="absolute inset-0 z-50 flex items-center justify-center">
               <div className="bg-white/90 backdrop-blur-xl p-10 rounded-[40px] border-2 border-amber-500 shadow-2xl text-center max-w-md">
                 <h3 className="text-2xl font-black italic uppercase text-slate-900 mb-4 tracking-tighter">Booking Online Inactiv</h3>
-                <Link href="/abonamente" className="inline-block bg-amber-500 text-black px-10 py-4 rounded-2xl font-black italic uppercase text-[10px] tracking-widest hover:bg-amber-400 transition-all">Deblochează Acum</Link>
+                <Link href="/abonamente" className="inline-block bg-amber-500 text-black px-10 py-4 rounded-2xl font-black italic uppercase text-[10px] tracking-widest hover:bg-amber-400 transition-all">
+                  Deblochează Acum
+                </Link>
               </div>
             </div>
           )}
@@ -317,7 +353,9 @@ export default function AdminSettingsHub() {
         {/* CALENDAR */}
         <div className="bg-white p-6 md:p-10 rounded-[50px] shadow-xl border border-slate-100 mb-20">
           <div className="flex flex-col md:flex-row items-center justify-between mb-10 gap-4">
-            <h2 className="text-3xl font-black uppercase italic border-l-8 border-amber-500 pl-6 text-slate-900">{currentMonth.toLocaleString('ro-RO', { month: 'long', year: 'numeric' })}</h2>
+            <h2 className="text-3xl font-black uppercase italic border-l-8 border-amber-500 pl-6 text-slate-900">
+              {currentMonth.toLocaleString('ro-RO', { month: 'long', year: 'numeric' })}
+            </h2>
             <div className="flex gap-3">
               <button onClick={() => setCurrentMonth(new Date(currentMonth.setMonth(currentMonth.getMonth() - 1)))} className="p-5 bg-white border-2 border-slate-100 rounded-[22px] text-slate-400 hover:border-amber-500 transition-all">←</button>
               <button onClick={() => setCurrentMonth(new Date(currentMonth.setMonth(currentMonth.getMonth() + 1)))} className="p-5 bg-white border-2 border-slate-100 rounded-[22px] text-slate-400 hover:border-amber-500 transition-all">→</button>
@@ -337,12 +375,17 @@ export default function AdminSettingsHub() {
       {showDayModal && selectedDate && (
         <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-white/95 backdrop-blur-md">
           <div ref={modalRef} className="bg-white w-full max-w-5xl rounded-[55px] p-8 md:p-14 relative shadow-2xl border-t-[15px] border-amber-500 overflow-y-auto max-h-[95vh]">
-            <h3 className="text-4xl font-black uppercase italic text-slate-900 mb-12 tracking-tighter">{new Date(selectedDate).toLocaleDateString('ro-RO', { weekday: 'long', day: 'numeric', month: 'long' })}</h3>
+            <h3 className="text-4xl font-black uppercase italic text-slate-900 mb-12 tracking-tighter">
+              {new Date(selectedDate).toLocaleDateString('ro-RO', { weekday: 'long', day: 'numeric', month: 'long' })}
+            </h3>
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-12">
               <div className="lg:col-span-1">
                 <div className="grid grid-cols-1 gap-4">
                   {[15, 30, 60].map(v => (
-                    <button key={v} onClick={() => { setBookingInterval(v); setIsDirty(true); }} className={`py-5 rounded-[22px] font-black text-[12px] border-2 transition-all ${bookingInterval === v ? 'border-amber-500 bg-amber-500 text-black' : 'border-slate-100 text-slate-900'}`}>{v} MIN</button>
+                    <button key={v} onClick={() => { setBookingInterval(v); setIsDirty(true); }}
+                      className={`py-5 rounded-[22px] font-black text-[12px] border-2 transition-all ${bookingInterval === v ? 'border-amber-500 bg-amber-500 text-black' : 'border-slate-100 text-slate-900'}`}>
+                      {v} MIN
+                    </button>
                   ))}
                 </div>
               </div>
@@ -364,7 +407,9 @@ export default function AdminSettingsHub() {
               </div>
             </div>
             <div className="mt-16 text-center border-t-2 pt-10">
-              <button onClick={handleCloseModal} className="px-24 py-7 bg-amber-500 text-black rounded-[35px] font-black text-[14px] uppercase italic tracking-widest shadow-2xl hover:scale-105 transition-all">SALVEAZĂ PROGRAMUL</button>
+              <button onClick={handleCloseModal} className="px-24 py-7 bg-amber-500 text-black rounded-[35px] font-black text-[14px] uppercase italic tracking-widest shadow-2xl hover:scale-105 transition-all">
+                SALVEAZĂ PROGRAMUL
+              </button>
             </div>
           </div>
         </div>
