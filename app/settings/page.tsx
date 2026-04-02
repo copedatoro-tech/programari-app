@@ -76,18 +76,19 @@ export default function AdminSettingsHub() {
       setUserId(currentUid);
 
       const { data: profile } = await supabase.from('profiles').select('*').eq('id', currentUid).single();
-      
+
       if (profile) {
         setUserPlan(profile.plan_type?.toUpperCase() || "CHRONOS FREE");
         setManualBlocks(profile.manual_blocks || {});
         setBookingInterval(profile.booking_interval || 15);
         setSlug(profile.slug || "");
-        
+
         const baseUrl = getBaseUrl();
+        // Dacă are slug folosim slug-ul, altfel UUID-ul — ambele sunt acceptate de pagina de rezervare
         const identifier = profile.slug ? profile.slug : currentUid;
         const finalUrl = `${baseUrl}/rezervare/${identifier}`;
         setUserUrl(finalUrl);
-        
+
         await fetchMonthlyAppointments(currentUid, currentMonth);
       }
       setLoading(false);
@@ -124,9 +125,8 @@ export default function AdminSettingsHub() {
 
   const saveSettings = async () => {
     if (!userId) return;
-
     setLoading(true);
-    const { error } = await supabase.from('profiles').update({ 
+    const { error } = await supabase.from('profiles').update({
       manual_blocks: manualBlocks,
       booking_interval: bookingInterval
     }).eq('id', userId);
@@ -142,25 +142,25 @@ export default function AdminSettingsHub() {
 
   const saveBlocksToSupabase = async (updatedBlocks: any) => {
     if (!userId) return;
-    const { error } = await supabase.from('profiles').update({ 
+    const { error } = await supabase.from('profiles').update({
       manual_blocks: updatedBlocks,
-      booking_interval: bookingInterval 
+      booking_interval: bookingInterval
     }).eq('id', userId);
-    
+
     if (!error) {
-        setIsDirty(false);
+      setIsDirty(false);
     }
   };
 
   const toggleHourBlock = (baseSlot: string) => {
     if (!selectedDate) return;
     setIsDirty(true);
-    
+
     const currentDayBlocks = [...(manualBlocks[selectedDate] || [])];
-    
+
     const subSlots: string[] = [];
     const [h, m] = baseSlot.split(':').map(Number);
-    
+
     for (let i = 0; i < bookingInterval; i += 15) {
       const totalMinutes = m + i;
       const slotH = h + Math.floor(totalMinutes / 60);
@@ -169,7 +169,7 @@ export default function AdminSettingsHub() {
     }
 
     const isAlreadyBlocked = currentDayBlocks.includes(baseSlot);
-    
+
     let updatedDayBlocks;
     if (isAlreadyBlocked) {
       updatedDayBlocks = currentDayBlocks.filter(slot => !subSlots.includes(slot));
@@ -210,28 +210,28 @@ export default function AdminSettingsHub() {
     for (let d = 1; d <= totalDays; d++) {
       const dateStr = `${year}-${(month + 1).toString().padStart(2, '0')}-${d.toString().padStart(2, '0')}`;
       const isToday = new Date().toISOString().split('T')[0] === dateStr;
-      
+
       const slots15 = generateSlots(15);
       const isBlocked = (manualBlocks[dateStr] || []).length >= (slots15.length - 2);
       const hasBooking = daysWithBookings.includes(dateStr);
 
       days.push(
-        <button 
-          key={d} 
-          title={hasBooking ? "Această zi are rezervări active" : "Gestionează disponibilitatea"} 
+        <button
+          key={d}
+          title={hasBooking ? "Această zi are rezervări active" : "Gestionează disponibilitatea"}
           onClick={async () => {
             setSelectedDate(dateStr);
             const { data } = await supabase.from("appointments").select("time").eq("date", dateStr).eq("user_id", userId);
             setExistingBookings(data ? data.map(b => b.time.substring(0, 5)) : []);
             setShowDayModal(true);
-          }} 
+          }}
           className={`h-24 md:h-32 p-5 rounded-[35px] border-2 transition-all flex flex-col justify-between items-start relative overflow-hidden shadow-sm transform hover:scale-105 hover:z-10 hover:shadow-xl ${isBlocked ? 'bg-red-50 border-red-200' : 'bg-white border-slate-100 hover:border-amber-500'}`}
         >
           <span className={`text-xl font-black ${isToday ? 'text-amber-500' : 'text-slate-900'}`}>{d}</span>
           {hasBooking && (
             <div className="flex flex-col items-start gap-1 w-full">
-               <div className="w-2 h-2 bg-amber-500 rounded-full shadow-lg shadow-amber-500/50"></div>
-               <span className="text-[7px] font-black uppercase text-amber-500 leading-none tracking-tighter">Rezervare</span>
+              <div className="w-2 h-2 bg-amber-500 rounded-full shadow-lg shadow-amber-500/50"></div>
+              <span className="text-[7px] font-black uppercase text-amber-500 leading-none tracking-tighter">Rezervare</span>
             </div>
           )}
         </button>
@@ -242,12 +242,12 @@ export default function AdminSettingsHub() {
 
   useEffect(() => {
     const handleOutsideClick = (e: MouseEvent) => {
-        if (modalRef.current && !modalRef.current.contains(e.target as Node)) {
-            handleCloseModal();
-        }
+      if (modalRef.current && !modalRef.current.contains(e.target as Node)) {
+        handleCloseModal();
+      }
     };
     if (showDayModal) {
-        document.addEventListener("mousedown", handleOutsideClick);
+      document.addEventListener("mousedown", handleOutsideClick);
     }
     return () => document.removeEventListener("mousedown", handleOutsideClick);
   }, [showDayModal, isDirty, manualBlocks]);
@@ -257,13 +257,13 @@ export default function AdminSettingsHub() {
   return (
     <div className="min-h-screen bg-slate-50 p-4 md:p-12 font-sans text-slate-900 flex flex-col">
       <style jsx global>{`
-        @media print { 
-          .no-print { display: none !important; } 
+        @media print {
+          .no-print { display: none !important; }
           body { background: white !important; margin: 0; padding: 0; }
           html, body { height: 100vh; overflow: hidden; }
-          .print-only { 
-            display: flex !important; 
-            flex-direction: column; 
+          .print-only {
+            display: flex !important;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
             width: 100%;
@@ -275,19 +275,19 @@ export default function AdminSettingsHub() {
             padding: 0;
             page-break-after: avoid;
             page-break-before: avoid;
-          } 
-        } 
+          }
+        }
         .print-only { display: none; }
       `}</style>
-      
-      {/* QR Code pentru Print - Folosește userUrl direct */}
+
+      {/* QR Code pentru Print */}
       {hasBookingAccess && userUrl && (
         <div className="print-only">
           <h2 className="text-4xl font-black uppercase italic mb-10 text-center text-black">REZERVARE <span className="text-amber-500">RAPIDĂ</span></h2>
           <div className="p-10 border-[16px] border-black rounded-[60px] bg-white">
             <QRCodeSVG value={userUrl} size={400} level="H" includeMargin={true} />
           </div>
-          <p className="mt-10 font-black uppercase tracking-widest text-slate-500 italic">Scanază pentru a programa</p>
+          <p className="mt-10 font-black uppercase tracking-widest text-slate-500 italic">Scanează pentru a programa</p>
           <p className="mt-4 text-[10px] text-slate-300 font-mono">{userUrl}</p>
         </div>
       )}
@@ -297,15 +297,15 @@ export default function AdminSettingsHub() {
           <div>
             <h1 className="text-4xl md:text-5xl font-black italic uppercase tracking-tighter border-l-8 border-amber-500 pl-6 leading-none text-slate-900">Settings <span className="text-amber-500 italic">Hub</span></h1>
             <div className="flex items-center gap-2 mt-4 ml-8">
-                <span className="text-[9px] font-black px-2 py-0.5 bg-amber-500 text-black rounded-md uppercase italic">{userPlan}</span>
-                <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest italic">Acces Admin Activ</p>
+              <span className="text-[9px] font-black px-2 py-0.5 bg-amber-500 text-black rounded-md uppercase italic">{userPlan}</span>
+              <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest italic">Acces Admin Activ</p>
             </div>
           </div>
           <div className="flex gap-4">
-             {isDirty && (
-               <button onClick={saveSettings} className="px-8 py-4 bg-amber-500 text-black rounded-[20px] font-black uppercase text-[10px] italic shadow-lg hover:scale-105 hover:bg-amber-400 transition-all active:scale-95 animate-pulse">Salvează Modificări ✨</button>
-             )}
-             <Link href="/programari" className="px-8 py-4 bg-white border-2 border-slate-200 text-slate-400 rounded-[20px] font-black uppercase text-[10px] italic hover:border-amber-500 hover:text-amber-500 transition-all shadow-sm active:translate-y-1">← Panou Control</Link>
+            {isDirty && (
+              <button onClick={saveSettings} className="px-8 py-4 bg-amber-500 text-black rounded-[20px] font-black uppercase text-[10px] italic shadow-lg hover:scale-105 hover:bg-amber-400 transition-all active:scale-95 animate-pulse">Salvează Modificări ✨</button>
+            )}
+            <Link href="/programari" className="px-8 py-4 bg-white border-2 border-slate-200 text-slate-400 rounded-[20px] font-black uppercase text-[10px] italic hover:border-amber-500 hover:text-amber-500 transition-all shadow-sm active:translate-y-1">← Panou Control</Link>
           </div>
         </header>
 
@@ -321,7 +321,7 @@ export default function AdminSettingsHub() {
                 <button onClick={shareOnWhatsApp} className="flex-1 py-5 bg-[#25D366] text-white rounded-[22px] font-black uppercase text-[10px] italic hover:scale-[1.02] transition-all">Share WhatsApp</button>
               </div>
             </div>
-            
+
             <div className="bg-white p-10 rounded-[45px] shadow-xl border border-slate-100 flex flex-col items-center justify-center gap-8">
               <div ref={qrContainerRef} className="p-6 bg-white rounded-[35px] border-4 border-amber-500 shadow-sm">
                 {userUrl && <QRCodeSVG value={userUrl} size={150} fgColor="#000000" level="H" />}
@@ -390,25 +390,25 @@ export default function AdminSettingsHub() {
                   ))}
                 </div>
               </div>
-              
+
               <div className="lg:col-span-3">
                 <h4 className="text-[10px] font-black uppercase text-slate-400 mb-6 tracking-widest italic border-b-2 border-amber-500 pb-2 inline-block">Blocare Sloturi (Ajustare la {bookingInterval} min)</h4>
                 <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3">
                   {dynamicTimeSlots.map(slot => {
                     const isReserved = existingBookings.includes(slot);
                     const isBlocked = (manualBlocks[selectedDate] || []).includes(slot);
-                    
+
                     return (
-                      <button 
-                        key={slot} 
+                      <button
+                        key={slot}
                         disabled={isReserved}
-                        onClick={() => toggleHourBlock(slot)} 
+                        onClick={() => toggleHourBlock(slot)}
                         title={isReserved ? "Rezervare Activă (Nu poate fi blocat)" : isBlocked ? "Slot blocat (Indisponibil)" : `Apasă pentru a bloca slotul`}
                         className={`py-5 rounded-[22px] font-black text-xs border-2 transition-all italic relative ${
-                          isReserved 
-                          ? 'bg-amber-100 border-amber-200 text-amber-600 opacity-50 cursor-not-allowed' 
-                          : isBlocked 
-                            ? 'bg-slate-900 text-white border-slate-900 scale-95 shadow-lg' 
+                          isReserved
+                          ? 'bg-amber-100 border-amber-200 text-amber-600 opacity-50 cursor-not-allowed'
+                          : isBlocked
+                            ? 'bg-slate-900 text-white border-slate-900 scale-95 shadow-lg'
                             : 'bg-white border-slate-100 text-slate-900 hover:border-amber-500'
                         }`}
                       >
@@ -421,8 +421,8 @@ export default function AdminSettingsHub() {
             </div>
 
             <div className="mt-16 text-center border-t-2 border-slate-50 pt-10">
-              <button 
-                onClick={handleCloseModal} 
+              <button
+                onClick={handleCloseModal}
                 className="px-24 py-7 bg-amber-500 text-black rounded-[35px] font-black text-[14px] uppercase italic tracking-widest shadow-2xl hover:bg-amber-400 transition-all transform hover:scale-105"
               >
                 SALVEAZĂ PROGRAMUL

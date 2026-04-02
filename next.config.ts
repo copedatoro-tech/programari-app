@@ -16,9 +16,7 @@ const nextConfig: NextConfig = {
   },
   reactStrictMode: true,
   // Dezactivăm verificarea de ESLint la build pentru a trece mai repede peste erori minore
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
+  // Notă: Cheia 'eslint' a fost eliminată deoarece nu mai este suportată în next.config.ts în Next.js 16+
   typescript: {
     ignoreBuildErrors: true,
   }

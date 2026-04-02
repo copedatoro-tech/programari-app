@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, Suspense, useCallback, useMemo, useRef } from "react";
-import { useSearchParams } from "next/navigation";
+import { useParams } from "next/navigation";
 import { createBrowserClient } from "@supabase/ssr";
 import Image from "next/image";
 
@@ -9,16 +9,19 @@ interface StaffRow { id: string; name: string; services: string[]; }
 interface ServiceRow { id: string; name: string; price: number; duration: number; }
 
 function RezervareContent() {
-  const searchParams = useSearchParams();
-  const rawAdminId = searchParams.get("id") || searchParams.get("s");
-  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-  const [adminId, setAdminId] = useState<string>("ed9cd915-6684-422c-a214-4ac5c25e98f3");
-  const [adminIdReady, setAdminIdReady] = useState(false); // ✅ Flag că adminId e rezolvat
+  const params = useParams();
+  const rawSlug = params?.slug as string | undefined;
 
-  const supabase = useMemo(() => createBrowserClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  ), []);
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+  const [adminId, setAdminId] = useState<string>("");
+  const [adminIdReady, setAdminIdReady] = useState(false);
+
+  const supabase = useMemo(() =>
+    createBrowserClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    ),
+  []);
 
   const fetchAdminIdBySlug = useCallback(async (slug: string) => {
     try {
@@ -27,24 +30,24 @@ function RezervareContent() {
     } catch { return null; }
   }, [supabase]);
 
+  // Rezolvă slug/UUID → adminId
   useEffect(() => {
     async function init() {
-      if (!rawAdminId) {
-        // Niciun param în URL — folosim default-ul hardcodat
+      if (!rawSlug) {
         setAdminIdReady(true);
         return;
       }
-      if (uuidRegex.test(rawAdminId)) {
-        setAdminId(rawAdminId);
+      if (uuidRegex.test(rawSlug)) {
+        setAdminId(rawSlug);
         setAdminIdReady(true);
       } else {
-        const id = await fetchAdminIdBySlug(rawAdminId);
+        const id = await fetchAdminIdBySlug(rawSlug);
         if (id) setAdminId(id);
-        setAdminIdReady(true); // ✅ Mereu marcăm ready, chiar dacă slug-ul nu există
+        setAdminIdReady(true);
       }
     }
     init();
-  }, [rawAdminId, fetchAdminIdBySlug]);
+  }, [rawSlug, fetchAdminIdBySlug]);
 
   const [trimis, setTrimis] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -76,7 +79,6 @@ function RezervareContent() {
   const feedbackSuccessRef = useRef<HTMLDivElement>(null);
   const dateInputRef = useRef<HTMLInputElement>(null);
 
-  // ✅ Fetch config doar după ce adminId e rezolvat
   const fetchAdminConfig = useCallback(async () => {
     if (!adminId || !adminIdReady) { setFetchingConfig(false); return; }
     setFetchingConfig(true);
@@ -140,8 +142,6 @@ function RezervareContent() {
 
   const trimiteRezervare = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    // ✅ Validare adminId înainte de insert
     if (!adminId || !uuidRegex.test(adminId)) {
       alert("Eroare: ID salon invalid. Verifică link-ul de rezervare.");
       return;
@@ -169,16 +169,12 @@ function RezervareContent() {
         }
       };
 
-      // ✅ Log payload pentru debug (elimină în producție)
-      console.log("📦 Payload rezervare:", JSON.stringify(payload, null, 2));
-
       const { error } = await supabase.from("appointments").insert([payload]);
 
       if (!error) {
         setTrimis(true);
         window.scrollTo({ top: 0, behavior: "smooth" });
       } else {
-        // ✅ Afișăm eroarea exactă din Supabase
         console.error("❌ Eroare Supabase:", error);
         alert(`Eroare Supabase:\n${error.message}\n\nCod: ${error.code}\nDetalii: ${error.details || "—"}`);
       }
@@ -214,6 +210,15 @@ function RezervareContent() {
     finally { setIncarcareFeedback(false); }
   };
 
+  // Slug inexistent / link invalid
+  if (adminIdReady && !adminId) return (
+    <div className="min-h-screen flex flex-col items-center justify-center bg-slate-900 text-center p-8">
+      <div className="text-6xl mb-6">❌</div>
+      <h2 className="text-white font-black uppercase italic text-2xl mb-4">Link Invalid</h2>
+      <p className="text-slate-400 font-bold">Acest link de rezervare nu există sau a expirat.</p>
+    </div>
+  );
+
   if (fetchingConfig) return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-slate-900">
       <div className="w-16 h-16 border-4 border-amber-500 border-t-transparent rounded-full animate-spin mb-4"></div>
@@ -229,13 +234,6 @@ function RezervareContent() {
         .scrollbar-hide::-webkit-scrollbar { display: none; }
         .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
       `}</style>
-
-      {/* ✅ Banner debug adminId — vizibil doar în development */}
-      {process.env.NODE_ENV === "development" && (
-        <div className="w-full max-w-2xl mb-4 bg-slate-800 text-amber-400 text-[10px] font-black uppercase italic px-6 py-3 rounded-2xl tracking-widest">
-          🔧 DEBUG: adminId = {adminId} | adminIdReady = {adminIdReady ? "✅" : "⏳"} | servicii = {servicii.length} | staff = {specialisti.length}
-        </div>
-      )}
 
       {trimis ? (
         <div className="w-full max-w-2xl bg-white rounded-[55px] p-20 text-center shadow-2xl border-t-8 border-amber-500">
