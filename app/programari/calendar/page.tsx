@@ -114,12 +114,13 @@ function CalendarContent() {
       if (appts) {
         setProgramari(appts.map((item: any) => ({
           id: item.id,
-          nume: item.title || "Client",
+          // Folosim 'prenume' sau 'nume' conform structurii din Supabase
+          nume: item.prenume || item.nume || "Client",
           email: item.email,
-          data: item.date || "",
-          ora: item.time,
-          telefon: item.phone,
-          motiv: item.details,
+          data: item.date || item.data || "",
+          ora: item.time || item.ora || "",
+          telefon: item.phone || item.telefon || "",
+          motiv: item.details || item.motiv || "",
           poza: item.poza,
           expertId: item.angajat_id || "",
           serviciuId: item.serviciu_id || ""
@@ -174,8 +175,9 @@ function CalendarContent() {
   const handleUpdate = async () => {
     if (!editForm) return;
 
+    // Actualizat pentru a folosi numele corecte ale coloanelor din baza de date
     const { error } = await supabase.from('appointments').update({
-      title: editForm.nume,
+      prenume: editForm.nume, // Mapat la prenume conform screenshot-ului bazei de date
       email: editForm.email,
       date: editForm.data,
       time: editForm.ora,
@@ -288,33 +290,33 @@ function CalendarContent() {
             <div className="pt-16 p-10 space-y-6 max-h-[75vh] overflow-y-auto scrollbar-hide">
               <div className="mb-2">
                 <p className="text-amber-600 font-black text-[10px] uppercase italic tracking-widest mb-1">Editează Client</p>
-                <input type="text" className="text-2xl font-black uppercase italic tracking-tighter text-slate-900 leading-none w-full bg-slate-50 p-3 rounded-2xl outline-none focus:ring-2 ring-amber-500"
+                <input type="text" title="Nume Client" className="text-2xl font-black uppercase italic tracking-tighter text-slate-900 leading-none w-full bg-slate-50 p-3 rounded-2xl outline-none focus:ring-2 ring-amber-500"
                   value={editForm.nume} onChange={e => setEditForm({ ...editForm, nume: e.target.value })} />
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="bg-slate-50 p-4 rounded-3xl border border-slate-100">
                   <p className="text-[8px] font-black text-slate-400 uppercase italic mb-1">Data</p>
-                  <input type="date" className="w-full bg-transparent font-black text-xs text-slate-700 outline-none" value={editForm.data} onChange={e => setEditForm({ ...editForm, data: e.target.value })} />
+                  <input type="date" title="Selectează Data" className="w-full bg-transparent font-black text-xs text-slate-700 outline-none" value={editForm.data} onChange={e => setEditForm({ ...editForm, data: e.target.value })} />
                 </div>
                 <div className="bg-slate-50 p-4 rounded-3xl border border-slate-100">
                   <p className="text-[8px] font-black text-slate-400 uppercase italic mb-1">Ora</p>
-                  <input type="time" className="w-full bg-transparent font-black text-xs text-slate-700 outline-none" value={editForm.ora} onChange={e => setEditForm({ ...editForm, ora: e.target.value })} />
+                  <input type="time" title="Selectează Ora" className="w-full bg-transparent font-black text-xs text-slate-700 outline-none" value={editForm.ora} onChange={e => setEditForm({ ...editForm, ora: e.target.value })} />
                 </div>
                 <div className="bg-slate-50 p-4 rounded-3xl border border-slate-100">
                   <p className="text-[8px] font-black text-slate-400 uppercase italic mb-1">Telefon</p>
-                  <input type="text" className="w-full bg-transparent font-black text-xs text-slate-700 outline-none" value={editForm.telefon || ""} onChange={e => setEditForm({ ...editForm, telefon: e.target.value })} />
+                  <input type="text" title="Număr Telefon" className="w-full bg-transparent font-black text-xs text-slate-700 outline-none" value={editForm.telefon || ""} onChange={e => setEditForm({ ...editForm, telefon: e.target.value })} />
                 </div>
                 <div className="bg-slate-50 p-4 rounded-3xl border border-slate-100">
                   <p className="text-[8px] font-black text-slate-400 uppercase italic mb-1">Email</p>
-                  <input type="email" className="w-full bg-transparent font-black text-xs text-slate-700 outline-none" value={editForm.email || ""} onChange={e => setEditForm({ ...editForm, email: e.target.value })} />
+                  <input type="email" title="Adresă Email" className="w-full bg-transparent font-black text-xs text-slate-700 outline-none" value={editForm.email || ""} onChange={e => setEditForm({ ...editForm, email: e.target.value })} />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="bg-slate-50 p-4 rounded-3xl border border-slate-100">
                   <p className="text-[8px] font-black text-slate-400 uppercase italic mb-1">Specialist</p>
-                  <select className="w-full bg-transparent font-black text-xs text-slate-700 outline-none cursor-pointer" 
+                  <select title="Alege Specialist" className="w-full bg-transparent font-black text-xs text-slate-700 outline-none cursor-pointer" 
                     value={editForm.expertId || ""} 
                     onChange={e => setEditForm({ ...editForm, expertId: e.target.value })}>
                     <option value="">Alege Specialist...</option>
@@ -323,26 +325,26 @@ function CalendarContent() {
                 </div>
                 <div className="bg-slate-50 p-4 rounded-3xl border border-slate-100">
                   <p className="text-[8px] font-black text-slate-400 uppercase italic mb-1">Serviciu</p>
-                  <select className="w-full bg-transparent font-black text-xs text-slate-700 outline-none cursor-pointer" 
+                  <select title="Alege Serviciu" className="w-full bg-transparent font-black text-xs text-slate-700 outline-none cursor-pointer" 
                     value={editForm.serviciuId || ""} 
                     onChange={e => setEditForm({ ...editForm, serviciuId: e.target.value })}>
                     <option value="">Alege Serviciu...</option>
-                    {serviciiFiltrate.map(s => <option key={s.id} value={s.id}>{s.nume_serviciu}</option>)}
+                    {serviciiFiltrate.map(s => <option key={s.id} value={s.id}>{s.nume_serviciu?.toUpperCase()}</option>)}
                   </select>
                 </div>
               </div>
 
               <div className="bg-slate-900 p-6 rounded-[35px] text-white">
                 <p className="text-[8px] font-black text-amber-500 uppercase italic mb-2">Notițe / Motiv</p>
-                <textarea className="w-full bg-transparent text-xs font-medium italic opacity-90 outline-none resize-none" rows={2} 
+                <textarea title="Observații programare" className="w-full bg-transparent text-xs font-medium italic opacity-90 outline-none resize-none" rows={2} 
                   value={editForm.motiv || ""} onChange={e => setEditForm({ ...editForm, motiv: e.target.value })} placeholder="Fără observații." />
               </div>
 
               <div className="space-y-3">
                 <p className="text-[10px] font-black text-green-600 uppercase italic tracking-widest">💬 Notificare WhatsApp</p>
-                <textarea className="w-full bg-slate-50 border border-green-100 rounded-2xl p-4 text-[11px] font-bold text-slate-700 outline-none italic" rows={2}
+                <textarea title="Previzualizare mesaj WhatsApp" className="w-full bg-slate-50 border border-green-100 rounded-2xl p-4 text-[11px] font-bold text-slate-700 outline-none italic" rows={2}
                   value={customMessage} onChange={e => setCustomMessage(e.target.value)} />
-                <button onClick={sendWhatsAppReminder}
+                <button title="Trimite reminder către client" onClick={sendWhatsAppReminder}
                   className={`w-full py-4 rounded-2xl text-[10px] font-black uppercase italic transition shadow-lg ${userSubscription?.plan === 'chronos free' ? 'bg-slate-300 cursor-not-allowed text-slate-500' : 'bg-green-600 text-white hover:bg-green-700 active:scale-95'}`}>
                   Trimite pe WhatsApp
                 </button>
@@ -350,10 +352,10 @@ function CalendarContent() {
 
               <div className="flex flex-col gap-3 pt-2">
                 <div className="flex gap-3">
-                  <button onClick={handleCloseModal} className="flex-1 py-4 bg-slate-100 text-slate-600 rounded-[22px] font-black uppercase text-[10px] italic active:scale-95">Anulează</button>
-                  <button onClick={handleUpdate} className="flex-[2] py-4 bg-amber-600 text-white rounded-[22px] font-black shadow-lg uppercase text-[10px] italic hover:bg-slate-900 transition active:scale-95">Salvează Modificări</button>
+                  <button title="Anulează editarea" onClick={handleCloseModal} className="flex-1 py-4 bg-slate-100 text-slate-600 rounded-[22px] font-black uppercase text-[10px] italic active:scale-95">Anulează</button>
+                  <button title="Salvează datele în baza de date" onClick={handleUpdate} className="flex-[2] py-4 bg-amber-600 text-white rounded-[22px] font-black shadow-lg uppercase text-[10px] italic hover:bg-slate-900 transition active:scale-95">Salvează Modificări</button>
                 </div>
-                <button onClick={handleDelete} className="w-full py-4 bg-red-50 text-red-500 rounded-[22px] font-black uppercase text-[10px] italic hover:bg-red-500 hover:text-white transition-all active:scale-95">Elimină Programarea 🗑️</button>
+                <button title="Șterge definitiv programarea" onClick={handleDelete} className="w-full py-4 bg-red-50 text-red-500 rounded-[22px] font-black uppercase text-[10px] italic hover:bg-red-500 hover:text-white transition-all active:scale-95">Elimină Programarea 🗑️</button>
               </div>
             </div>
           </div>
@@ -371,25 +373,25 @@ function CalendarContent() {
           </div>
           <div className="flex-1 max-w-2xl w-full relative">
             <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-xs">🔍</span>
-            <input type="text" placeholder="Caută Client sau Telefon..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)}
+            <input type="text" title="Caută în calendar" placeholder="Caută Client sau Telefon..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)}
               className="w-full bg-slate-50 border-2 border-slate-100 rounded-[25px] py-4 pl-12 pr-4 text-xs font-black text-slate-700 outline-none focus:border-amber-500 transition-all italic shadow-inner" />
           </div>
-          <Link href="/programari" className="px-8 py-4 rounded-[22px] text-[10px] font-black uppercase italic shadow-lg transition-all active:scale-95 bg-amber-500 text-white hover:bg-amber-600">Înapoi la Programări</Link>
+          <Link title="Mergi la lista de programări" href="/programari" className="px-8 py-4 rounded-[22px] text-[10px] font-black uppercase italic shadow-lg transition-all active:scale-95 bg-amber-500 text-white hover:bg-amber-600">Înapoi la Programări</Link>
         </div>
 
         <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-slate-50">
           <div>
-            <p className="text-[9px] font-black text-slate-400 uppercase italic mb-1 ml-4">Filtrează după Specialist {selectedExpert && <button onClick={() => setSelectedExpert("")} className="ml-2 text-amber-600">✕</button>}</p>
-            <select value={selectedExpert} onChange={e => handleExpertChange(e.target.value)} className="w-full bg-slate-50 border-2 border-slate-100 rounded-[35px] py-3 px-6 text-[11px] font-black text-slate-700 uppercase italic shadow-inner outline-none focus:border-amber-500 cursor-pointer appearance-none">
+            <p className="text-[9px] font-black text-slate-400 uppercase italic mb-1 ml-4">Filtrează după Specialist {selectedExpert && <button title="Resetează filtru" onClick={() => setSelectedExpert("")} className="ml-2 text-amber-600">✕</button>}</p>
+            <select title="Filtrează calendarul după expert" value={selectedExpert} onChange={e => handleExpertChange(e.target.value)} className="w-full bg-slate-50 border-2 border-slate-100 rounded-[35px] py-3 px-6 text-[11px] font-black text-slate-700 uppercase italic shadow-inner outline-none focus:border-amber-500 cursor-pointer appearance-none">
               <option value="">Toți Specialiștii</option>
               {rawStaff.map(exp => <option key={exp.id} value={exp.id}>{exp.name}</option>)}
             </select>
           </div>
           <div>
-            <p className="text-[9px] font-black text-slate-400 uppercase italic mb-1 ml-4">Filtrează după Serviciu {selectedServiciu && <button onClick={() => setSelectedServiciu("")} className="ml-2 text-amber-600">✕</button>}</p>
-            <select value={selectedServiciu} onChange={e => setSelectedServiciu(e.target.value)} className="w-full bg-amber-50 border-2 border-amber-100 rounded-[35px] py-3 px-6 text-[11px] font-black text-amber-700 uppercase italic shadow-inner outline-none focus:border-amber-500 cursor-pointer appearance-none">
+            <p className="text-[9px] font-black text-slate-400 uppercase italic mb-1 ml-4">Filtrează după Serviciu {selectedServiciu && <button title="Resetează filtru" onClick={() => setSelectedServiciu("")} className="ml-2 text-amber-600">✕</button>}</p>
+            <select title="Filtrează calendarul după serviciu" value={selectedServiciu} onChange={e => setSelectedServiciu(e.target.value)} className="w-full bg-amber-50 border-2 border-amber-100 rounded-[35px] py-3 px-6 text-[11px] font-black text-amber-700 uppercase italic shadow-inner outline-none focus:border-amber-500 cursor-pointer appearance-none">
               <option value="">Toate Serviciile</option>
-              {rawServices.map(ser => <option key={ser.id} value={ser.id}>{ser.nume_serviciu}</option>)}
+              {rawServices.map(ser => <option key={ser.id} value={ser.id}>{ser.nume_serviciu?.toUpperCase()}</option>)}
             </select>
           </div>
         </div>
@@ -399,9 +401,9 @@ function CalendarContent() {
         <div className="p-4 md:p-8 border-b border-slate-100 flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-4">
             <div className="flex bg-slate-100 p-2 rounded-[22px]">
-              <button onClick={() => nav(-1)} className="p-3 hover:bg-white rounded-xl transition-colors">◀</button>
-              <button onClick={() => setSelectedDate(new Date())} className="px-5 text-[10px] font-black uppercase text-slate-500 italic hover:text-amber-600 transition-colors">Azi</button>
-              <button onClick={() => nav(1)} className="p-3 hover:bg-white rounded-xl transition-colors">▶</button>
+              <button title="Pagina anterioară" onClick={() => nav(-1)} className="p-3 hover:bg-white rounded-xl transition-colors">◀</button>
+              <button title="Sari la data de azi" onClick={() => setSelectedDate(new Date())} className="px-5 text-[10px] font-black uppercase text-slate-500 italic hover:text-amber-600 transition-colors">Azi</button>
+              <button title="Pagina următoare" onClick={() => nav(1)} className="p-3 hover:bg-white rounded-xl transition-colors">▶</button>
             </div>
             <h2 className="text-xl md:text-2xl font-black text-slate-900 uppercase italic tracking-tighter">
               {viewMode === "day" && `${dayNamesLong[selectedDate.getDay()]}, `} {monthNames[selectedDate.getMonth()]} <span className="text-amber-600">{selectedDate.getFullYear()}</span>
@@ -409,7 +411,7 @@ function CalendarContent() {
           </div>
           <div className="flex bg-slate-100 p-2 rounded-[22px]">
             {(["day", "week", "month"] as ViewMode[]).map(opt => (
-              <button key={opt} onClick={() => setViewMode(opt)} className={`px-6 py-3 rounded-[18px] text-[10px] font-black uppercase transition-all ${viewMode === opt ? "bg-slate-900 text-white shadow-xl italic" : "text-slate-400 hover:text-slate-600"}`}>
+              <button title={`Schimbă vizualizarea la ${opt}`} key={opt} onClick={() => setViewMode(opt)} className={`px-6 py-3 rounded-[18px] text-[10px] font-black uppercase transition-all ${viewMode === opt ? "bg-slate-900 text-white shadow-xl italic" : "text-slate-400 hover:text-slate-600"}`}>
                 {opt === "day" ? "Zi" : opt === "week" ? "Săpt" : "Lună"}
               </button>
             ))}
@@ -425,7 +427,7 @@ function CalendarContent() {
                 const list = programariByDate[key] || [];
                 const isCurrentMonth = day.getMonth() === selectedDate.getMonth();
                 return (
-                  <div key={idx} onClick={() => goToDay(day)} className={`min-h-[140px] p-3 flex flex-col items-start hover:bg-amber-50/30 cursor-pointer border-r border-b border-slate-100 transition-colors ${isCurrentMonth ? "bg-white" : "bg-slate-50 opacity-40"}`}>
+                  <div key={idx} title={`Vezi programările pentru ${day.getDate()}`} onClick={() => goToDay(day)} className={`min-h-[140px] p-3 flex flex-col items-start hover:bg-amber-50/30 cursor-pointer border-r border-b border-slate-100 transition-colors ${isCurrentMonth ? "bg-white" : "bg-slate-50 opacity-40"}`}>
                     <span className={`text-[11px] font-black mb-3 px-3 py-1.5 rounded-[12px] ${sameDay(day, new Date()) ? "text-white bg-amber-600" : "text-slate-400"}`}>{day.getDate()}</span>
                     <div className="w-full space-y-1.5">
                       {list.slice(0, 3).map(p => <AppointmentChip key={p.id} p={p} />)}
@@ -453,7 +455,7 @@ function CalendarContent() {
                         list.sort((a, b) => a.ora.localeCompare(b.ora)).map(p => {
                           const expName = rawStaff.find(a => a.id === p.expertId)?.name || 'General';
                           return (
-                            <button key={p.id} onClick={() => handleOpenEdit(p)} className="w-full p-3 bg-slate-900 text-white rounded-2xl text-left hover:bg-amber-600 transition-all active:scale-95 shadow-sm border border-slate-700 group">
+                            <button title={`Editează programarea lui ${p.nume}`} key={p.id} onClick={() => handleOpenEdit(p)} className="w-full p-3 bg-slate-900 text-white rounded-2xl text-left hover:bg-amber-600 transition-all active:scale-95 shadow-sm border border-slate-700 group">
                               <p className="text-[10px] font-black italic text-amber-500 group-hover:text-white transition-colors">{p.ora}</p>
                               <p className="text-[11px] font-black uppercase truncate italic">{p.nume}</p>
                               <p className="text-[8px] font-bold text-slate-400 group-hover:text-amber-100 truncate italic">{expName}</p>
@@ -478,7 +480,7 @@ function CalendarContent() {
                     const expName = rawStaff.find(a => a.id === p.expertId)?.name || 'General';
                     const srvName = rawServices.find(s => s.id === p.serviciuId)?.nume_serviciu || 'Procedură';
                     return (
-                      <button key={p.id} onClick={() => handleOpenEdit(p)} className="w-full flex items-center gap-8 p-8 bg-white border-2 border-slate-100 rounded-[35px] hover:border-amber-500 shadow-sm transition-all text-left group active:scale-[0.98]">
+                      <button title="Vezi detalii complete" key={p.id} onClick={() => handleOpenEdit(p)} className="w-full flex items-center gap-8 p-8 bg-white border-2 border-slate-100 rounded-[35px] hover:border-amber-500 shadow-sm transition-all text-left group active:scale-[0.98]">
                         <span className="text-3xl font-black text-slate-900 italic w-24 group-hover:text-amber-600 transition-colors">{p.ora}</span>
                         <div className="flex flex-col flex-1">
                           <span className="text-slate-900 font-black text-2xl uppercase italic group-hover:text-amber-600 transition-colors">{p.nume}</span>
