@@ -1,10 +1,12 @@
 "use client";
 
-import React, { useState, useEffect, useMemo, Suspense, useCallback } from "react";
+import React, { useState, useEffect, useMemo, Suspense, useCallback, useRef } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 
+// --- Utilități Dată ---
 function sameDay(a: Date, b: Date) {
   return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
 }
@@ -27,13 +29,16 @@ const dayNamesShort = ["Lun", "Mar", "Mie", "Joi", "Vin", "Sâm", "Dum"];
 const dayNamesLong = ["Duminică", "Luni", "Marți", "Miercuri", "Joi", "Vineri", "Sâmbătă"];
 const monthNames = ["Ianuarie", "Februarie", "Martie", "Aprilie", "Mai", "Iunie", "Iulie", "August", "Septembrie", "Octombrie", "Noiembrie", "Decembrie"];
 
+// --- Tipuri ---
 type Programare = {
   id: any;
   nume: string;
+  email?: string;
   data: string;
   ora: string;
   telefon?: string;
   motiv?: string;
+  poza?: string;
   user_id?: string;
   expert?: string;
   serviciu?: string;
@@ -44,11 +49,12 @@ type ViewMode = "day" | "week" | "month";
 type Subscription = { plan: 'free' | 'pro' | 'business'; max_appointments: number; max_experts: number; is_trial?: boolean; };
 
 interface StaffRow { id: string; name: string; services: string[]; }
-interface ServiceRow { id: string; name: string; price: number; duration: number; }
+interface ServiceRow { id: string; nume_serviciu: string; price: number; duration: number; }
 
 function CalendarContent() {
   const searchParams = useSearchParams();
   const isDemo = searchParams.get("demo") === "true";
+  const modalRef = useRef<HTMLDivElement>(null);
 
   const [programari, setProgramari] = useState<Programare[]>([]);
   const [rawStaff, setRawStaff] = useState<StaffRow[]>([]);
@@ -74,7 +80,6 @@ function CalendarContent() {
       const userId = session?.user?.id;
 
       if (userId) {
-        // FIX: folosim trial_started_at din profiles pentru consistență
         const { data: profileData } = await supabase
           .from('profiles')
           .select('plan_type, trial_started_at')
@@ -84,38 +89,20 @@ function CalendarContent() {
         if (profileData) {
           const rawPlan = (profileData.plan_type || 'free').toLowerCase();
           let planFinal = rawPlan;
-
-          // FIX: detectăm trial din trial_started_at, nu din alte câmpuri
           if (profileData.trial_started_at) {
             const start = new Date(profileData.trial_started_at).getTime();
             const acum = new Date().getTime();
-            const zeceZileInMs = 10 * 24 * 60 * 60 * 1000;
-            if (acum - start < zeceZileInMs) {
-              planFinal = 'chronos team';
-            }
+            if (acum - start < 10 * 24 * 60 * 60 * 1000) planFinal = 'chronos team';
           }
-
           setUserSubscription({
             plan: planFinal as any,
-            max_appointments: planFinal === 'chronos free' ? 50 : planFinal === 'chronos pro' ? 500 : 9999,
-            max_experts: planFinal === 'chronos free' ? 2 : 20,
-            is_trial: !!profileData.trial_started_at
+            max_appointments: planFinal === 'chronos free' ? 50 : 500,
+            max_experts: planFinal === 'chronos free' ? 2 : 20
           });
         }
 
-        // FIX: adăugat .eq('user_id', userId) la staff și services
-        const { data: staffData } = await supabase
-          .from('staff')
-          .select('*')
-          .eq('user_id', userId)
-          .order('created_at', { ascending: false });
-
-        const { data: servicesData } = await supabase
-          .from('services')
-          .select('*')
-          .eq('user_id', userId)
-          .order('created_at', { ascending: false });
-
+        const { data: staffData } = await supabase.from('staff').select('*').eq('user_id', userId);
+        const { data: servicesData } = await supabase.from('services').select('*').eq('user_id', userId);
         if (staffData) setRawStaff(staffData);
         if (servicesData) setRawServices(servicesData);
       }
@@ -125,149 +112,111 @@ function CalendarContent() {
       const { data: appts } = await apptsQuery;
 
       if (appts) {
-        const formatted: Programare[] = appts.map((item: any) => ({
+        setProgramari(appts.map((item: any) => ({
           id: item.id,
           nume: item.title || "Client",
-          data: item.date,
+          email: item.email,
+          data: item.date || "",
           ora: item.time,
           telefon: item.phone,
           motiv: item.details,
-          user_id: item.user_id,
-          // FIX: păstrăm atât numele cât și ID-urile pentru matching robust
-          expert: item.expert || "Nespecificat",
-          expertId: item.angajat_id || item.notifications?.angajat_id || "",
-          serviciu: item.details || "Nespecificat",
-          serviciuId: item.serviciu_id || item.notifications?.serviciu_id || "",
-        }));
-        setProgramari(formatted);
+          poza: item.poza,
+          expertId: item.angajat_id || "",
+          serviciuId: item.serviciu_id || ""
+        })));
       }
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
+    } catch (err) { console.error(err); }
+    finally { setLoading(false); }
   }, [isDemo]);
 
-  useEffect(() => {
-    fetchInitialData();
-  }, [fetchInitialData]);
+  useEffect(() => { fetchInitialData(); }, [fetchInitialData]);
 
   useEffect(() => {
     if (editForm) {
-      setCustomMessage(`Bună, ${editForm.nume}! Te așteptăm la programarea din ${editForm.data}, ora ${editForm.ora}${editForm.serviciu ? ` pentru ${editForm.serviciu}` : ""}. O zi bună!`);
+      const srvName = rawServices.find(s => s.id === editForm.serviciuId)?.nume_serviciu;
+      setCustomMessage(`Bună, ${editForm.nume}! Te așteptăm la programarea din ${editForm.data}, ora ${editForm.ora}${srvName ? ` pentru ${srvName}` : ""}. O zi bună!`);
     }
+  }, [editForm, rawServices]);
+
+  // Click outside modal logic
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (modalRef.current && !modalRef.current.contains(event.target as Node)) {
+        handleCloseModal();
+      }
+    }
+    if (editForm) document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [editForm]);
 
-  useEffect(() => {
-    if (searchTerm.trim() !== "" || selectedExpert !== "" || selectedServiciu !== "") setViewMode("day");
-  }, [searchTerm, selectedExpert, selectedServiciu]);
+  // Filtrare angajati bazat pe serviciu
+  const angajatiFiltrati = useMemo(() => {
+    if (!editForm?.serviciuId) return rawStaff;
+    return rawStaff.filter(a => a.services?.includes(editForm.serviciuId!));
+  }, [editForm?.serviciuId, rawStaff]);
 
-  // FIX: filtrarea serviciilor pentru header ține cont de expert selectat
-  const filteredServicesForHeader = useMemo(() => {
-    if (!selectedExpert) return rawServices;
-    const expert = rawStaff.find(e => e.name === selectedExpert || e.id === selectedExpert);
-    if (!expert?.services?.length) return rawServices;
-    return rawServices.filter(s => expert.services.includes(s.id));
-  }, [selectedExpert, rawStaff, rawServices]);
+  // Filtrare servicii bazat pe angajat
+  const serviciiFiltrate = useMemo(() => {
+    if (!editForm?.expertId) return rawServices;
+    const angajat = rawStaff.find(a => a.id === editForm.expertId);
+    if (!angajat) return rawServices;
+    return rawServices.filter(s => angajat.services?.includes(s.id));
+  }, [editForm?.expertId, rawStaff, rawServices]);
 
-  // FIX: filtrarea experților pentru header ține cont de serviciu selectat
-  const filteredExpertsForHeader = useMemo(() => {
-    if (!selectedServiciu) return rawStaff;
-    const serviciu = rawServices.find(s => s.name === selectedServiciu || s.id === selectedServiciu);
-    if (!serviciu) return rawStaff;
-    return rawStaff.filter(e => e.services?.includes(serviciu.id));
-  }, [selectedServiciu, rawStaff, rawServices]);
-
-  const filteredServicesForModal = useMemo(() => {
-    if (!editForm?.expert || editForm.expert === "Nespecificat") return rawServices;
-    const expert = rawStaff.find(e => e.name === editForm.expert || e.id === editForm.expertId);
-    if (!expert?.services?.length) return rawServices;
-    return rawServices.filter(s => expert.services.includes(s.id));
-  }, [editForm?.expert, editForm?.expertId, rawStaff, rawServices]);
-
-  const filteredExpertsForModal = useMemo(() => {
-    if (!editForm?.serviciu || editForm.serviciu === "Nespecificat") return rawStaff;
-    const serviciu = rawServices.find(s => s.name === editForm.serviciu || s.id === editForm.serviciuId);
-    if (!serviciu) return rawStaff;
-    return rawStaff.filter(e => e.services?.includes(serviciu.id));
-  }, [editForm?.serviciu, editForm?.serviciuId, rawStaff, rawServices]);
+  const handleExpertChange = (val: string) => {
+    setSelectedExpert(val);
+    setSelectedServiciu(""); 
+  };
 
   const handleOpenEdit = (p: Programare) => setEditForm({ ...p });
   const handleCloseModal = () => setEditForm(null);
 
   const handleUpdate = async () => {
     if (!editForm) return;
-    const updateData: any = {
+
+    const { error } = await supabase.from('appointments').update({
       title: editForm.nume,
+      email: editForm.email,
       date: editForm.data,
       time: editForm.ora,
       phone: editForm.telefon,
-      details: editForm.serviciu
-    };
+      details: editForm.motiv,
+      angajat_id: editForm.expertId,
+      serviciu_id: editForm.serviciuId,
+      poza: editForm.poza
+    }).eq('id', editForm.id);
 
-    if (editForm.expert) updateData.expert = editForm.expert;
-
-    const { error } = await supabase.from('appointments').update(updateData).eq('id', editForm.id);
-
-    if (error) {
-      alert(`Eroare: ${error.message}`);
-      return;
-    }
+    if (error) return alert(error.message);
     setProgramari(prev => prev.map(p => p.id === editForm.id ? editForm : p));
     handleCloseModal();
-    alert("✅ Programare actualizată!");
   };
 
   const handleDelete = async () => {
     if (!editForm || !confirm("Ștergi programarea?")) return;
-    const { error } = await supabase.from('appointments').delete().eq('id', editForm.id);
-    if (error) { alert(`Eroare: ${error.message}`); return; }
+    await supabase.from('appointments').delete().eq('id', editForm.id);
     setProgramari(prev => prev.filter(p => p.id !== editForm.id));
     handleCloseModal();
   };
 
   const sendWhatsAppReminder = () => {
-    if (userSubscription?.plan === 'chronos free') return alert("Necesită plan PRO sau superior.");
-    if (!editForm?.telefon) return alert("Lipsă telefon.");
-    const clean = editForm.telefon.replace(/\D/g, "");
-    const phone = clean.startsWith('0') ? '4' + clean : clean;
-    window.open(`https://wa.me/${phone}?text=${encodeURIComponent(customMessage)}`, '_blank');
+    if (userSubscription?.plan === 'chronos free') return alert("Necesită plan PRO.");
+    const clean = editForm?.telefon?.replace(/\D/g, "");
+    window.open(`https://wa.me/${clean?.startsWith('0') ? '4' + clean : clean}?text=${encodeURIComponent(customMessage)}`, '_blank');
   };
 
-  // FIX MAJOR: matching robust după name SAU după ID pentru expert și serviciu
   const filteredProgramari = useMemo(() => {
-    return programari
-      .filter(p => {
-        const matchSearch = !searchTerm ||
-          p.nume.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          (p.telefon && p.telefon.includes(searchTerm));
-
-        // FIX: matching după name direct SAU după name găsit prin ID
-        const expertNameDirect = p.expert?.trim().toLowerCase() || "";
-        const expertNameById = rawStaff.find(s => s.id === p.expertId)?.name?.trim().toLowerCase() || "";
-        const matchExpert = !selectedExpert ||
-          expertNameDirect === selectedExpert.trim().toLowerCase() ||
-          expertNameById === selectedExpert.trim().toLowerCase();
-
-        // FIX: serviciu poate fi în câmpul details ca "Serviciu: NumeServiciu | ..."
-        // sau direct ca name, sau matching prin ID
-        const serviciuNameDirect = p.serviciu?.trim().toLowerCase() || "";
-        const serviciuNameById = rawServices.find(s => s.id === p.serviciuId)?.name?.trim().toLowerCase() || "";
-        // extras din details format "Serviciu: X | ..."
-        const serviciuDinDetails = p.motiv?.match(/^Serviciu:\s*([^|]+)/i)?.[1]?.trim().toLowerCase() || "";
-        const matchServiciu = !selectedServiciu ||
-          serviciuNameDirect === selectedServiciu.trim().toLowerCase() ||
-          serviciuNameById === selectedServiciu.trim().toLowerCase() ||
-          serviciuDinDetails === selectedServiciu.trim().toLowerCase();
-
-        return matchSearch && matchExpert && matchServiciu;
-      })
-      .sort((a, b) => a.ora.localeCompare(b.ora));
-  }, [programari, searchTerm, selectedExpert, selectedServiciu, rawStaff, rawServices]);
+    return programari.filter(p => {
+      const matchSearch = !searchTerm || p.nume.toLowerCase().includes(searchTerm.toLowerCase()) || p.telefon?.includes(searchTerm);
+      const matchExpert = !selectedExpert || p.expertId === selectedExpert;
+      const matchServiciu = !selectedServiciu || p.serviciuId === selectedServiciu;
+      return matchSearch && matchExpert && matchServiciu;
+    }).sort((a, b) => a.ora.localeCompare(b.ora));
+  }, [programari, searchTerm, selectedExpert, selectedServiciu]);
 
   const programariByDate = useMemo(() => {
     const map: Record<string, Programare[]> = {};
     filteredProgramari.forEach(p => {
+      if (!p.data) return;
       const key = p.data.includes('T') ? p.data.split('T')[0] : p.data;
       if (!map[key]) map[key] = [];
       map[key].push(p);
@@ -283,7 +232,10 @@ function CalendarContent() {
     setSelectedDate(d);
   };
 
-  const goToDay = (date: Date) => { setSelectedDate(date); setViewMode("day"); };
+  const goToDay = (day: Date) => {
+    setSelectedDate(day);
+    setViewMode("day");
+  };
 
   const monthGrid = useMemo(() => {
     const year = selectedDate.getFullYear(), month = selectedDate.getMonth();
@@ -302,97 +254,106 @@ function CalendarContent() {
     return Array.from({ length: 7 }, (_, i) => addDays(start, i));
   }, [selectedDate]);
 
-  // FIX: handler pentru schimbarea expertului care resetează serviciul
-  const handleExpertChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelectedExpert(e.target.value);
-    setSelectedServiciu(""); // resetează serviciul când schimbi expertul
+  const AppointmentChip = ({ p }: { p: Programare }) => {
+    const expName = rawStaff.find(a => a.id === p.expertId)?.name || 'General';
+    const srvName = rawServices.find(s => s.id === p.serviciuId)?.nume_serviciu || 'Procedură';
+    
+    return (
+      <button 
+        title={`Expert: ${expName} | Serviciu: ${srvName}`}
+        onClick={e => { e.stopPropagation(); handleOpenEdit(p); }}
+        className="w-full text-left cursor-pointer bg-slate-900 text-white rounded-xl truncate font-black uppercase italic shadow-sm border border-slate-700 hover:bg-amber-600 hover:scale-[1.02] active:scale-95 transition-all text-[9px] px-2 py-1.5">
+        {p.ora} {p.nume}
+      </button>
+    );
   };
 
-  // FIX: handler pentru schimbarea serviciului care resetează expertul
-  const handleServiciuChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelectedServiciu(e.target.value);
-    setSelectedExpert(""); // resetează expertul când schimbi serviciul
-  };
-
-  const AppointmentChip = ({ p }: { p: Programare }) => (
-    <button
-      onClick={e => { e.stopPropagation(); handleOpenEdit(p); }}
-      title={`Expert: ${p.expert}\nServiciu: ${p.serviciu}`}
-      className="w-full text-left cursor-pointer bg-slate-900 text-white rounded-xl truncate font-black uppercase italic shadow-sm border border-slate-700 hover:bg-amber-600 hover:scale-[1.02] active:scale-95 transition-all text-[9px] px-2 py-1.5">
-      {p.ora} {p.nume}
-    </button>
-  );
-
-  if (loading) return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-50 font-black italic text-slate-400 uppercase animate-pulse">
-      Sincronizare Chronos...
-    </div>
-  );
+  if (loading) return <div className="min-h-screen flex items-center justify-center bg-slate-50 font-black italic text-slate-400 uppercase animate-pulse">Sincronizare Chronos...</div>;
 
   return (
     <main className="min-h-screen bg-slate-50 p-2 md:p-8 flex flex-col items-center font-sans">
       {editForm && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[150] flex items-center justify-center p-4" onClick={handleCloseModal}>
-          <div className="bg-white rounded-[40px] w-full max-w-lg shadow-2xl overflow-hidden border border-slate-200" onClick={e => e.stopPropagation()}>
-            <div className="bg-slate-900 p-8 text-white relative">
-              <button onClick={handleCloseModal} className="absolute top-6 right-6 text-slate-400 hover:text-white text-2xl font-black">×</button>
-              <h3 className="text-amber-500 font-black uppercase tracking-widest text-xs mb-2 italic">Gestionare Programare</h3>
-              <input type="text" className="bg-slate-800 text-white text-3xl font-black italic uppercase w-full border-b-2 border-amber-500 outline-none p-1 rounded-t-lg"
-                value={editForm.nume} onChange={e => setEditForm({ ...editForm, nume: e.target.value })} />
-            </div>
-            <div className="p-8 space-y-6 max-h-[70vh] overflow-y-auto bg-white">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="bg-slate-50 p-4 rounded-[25px] border-2 border-slate-100 shadow-inner">
-                  <p className="text-[10px] font-black text-slate-400 uppercase italic">Data</p>
-                  <input type="date" className="w-full bg-transparent font-bold text-slate-800 outline-none"
-                    value={editForm.data} onChange={e => setEditForm({ ...editForm, data: e.target.value })} />
-                </div>
-                <div className="bg-slate-50 p-4 rounded-[25px] border-2 border-slate-100 shadow-inner">
-                  <p className="text-[10px] font-black text-slate-400 uppercase italic">Ora</p>
-                  <input type="time" className="w-full bg-transparent font-bold text-slate-800 outline-none"
-                    value={editForm.ora} onChange={e => setEditForm({ ...editForm, ora: e.target.value })} />
+        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-[200] flex items-center justify-center p-4">
+          <div ref={modalRef} className="bg-white w-full max-w-lg rounded-[50px] overflow-hidden shadow-2xl border border-slate-100 relative animate-in fade-in zoom-in duration-200">
+            <button onClick={handleCloseModal} title="Închide detaliile" className="absolute top-8 right-8 w-10 h-10 bg-slate-50 rounded-2xl flex items-center justify-center font-black text-slate-400 hover:bg-red-50 hover:text-red-500 transition-all z-20 active:scale-90">✕</button>
+            
+            <div className="h-32 bg-slate-900 relative">
+              <div className="absolute -bottom-12 left-10 w-24 h-24 rounded-[30px] bg-white p-2 shadow-xl border border-slate-50">
+                <div className="w-full h-full rounded-[22px] bg-slate-50 overflow-hidden relative flex items-center justify-center">
+                  {editForm.poza ? <img src={editForm.poza} className="w-full h-full object-cover" /> : <Image src="/logo-chronos.png" alt="logo" fill sizes="80px" style={{ objectFit: 'contain', padding: '8px' }} />}
                 </div>
               </div>
+            </div>
+
+            <div className="pt-16 p-10 space-y-6 max-h-[75vh] overflow-y-auto scrollbar-hide">
+              <div className="mb-2">
+                <p className="text-amber-600 font-black text-[10px] uppercase italic tracking-widest mb-1">Editează Client</p>
+                <input type="text" className="text-2xl font-black uppercase italic tracking-tighter text-slate-900 leading-none w-full bg-slate-50 p-3 rounded-2xl outline-none focus:ring-2 ring-amber-500"
+                  value={editForm.nume} onChange={e => setEditForm({ ...editForm, nume: e.target.value })} />
+              </div>
+
               <div className="grid grid-cols-2 gap-4">
-                <div className="bg-slate-50 p-4 rounded-[25px] border-2 border-slate-100 shadow-inner">
-                  <p className="text-[10px] font-black text-slate-400 uppercase italic">Telefon</p>
-                  <input type="text" className="w-full bg-transparent font-bold text-slate-800 outline-none"
-                    value={editForm.telefon || ""} onChange={e => setEditForm({ ...editForm, telefon: e.target.value })} />
+                <div className="bg-slate-50 p-4 rounded-3xl border border-slate-100">
+                  <p className="text-[8px] font-black text-slate-400 uppercase italic mb-1">Data</p>
+                  <input type="date" className="w-full bg-transparent font-black text-xs text-slate-700 outline-none" value={editForm.data} onChange={e => setEditForm({ ...editForm, data: e.target.value })} />
                 </div>
-                <div className="bg-slate-50 p-4 rounded-[25px] border-2 border-slate-100 shadow-inner">
-                  <p className="text-[10px] font-black text-slate-400 uppercase italic">Expert</p>
-                  <select className="w-full bg-transparent font-bold text-slate-800 outline-none cursor-pointer"
-                    value={editForm.expert || ""}
-                    onChange={e => setEditForm({ ...editForm, expert: e.target.value, serviciu: "Nespecificat", serviciuId: "" })}>
-                    <option value="Nespecificat">Alege Expert...</option>
-                    {filteredExpertsForModal.map(exp => <option key={exp.id} value={exp.name}>{exp.name}</option>)}
+                <div className="bg-slate-50 p-4 rounded-3xl border border-slate-100">
+                  <p className="text-[8px] font-black text-slate-400 uppercase italic mb-1">Ora</p>
+                  <input type="time" className="w-full bg-transparent font-black text-xs text-slate-700 outline-none" value={editForm.ora} onChange={e => setEditForm({ ...editForm, ora: e.target.value })} />
+                </div>
+                <div className="bg-slate-50 p-4 rounded-3xl border border-slate-100">
+                  <p className="text-[8px] font-black text-slate-400 uppercase italic mb-1">Telefon</p>
+                  <input type="text" className="w-full bg-transparent font-black text-xs text-slate-700 outline-none" value={editForm.telefon || ""} onChange={e => setEditForm({ ...editForm, telefon: e.target.value })} />
+                </div>
+                <div className="bg-slate-50 p-4 rounded-3xl border border-slate-100">
+                  <p className="text-[8px] font-black text-slate-400 uppercase italic mb-1">Email</p>
+                  <input type="email" className="w-full bg-transparent font-black text-xs text-slate-700 outline-none" value={editForm.email || ""} onChange={e => setEditForm({ ...editForm, email: e.target.value })} />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-slate-50 p-4 rounded-3xl border border-slate-100">
+                  <p className="text-[8px] font-black text-slate-400 uppercase italic mb-1">Specialist</p>
+                  <select className="w-full bg-transparent font-black text-xs text-slate-700 outline-none cursor-pointer" 
+                    value={editForm.expertId || ""} 
+                    onChange={e => setEditForm({ ...editForm, expertId: e.target.value })}>
+                    <option value="">Alege Specialist...</option>
+                    {angajatiFiltrati.map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
+                  </select>
+                </div>
+                <div className="bg-slate-50 p-4 rounded-3xl border border-slate-100">
+                  <p className="text-[8px] font-black text-slate-400 uppercase italic mb-1">Serviciu</p>
+                  <select className="w-full bg-transparent font-black text-xs text-slate-700 outline-none cursor-pointer" 
+                    value={editForm.serviciuId || ""} 
+                    onChange={e => setEditForm({ ...editForm, serviciuId: e.target.value })}>
+                    <option value="">Alege Serviciu...</option>
+                    {serviciiFiltrate.map(s => <option key={s.id} value={s.id}>{s.nume_serviciu}</option>)}
                   </select>
                 </div>
               </div>
-              <div className="bg-slate-50 p-4 rounded-[25px] border-2 border-slate-100 shadow-inner">
-                <p className="text-[10px] font-black text-slate-400 uppercase italic">Serviciu</p>
-                <select className="w-full bg-transparent font-bold text-slate-800 outline-none cursor-pointer"
-                  value={editForm.serviciu || ""}
-                  onChange={e => setEditForm({ ...editForm, serviciu: e.target.value })}>
-                  <option value="Nespecificat">Alege Serviciu...</option>
-                  {filteredServicesForModal.map(ser => <option key={ser.id} value={ser.name}>{ser.name}</option>)}
-                </select>
+
+              <div className="bg-slate-900 p-6 rounded-[35px] text-white">
+                <p className="text-[8px] font-black text-amber-500 uppercase italic mb-2">Notițe / Motiv</p>
+                <textarea className="w-full bg-transparent text-xs font-medium italic opacity-90 outline-none resize-none" rows={2} 
+                  value={editForm.motiv || ""} onChange={e => setEditForm({ ...editForm, motiv: e.target.value })} placeholder="Fără observații." />
               </div>
-              <div className="bg-green-50/50 p-6 rounded-[30px] border border-green-100 space-y-3">
+
+              <div className="space-y-3">
                 <p className="text-[10px] font-black text-green-600 uppercase italic tracking-widest">💬 Notificare WhatsApp</p>
-                <textarea className="w-full bg-white border border-green-200 rounded-2xl p-4 text-[11px] font-bold text-slate-700 outline-none italic" rows={3}
+                <textarea className="w-full bg-slate-50 border border-green-100 rounded-2xl p-4 text-[11px] font-bold text-slate-700 outline-none italic" rows={2}
                   value={customMessage} onChange={e => setCustomMessage(e.target.value)} />
                 <button onClick={sendWhatsAppReminder}
-                  className={`w-full py-4 rounded-2xl text-[10px] font-black uppercase italic transition shadow-lg ${userSubscription?.plan === 'chronos free' ? 'bg-slate-300 cursor-not-allowed' : 'bg-green-600 text-white hover:bg-green-700 active:scale-95'}`}>
+                  className={`w-full py-4 rounded-2xl text-[10px] font-black uppercase italic transition shadow-lg ${userSubscription?.plan === 'chronos free' ? 'bg-slate-300 cursor-not-allowed text-slate-500' : 'bg-green-600 text-white hover:bg-green-700 active:scale-95'}`}>
                   Trimite pe WhatsApp
                 </button>
               </div>
-              <div className="flex flex-col gap-3 pb-4">
+
+              <div className="flex flex-col gap-3 pt-2">
                 <div className="flex gap-3">
-                  <button onClick={handleCloseModal} className="flex-1 py-4 bg-slate-100 text-slate-600 rounded-[22px] font-black uppercase text-[10px] italic border border-slate-200 active:scale-95">Închide</button>
-                  <button onClick={handleUpdate} className="flex-[2] py-4 bg-slate-900 text-white rounded-[22px] font-black shadow-lg uppercase text-[10px] italic hover:bg-black transition active:scale-95">Salvează</button>
+                  <button onClick={handleCloseModal} className="flex-1 py-4 bg-slate-100 text-slate-600 rounded-[22px] font-black uppercase text-[10px] italic active:scale-95">Anulează</button>
+                  <button onClick={handleUpdate} className="flex-[2] py-4 bg-amber-600 text-white rounded-[22px] font-black shadow-lg uppercase text-[10px] italic hover:bg-slate-900 transition active:scale-95">Salvează Modificări</button>
                 </div>
-                <button onClick={handleDelete} className="w-full py-4 bg-red-50 text-red-500 rounded-[22px] font-black uppercase text-[10px] italic hover:bg-red-500 hover:text-white transition-all border border-red-100 active:scale-95">Elimină Programarea 🗑️</button>
+                <button onClick={handleDelete} className="w-full py-4 bg-red-50 text-red-500 rounded-[22px] font-black uppercase text-[10px] italic hover:bg-red-500 hover:text-white transition-all active:scale-95">Elimină Programarea 🗑️</button>
               </div>
             </div>
           </div>
@@ -402,100 +363,53 @@ function CalendarContent() {
       <div className="w-full max-w-6xl flex flex-col items-center mb-6 px-6 py-6 mt-4 gap-6 bg-white rounded-[40px] shadow-sm border border-slate-100">
         <div className="w-full flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="flex items-center gap-4">
-            <div className="w-14 h-14 bg-slate-900 rounded-2xl flex items-center justify-center shadow-lg">
-              <span className="text-amber-500 font-black text-xl italic">C</span>
-            </div>
+            <div className="w-14 h-14 bg-slate-900 rounded-2xl flex items-center justify-center shadow-lg"><span className="text-amber-500 font-black text-xl italic">C</span></div>
             <div>
               <h1 className="text-2xl font-black text-slate-900 tracking-tighter uppercase italic leading-none">Calendar <span className="text-amber-600">Chronos</span></h1>
-              <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] italic mt-1">Sincronizat cu tabelele services & staff</p>
+              <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] italic mt-1">Sincronizat cu servicii & echipa</p>
             </div>
           </div>
           <div className="flex-1 max-w-2xl w-full relative">
-            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">🔍</span>
-            <input
-              type="text"
-              placeholder="Caută Client sau Telefon..."
-              value={searchTerm}
-              onChange={e => setSearchTerm(e.target.value)}
-              className="w-full bg-slate-50 border-2 border-slate-100 rounded-[25px] py-4 pl-12 pr-4 text-xs font-black text-slate-700 outline-none focus:border-amber-500 transition-all italic shadow-inner"
-            />
+            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-xs">🔍</span>
+            <input type="text" placeholder="Caută Client sau Telefon..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)}
+              className="w-full bg-slate-50 border-2 border-slate-100 rounded-[25px] py-4 pl-12 pr-4 text-xs font-black text-slate-700 outline-none focus:border-amber-500 transition-all italic shadow-inner" />
           </div>
-          <Link href="/programari" className="px-8 py-4 rounded-[22px] text-[10px] font-black uppercase italic shadow-lg transition-all active:scale-95 bg-amber-500 text-white hover:bg-amber-600">
-            Înapoi la Programări
-          </Link>
+          <Link href="/programari" className="px-8 py-4 rounded-[22px] text-[10px] font-black uppercase italic shadow-lg transition-all active:scale-95 bg-amber-500 text-white hover:bg-amber-600">Înapoi la Programări</Link>
         </div>
 
-        {/* FIX: filtrele sunt independente și se resetează reciproc */}
         <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-slate-50">
           <div>
-            <p className="text-[9px] font-black text-slate-400 uppercase italic mb-1 ml-4">
-              Filtrează după Expert
-              {selectedExpert && (
-                <button onClick={() => setSelectedExpert("")} className="ml-2 text-amber-600 hover:text-red-500 transition-colors">✕ Șterge filtru</button>
-              )}
-            </p>
-            <select
-              value={selectedExpert}
-              onChange={handleExpertChange}
-              className="w-full bg-slate-50 border-2 border-slate-100 rounded-[35px] py-3 px-6 text-[11px] font-black text-slate-700 uppercase italic appearance-none shadow-inner outline-none focus:border-amber-500 cursor-pointer"
-            >
-              <option value="">Toți Experții</option>
-              {/* FIX: afișăm toți experții, nu doar cei filtrați — filtrarea se face la nivel de programări */}
-              {rawStaff.map(exp => <option key={exp.id} value={exp.name}>{exp.name}</option>)}
+            <p className="text-[9px] font-black text-slate-400 uppercase italic mb-1 ml-4">Filtrează după Specialist {selectedExpert && <button onClick={() => setSelectedExpert("")} className="ml-2 text-amber-600">✕</button>}</p>
+            <select value={selectedExpert} onChange={e => handleExpertChange(e.target.value)} className="w-full bg-slate-50 border-2 border-slate-100 rounded-[35px] py-3 px-6 text-[11px] font-black text-slate-700 uppercase italic shadow-inner outline-none focus:border-amber-500 cursor-pointer appearance-none">
+              <option value="">Toți Specialiștii</option>
+              {rawStaff.map(exp => <option key={exp.id} value={exp.id}>{exp.name}</option>)}
             </select>
           </div>
           <div>
-            <p className="text-[9px] font-black text-slate-400 uppercase italic mb-1 ml-4">
-              Filtrează după Serviciu
-              {selectedServiciu && (
-                <button onClick={() => setSelectedServiciu("")} className="ml-2 text-amber-600 hover:text-red-500 transition-colors">✕ Șterge filtru</button>
-              )}
-            </p>
-            <select
-              value={selectedServiciu}
-              onChange={handleServiciuChange}
-              className="w-full bg-amber-50 border-2 border-amber-100 rounded-[35px] py-3 px-6 text-[11px] font-black text-amber-700 uppercase italic appearance-none shadow-inner outline-none focus:border-amber-500 cursor-pointer"
-            >
+            <p className="text-[9px] font-black text-slate-400 uppercase italic mb-1 ml-4">Filtrează după Serviciu {selectedServiciu && <button onClick={() => setSelectedServiciu("")} className="ml-2 text-amber-600">✕</button>}</p>
+            <select value={selectedServiciu} onChange={e => setSelectedServiciu(e.target.value)} className="w-full bg-amber-50 border-2 border-amber-100 rounded-[35px] py-3 px-6 text-[11px] font-black text-amber-700 uppercase italic shadow-inner outline-none focus:border-amber-500 cursor-pointer appearance-none">
               <option value="">Toate Serviciile</option>
-              {/* FIX: filtrăm serviciile disponibile în funcție de expertul selectat */}
-              {filteredServicesForHeader.map(ser => <option key={ser.id} value={ser.name}>{ser.name}</option>)}
+              {rawServices.map(ser => <option key={ser.id} value={ser.id}>{ser.nume_serviciu}</option>)}
             </select>
           </div>
         </div>
-
-        {/* FIX: afișăm numărul de rezultate când există filtre active */}
-        {(selectedExpert || selectedServiciu || searchTerm) && (
-          <div className="w-full flex items-center gap-3 pt-2">
-            <span className="w-2 h-2 bg-amber-500 rounded-full animate-pulse"></span>
-            <p className="text-[10px] font-black text-slate-500 uppercase italic">
-              {filteredProgramari.length} programare(i) găsite
-              {selectedExpert && <span className="text-amber-600"> • Expert: {selectedExpert}</span>}
-              {selectedServiciu && <span className="text-amber-600"> • Serviciu: {selectedServiciu}</span>}
-              {searchTerm && <span className="text-amber-600"> • Căutare: "{searchTerm}"</span>}
-            </p>
-          </div>
-        )}
       </div>
 
       <div className="w-full max-w-6xl bg-white rounded-[40px] shadow-2xl border border-slate-200 overflow-hidden mb-20">
         <div className="p-4 md:p-8 border-b border-slate-100 flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-4">
             <div className="flex bg-slate-100 p-2 rounded-[22px]">
-              <button onClick={() => nav(-1)} className="p-3 hover:bg-white rounded-xl font-bold active:scale-90 transition-all">◀</button>
-              <button onClick={() => setSelectedDate(new Date())} className="px-5 text-[10px] font-black uppercase text-slate-500 hover:text-amber-600 italic">Azi</button>
-              <button onClick={() => nav(1)} className="p-3 hover:bg-white rounded-xl font-bold active:scale-90 transition-all">▶</button>
+              <button onClick={() => nav(-1)} className="p-3 hover:bg-white rounded-xl transition-colors">◀</button>
+              <button onClick={() => setSelectedDate(new Date())} className="px-5 text-[10px] font-black uppercase text-slate-500 italic hover:text-amber-600 transition-colors">Azi</button>
+              <button onClick={() => nav(1)} className="p-3 hover:bg-white rounded-xl transition-colors">▶</button>
             </div>
-            <div className="flex flex-col">
-              <h2 className="text-xl md:text-2xl font-black text-slate-900 uppercase italic">
-                {viewMode === "day" && `${dayNamesLong[selectedDate.getDay()]}, ${selectedDate.getDate()} `}
-                {monthNames[selectedDate.getMonth()]} <span className="text-amber-600">{selectedDate.getFullYear()}</span>
-              </h2>
-            </div>
+            <h2 className="text-xl md:text-2xl font-black text-slate-900 uppercase italic tracking-tighter">
+              {viewMode === "day" && `${dayNamesLong[selectedDate.getDay()]}, `} {monthNames[selectedDate.getMonth()]} <span className="text-amber-600">{selectedDate.getFullYear()}</span>
+            </h2>
           </div>
           <div className="flex bg-slate-100 p-2 rounded-[22px]">
             {(["day", "week", "month"] as ViewMode[]).map(opt => (
-              <button key={opt} onClick={() => setViewMode(opt)}
-                className={`px-6 py-3 rounded-[18px] text-[10px] font-black uppercase transition-all ${viewMode === opt ? "bg-slate-900 text-white shadow-xl italic" : "text-slate-400"}`}>
+              <button key={opt} onClick={() => setViewMode(opt)} className={`px-6 py-3 rounded-[18px] text-[10px] font-black uppercase transition-all ${viewMode === opt ? "bg-slate-900 text-white shadow-xl italic" : "text-slate-400 hover:text-slate-600"}`}>
                 {opt === "day" ? "Zi" : opt === "week" ? "Săpt" : "Lună"}
               </button>
             ))}
@@ -505,23 +419,17 @@ function CalendarContent() {
         <div className="bg-slate-200 w-full overflow-x-auto">
           {viewMode === "month" && (
             <div className="grid grid-cols-7 gap-[1px] min-w-[700px] w-full">
-              {dayNamesShort.map(d => (
-                <div key={d} className="text-center font-black text-slate-400 text-[10px] py-5 bg-white uppercase italic tracking-widest">{d}</div>
-              ))}
+              {dayNamesShort.map(d => <div key={d} className="text-center font-black text-slate-400 text-[10px] py-5 bg-white uppercase italic tracking-widest">{d}</div>)}
               {monthGrid.map((day, idx) => {
                 const key = formatDateKey(day);
                 const list = programariByDate[key] || [];
                 const isCurrentMonth = day.getMonth() === selectedDate.getMonth();
                 return (
-                  <div
-                    key={idx}
-                    onClick={() => goToDay(day)}
-                    className={`min-h-[140px] p-3 flex flex-col items-start hover:bg-amber-50/30 transition-colors cursor-pointer border-r border-b border-slate-100 ${isCurrentMonth ? "bg-white" : "bg-slate-50 opacity-40"}`}
-                  >
+                  <div key={idx} onClick={() => goToDay(day)} className={`min-h-[140px] p-3 flex flex-col items-start hover:bg-amber-50/30 cursor-pointer border-r border-b border-slate-100 transition-colors ${isCurrentMonth ? "bg-white" : "bg-slate-50 opacity-40"}`}>
                     <span className={`text-[11px] font-black mb-3 px-3 py-1.5 rounded-[12px] ${sameDay(day, new Date()) ? "text-white bg-amber-600" : "text-slate-400"}`}>{day.getDate()}</span>
                     <div className="w-full space-y-1.5">
                       {list.slice(0, 3).map(p => <AppointmentChip key={p.id} p={p} />)}
-                      {list.length > 3 && <p className="text-[8px] font-black text-amber-600 italic mt-1 ml-1">+ încă {list.length - 3}</p>}
+                      {list.length > 3 && <p className="text-[8px] font-black text-amber-600 italic pl-1">+ încă {list.length - 3}</p>}
                     </div>
                   </div>
                 );
@@ -533,8 +441,6 @@ function CalendarContent() {
             <div className="grid grid-cols-7 gap-[1px] min-w-[1000px] w-full bg-slate-100">
               {weekDays.map((day, i) => {
                 const key = formatDateKey(day);
-                // FIX CRITIC: folosim programariByDate care e deja filtrat corect
-                // Nu mai filtrăm a doua oară inline — elimina bug-ul de inconsistență
                 const list = programariByDate[key] || [];
                 return (
                   <div key={i} className="bg-white min-h-[600px] flex flex-col border-r border-slate-100">
@@ -544,18 +450,16 @@ function CalendarContent() {
                     </div>
                     <div className="p-2 space-y-2 overflow-y-auto">
                       {list.length > 0 ? (
-                        list.sort((a, b) => a.ora.localeCompare(b.ora)).map(p => (
-                          <button
-                            key={p.id}
-                            onClick={() => handleOpenEdit(p)}
-                            title={`Expert: ${p.expert}\nServiciu: ${p.serviciu}`}
-                            className="w-full p-3 bg-slate-900 text-white rounded-2xl text-left hover:bg-amber-600 transition-all active:scale-95 shadow-sm border border-slate-700"
-                          >
-                            <p className="text-[10px] font-black italic text-amber-500">{p.ora}</p>
-                            <p className="text-[11px] font-black uppercase truncate italic">{p.nume}</p>
-                            <p className="text-[8px] font-bold text-slate-400 truncate italic">{p.expert}</p>
-                          </button>
-                        ))
+                        list.sort((a, b) => a.ora.localeCompare(b.ora)).map(p => {
+                          const expName = rawStaff.find(a => a.id === p.expertId)?.name || 'General';
+                          return (
+                            <button key={p.id} onClick={() => handleOpenEdit(p)} className="w-full p-3 bg-slate-900 text-white rounded-2xl text-left hover:bg-amber-600 transition-all active:scale-95 shadow-sm border border-slate-700 group">
+                              <p className="text-[10px] font-black italic text-amber-500 group-hover:text-white transition-colors">{p.ora}</p>
+                              <p className="text-[11px] font-black uppercase truncate italic">{p.nume}</p>
+                              <p className="text-[8px] font-bold text-slate-400 group-hover:text-amber-100 truncate italic">{expName}</p>
+                            </button>
+                          );
+                        })
                       ) : (
                         <p className="text-[9px] text-center text-slate-300 font-black italic mt-4 uppercase">Liber</p>
                       )}
@@ -570,31 +474,26 @@ function CalendarContent() {
             <div className="bg-white min-h-[500px] py-12 px-6">
               <div className="max-w-3xl mx-auto space-y-4">
                 {(programariByDate[formatDateKey(selectedDate)] || []).length > 0 ? (
-                  (programariByDate[formatDateKey(selectedDate)] || [])
-                    .sort((a, b) => a.ora.localeCompare(b.ora))
-                    .map(p => (
-                      <button
-                        key={p.id}
-                        onClick={() => handleOpenEdit(p)}
-                        title="Click pentru editare"
-                        className="w-full flex items-center gap-8 p-8 bg-white border-2 border-slate-100 rounded-[35px] hover:border-amber-500 shadow-sm transition-all text-left group active:scale-[0.98]"
-                      >
-                        <span className="text-3xl font-black text-slate-900 italic w-24">{p.ora}</span>
+                  (programariByDate[formatDateKey(selectedDate)] || []).map(p => {
+                    const expName = rawStaff.find(a => a.id === p.expertId)?.name || 'General';
+                    const srvName = rawServices.find(s => s.id === p.serviciuId)?.nume_serviciu || 'Procedură';
+                    return (
+                      <button key={p.id} onClick={() => handleOpenEdit(p)} className="w-full flex items-center gap-8 p-8 bg-white border-2 border-slate-100 rounded-[35px] hover:border-amber-500 shadow-sm transition-all text-left group active:scale-[0.98]">
+                        <span className="text-3xl font-black text-slate-900 italic w-24 group-hover:text-amber-600 transition-colors">{p.ora}</span>
                         <div className="flex flex-col flex-1">
                           <span className="text-slate-900 font-black text-2xl uppercase italic group-hover:text-amber-600 transition-colors">{p.nume}</span>
                           <div className="flex gap-4 text-xs font-black text-slate-500 uppercase italic mt-1">
-                            <span className="text-amber-600">{p.expert}</span>
-                            <span>• {p.serviciu}</span>
+                            <span className="text-amber-600">{expName}</span>
+                            <span>• {srvName}</span>
                           </div>
                         </div>
-                        <span className="text-xs font-black text-amber-600 uppercase italic">Detalii →</span>
+                        <span className="text-xs font-black text-amber-600 uppercase italic opacity-0 group-hover:opacity-100 transition-opacity">Detalii →</span>
                       </button>
-                    ))
+                    );
+                  })
                 ) : (
                   <div className="text-center py-20 bg-slate-50 rounded-[40px] border-2 border-dashed border-slate-100">
-                    <p className="text-slate-300 font-black italic uppercase text-sm">
-                      {(selectedExpert || selectedServiciu || searchTerm) ? "Nicio programare corespunde filtrelor." : "Nicio programare găsită."}
-                    </p>
+                    <p className="text-slate-300 font-black italic uppercase text-sm">Nicio programare găsită.</p>
                   </div>
                 )}
               </div>
@@ -608,7 +507,7 @@ function CalendarContent() {
 
 export default function CalendarPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-slate-50 font-black italic text-slate-400 uppercase">Încărcare...</div>}>
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-slate-50 font-black uppercase italic text-slate-400">Sincronizare Chronos...</div>}>
       <CalendarContent />
     </Suspense>
   );

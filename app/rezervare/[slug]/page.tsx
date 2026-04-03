@@ -6,7 +6,7 @@ import { createBrowserClient } from "@supabase/ssr";
 import Image from "next/image";
 
 interface StaffRow { id: string; name: string; services: string[]; }
-interface ServiceRow { id: string; name: string; price: number; duration: number; }
+interface ServiceRow { id: string; nume_serviciu: string; price: number; duration: number; }
 
 function RezervareContent() {
   const params = useParams();
@@ -30,7 +30,6 @@ function RezervareContent() {
     } catch { return null; }
   }, [supabase]);
 
-  // Rezolvă slug/UUID → adminId
   useEffect(() => {
     async function init() {
       if (!rawSlug) {
@@ -73,8 +72,13 @@ function RezervareContent() {
     serviciu_id: "", specialist_id: "", detalii: ""
   });
 
-  const [selectedHour, setSelectedHour] = useState(0);
-  const [selectedMinute, setSelectedMinute] = useState(0);
+  const [errors, setErrors] = useState<Record<string, boolean>>({});
+
+  const selectedHour = useRef(0);
+  const selectedMinute = useRef(0);
+  const [displayHour, setDisplayHour] = useState(0);
+  const [displayMinute, setDisplayMinute] = useState(0);
+
   const pickerRef = useRef<HTMLDivElement>(null);
   const feedbackSuccessRef = useRef<HTMLDivElement>(null);
   const dateInputRef = useRef<HTMLInputElement>(null);
@@ -127,21 +131,41 @@ function RezervareContent() {
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (pickerRef.current && !pickerRef.current.contains(event.target as Node)) {
-        setShowPicker(false); setPickerStep("hours");
+        setShowPicker(false); 
+        setPickerStep("hours");
       }
     };
     if (showPicker) document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [showPicker]);
 
-  useEffect(() => {
-    const hh = selectedHour.toString().padStart(2, "0");
-    const mm = selectedMinute.toString().padStart(2, "0");
+  const updateOra = () => {
+    const hh = selectedHour.current.toString().padStart(2, "0");
+    const mm = selectedMinute.current.toString().padStart(2, "0");
     setForm(prev => ({ ...prev, ora: `${hh}:${mm}` }));
-  }, [selectedHour, selectedMinute]);
+    setDisplayHour(selectedHour.current);
+    setDisplayMinute(selectedMinute.current);
+    setErrors(prev => ({ ...prev, ora: false }));
+  };
 
   const trimiteRezervare = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    const newErrors: Record<string, boolean> = {};
+    if (!form.nume.trim()) newErrors.nume = true;
+    if (!form.telefon.trim()) newErrors.telefon = true;
+    if (!form.email.trim()) newErrors.email = true;
+    if (!form.serviciu_id) newErrors.serviciu_id = true;
+    if (form.ora === "00:00") newErrors.ora = true;
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      const firstError = Object.keys(newErrors)[0];
+      const element = document.getElementsByName(firstError)[0] || document.getElementById(firstError);
+      element?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
+
     if (!adminId || !uuidRegex.test(adminId)) {
       alert("Eroare: ID salon invalid. Verifică link-ul de rezervare.");
       return;
@@ -160,7 +184,7 @@ function RezervareContent() {
         date: form.data,
         time: form.ora,
         duration: selectedService?.duration || 15,
-        details: `Serviciu: ${selectedService?.name || form.serviciu_id}${form.detalii ? ` | Notă: ${form.detalii}` : ""}`,
+        details: `Serviciu: ${selectedService?.nume_serviciu || form.serviciu_id}${form.detalii ? ` | Notă: ${form.detalii}` : ""}`,
         expert: selectedExpert?.name || "Prima Disponibilitate",
         status: "pending",
         notifications: {
@@ -176,11 +200,10 @@ function RezervareContent() {
         window.scrollTo({ top: 0, behavior: "smooth" });
       } else {
         console.error("❌ Eroare Supabase:", error);
-        alert(`Eroare Supabase:\n${error.message}\n\nCod: ${error.code}\nDetalii: ${error.details || "—"}`);
+        alert(`Eroare Supabase:\n${error.message}`);
       }
     } catch (err: any) {
       console.error("❌ Eroare necunoscută:", err);
-      alert(`Eroare necunoscută:\n${err?.message || JSON.stringify(err)}`);
     } finally {
       setLoading(false);
     }
@@ -202,15 +225,11 @@ function RezervareContent() {
         const { data: fbs } = await supabase.from("feedbacks").select("*")
           .eq("admin_id", adminId).order("created_at", { ascending: false });
         setFeedbacks(fbs || []);
-      } else {
-        console.error("❌ Eroare feedback:", error);
-        alert(`Eroare feedback: ${error.message}`);
       }
     } catch (err: any) { alert(`Eroare: ${err.message}`); }
     finally { setIncarcareFeedback(false); }
   };
 
-  // Slug inexistent / link invalid
   if (adminIdReady && !adminId) return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-slate-900 text-center p-8">
       <div className="text-6xl mb-6">❌</div>
@@ -233,6 +252,34 @@ function RezervareContent() {
         select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23f59e0b' stroke-width='3'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 1.5rem center; background-size: 1.2rem; }
         .scrollbar-hide::-webkit-scrollbar { display: none; }
         .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        @keyframes shake {
+          0%, 100% { transform: translateX(0); }
+          25% { transform: translateX(-5px); }
+          75% { transform: translateX(5px); }
+        }
+        .animate-shake { animation: shake 0.2s ease-in-out 0s 2; }
+        .error-border { border-color: #ef4444 !important; background-color: #fef2f2 !important; }
+
+        .custom-tooltip { position: relative; }
+        .custom-tooltip:hover::after {
+          content: attr(data-tooltip);
+          position: absolute;
+          bottom: 100%;
+          left: 50%;
+          transform: translateX(-50%);
+          background: #0f172a;
+          color: #f59e0b;
+          padding: 8px 12px;
+          border-radius: 10px;
+          font-size: 10px;
+          font-weight: 900;
+          text-transform: uppercase;
+          white-space: nowrap;
+          z-index: 1000;
+          border: 1px solid #f59e0b;
+          margin-bottom: 8px;
+        }
       `}</style>
 
       {trimis ? (
@@ -240,11 +287,15 @@ function RezervareContent() {
           <div className="text-6xl mb-6">✅</div>
           <h2 className="text-3xl font-black uppercase italic mb-4">Rezervare Trimisă!</h2>
           <p className="text-slate-500 font-bold mb-8 text-lg">Rezervarea a fost trimisă în calendar.</p>
-          <button onClick={() => {
-            setTrimis(false);
-            setForm({ nume: "", telefon: "", email: "", data: today, ora: "00:00", serviciu_id: "", specialist_id: "", detalii: "" });
-          }} className="w-full max-w-xs bg-slate-900 text-white px-10 py-5 rounded-2xl font-black uppercase italic hover:bg-amber-500 hover:text-black transition-all border-b-4 border-slate-700 active:translate-y-1 active:border-b-0">
-            EFECTUEAZĂ ALTĂ REZERVARE
+          <button 
+            title="Efectuează altă rezervare"
+            data-tooltip="Efectuează altă rezervare"
+            onClick={() => {
+              setTrimis(false);
+              setForm({ nume: "", telefon: "", email: "", data: today, ora: "00:00", serviciu_id: "", specialist_id: "", detalii: "" });
+              setErrors({});
+            }} className="custom-tooltip w-full max-w-xs bg-slate-900 text-white px-10 py-5 rounded-2xl font-black uppercase italic hover:bg-amber-500 hover:text-black transition-all border-b-4 border-slate-700 active:translate-y-1 active:border-b-0">
+            REÎNCEARCĂ
           </button>
         </div>
       ) : (
@@ -257,35 +308,46 @@ function RezervareContent() {
             <h1 className="text-4xl font-black uppercase italic tracking-tighter">CHRONOS <span className="text-amber-500">BOOKING</span></h1>
           </div>
 
-          <form onSubmit={trimiteRezervare} className="p-8 md:p-14 space-y-10">
+          <form onSubmit={trimiteRezervare} className="p-8 md:p-14 space-y-10" noValidate>
             <div className="space-y-6">
-              <input type="text" required placeholder="NUME COMPLET"
-                className="w-full bg-slate-50 border-2 border-amber-500 rounded-[30px] py-6 px-8 text-[18px] uppercase italic font-black outline-none focus:bg-white transition-all"
-                value={form.nume} onChange={e => setForm({ ...form, nume: e.target.value })} />
+              <div className="relative">
+                <input type="text" name="nume" placeholder="NUME COMPLET"
+                  className={`w-full bg-slate-50 border-2 ${errors.nume ? 'error-border animate-shake' : 'border-amber-500'} rounded-[30px] py-6 px-8 text-[18px] uppercase italic font-black outline-none focus:bg-white transition-all`}
+                  value={form.nume} onChange={e => { setForm({ ...form, nume: e.target.value }); setErrors({ ...errors, nume: false }); }} />
+                {errors.nume && <p className="text-red-500 text-[10px] font-black uppercase mt-2 ml-6">Te rugăm să introduci numele</p>}
+              </div>
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <input type="tel" required placeholder="TELEFON"
-                  className="w-full bg-slate-50 border-2 border-amber-500 rounded-[30px] py-6 px-8 text-[18px] font-black outline-none focus:bg-white transition-all"
-                  value={form.telefon} onChange={e => setForm({ ...form, telefon: e.target.value })} />
-                <input type="email" required placeholder="EMAIL"
-                  className="w-full bg-slate-50 border-2 border-amber-500 rounded-[30px] py-6 px-8 text-[18px] font-black outline-none focus:bg-white transition-all"
-                  value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} />
+                <div>
+                  <input type="tel" name="telefon" placeholder="TELEFON"
+                    className={`w-full bg-slate-50 border-2 ${errors.telefon ? 'error-border animate-shake' : 'border-amber-500'} rounded-[30px] py-6 px-8 text-[18px] font-black outline-none focus:bg-white transition-all`}
+                    value={form.telefon} onChange={e => { setForm({ ...form, telefon: e.target.value }); setErrors({ ...errors, telefon: false }); }} />
+                  {errors.telefon && <p className="text-red-500 text-[10px] font-black uppercase mt-2 ml-6">Telefon necesar</p>}
+                </div>
+                <div>
+                  <input type="email" name="email" placeholder="EMAIL"
+                    className={`w-full bg-slate-50 border-2 ${errors.email ? 'error-border animate-shake' : 'border-amber-500'} rounded-[30px] py-6 px-8 text-[18px] font-black outline-none focus:bg-white transition-all`}
+                    value={form.email} onChange={e => { setForm({ ...form, email: e.target.value }); setErrors({ ...errors, email: false }); }} />
+                  {errors.email && <p className="text-red-500 text-[10px] font-black uppercase mt-2 ml-6">Email necesar</p>}
+                </div>
               </div>
             </div>
 
             <div className="grid grid-cols-1 gap-8 p-8 bg-slate-50 rounded-[45px] border-2 border-slate-100">
-              <div className="space-y-2">
+              <div className="space-y-2" id="serviciu_id">
                 <label className="text-[12px] font-black uppercase italic text-slate-400 ml-4">Serviciu</label>
-                <select required
-                  className="w-full bg-white border-2 border-amber-500 rounded-[25px] py-6 px-8 text-[16px] font-black uppercase italic outline-none cursor-pointer"
+                <select 
+                  className={`w-full bg-white border-2 ${errors.serviciu_id ? 'error-border animate-shake' : 'border-amber-500'} rounded-[25px] py-6 px-8 text-[16px] font-black uppercase italic outline-none cursor-pointer`}
                   value={form.serviciu_id}
-                  onChange={e => setForm({ ...form, serviciu_id: e.target.value, specialist_id: "" })}>
+                  onChange={e => { setForm({ ...form, serviciu_id: e.target.value, specialist_id: "" }); setErrors({ ...errors, serviciu_id: false }); }}>
                   <option value="">ALEGE SERVICIUL</option>
                   {filteredServicii.map(s => (
                     <option key={s.id} value={s.id}>
-                      {s.name.toUpperCase()}{s.price ? ` — ${s.price} RON` : ""}
+                      {s.nume_serviciu?.toUpperCase()}{s.price ? ` — ${s.price} RON` : ""}
                     </option>
                   ))}
                 </select>
+                {errors.serviciu_id && <p className="text-red-500 text-[10px] font-black uppercase mt-1 ml-4">Selectează un serviciu</p>}
               </div>
 
               <div className="space-y-2">
@@ -310,7 +372,9 @@ function RezervareContent() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div className="relative group flex items-center bg-slate-900 rounded-[35px] h-[100px] cursor-pointer"
+              <div 
+                data-tooltip="Schimbă Data"
+                className="custom-tooltip relative group flex items-center bg-slate-900 rounded-[35px] h-[100px] cursor-pointer"
                 onClick={() => dateInputRef.current?.showPicker()}>
                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-20">
                   <span className="text-white group-hover:text-amber-500 font-black text-[22px] uppercase italic transition-colors">
@@ -321,14 +385,22 @@ function RezervareContent() {
                   className="w-full h-full opacity-0 relative z-30 cursor-pointer"
                   value={form.data} onChange={e => setForm({ ...form, data: e.target.value })} />
               </div>
-              <button type="button" onClick={() => setShowPicker(true)}
-                className="w-full h-[100px] bg-slate-900 text-white rounded-[35px] font-black text-[22px] uppercase italic hover:text-amber-500 transition-all">
-                {form.ora}
+              <button 
+                type="button" 
+                id="ora" 
+                data-tooltip="Selectează Ora"
+                onClick={() => setShowPicker(true)}
+                className={`custom-tooltip w-full h-[100px] bg-slate-900 text-white rounded-[35px] font-black text-[22px] uppercase italic hover:text-amber-500 transition-all border-4 ${errors.ora ? 'border-red-500 animate-shake' : 'border-transparent'}`}>
+                {form.ora === "00:00" ? "ALEGE ORA" : form.ora}
               </button>
             </div>
+            {errors.ora && <p className="text-red-500 text-center text-[10px] font-black uppercase -mt-4">Te rugăm să alegi ora programării</p>}
 
-            <button type="submit" disabled={loading}
-              className="w-full py-10 bg-slate-900 text-white rounded-[35px] font-black text-[14px] uppercase tracking-[0.4em] italic shadow-2xl hover:bg-amber-500 hover:text-black transition-all border-b-8 border-slate-800 active:translate-y-2 active:border-b-0 disabled:opacity-50 disabled:cursor-not-allowed">
+            <button 
+              type="submit" 
+              disabled={loading}
+              data-tooltip="Trimite Programarea"
+              className="custom-tooltip w-full py-10 bg-slate-900 text-white rounded-[35px] font-black text-[14px] uppercase tracking-[0.4em] italic shadow-2xl hover:bg-amber-500 hover:text-black transition-all border-b-8 border-slate-800 active:translate-y-2 active:border-b-0 disabled:opacity-50 disabled:cursor-not-allowed">
               {loading ? "SE PROCESEAZĂ..." : "CONFIRMĂ REZERVAREA"}
             </button>
           </form>
@@ -354,11 +426,11 @@ function RezervareContent() {
               </div>
               <div className="bg-slate-900 px-6 py-4 rounded-[25px] flex items-center gap-3 border-b-4 border-amber-500 shadow-lg">
                 <span className={`text-3xl font-black ${pickerStep === "hours" ? "text-amber-500 animate-pulse" : "text-white"}`}>
-                  {selectedHour.toString().padStart(2, "0")}
+                  {displayHour.toString().padStart(2, "0")}
                 </span>
                 <span className="text-amber-500 font-black text-2xl">:</span>
                 <span className={`text-3xl font-black ${pickerStep === "minutes" ? "text-amber-500 animate-pulse" : "text-white"}`}>
-                  {selectedMinute.toString().padStart(2, "0")}
+                  {displayMinute.toString().padStart(2, "0")}
                 </span>
               </div>
             </div>
@@ -368,9 +440,10 @@ function RezervareContent() {
                 <div className="grid grid-cols-4 gap-4 max-h-[380px] overflow-y-auto pr-2 scrollbar-hide">
                   {Array.from({ length: 24 }).map((_, i) => (
                     <button key={i}
-                      onClick={() => { setSelectedHour(i); setPickerStep("minutes"); }}
-                      className={`relative aspect-square rounded-[22px] font-black text-lg flex items-center justify-center transition-all duration-200 ${
-                        selectedHour === i
+                      data-tooltip={`Ora ${i}`}
+                      onClick={() => { selectedHour.current = i; setDisplayHour(i); setPickerStep("minutes"); }}
+                      className={`custom-tooltip relative aspect-square rounded-[22px] font-black text-lg flex items-center justify-center transition-all duration-200 ${
+                        displayHour === i
                           ? "bg-amber-500 text-slate-900 shadow-[0_10px_20px_rgba(245,158,11,0.4)] scale-110 z-10"
                           : "text-slate-900 bg-white border-2 border-transparent hover:border-amber-500 hover:shadow-md active:scale-95"
                       }`}>
@@ -382,9 +455,10 @@ function RezervareContent() {
                 <div className="flex flex-col gap-4">
                   {[0, 15, 30, 45].map(m => (
                     <button key={m}
-                      onClick={() => { setSelectedMinute(m); setShowPicker(false); setPickerStep("hours"); }}
-                      className={`w-full py-8 rounded-[30px] font-black text-4xl transition-all duration-300 border-4 flex items-center justify-center gap-4 ${
-                        selectedMinute === m
+                      data-tooltip={`Minutul ${m}`}
+                      onClick={() => { selectedMinute.current = m; setShowPicker(false); setPickerStep("hours"); updateOra(); }}
+                      className={`custom-tooltip w-full py-8 rounded-[30px] font-black text-4xl transition-all duration-300 border-4 flex items-center justify-center gap-4 ${
+                        displayMinute === m
                           ? "bg-slate-900 text-amber-500 border-amber-500 shadow-2xl scale-[1.02]"
                           : "bg-white text-slate-300 border-slate-100 hover:border-amber-200 hover:text-slate-900 hover:translate-x-2"
                       }`}>
@@ -399,9 +473,6 @@ function RezervareContent() {
                 </div>
               )}
             </div>
-            <p className="mt-8 text-center text-[10px] font-black uppercase tracking-[0.2em] text-slate-300 italic">
-              Apasă în exterior pentru a anula
-            </p>
           </div>
         </div>
       )}
@@ -423,7 +494,8 @@ function RezervareContent() {
           <div className="flex justify-center gap-2 mb-8">
             {[1, 2, 3, 4, 5].map(s => (
               <button key={s} onMouseEnter={() => setHover(s)} onMouseLeave={() => setHover(0)} onClick={() => setRating(s)}
-                className={`text-4xl transition-transform hover:scale-125 ${s <= (hover || rating) ? "" : "grayscale opacity-20"}`}>⭐</button>
+                data-tooltip={`${s} Stele`}
+                className={`custom-tooltip text-4xl transition-transform hover:scale-125 ${s <= (hover || rating) ? "" : "grayscale opacity-20"}`}>⭐</button>
             ))}
           </div>
           <input type="text" placeholder="NUMELE TĂU"
@@ -432,8 +504,10 @@ function RezervareContent() {
           <textarea placeholder="COMENTARIU SAU SUGESTIE"
             className="w-full p-6 bg-slate-50 rounded-2xl border-2 border-amber-500 mb-6 font-bold outline-none h-32 resize-none focus:bg-white transition-all"
             value={mesajFeedback} onChange={e => setMesajFeedback(e.target.value)} />
-          <button onClick={trimiteFeedback}
-            className="w-full py-6 bg-slate-900 text-white rounded-2xl font-black uppercase hover:bg-amber-500 hover:text-black transition-all shadow-lg border-b-4 border-slate-700 active:translate-y-1 active:border-b-0">
+          <button 
+            onClick={trimiteFeedback}
+            data-tooltip="Publică Recenzia"
+            className="custom-tooltip w-full py-6 bg-slate-900 text-white rounded-2xl font-black uppercase hover:bg-amber-500 hover:text-black transition-all shadow-lg border-b-4 border-slate-700 active:translate-y-1 active:border-b-0">
             {incarcareFeedback ? "SE TRIMITE..." : "TRIMITE REVIEW"}
           </button>
         </div>

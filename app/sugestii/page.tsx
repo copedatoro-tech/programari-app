@@ -3,14 +3,18 @@ import { useEffect, useState } from "react";
 import { createClient } from "@supabase/supabase-js";
 import Link from "next/link";
 
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://zzrubdbngjfwurdwxtwf.supabase.co";
-const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp6cnViZGJuZ2pmd3VyZHd4dHdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5MDkyMTgsImV4cCI6MjA4ODQ4NTIxOH0.6uw6yzCs5OfCP7xqWshzPQP36bCPxi2LU0QtpwsvnOo";
+// --- CONFIGURARE SUPABASE (SINGLETON) ---
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
+const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
 
-const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const globalForSupabase = global as unknown as { supabase: ReturnType<typeof createClient> };
+export const supabase = globalForSupabase.supabase || createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+if (process.env.NODE_ENV !== "production") globalForSupabase.supabase = supabase;
 
 export default function PareriClienti() {
   const [feedbacks, setFeedbacks] = useState<any[]>([]);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [currentAdminId, setCurrentAdminId] = useState<string | null>(null);
   
   const [rating, setRating] = useState(0);
   const [hover, setHover] = useState(0);
@@ -27,17 +31,23 @@ export default function PareriClienti() {
     const checkUser = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       setIsLoggedIn(!!session);
+      if (session) {
+        setCurrentAdminId(session.user.id);
+      }
+      // Apelăm preiaFeedback imediat după ce verificăm sesiunea
+      preiaFeedback(!!session);
     };
     checkUser();
-    preiaFeedback();
   }, []);
 
-  const preiaFeedback = async () => {
+  const preiaFeedback = async (adminStatus: boolean) => {
     try {
-      const { data: { session } } = await supabase.auth.getSession();
       let query = supabase.from("feedbacks").select("*");
       
-      if (!session) {
+      // LOGICA CORECTATĂ:
+      // Dacă NU este admin, arătăm doar ce este aprobat.
+      // Dacă ESTE admin, nu mai filtrăm după user_id pentru a vedea toate mesajele de la clienți (care au user_id null).
+      if (!adminStatus) {
         query = query.eq("aprobat", true);
       }
 
@@ -62,7 +72,8 @@ export default function PareriClienti() {
           nume_client: nume, 
           stele: rating, 
           comentariu: mesaj, 
-          aprobat: false 
+          aprobat: false,
+          user_id: currentAdminId 
         }
       ]);
 
@@ -73,8 +84,8 @@ export default function PareriClienti() {
         setNume(""); 
         setMesaj(""); 
         setRating(0);
-        await preiaFeedback(); 
-        setTimeout(() => setTrimis(false), 3000);
+        await preiaFeedback(isLoggedIn); 
+        setTimeout(() => setTrimis(false), 5000);
       }
     } catch (err) {
       alert("A apărut o eroare neașteptată.");
@@ -104,7 +115,7 @@ export default function PareriClienti() {
       alert("Eroare la salvare: " + error.message);
     } else {
       setEditId(null);
-      await preiaFeedback();
+      await preiaFeedback(isLoggedIn);
     }
   };
 
@@ -113,24 +124,32 @@ export default function PareriClienti() {
       .from("feedbacks")
       .update({ aprobat: true })
       .eq("id", id);
-    if (!error) await preiaFeedback();
+    if (!error) await preiaFeedback(isLoggedIn);
   };
 
   const stergeFeedback = async (id: string) => {
     if (!confirm("Sigur vrei să ștergi definitiv această recenzie?")) return;
     const { error } = await supabase.from("feedbacks").delete().eq("id", id);
-    if (!error) await preiaFeedback();
+    if (!error) await preiaFeedback(isLoggedIn);
   };
 
   return (
     <main className="min-h-screen bg-slate-50 p-6 md:p-12 font-sans text-slate-900">
       <div className="max-w-6xl mx-auto">
         
+        <div className="flex justify-center mb-8">
+          <img 
+            src="/logo-chronos.png" 
+            alt="Logo Chronos" 
+            style={{ width: "180px", height: "auto" }} 
+          />
+        </div>
+
         {!isLoggedIn && (
           <div className="mb-8">
-            <Link href="/rezervare" title="Înapoi la pagina principală de programări" className="inline-flex items-center gap-2 text-slate-900 font-black uppercase italic text-[10px] tracking-widest hover:text-amber-600 transition-all group py-3 px-6 bg-white border-2 border-slate-900 rounded-2xl shadow-sm border-b-4 border-slate-900 active:translate-y-0.5 active:border-b-0">
+            <Link href="/rezervare" title="Înapoi la pagina principală de programări" className="inline-flex items-center gap-2 text-slate-900 font-black uppercase italic text-[10px] tracking-widest hover:text-amber-600 transition-all group py-4 px-8 bg-white border-2 border-slate-900 rounded-2xl shadow-sm border-b-8 border-slate-900 active:translate-y-1 active:border-b-0">
               <span className="text-lg group-hover:-translate-x-1 transition-transform">←</span>
-              Înapoi la Rezervări
+              Închide Pagina
             </Link>
           </div>
         )}
@@ -146,7 +165,6 @@ export default function PareriClienti() {
           </div>
         </div>
 
-        {/* Formular Feedback */}
         <div className="max-w-xl mx-auto mb-24 bg-white p-10 rounded-[50px] shadow-2xl border-2 border-slate-100 relative overflow-hidden">
           {trimis && (
             <div className="absolute inset-0 bg-white/95 backdrop-blur-sm z-50 flex flex-col items-center justify-center animate-in fade-in zoom-in duration-300 text-center p-8" onClick={() => setTrimis(false)}>
@@ -174,40 +192,34 @@ export default function PareriClienti() {
           </div>
 
           <div className="space-y-5">
-            <div className="relative group">
-               <input 
-                type="text" 
-                title="Introdu numele tău complet sau porecla"
-                placeholder="NUMELE TĂU" 
-                className="w-full p-5 bg-slate-50 border-2 border-slate-100 rounded-[25px] font-black outline-none focus:border-amber-500 focus:bg-white transition-all text-xs tracking-wider text-slate-900 uppercase italic placeholder:text-slate-300"
-                value={nume} 
-                onChange={(e) => setNume(e.target.value)} 
-              />
-            </div>
+            <input 
+              type="text" 
+              title="Introdu numele tău complet sau porecla"
+              placeholder="NUMELE TĂU" 
+              className="w-full p-6 bg-slate-50 border-2 border-slate-100 rounded-[25px] font-black outline-none focus:border-amber-500 focus:bg-white transition-all text-xs tracking-wider text-slate-900 uppercase italic placeholder:text-slate-300"
+              value={nume} 
+              onChange={(e) => setNume(e.target.value)} 
+            />
             <textarea 
               title="Scrie aici experiența ta sau propunerile de îmbunătățire"
               placeholder="CE SUGESTII AI PENTRU NOI?" 
               rows={4} 
-              className="w-full p-5 bg-slate-50 border-2 border-slate-100 rounded-[25px] font-bold outline-none focus:border-amber-500 focus:bg-white transition-all resize-none text-xs tracking-wide text-slate-900 italic placeholder:text-slate-300"
+              className="w-full p-6 bg-slate-50 border-2 border-slate-100 rounded-[25px] font-bold outline-none focus:border-amber-500 focus:bg-white transition-all resize-none text-xs tracking-wide text-slate-900 italic placeholder:text-slate-300"
               value={mesaj} 
               onChange={(e) => setMesaj(e.target.value)} 
             />
             <button 
               type="button"
               title="Postează recenzia ta pe platformă"
-              onClick={(e) => {
-                e.preventDefault();
-                trimiteFeedback();
-              }} 
+              onClick={trimiteFeedback} 
               disabled={seIncarca} 
-              className={`w-full py-5 rounded-[25px] font-black uppercase italic tracking-[0.2em] text-[11px] transition-all shadow-xl active:scale-95 border-b-4 ${seIncarca ? 'bg-slate-300 border-slate-400 cursor-not-allowed' : 'bg-slate-900 text-white hover:bg-amber-600 border-slate-700 hover:border-amber-700'}`}
+              className={`w-full py-6 rounded-[25px] font-black uppercase italic tracking-[0.2em] text-[11px] transition-all shadow-xl active:translate-y-1 active:border-b-0 border-b-8 ${seIncarca ? 'bg-slate-300 border-slate-400 cursor-not-allowed' : 'bg-slate-900 text-white hover:bg-amber-600 border-slate-800 hover:border-amber-700'}`}
             >
               {seIncarca ? "SE PROCESEAZĂ..." : "Postează Recenzia"}
             </button>
           </div>
         </div>
 
-        {/* Lista Recenzii */}
         <div className="columns-1 md:columns-2 lg:columns-3 gap-8 space-y-8">
           {feedbacks.map((f) => (
             <div key={f.id} className={`break-inside-avoid p-10 rounded-[45px] border-2 shadow-sm transition-all group relative flex flex-col ${f.aprobat ? 'bg-white border-slate-50 hover:shadow-2xl hover:border-amber-100' : 'bg-amber-50/50 border-amber-200 border-dashed'}`}>
@@ -232,18 +244,18 @@ export default function PareriClienti() {
               </div>
               
               {editId === f.id ? (
-                <div className="space-y-4 bg-slate-50 p-6 rounded-3xl border-4 border-amber-500 animate-in slide-in-from-top-2">
+                <div className="space-y-4 bg-slate-50 p-6 rounded-3xl border-4 border-amber-500">
                   <div>
                     <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1 block">Comentariu Client:</label>
                     <textarea title="Modifică textul recenziei" className="w-full p-3 text-xs font-bold rounded-xl border-2 border-slate-100 outline-none focus:border-slate-900" value={textEditat} onChange={(e) => setTextEditat(e.target.value)} />
                   </div>
                   <div>
-                    <label className="text-[8px] font-black text-amber-600 uppercase tracking-widest mb-1 block">Răspunsul tău (Oficial):</label>
-                    <textarea title="Adaugă un răspuns oficial vizibil pentru toți" className="w-full p-3 text-xs font-bold rounded-xl border-2 border-amber-200 bg-amber-50 outline-none focus:border-amber-500" placeholder="Mulțumim pentru feedback..." value={raspunsAdmin} onChange={(e) => setRaspunsAdmin(e.target.value)} />
+                    <label className="text-[8px] font-black text-amber-600 uppercase tracking-widest mb-1 block">Răspunsul tău:</label>
+                    <textarea title="Adaugă un răspuns oficial" className="w-full p-3 text-xs font-bold rounded-xl border-2 border-amber-200 bg-amber-50 outline-none focus:border-amber-500" placeholder="Mulțumim..." value={raspunsAdmin} onChange={(e) => setRaspunsAdmin(e.target.value)} />
                   </div>
                   <div className="flex gap-2">
-                    <button title="Salvează toate modificările" onClick={() => salveazaModificariAdmin(f.id)} className="flex-1 bg-slate-900 text-white py-3 rounded-xl font-black text-[9px] uppercase border-b-4 border-slate-700">Confirmă</button>
-                    <button title="Renunță fără a salva" onClick={() => setEditId(null)} className="flex-1 bg-white text-slate-400 py-3 rounded-xl font-black text-[9px] uppercase border-2 border-slate-100">X</button>
+                    <button title="Salvează" onClick={() => salveazaModificariAdmin(f.id)} className="flex-1 bg-slate-900 text-white py-3 rounded-xl font-black text-[9px] uppercase border-b-4 border-slate-700 active:translate-y-0.5 active:border-b-0">Confirmă</button>
+                    <button title="Renunță" onClick={() => setEditId(null)} className="flex-1 bg-white text-slate-400 py-3 rounded-xl font-black text-[9px] uppercase border-2 border-slate-100">X</button>
                   </div>
                 </div>
               ) : (
@@ -253,7 +265,7 @@ export default function PareriClienti() {
                     {f.comentariu}
                   </p>
                   {f.raspuns_admin && (
-                    <div className="mb-8 p-6 bg-slate-900 rounded-[30px] relative border-b-4 border-amber-600">
+                    <div className="mb-8 p-6 bg-slate-900 rounded-[30px] border-b-4 border-amber-600">
                       <p className="text-amber-500 font-black uppercase text-[8px] tracking-[0.3em] mb-2 italic">Răspuns Chronos:</p>
                       <p className="text-white text-xs font-medium italic leading-relaxed">{f.raspuns_admin}</p>
                     </div>
