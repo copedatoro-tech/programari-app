@@ -151,13 +151,12 @@ export default function AdminSettingsHub() {
   };
 
   const toggleWeekdaySelection = (day: number) => {
-    if (!isSelectingWeekdays) return;
     setSelectedWeekdays(prev => 
       prev.includes(day) ? prev.filter(d => d !== day) : [...prev, day]
     );
   };
 
-  const applyToSelectedWeekdays = () => {
+  const applyToSelectedWeekdays = async () => {
     if (!selectedDate) return;
 
     if (!isSelectingWeekdays) {
@@ -174,27 +173,31 @@ export default function AdminSettingsHub() {
     
     startTransition(() => {
       const newBlocks = { ...manualBlocks };
-      const currentYear = new Date().getFullYear();
+      const startDate = new Date(selectedDate);
+      const currentYear = startDate.getFullYear();
       
-      for (let monthIdx = 0; monthIdx < 12; monthIdx++) {
-        const date = new Date(currentYear, monthIdx, 1);
-        while (date.getMonth() === monthIdx) {
-          if (selectedWeekdays.includes(date.getDay())) {
-            const y = date.getFullYear();
-            const m = (date.getMonth() + 1).toString().padStart(2, '0');
-            const d = date.getDate().toString().padStart(2, '0');
-            const dateStr = `${y}-${m}-${d}`;
-            
-            newBlocks[dateStr] = [...currentBlocks];
-          }
-          date.setDate(date.getDate() + 1);
+      // Iterăm de la data curentă până la sfârșitul anului
+      const date = new Date(startDate);
+      while (date.getFullYear() === currentYear) {
+        if (selectedWeekdays.includes(date.getDay())) {
+          const y = date.getFullYear();
+          const m = (date.getMonth() + 1).toString().padStart(2, '0');
+          const d = date.getDate().toString().padStart(2, '0');
+          const dateStr = `${y}-${m}-${d}`;
+          
+          newBlocks[dateStr] = [...currentBlocks];
         }
+        date.setDate(date.getDate() + 1);
       }
 
       setManualBlocks(newBlocks);
       setIsDirty(true);
       setIsSelectingWeekdays(false);
-      alert("✅ Programul a fost aplicat pentru zilele selectate în tot anul curent!");
+      
+      // Salvare automată și confirmare
+      saveSettings(newBlocks).then(() => {
+        alert("✅ Programul a fost aplicat cu succes pentru zilele selectate până la sfârșitul anului!");
+      });
     });
   };
 
@@ -442,7 +445,7 @@ export default function AdminSettingsHub() {
                       onClick={applyToSelectedWeekdays}
                       className={`h-[50px] px-6 rounded-xl font-black text-[9px] uppercase italic shadow-lg transition-all transform hover:scale-105 ${
                         isSelectingWeekdays 
-                        ? 'bg-slate-900 text-white' 
+                        ? 'bg-slate-900 text-white animate-pulse' 
                         : 'bg-amber-500 text-black'
                       }`}
                       title={isSelectingWeekdays ? "Confirmă aplicarea programului" : "Activează selecția zilelor pentru program predefinit"}
@@ -450,18 +453,17 @@ export default function AdminSettingsHub() {
                       {isSelectingWeekdays ? '🚀 Aplică Acum' : '📋 Setează program predefinit'}
                     </button>
                     
-                    <div className={`flex justify-between mt-1.5 px-1 transition-opacity ${isSelectingWeekdays ? 'opacity-100' : 'opacity-40 cursor-not-allowed'}`}>
+                    <div className={`flex justify-between mt-1.5 px-1 transition-opacity opacity-100`}>
                       {[1, 2, 3, 4, 5, 6, 0].map(d => (
                         <button
                           key={d}
-                          disabled={!isSelectingWeekdays}
                           onClick={() => toggleWeekdaySelection(d)}
-                          title={isSelectingWeekdays ? `Selectează ${["Duminică", "Luni", "Marți", "Miercuri", "Joi", "Vineri", "Sâmbătă"][d]}` : "Apasă butonul galben pentru a activa selecția"}
+                          title={`Selectează ${["Duminică", "Luni", "Marți", "Miercuri", "Joi", "Vineri", "Sâmbătă"][d]}`}
                           className={`w-7 h-7 rounded-full font-black text-[7px] transition-all border-2 flex items-center justify-center ${
                             selectedWeekdays.includes(d) 
                             ? 'bg-amber-500 border-amber-500 text-black shadow-md' 
                             : 'bg-white border-slate-200 text-slate-400 hover:border-amber-500 hover:text-amber-500'
-                          } ${!isSelectingWeekdays && 'cursor-not-allowed'}`}
+                          }`}
                         >
                           {["D", "L", "M", "M", "J", "V", "S"][d]}
                         </button>
@@ -503,8 +505,8 @@ export default function AdminSettingsHub() {
                   </p>
                   <p className="text-[8px] font-medium text-amber-900 leading-relaxed uppercase">
                     1. Blochează orele dorite pentru această zi.<br/>
-                    2. Apasă butonul <span className="font-black text-black">GALBEN</span>.<br/>
-                    3. Selectează zilele (L, M...) și apasă <span className="font-black text-black">APLICĂ</span> pentru a replica programul în tot anul.
+                    2. Selectează zilele de sub butonul galben (L, M...).<br/>
+                    3. Apasă butonul <span className="font-black text-black">GALBEN</span> pentru a replica programul în restul anului.
                   </p>
                 </div>
               </div>
