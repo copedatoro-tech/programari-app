@@ -48,6 +48,8 @@ type Subscription = { plan: string; max_appointments: number; max_experts: numbe
 
 interface StaffRow { id: string; name: string; services: string[]; }
 interface ServiceRow { id: string; nume_serviciu: string; price: number; duration: number; }
+interface ManualBlock { date: string; title?: string; }
+interface WorkingHour { day: string; start: string; end: string; closed: boolean; }
 
 function CalendarContent() {
   const searchParams = useSearchParams();
@@ -58,6 +60,9 @@ function CalendarContent() {
   const [rawStaff, setRawStaff] = useState<StaffRow[]>([]);
   const [rawServices, setRawServices] = useState<ServiceRow[]>([]);
   const [userSubscription, setUserSubscription] = useState<Subscription | null>(null);
+  
+  const [manualBlocks, setManualBlocks] = useState<ManualBlock[]>([]);
+  const [workingHours, setWorkingHours] = useState<WorkingHour[]>([]);
 
   const [viewMode, setViewMode] = useState<ViewMode>("month");
   const [selectedDate, setSelectedDate] = useState(new Date());
@@ -80,7 +85,7 @@ function CalendarContent() {
       if (userId) {
         const { data: profileData } = await supabase
           .from('profiles')
-          .select('plan_type, trial_started_at')
+          .select('plan_type, trial_started_at, manual_blocks, working_hours')
           .eq('id', userId)
           .single();
 
@@ -88,7 +93,6 @@ function CalendarContent() {
           const rawPlan = (profileData.plan_type || 'CHRONOS FREE').toUpperCase();
           let planFinal = rawPlan;
           
-          // Verificare Trial
           if (profileData.trial_started_at) {
             const start = new Date(profileData.trial_started_at).getTime();
             const acum = new Date().getTime();
@@ -100,6 +104,9 @@ function CalendarContent() {
             max_appointments: planFinal === 'CHRONOS FREE' ? 30 : planFinal === 'CHRONOS PRO' ? 150 : planFinal === 'CHRONOS ELITE' ? 500 : 99999,
             max_experts: planFinal === 'CHRONOS FREE' ? 1 : planFinal === 'CHRONOS PRO' ? 1 : planFinal === 'CHRONOS ELITE' ? 5 : 50
           });
+
+          setManualBlocks(Array.isArray(profileData.manual_blocks) ? profileData.manual_blocks : []);
+          setWorkingHours(Array.isArray(profileData.working_hours) ? profileData.working_hours : []);
         }
 
         const { data: staffData } = await supabase.from('staff').select('*').eq('user_id', userId);
@@ -131,6 +138,27 @@ function CalendarContent() {
   }, [isDemo]);
 
   useEffect(() => { fetchInitialData(); }, [fetchInitialData]);
+
+  const isDateBlocked = useCallback((dateStr: string, timeStr?: string) => {
+    const safeManualBlocks = Array.isArray(manualBlocks) ? manualBlocks : [];
+    const isManualBlocked = safeManualBlocks.some(b => b.date === dateStr);
+    if (isManualBlocked) return { blocked: true, reason: "Zi Blocată Manual" };
+
+    const dateObj = new Date(dateStr);
+    const dayName = dayNamesLong[dateObj.getDay()];
+    const safeWorkingHours = Array.isArray(workingHours) ? workingHours : [];
+    const daySchedule = safeWorkingHours.find(h => h.day === dayName);
+
+    if (daySchedule?.closed) return { blocked: true, reason: "Închis (Weekend/Sărbătoare)" };
+
+    if (timeStr && daySchedule) {
+      if (timeStr < daySchedule.start || timeStr > daySchedule.end) {
+        return { blocked: true, reason: `În afara programului (${daySchedule.start}-${daySchedule.end})` };
+      }
+    }
+
+    return { blocked: false };
+  }, [manualBlocks, workingHours]);
 
   useEffect(() => {
     if (editForm) {
@@ -167,6 +195,11 @@ function CalendarContent() {
   const handleUpdate = async () => {
     if (!editForm) return;
 
+    const check = isDateBlocked(editForm.data, editForm.ora);
+    if (check.blocked) {
+      return alert(`Nu se poate salva: ${check.reason}`);
+    }
+
     const updatePayload = {
       prenume: editForm.nume,
       email: editForm.email || null,
@@ -197,7 +230,6 @@ function CalendarContent() {
   };
 
   const sendWhatsAppReminder = () => {
-    // Restricție Plan: Doar ELITE sau TEAM pot trimite WhatsApp Direct
     const restrictedPlans = ["CHRONOS FREE", "CHRONOS PRO"];
     if (userSubscription && restrictedPlans.includes(userSubscription.plan)) {
       return alert("Funcția WhatsApp Direct este disponibilă începând cu planul ELITE. Te rugăm să faci upgrade pentru a folosi această funcție.");
@@ -303,6 +335,9 @@ function CalendarContent() {
                   <p className="text-[8px] font-black text-slate-400 uppercase italic mb-1">Ora</p>
                   <input type="time" title="Selectează Ora" className="w-full bg-transparent font-black text-xs text-slate-700 outline-none" value={editForm.ora} onChange={e => setEditForm({ ...editForm, ora: e.target.value })} />
                 </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
                 <div className="bg-slate-50 p-4 rounded-3xl border border-slate-100">
                   <p className="text-[8px] font-black text-slate-400 uppercase italic mb-1">Telefon</p>
                   <input type="text" title="Număr Telefon" className="w-full bg-transparent font-black text-xs text-slate-700 outline-none" value={editForm.telefon || ""} onChange={e => setEditForm({ ...editForm, telefon: e.target.value })} />
@@ -438,11 +473,26 @@ function CalendarContent() {
               {monthGrid.map((day, idx) => {
                 const key = formatDateKey(day);
                 const list = programariByDate[key] || [];
+                const blockStatus = isDateBlocked(key);
                 const isCurrentMonth = day.getMonth() === selectedDate.getMonth();
+                
                 return (
-                  <div key={idx} title={`Vezi programările pentru ${day.getDate()}`} onClick={() => goToDay(day)} className={`min-h-[140px] p-3 flex flex-col items-start hover:bg-amber-50/30 cursor-pointer border-r border-b border-slate-100 transition-colors ${isCurrentMonth ? "bg-white" : "bg-slate-50 opacity-40"}`}>
+                  <div key={idx} 
+                    title={blockStatus.blocked ? blockStatus.reason : `Vezi programările pentru ${day.getDate()}`} 
+                    onClick={() => !blockStatus.blocked && goToDay(day)} 
+                    className={`min-h-[140px] p-3 flex flex-col items-start border-r border-b border-slate-100 transition-colors relative
+                      ${!isCurrentMonth ? "bg-slate-50 opacity-40" : "bg-white"}
+                      ${blockStatus.blocked ? "bg-red-50/30 cursor-not-allowed" : "hover:bg-amber-50/30 cursor-pointer"}`}>
+                    
                     <span className={`text-[11px] font-black mb-3 px-3 py-1.5 rounded-[12px] ${sameDay(day, new Date()) ? "text-white bg-amber-600" : "text-slate-400"}`}>{day.getDate()}</span>
-                    <div className="w-full space-y-1.5">
+                    
+                    {blockStatus.blocked && (
+                      <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-20">
+                        <span className="text-[10px] font-black uppercase italic rotate-45 border-2 border-red-500 text-red-600 px-2 rounded-lg">Închis</span>
+                      </div>
+                    )}
+
+                    <div className="w-full space-y-1.5 z-10">
                       {list.slice(0, 3).map(p => <AppointmentChip key={p.id} p={p} />)}
                       {list.length > 3 && <p className="text-[8px] font-black text-amber-600 italic pl-1">+ încă {list.length - 3}</p>}
                     </div>
@@ -457,14 +507,26 @@ function CalendarContent() {
               {weekDays.map((day, i) => {
                 const key = formatDateKey(day);
                 const list = programariByDate[key] || [];
+                const blockStatus = isDateBlocked(key);
+                const safeWorkingHours = Array.isArray(workingHours) ? workingHours : [];
+                const daySchedule = safeWorkingHours.find(h => h.day === dayNamesLong[day.getDay()]);
+
                 return (
-                  <div key={i} className="bg-white min-h-[600px] flex flex-col border-r border-slate-100">
+                  <div key={i} className={`min-h-[600px] flex flex-col border-r border-slate-100 ${blockStatus.blocked ? "bg-slate-50" : "bg-white"}`}>
                     <div className={`p-4 text-center border-b-2 ${sameDay(day, new Date()) ? "border-amber-500 bg-amber-50/50" : "border-slate-50"}`}>
                       <p className="text-[10px] font-black text-slate-400 uppercase italic">{dayNamesShort[i]}</p>
                       <p className={`text-xl font-black italic ${sameDay(day, new Date()) ? "text-amber-600" : "text-slate-900"}`}>{day.getDate()}</p>
+                      {daySchedule && !daySchedule.closed && (
+                        <p className="text-[7px] font-bold text-slate-400 mt-1 uppercase">{daySchedule.start} - {daySchedule.end}</p>
+                      )}
                     </div>
+                    
                     <div className="p-2 space-y-2 overflow-y-auto">
-                      {list.length > 0 ? (
+                      {blockStatus.blocked ? (
+                        <div className="mt-10 text-center px-4">
+                           <p className="text-[8px] font-black text-red-400 uppercase italic leading-tight">{blockStatus.reason}</p>
+                        </div>
+                      ) : list.length > 0 ? (
                         list.sort((a, b) => a.ora.localeCompare(b.ora)).map(p => {
                           const expName = rawStaff.find(a => a.id === p.expertId)?.name || 'General';
                           return (
@@ -488,27 +550,29 @@ function CalendarContent() {
           {viewMode === "day" && (
             <div className="bg-white min-h-[500px] py-12 px-6">
               <div className="max-w-3xl mx-auto space-y-4">
-                {(programariByDate[formatDateKey(selectedDate)] || []).length > 0 ? (
-                  (programariByDate[formatDateKey(selectedDate)] || []).map(p => {
-                    const expName = rawStaff.find(a => a.id === p.expertId)?.name || 'General';
-                    const srvName = rawServices.find(s => s.id === p.serviciuId)?.nume_serviciu || 'Procedură';
-                    return (
-                      <button title="Vezi detalii complete" key={p.id} onClick={() => handleOpenEdit(p)} className="w-full flex items-center gap-8 p-8 bg-white border-2 border-slate-100 rounded-[35px] hover:border-amber-500 shadow-sm transition-all text-left group active:scale-[0.98]">
-                        <span className="text-3xl font-black text-slate-900 italic w-24 group-hover:text-amber-600 transition-colors">{p.ora}</span>
-                        <div className="flex flex-col flex-1">
-                          <span className="text-slate-900 font-black text-2xl uppercase italic group-hover:text-amber-600 transition-colors">{p.nume}</span>
-                          <div className="flex gap-4 text-xs font-black text-slate-500 uppercase italic mt-1">
-                            <span className="text-amber-600">{expName}</span>
-                            <span>• {srvName}</span>
-                          </div>
-                        </div>
-                        <span className="text-xs font-black text-amber-600 uppercase italic opacity-0 group-hover:opacity-100 transition-opacity">Detalii →</span>
-                      </button>
-                    );
-                  })
+                {isDateBlocked(formatDateKey(selectedDate)).blocked ? (
+                  <div className="text-center py-20 bg-red-50 rounded-[40px] border-2 border-dashed border-red-200">
+                    <p className="text-xl font-black text-red-500 uppercase italic tracking-tighter mb-2">Locație Închisă</p>
+                    <p className="text-xs font-bold text-red-400 uppercase italic">{isDateBlocked(formatDateKey(selectedDate)).reason}</p>
+                  </div>
+                ) : (programariByDate[formatDateKey(selectedDate)] || []).length > 0 ? (
+                  (programariByDate[formatDateKey(selectedDate)] || []).sort((a, b) => a.ora.localeCompare(b.ora)).map(p => (
+                    <div key={p.id} title={`Click pentru a edita programarea lui ${p.nume}`} className="flex items-center gap-6 p-6 bg-slate-50 rounded-[35px] border border-slate-100 group hover:bg-slate-900 transition-all cursor-pointer shadow-sm" onClick={() => handleOpenEdit(p)}>
+                      <div className="w-20 text-center border-r border-slate-200 pr-6 group-hover:border-slate-700">
+                        <p className="text-sm font-black italic text-amber-600">{p.ora}</p>
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-lg font-black uppercase italic text-slate-900 group-hover:text-white leading-none mb-1">{p.nume}</p>
+                        <p className="text-[10px] font-bold text-slate-400 uppercase italic tracking-widest">{rawServices.find(s => s.id === p.serviciuId)?.nume_serviciu || 'Serviciu Nesetat'}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-[10px] font-black text-slate-400 group-hover:text-amber-500 uppercase italic">{rawStaff.find(a => a.id === p.expertId)?.name || 'Nesetat'}</p>
+                      </div>
+                    </div>
+                  ))
                 ) : (
                   <div className="text-center py-20 bg-slate-50 rounded-[40px] border-2 border-dashed border-slate-100">
-                    <p className="text-slate-300 font-black italic uppercase text-sm">Nicio programare găsită.</p>
+                    <p className="text-xs font-black text-slate-300 uppercase italic">Nicio programare pentru această zi.</p>
                   </div>
                 )}
               </div>
@@ -522,7 +586,7 @@ function CalendarContent() {
 
 export default function CalendarPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-slate-50 font-black uppercase italic text-slate-400">Sincronizare Chronos...</div>}>
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center font-black italic text-slate-300 animate-pulse uppercase">Se încarcă Chronos...</div>}>
       <CalendarContent />
     </Suspense>
   );

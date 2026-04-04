@@ -7,7 +7,6 @@ import { supabase } from "@/lib/supabaseClient";
 import Image from "next/image";
 import "./globals.css";
 
-// Importul modalelor folosind alias-ul corect
 import GDPRModal from "@/app/components/GDPRModal";
 import TermeniModal from "@/app/components/TermeniModal";
 import CookiesModal from "@/app/components/CookiesModal";
@@ -20,14 +19,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
-  // Stări pentru controlul modalelor (Pop-up-uri)
   const [modalOpen, setModalOpen] = useState({
     gdpr: false,
     termeni: false,
     cookies: false,
   });
 
-  // Titlurile paginilor pentru afișarea în header
   const getPageTitle = () => {
     switch (path) {
       case "/programari": return "Programări";
@@ -43,14 +40,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     }
   };
 
-  // Paginile care nu necesită autentificare
+  // ✅ FIX — /rezervare adăugat în paginile publice
   const isPublicPage = 
     path === "/login" || 
     path === "/" || 
     path === "/register" || 
-    path === "/forgot-password";
+    path === "/forgot-password" ||
+    path.startsWith("/rezervare");
 
-  // 1. Logica de Sincronizare Auth (Sesiune initiala)
   useEffect(() => {
     const syncAuth = async () => {
       if (!supabase || typeof supabase.auth === 'undefined') {
@@ -77,16 +74,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     return () => {
       if (subscription) subscription.unsubscribe();
     };
-  }, []); // Dependențe goale pentru a rula o singură dată la mount
+  }, []);
 
-  // 2. Logica de Redirecționare (Separată pentru a evita eroarea de dependențe)
   useEffect(() => {
     if (authLoaded && !isLoggedIn && !isPublicPage) {
       router.replace("/login");
     }
   }, [authLoaded, isLoggedIn, isPublicPage, router]);
 
-  // Închidere meniu la click exterior
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
@@ -123,14 +118,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center relative">
                   
                   <div className="flex items-center gap-4">
-                    <Link href="/programari" className="flex items-center gap-5 group">
-                      <div className="w-14 h-14 bg-slate-900 rounded-2xl flex items-center justify-center shadow-xl shadow-amber-500/20 group-hover:rotate-6 transition-all duration-300 border-b-4 border-amber-600 relative overflow-hidden">
+                    <Link href="/programari" className="flex items-center gap-2 group">
+                      <div className="w-20 h-20 flex items-center justify-center transition-all duration-300 relative overflow-hidden">
                         <Image 
                           src="/logo-chronos.png" 
                           alt="Logo Chronos" 
                           fill 
                           priority
-                          className="object-contain p-2"
+                          className="object-contain p-0"
                         />
                       </div>
                       <div className="text-2xl font-black italic uppercase tracking-tighter group-hover:text-amber-600 transition-all">
@@ -139,16 +134,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                     </Link>
                   </div>
 
-                  {/* Indicator Pagina Curentă */}
                   <div className="absolute left-1/2 -translate-x-1/2 hidden lg:block">
                     <div className="border-2 border-amber-500 px-6 py-2 rounded-xl bg-amber-50/50 shadow-sm">
                       <h2 className="text-sm font-black uppercase italic tracking-widest text-slate-900 leading-none">
-                         {getPageTitle()}
+                        {getPageTitle()}
                       </h2>
                     </div>
                   </div>
 
-                  {/* Zona Buton + Pop-up */}
                   <div className="flex items-center gap-2 md:gap-4 relative" ref={menuRef}>
                     <button 
                       onClick={(e) => {
@@ -164,7 +157,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                       {isMenuOpen ? "ÎNCHIDE ✕" : "MENIU ☰"}
                     </button>
 
-                    {/* Pop-up Meniu */}
                     {isMenuOpen && (
                       <div 
                         onClick={(e) => e.stopPropagation()}
@@ -215,30 +207,32 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
             <main className="flex-grow">{children}</main>
 
-            <footer className="w-full bg-white border-t-4 border-slate-100 py-8 px-10 mt-auto">
-              <div className="max-w-7xl mx-auto flex flex-col lg:flex-row justify-between items-center gap-8">
-                <div className="flex items-center gap-5">
-                  <div className="w-12 h-12 bg-slate-900 rounded-xl flex items-center justify-center shadow-lg shadow-amber-500/20 border-b-2 border-amber-600 relative overflow-hidden">
-                    <Image 
-                      src="/logo-chronos.png" 
-                      alt="Logo Chronos Footer" 
-                      fill 
-                      priority
-                      className="object-contain p-1.5"
-                    />
+            {!isPublicPage && (
+              <footer className="w-full bg-white border-t-4 border-slate-100 py-8 px-10 mt-auto">
+                <div className="max-w-7xl mx-auto flex flex-col lg:flex-row justify-between items-center gap-8">
+                  <div className="flex items-center gap-2">
+                    <div className="w-16 h-16 flex items-center justify-center relative overflow-hidden">
+                      <Image 
+                        src="/logo-chronos.png" 
+                        alt="Logo Chronos Footer" 
+                        fill 
+                        priority
+                        className="object-contain p-0"
+                      />
+                    </div>
+                    <p className="text-slate-900 font-black text-xs uppercase italic tracking-widest">
+                      © 2026 CHRONOS <span className="text-slate-300 mx-2">|</span> PREMIUM MANAGEMENT
+                    </p>
                   </div>
-                  <p className="text-slate-900 font-black text-xs uppercase italic tracking-widest">
-                    © 2026 CHRONOS <span className="text-slate-300 mx-2">|</span> PREMIUM MANAGEMENT
-                  </p>
+                  
+                  <div className="flex flex-wrap justify-center gap-8">
+                    <button onClick={() => setModalOpen({ ...modalOpen, termeni: true })} className="text-xs font-black uppercase italic text-slate-400 hover:text-amber-500 transition-colors">Termeni și Condiții</button>
+                    <button onClick={() => setModalOpen({ ...modalOpen, gdpr: true })} className="text-xs font-black uppercase italic text-slate-400 hover:text-amber-500 transition-colors">Politică de Confidențialitate</button>
+                    <button onClick={() => setModalOpen({ ...modalOpen, cookies: true })} className="text-xs font-black uppercase italic text-slate-400 hover:text-amber-500 transition-colors">Politică Cookies</button>
+                  </div>
                 </div>
-                
-                <div className="flex flex-wrap justify-center gap-8">
-                  <button onClick={() => setModalOpen({ ...modalOpen, termeni: true })} className="text-xs font-black uppercase italic text-slate-400 hover:text-amber-500 transition-colors">Termeni și Condiții</button>
-                  <button onClick={() => setModalOpen({ ...modalOpen, gdpr: true })} className="text-xs font-black uppercase italic text-slate-400 hover:text-amber-500 transition-colors">Politică de Confidențialitate</button>
-                  <button onClick={() => setModalOpen({ ...modalOpen, cookies: true })} className="text-xs font-black uppercase italic text-slate-400 hover:text-amber-500 transition-colors">Politică Cookies</button>
-                </div>
-              </div>
-            </footer>
+              </footer>
+            )}
 
             <GDPRModal isOpen={modalOpen.gdpr} onClose={() => setModalOpen({ ...modalOpen, gdpr: false })} />
             <TermeniModal isOpen={modalOpen.termeni} onClose={() => setModalOpen({ ...modalOpen, termeni: false })} />

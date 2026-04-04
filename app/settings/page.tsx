@@ -36,8 +36,6 @@ export default function AdminSettingsHub() {
 
   useEffect(() => {
     if (typeof window !== "undefined") {
-      // CORECȚIE: Ne asigurăm că luăm doar domeniul principal (ex: https://site.ro)
-      // fără calea curentă (/admin/setari), pentru ca link-ul public să fie corect.
       setBaseUrl(window.location.origin);
     }
   }, []);
@@ -161,10 +159,11 @@ export default function AdminSettingsHub() {
       return;
     }
 
+    const currentBlocks = manualBlocks[selectedDate] || [];
     const dayNames = ["Dum", "Lun", "Mar", "Mie", "Joi", "Vin", "Sâm"];
     const selectedNames = selectedWeekdays.map(d => dayNames[d]).join(", ");
 
-    if (!confirm(`Vrei să setezi toate zilele de [${selectedNames}] ca fiind LIBERE pentru rezervări?`)) return;
+    if (!confirm(`Vrei să aplici programul selectat în această zi pentru toate zilele de [${selectedNames}] din acest an?`)) return;
 
     const newBlocks = { ...manualBlocks };
     const year = currentMonth.getFullYear();
@@ -175,14 +174,15 @@ export default function AdminSettingsHub() {
         const tempDate = new Date(year, m, d);
         if (selectedWeekdays.includes(tempDate.getDay())) {
           const dateStr = `${year}-${(m + 1).toString().padStart(2, '0')}-${d.toString().padStart(2, '0')}`;
-          newBlocks[dateStr] = []; 
+          // Copiem exact blocajele din ziua curentă în toate celelalte zile selectate
+          newBlocks[dateStr] = [...currentBlocks]; 
         }
       }
     }
 
     setManualBlocks(newBlocks);
     setIsDirty(true);
-    alert(`✅ Programul pentru ${selectedNames} a fost setat ca disponibil.`);
+    alert(`✅ Programul a fost aplicat pentru toate zilele de ${selectedNames}.`);
   };
 
   const renderCalendar = () => {
@@ -241,39 +241,20 @@ export default function AdminSettingsHub() {
     return () => document.removeEventListener("mousedown", handleOutsideClick);
   }, [showDayModal]);
 
-  // MODIFICARE CRUCIALĂ: Construim link-ul public forțat fără sub-foldere de admin
   const bookingUrl = `${baseUrl}/rezervare/${slug}`;
 
   const handlePrintQR = () => {
     const printWindow = window.open('', '_blank');
     if (!printWindow) return;
-    
     const qrSvg = qrRef.current?.innerHTML;
-    
     printWindow.document.write(`
       <html>
         <head>
           <title>Listare Cod QR Chronos</title>
           <style>
             @page { margin: 0; size: auto; }
-            body { 
-              margin: 0; 
-              display: flex; 
-              flex-direction: column; 
-              align-items: center; 
-              justify-content: center; 
-              height: 100vh; 
-              font-family: sans-serif; 
-              text-align: center;
-              -webkit-print-color-adjust: exact;
-            }
-            .qr-container { 
-              padding: 40px; 
-              border: 2px solid #f59e0b; 
-              border-radius: 40px; 
-              display: inline-block;
-              page-break-inside: avoid;
-            }
+            body { margin: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; font-family: sans-serif; text-align: center; -webkit-print-color-adjust: exact; }
+            .qr-container { padding: 40px; border: 2px solid #f59e0b; border-radius: 40px; display: inline-block; page-break-inside: avoid; }
             h1 { font-size: 24px; text-transform: uppercase; margin: 0 0 10px 0; }
             p { font-size: 14px; color: #666; margin: 0 0 30px 0; }
             svg { width: 300px !important; height: 300px !important; }
@@ -310,7 +291,6 @@ export default function AdminSettingsHub() {
     <div className="min-h-screen bg-slate-50 p-4 md:p-8 font-sans text-slate-900 flex flex-col">
       <div className="max-w-7xl mx-auto flex-grow w-full">
         
-        {/* Compact Header */}
         <header className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
           <div>
             <h1 className="text-2xl md:text-3xl font-black italic uppercase tracking-tighter border-l-4 border-amber-500 pl-4 text-slate-900">Configurare <span className="text-amber-500">Disponibilitate</span></h1>
@@ -330,7 +310,6 @@ export default function AdminSettingsHub() {
           </div>
         </header>
 
-        {/* Compact Hub Section */}
         <section className="bg-slate-900 rounded-[30px] p-6 mb-8 flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl relative overflow-hidden">
           <div className="absolute top-0 right-0 w-48 h-48 bg-amber-500/10 rounded-full blur-3xl -mr-24 -mt-24"></div>
           
@@ -374,7 +353,6 @@ export default function AdminSettingsHub() {
           </div>
         </section>
 
-        {/* Calendar Section */}
         <div className="bg-white p-5 md:p-8 rounded-[40px] shadow-2xl border border-slate-100 mb-10 relative">
           <div className="flex flex-col md:flex-row items-center justify-between mb-6 gap-4">
             <h2 className="text-2xl font-black uppercase italic text-slate-900 tracking-tighter">
@@ -426,6 +404,7 @@ export default function AdminSettingsHub() {
                     <button 
                       onClick={applyToSelectedWeekdays}
                       className="h-[50px] px-6 bg-amber-500 text-black rounded-xl font-black text-[9px] uppercase italic shadow-lg hover:bg-slate-900 hover:text-white transition-all transform hover:scale-105"
+                      title="Aplică blocajele din această zi la toate zilele selectate mai jos"
                     >
                       📋 Setează program predefinit
                     </button>
@@ -475,10 +454,10 @@ export default function AdminSettingsHub() {
                 
                 <div className="mt-6 p-4 bg-amber-50 rounded-2xl border border-amber-100">
                   <p className="text-[9px] font-black text-black leading-relaxed uppercase italic mb-1">
-                    💡 Info:
+                    💡 Info Predefinit:
                   </p>
                   <p className="text-[8px] font-medium text-amber-900 leading-relaxed uppercase">
-                    Pătrățelele <span className="font-black text-black">NEGRE</span> sunt orele blocate pentru clienți.
+                    Blochează orele dorite (negru), bifează zilele (L, M, M...) și apasă butonul <span className="font-black text-black">GALBEN</span> pentru a replica programul în tot anul.
                   </p>
                 </div>
               </div>
