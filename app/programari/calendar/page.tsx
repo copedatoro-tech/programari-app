@@ -40,13 +40,11 @@ type Programare = {
   motiv?: string;
   poza?: string;
   user_id?: string;
-  expert?: string;
-  serviciu?: string;
   expertId?: string;
   serviciuId?: string;
 };
 type ViewMode = "day" | "week" | "month";
-type Subscription = { plan: 'free' | 'pro' | 'business'; max_appointments: number; max_experts: number; is_trial?: boolean; };
+type Subscription = { plan: string; max_appointments: number; max_experts: number; };
 
 interface StaffRow { id: string; name: string; services: string[]; }
 interface ServiceRow { id: string; nume_serviciu: string; price: number; duration: number; }
@@ -87,17 +85,20 @@ function CalendarContent() {
           .single();
 
         if (profileData) {
-          const rawPlan = (profileData.plan_type || 'free').toLowerCase();
+          const rawPlan = (profileData.plan_type || 'CHRONOS FREE').toUpperCase();
           let planFinal = rawPlan;
+          
+          // Verificare Trial
           if (profileData.trial_started_at) {
             const start = new Date(profileData.trial_started_at).getTime();
             const acum = new Date().getTime();
-            if (acum - start < 10 * 24 * 60 * 60 * 1000) planFinal = 'chronos team';
+            if (acum - start < 10 * 24 * 60 * 60 * 1000) planFinal = 'CHRONOS TEAM';
           }
+
           setUserSubscription({
-            plan: planFinal as any,
-            max_appointments: planFinal === 'chronos free' ? 50 : 500,
-            max_experts: planFinal === 'chronos free' ? 2 : 20
+            plan: planFinal,
+            max_appointments: planFinal === 'CHRONOS FREE' ? 30 : planFinal === 'CHRONOS PRO' ? 150 : planFinal === 'CHRONOS ELITE' ? 500 : 99999,
+            max_experts: planFinal === 'CHRONOS FREE' ? 1 : planFinal === 'CHRONOS PRO' ? 1 : planFinal === 'CHRONOS ELITE' ? 5 : 50
           });
         }
 
@@ -114,13 +115,12 @@ function CalendarContent() {
       if (appts) {
         setProgramari(appts.map((item: any) => ({
           id: item.id,
-          // Folosim 'prenume' sau 'nume' conform structurii din Supabase
           nume: item.prenume || item.nume || "Client",
           email: item.email,
-          data: item.date || item.data || "",
-          ora: item.time || item.ora || "",
-          telefon: item.phone || item.telefon || "",
-          motiv: item.details || item.motiv || "",
+          data: item.date || "",
+          ora: item.time || "",
+          telefon: item.phone || "",
+          motiv: item.details || "",
           poza: item.poza,
           expertId: item.angajat_id || "",
           serviciuId: item.serviciu_id || ""
@@ -139,7 +139,6 @@ function CalendarContent() {
     }
   }, [editForm, rawServices]);
 
-  // Click outside modal logic
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (modalRef.current && !modalRef.current.contains(event.target as Node)) {
@@ -150,24 +149,17 @@ function CalendarContent() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [editForm]);
 
-  // Filtrare angajati bazat pe serviciu
-  const angajatiFiltrati = useMemo(() => {
+  const angajatiFiltratiInModal = useMemo(() => {
     if (!editForm?.serviciuId) return rawStaff;
     return rawStaff.filter(a => a.services?.includes(editForm.serviciuId!));
   }, [editForm?.serviciuId, rawStaff]);
 
-  // Filtrare servicii bazat pe angajat
-  const serviciiFiltrate = useMemo(() => {
+  const serviciiFiltrateInModal = useMemo(() => {
     if (!editForm?.expertId) return rawServices;
     const angajat = rawStaff.find(a => a.id === editForm.expertId);
     if (!angajat) return rawServices;
     return rawServices.filter(s => angajat.services?.includes(s.id));
   }, [editForm?.expertId, rawStaff, rawServices]);
-
-  const handleExpertChange = (val: string) => {
-    setSelectedExpert(val);
-    setSelectedServiciu(""); 
-  };
 
   const handleOpenEdit = (p: Programare) => setEditForm({ ...p });
   const handleCloseModal = () => setEditForm(null);
@@ -175,18 +167,22 @@ function CalendarContent() {
   const handleUpdate = async () => {
     if (!editForm) return;
 
-    // Actualizat pentru a folosi numele corecte ale coloanelor din baza de date
-    const { error } = await supabase.from('appointments').update({
-      prenume: editForm.nume, // Mapat la prenume conform screenshot-ului bazei de date
-      email: editForm.email,
+    const updatePayload = {
+      prenume: editForm.nume,
+      email: editForm.email || null,
       date: editForm.data,
       time: editForm.ora,
-      phone: editForm.telefon,
-      details: editForm.motiv,
-      angajat_id: editForm.expertId,
-      serviciu_id: editForm.serviciuId,
-      poza: editForm.poza
-    }).eq('id', editForm.id);
+      phone: editForm.telefon || null,
+      details: editForm.motiv || null,
+      angajat_id: editForm.expertId === "" ? null : editForm.expertId,
+      serviciu_id: editForm.serviciuId === "" ? null : editForm.serviciuId,
+      poza: editForm.poza || null
+    };
+
+    const { error } = await supabase
+      .from('appointments')
+      .update(updatePayload)
+      .eq('id', editForm.id);
 
     if (error) return alert(error.message);
     setProgramari(prev => prev.map(p => p.id === editForm.id ? editForm : p));
@@ -201,7 +197,11 @@ function CalendarContent() {
   };
 
   const sendWhatsAppReminder = () => {
-    if (userSubscription?.plan === 'chronos free') return alert("Necesită plan PRO.");
+    // Restricție Plan: Doar ELITE sau TEAM pot trimite WhatsApp Direct
+    const restrictedPlans = ["CHRONOS FREE", "CHRONOS PRO"];
+    if (userSubscription && restrictedPlans.includes(userSubscription.plan)) {
+      return alert("Funcția WhatsApp Direct este disponibilă începând cu planul ELITE. Te rugăm să faci upgrade pentru a folosi această funcție.");
+    }
     const clean = editForm?.telefon?.replace(/\D/g, "");
     window.open(`https://wa.me/${clean?.startsWith('0') ? '4' + clean : clean}?text=${encodeURIComponent(customMessage)}`, '_blank');
   };
@@ -320,7 +320,7 @@ function CalendarContent() {
                     value={editForm.expertId || ""} 
                     onChange={e => setEditForm({ ...editForm, expertId: e.target.value })}>
                     <option value="">Alege Specialist...</option>
-                    {angajatiFiltrati.map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
+                    {angajatiFiltratiInModal.map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
                   </select>
                 </div>
                 <div className="bg-slate-50 p-4 rounded-3xl border border-slate-100">
@@ -329,7 +329,7 @@ function CalendarContent() {
                     value={editForm.serviciuId || ""} 
                     onChange={e => setEditForm({ ...editForm, serviciuId: e.target.value })}>
                     <option value="">Alege Serviciu...</option>
-                    {serviciiFiltrate.map(s => <option key={s.id} value={s.id}>{s.nume_serviciu?.toUpperCase()}</option>)}
+                    {serviciiFiltrateInModal.map(s => <option key={s.id} value={s.id}>{s.nume_serviciu?.toUpperCase()}</option>)}
                   </select>
                 </div>
               </div>
@@ -341,11 +341,19 @@ function CalendarContent() {
               </div>
 
               <div className="space-y-3">
-                <p className="text-[10px] font-black text-green-600 uppercase italic tracking-widest">💬 Notificare WhatsApp</p>
+                <div className="flex justify-between items-center">
+                   <p className="text-[10px] font-black text-green-600 uppercase italic tracking-widest">💬 Notificare WhatsApp</p>
+                   {userSubscription && ["CHRONOS FREE", "CHRONOS PRO"].includes(userSubscription.plan) && (
+                     <span className="text-[8px] bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-bold uppercase">Upgrade Elite</span>
+                   )}
+                </div>
                 <textarea title="Previzualizare mesaj WhatsApp" className="w-full bg-slate-50 border border-green-100 rounded-2xl p-4 text-[11px] font-bold text-slate-700 outline-none italic" rows={2}
                   value={customMessage} onChange={e => setCustomMessage(e.target.value)} />
-                <button title="Trimite reminder către client" onClick={sendWhatsAppReminder}
-                  className={`w-full py-4 rounded-2xl text-[10px] font-black uppercase italic transition shadow-lg ${userSubscription?.plan === 'chronos free' ? 'bg-slate-300 cursor-not-allowed text-slate-500' : 'bg-green-600 text-white hover:bg-green-700 active:scale-95'}`}>
+                <button 
+                  title="Trimite reminder către client" 
+                  onClick={sendWhatsAppReminder}
+                  className={`w-full py-4 rounded-2xl text-[10px] font-black uppercase italic transition shadow-lg flex items-center justify-center gap-2 ${userSubscription && ["CHRONOS FREE", "CHRONOS PRO"].includes(userSubscription.plan) ? 'bg-slate-200 text-slate-400 cursor-not-allowed' : 'bg-green-600 text-white hover:bg-green-700 active:scale-95'}`}>
+                  {userSubscription && ["CHRONOS FREE", "CHRONOS PRO"].includes(userSubscription.plan) && <span>🔒</span>}
                   Trimite pe WhatsApp
                 </button>
               </div>
@@ -368,7 +376,12 @@ function CalendarContent() {
             <div className="w-14 h-14 bg-slate-900 rounded-2xl flex items-center justify-center shadow-lg"><span className="text-amber-500 font-black text-xl italic">C</span></div>
             <div>
               <h1 className="text-2xl font-black text-slate-900 tracking-tighter uppercase italic leading-none">Calendar <span className="text-amber-600">Chronos</span></h1>
-              <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] italic mt-1">Sincronizat cu servicii & echipa</p>
+              <div className="flex items-center gap-2 mt-1">
+                 <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] italic">Sincronizat</p>
+                 {userSubscription && (
+                   <span className="text-[8px] bg-slate-100 text-slate-500 px-2 py-0.5 rounded-md font-bold uppercase">{userSubscription.plan}</span>
+                 )}
+              </div>
             </div>
           </div>
           <div className="flex-1 max-w-2xl w-full relative">
@@ -382,7 +395,7 @@ function CalendarContent() {
         <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-slate-50">
           <div>
             <p className="text-[9px] font-black text-slate-400 uppercase italic mb-1 ml-4">Filtrează după Specialist {selectedExpert && <button title="Resetează filtru" onClick={() => setSelectedExpert("")} className="ml-2 text-amber-600">✕</button>}</p>
-            <select title="Filtrează calendarul după expert" value={selectedExpert} onChange={e => handleExpertChange(e.target.value)} className="w-full bg-slate-50 border-2 border-slate-100 rounded-[35px] py-3 px-6 text-[11px] font-black text-slate-700 uppercase italic shadow-inner outline-none focus:border-amber-500 cursor-pointer appearance-none">
+            <select title="Filtrează calendarul după expert" value={selectedExpert} onChange={e => setSelectedExpert(e.target.value)} className="w-full bg-slate-50 border-2 border-slate-100 rounded-[35px] py-3 px-6 text-[11px] font-black text-slate-700 uppercase italic shadow-inner outline-none focus:border-amber-500 cursor-pointer appearance-none">
               <option value="">Toți Specialiștii</option>
               {rawStaff.map(exp => <option key={exp.id} value={exp.id}>{exp.name}</option>)}
             </select>

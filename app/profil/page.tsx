@@ -5,31 +5,27 @@ import { createBrowserClient } from '@supabase/ssr';
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 
-const LIMITE_ABONAMENTE: Record<string, { nume: any; limita: string; culoare: string }> = {
+// CONFIGURARE ABONAMENTE CONFORM IMAGINII DE PREZENTARE
+const LIMITE_ABONAMENTE: Record<string, { nume: string; limita: string; culoare: string }> = {
   "chronos free": { 
-    nume: "START (GRATUIT)", 
-    limita: "50 rezervări/lună", 
-    culoare: "text-slate-400" 
+    nume: "CHRONOS FREE", 
+    limita: "30 rezervări / lună", 
+    culoare: "text-slate-900" 
   },
   "chronos pro": { 
-    nume: "PRO", 
-    limita: "200 rezervări/lună", 
-    culoare: "text-blue-500" 
+    nume: "CHRONOS PRO", 
+    limita: "150 rezervări / lună", 
+    culoare: "text-slate-900" 
   },
   "chronos elite": { 
-    nume: "ELITE", 
-    limita: "500 rezervări/lună", 
-    culoare: "text-amber-500" 
+    nume: "CHRONOS ELITE", 
+    limita: "500 rezervări / lună", 
+    culoare: "text-slate-900" 
   },
   "chronos team": { 
-    nume: (
-      <span className="italic uppercase">
-        <span className="text-slate-900">CHRONOS</span>{" "}
-        <span className="text-amber-500">TEAM</span>
-      </span>
-    ), 
-    limita: "Nelimitat (5000)", 
-    culoare: "" 
+    nume: "CHRONOS TEAM", 
+    limita: "Rezervări nelimitate", 
+    culoare: "text-slate-900" 
   }
 };
 
@@ -81,6 +77,7 @@ export default function ProfilPage() {
           setUser({ id: "demo_user", email: "demo@chronos.ro" });
           setNume("Utilizator Demo");
           setEmail("demo@chronos.ro");
+          setTelefon("0700000000");
           setFunctie("Administrator (Demo)");
           setSlug("demo-salon");
           setSubscriptionPlan("chronos elite");
@@ -111,7 +108,10 @@ export default function ProfilPage() {
           setUser(u);
           setEmail(u.email || "");
           setNume(profile?.full_name || u.user_metadata?.full_name || "Utilizator Chronos");
-          setTelefon(profile?.phone || "");
+          
+          // --- PRELUARE TELEFON (PROFIL SAU METADATE ÎNREGISTRARE) ---
+          setTelefon(profile?.phone || u.user_metadata?.phone || "");
+          
           setFunctie(profile?.role || "Administrator Sistem");
           setSlug(profile?.slug || ""); 
           setAvatarUrl(profile?.avatar_url || "");
@@ -285,34 +285,35 @@ export default function ProfilPage() {
           </div>
         </div>
 
-        {/* Plan Section */}
+        {/* Plan Section - Actualizat cu denumirile din imagine */}
         <div className="px-12 py-8 bg-slate-50 border-b border-slate-100 flex flex-col md:flex-row items-center justify-between gap-8">
           <div className="flex items-center gap-6">
             <div className="w-16 h-16 bg-white rounded-3xl flex items-center justify-center shadow-xl border border-slate-100 text-3xl">💎</div>
             <div>
-              <p className="text-[10px] font-black text-slate-400 uppercase italic">Nivel Licență Activ</p>
-              <h3 className={`text-2xl font-black italic uppercase ${LIMITE_ABONAMENTE[subscriptionPlan.toLowerCase()]?.culoare || 'text-slate-400'}`}>
-                {LIMITE_ABONAMENTE[subscriptionPlan.toLowerCase()]?.nume || "START"} 
+              <p className="text-[10px] font-black text-slate-400 uppercase italic">Abonament Activ</p>
+              <h3 className={`text-2xl font-black italic uppercase ${LIMITE_ABONAMENTE[subscriptionPlan.toLowerCase()]?.culoare || 'text-slate-900'}`}>
+                {LIMITE_ABONAMENTE[subscriptionPlan.toLowerCase()]?.nume || "CHRONOS FREE"} 
                 {(isTrialActive || subscriptionPlan.includes("trial")) && (
                   <span className="ml-2 text-[10px] text-amber-600 animate-pulse">(TRIAL)</span>
                 )}
               </h3>
-              <p className="text-[10px] font-bold text-slate-500 italic uppercase">Limită: {LIMITE_ABONAMENTE[subscriptionPlan.toLowerCase()]?.limita || "50"}</p>
+              <p className="text-[10px] font-bold text-slate-500 italic uppercase">
+                {LIMITE_ABONAMENTE[subscriptionPlan.toLowerCase()]?.limita || "30 rezervări / lună"}
+              </p>
             </div>
           </div>
-          <button onClick={() => router.push('/abonamente')} className="px-8 py-4 bg-slate-900 text-white text-[10px] font-black rounded-2xl uppercase italic hover:bg-amber-500 hover:text-slate-900 border-b-8 border-slate-800 transition-all">
+          <button onClick={() => router.push('/abonamente')} className="px-8 py-4 bg-slate-900 text-white text-[10px] font-black rounded-2xl uppercase italic hover:bg-amber-500 hover:text-slate-900 border-b-8 border-slate-800 transition-all shadow-lg">
             Schimbă Abonamentul
           </button>
         </div>
 
-        {/* Input fields */}
         <div className="p-12 space-y-12 bg-white">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
             {[
               { label: "Nume Complet", val: nume, set: setNume, icon: "👤", editable: !isDemo },
               { label: "Email", val: email, set: null, icon: "✉️", editable: false },
               { label: "Telefon", val: telefon, set: setTelefon, icon: "📱", editable: !isDemo },
-              { label: "Rol", val: functie, set: setFunctie, icon: "💼", editable: !isDemo },
+              { label: "Rol / Funcție", val: functie, set: setFunctie, icon: "💼", editable: !isDemo },
             ].map((item, idx) => (
               <div key={idx} className="space-y-3">
                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4 italic flex items-center gap-2">
@@ -329,12 +330,15 @@ export default function ProfilPage() {
             ))}
           </div>
 
-          {/* SECȚIUNEA SPECIALĂ PENTRU SLUG CU BUTON DE ACTIVARE */}
-          <div className="bg-amber-50/30 p-8 md:p-10 rounded-[40px] border-2 border-dashed border-amber-200 space-y-6">
+          <div className="bg-amber-50/30 p-8 md:p-10 rounded-[40px] border-2 border-dashed border-amber-200 space-y-6 relative">
+            <div className="absolute -top-4 left-10 bg-amber-500 text-white text-[8px] font-black px-4 py-1 rounded-full uppercase italic tracking-widest">
+                Configurare Link Public
+            </div>
+            
             <div className="flex flex-col md:flex-row md:items-end gap-6">
               <div className="flex-1 space-y-3">
                 <label className="text-[10px] font-black text-amber-600 uppercase tracking-[0.2em] ml-4 italic flex items-center gap-2">
-                  🔗 ADRESA TA UNICĂ DE REZERVARE (SLUG)
+                  🔗 ADRESA UNICĂ DE REZERVARE (SLUG)
                 </label>
                 <div className="relative flex items-center">
                   <span className="absolute left-6 text-slate-400 font-bold text-xs italic">/rezervare/</span>
@@ -358,9 +362,15 @@ export default function ProfilPage() {
               </button>
             </div>
             
-            <p className="ml-6 text-[9px] text-slate-400 italic">
-              *Atenție: Aceasta este adresa pe care o vei trimite clienților tăi. Verifică disponibilitatea apăsând butonul de mai sus.
-            </p>
+            <div className="bg-white/50 p-6 rounded-3xl border border-amber-100">
+              <p className="text-[10px] text-slate-900 font-black uppercase italic mb-2 flex items-center gap-2">
+                <span className="text-lg">⚠️</span> IMPORTANȚĂ MAXIMĂ (OBLIGATORIU):
+              </p>
+              <p className="text-[10px] text-slate-600 leading-relaxed font-medium italic">
+                Această adresă (Slug) este <span className="text-amber-600 font-bold">identitatea ta digitală</span>. Orice modificare a acestui link va invalida automat <span className="font-bold">Codurile QR</span> generate anterior și link-urile trimise deja clienților. 
+                Vă rugăm să alegeți un nume reprezentativ (ex: <span className="italic text-slate-900">salon-art-nails</span>) pe care să nu îl mai schimbați ulterior pentru a păstra conexiunea activă cu scanările clienților.
+              </p>
+            </div>
           </div>
           
           <div className="pt-6 border-t border-slate-50 flex justify-center">
@@ -382,8 +392,8 @@ export default function ProfilPage() {
               <h2 className="text-3xl font-black text-slate-900 uppercase italic">Securitate</h2>
             </div>
             <div className="space-y-4">
-              <input type="password" placeholder="PAROLĂ NOUĂ" value={pass1} onChange={(e) => setPass1(e.target.value)} className="w-full p-6 bg-slate-50 border-2 border-slate-100 rounded-[25px] font-bold text-center" />
-              <input type="password" placeholder="CONFIRMĂ" value={pass2} onChange={(e) => setPass2(e.target.value)} className="w-full p-6 bg-slate-50 border-2 border-slate-100 rounded-[25px] font-bold text-center" />
+              <input type="password" placeholder="PAROLĂ NOUĂ" value={pass1} onChange={(e) => setPass1(e.target.value)} className="w-full p-6 bg-slate-50 border-2 border-slate-100 rounded-[25px] font-bold text-center outline-none focus:border-amber-500" />
+              <input type="password" placeholder="CONFIRMĂ PAROLA" value={pass2} onChange={(e) => setPass2(e.target.value)} className="w-full p-6 bg-slate-50 border-2 border-slate-100 rounded-[25px] font-bold text-center outline-none focus:border-amber-500" />
             </div>
             <button onClick={handleConfirmPassword} className="w-full py-6 bg-slate-900 text-amber-500 rounded-[25px] font-black text-[12px] uppercase italic border-b-8 border-slate-800 hover:bg-amber-500 hover:text-white transition-all">
               {updating ? "..." : "Actualizează"}

@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import { useRouter } from "next/navigation";
 
@@ -11,115 +11,17 @@ export default function IstoricPage() {
   const [cautare, setCautare] = useState("");
   const [dosarSelectat, setDosarSelectat] = useState<any | null>(null);
 
-  useEffect(() => {
-    const initializeazaPagina = async () => {
-      setIncarcare(true);
-      try {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (!session?.user) {
-          router.push("/login");
-          return;
-        }
-        const currentId = session.user.id;
-        setUserId(currentId);
-
-        await sincronizeazaProgramariInDosare(currentId);
-        await preiaSiGrupeazaDosare(currentId);
-      } catch (err) {
-        console.error("Eroare inițializare:", err);
-      } finally {
-        setIncarcare(false);
-      }
-    };
-
-    initializeazaPagina();
-  }, [router]);
-
-  const sincronizeazaProgramariInDosare = async (currentUserId: string) => {
-    try {
-      // Luăm programările sortate ASCENDENT după dată (cele mai noi la final)
-      const { data: programari } = await supabase
-        .from('appointments')
-        .select('*')
-        .eq('user_id', currentUserId)
-        .order('date', { ascending: true });
-
-      if (!programari) return;
-
-      for (const prog of programari) {
-        if (!prog.phone && !prog.email) continue;
-
-        const p_prenume = (prog.prenume || prog.first_name || "").trim();
-        const p_nume = (prog.nume || prog.last_name || "").trim();
-        const p_full = (prog.client_name || prog.full_name || prog.nume_complet || "").trim();
-
-        let numeDinProgramare = "";
-        if (p_nume && p_prenume) {
-          numeDinProgramare = `${p_nume} ${p_prenume}`;
-        } else {
-          numeDinProgramare = p_full || p_nume || p_prenume || "Client Necunoscut";
-        }
-        
-        const dataProgr = prog.date ? new Date(prog.date).toLocaleDateString('ro-RO') : 'Nespecificată';
-        const linieIstoric = `• ${dataProgr}: ${prog.title || 'Consultare'}`;
-
-        const conditii = [];
-        if (prog.phone) conditii.push(`phone_number.eq.${prog.phone}`);
-        if (prog.email) conditii.push(`client_email.eq.${prog.email}`);
-        
-        const { data: existente } = await supabase
-          .from('client_cases')
-          .select('*')
-          .eq('user_id', currentUserId)
-          .or(conditii.join(','));
-
-        if (!existente || existente.length === 0) {
-          // Creare dosar nou dacă nu există
-          await supabase.from('client_cases').insert([{
-            user_id: currentUserId,
-            client_name: numeDinProgramare,
-            client_email: prog.email || "",
-            phone_number: prog.phone || "",
-            case_type: "Dosar Client",
-            status: "Activ",
-            description: `ISTORIC COLECTAT AUTOMAT:\n${linieIstoric}`,
-            avatar_url: prog.avatar_url || null
-          }]);
-        } else {
-          const dosarExistent = existente[0];
-          let updateData: any = {};
-
-          // LOGICĂ FORȚATĂ DE ACTUALIZARE: 
-          // Dacă numele din Calendar este valid și diferit de cel din Istoric, 
-          // îl actualizăm pe cel din Istoric (pentru a prelua modificările gen Danny -> Dan)
-          if (numeDinProgramare !== "Client Necunoscut" && numeDinProgramare !== dosarExistent.client_name) {
-            updateData.client_name = numeDinProgramare;
-          }
-
-          const descriereCurenta = dosarExistent.description || "";
-          if (!descriereCurenta.includes(dataProgr)) {
-            updateData.description = `${descriereCurenta}\n${linieIstoric}`;
-          }
-
-          if (Object.keys(updateData).length > 0) {
-            await supabase.from('client_cases')
-              .update(updateData)
-              .eq('id', dosarExistent.id);
-          }
-        }
-      }
-    } catch (e) {
-      console.error("Eroare la sincronizare:", e);
-    }
-  };
-
-  const preiaSiGrupeazaDosare = async (currentUserId: string) => {
-    const { data } = await supabase
+  // --- Preluare dosare din baza de date ---
+  const preiaSiGrupeazaDosare = useCallback(async (currentUserId: string) => {
+    const { data, error } = await supabase
       .from('client_cases')
       .select('*')
       .eq('user_id', currentUserId);
 
-    if (!data) return;
+    if (error) {
+      console.error("Eroare preluare dosare:", error);
+      return;
+    }
 
     const clientiUnici: Record<string, any> = {};
 
@@ -131,12 +33,23 @@ export default function IstoricPage() {
       if (!clientiUnici[cheie]) {
         clientiUnici[cheie] = { ...dosar };
       } else {
-        // Păstrăm numele cel mai recent/valid în caz de duplicate în DB
-        if (dosar.client_name && dosar.client_name !== "Client Necunoscut") {
-          clientiUnici[cheie].client_name = dosar.client_name;
+        const numeNou = (dosar.client_name || "").trim();
+        const numeExistent = (clientiUnici[cheie].client_name || "").trim();
+        
+        const esteGeneric = (n: string) => 
+          n.toLowerCase() === "client" || 
+          n.toLowerCase().includes("necunoscut") || 
+          n.toLowerCase() === "client nou";
+
+        if (!esteGeneric(numeNou) && (esteGeneric(numeExistent) || numeNou.length > numeExistent.length)) {
+          clientiUnici[cheie].client_name = numeNou;
+        }
+        
+        if (dosar.poza && !clientiUnici[cheie].poza) {
+          clientiUnici[cheie].poza = dosar.poza;
         }
         if (dosar.description && !clientiUnici[cheie].description.includes(dosar.description)) {
-            clientiUnici[cheie].description += `\n${dosar.description}`;
+          clientiUnici[cheie].description += `\n${dosar.description}`;
         }
       }
     });
@@ -146,54 +59,159 @@ export default function IstoricPage() {
     );
 
     setDosare(listaFinala);
+  }, []);
 
-    if (dosarSelectat) {
-      const gasit = listaFinala.find(d => d.id === dosarSelectat.id);
-      if (gasit) setDosarSelectat(gasit);
+  // --- Sincronizare simplificată ---
+  const sincronizeazaProgramariInDosare = async (currentUserId: string) => {
+    try {
+      const { data: programari } = await supabase
+        .from('appointments')
+        .select('*')
+        .eq('user_id', currentUserId);
+
+      const { data: dosareExistente } = await supabase
+        .from('client_cases')
+        .select('*')
+        .eq('user_id', currentUserId);
+
+      if (!programari) return;
+
+      const mapDosare = new Map();
+      dosareExistente?.forEach(d => {
+        if (d.phone_number) mapDosare.set(d.phone_number.replace(/\s+/g, ''), d);
+        if (d.client_email) mapDosare.set(d.client_email.toLowerCase().trim(), d);
+      });
+
+      for (const prog of programari) {
+        if (!prog.phone && !prog.email) continue;
+
+        // Luăm orice text găsim în câmpurile de nume și le unim simplu
+        const numeDinCalendar = `${prog.prenume || ""} ${prog.nume || ""}`.trim();
+        const numeFinal = numeDinCalendar || prog.phone || "Client Nou";
+
+        const dataProgr = prog.date ? new Date(prog.date).toLocaleDateString('ro-RO') : 'Nespecificată';
+        const linieIstoric = `• ${dataProgr}: ${prog.nume_serviciu || 'Serviciu'}`;
+        
+        const telCheie = prog.phone?.replace(/\s+/g, '');
+        const emailCheie = prog.email?.toLowerCase().trim();
+        const dosarExistent = mapDosare.get(telCheie) || mapDosare.get(emailCheie);
+
+        if (!dosarExistent) {
+          await supabase.from('client_cases').insert([{
+            user_id: currentUserId,
+            client_name: numeFinal,
+            client_email: prog.email || "",
+            phone_number: prog.phone || "",
+            case_type: "Dosar Client",
+            status: "Activ",
+            description: `ISTORIC:\n${linieIstoric}`,
+            poza: prog.poza || null
+          }]);
+        } else {
+          let updateData: any = {};
+          let needsUpdate = false;
+
+          const numeActualInDosar = (dosarExistent.client_name || "").trim();
+          
+          // Dacă numele din calendar este mai lung sau cel actual e generic, actualizăm
+          if (numeDinCalendar && (numeDinCalendar !== numeActualInDosar)) {
+            const esteGeneric = numeActualInDosar.toLowerCase().includes("client") || numeActualInDosar === dosarExistent.phone_number;
+            if (esteGeneric || numeDinCalendar.length > numeActualInDosar.length) {
+              updateData.client_name = numeDinCalendar;
+              needsUpdate = true;
+            }
+          }
+
+          if (!dosarExistent.description?.includes(dataProgr)) {
+            updateData.description = `${dosarExistent.description || ""}\n${linieIstoric}`;
+            needsUpdate = true;
+          }
+
+          if (needsUpdate) {
+            await supabase.from('client_cases').update(updateData).eq('id', dosarExistent.id);
+            if (updateData.client_name) dosarExistent.client_name = updateData.client_name;
+            if (updateData.description) dosarExistent.description = updateData.description;
+          }
+        }
+      }
+    } catch (e) {
+      console.error("Eroare sincronizare:", e);
+    }
+  };
+
+  useEffect(() => {
+    const init = async () => {
+      setIncarcare(true);
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user) { router.push("/login"); return; }
+      
+      const currentId = session.user.id;
+      setUserId(currentId);
+      
+      await sincronizeazaProgramariInDosare(currentId);
+      await preiaSiGrupeazaDosare(currentId);
+      
+      setIncarcare(false);
+    };
+    init();
+  }, [router, preiaSiGrupeazaDosare]);
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !dosarSelectat || !userId) return;
+
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${dosarSelectat.id}-${Date.now()}.${fileExt}`;
+      const { error: uploadError } = await supabase.storage.from('appointment-photos').upload(fileName, file);
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage.from('appointment-photos').getPublicUrl(fileName);
+      await actualizeazaCampDosar('poza', publicUrl);
+    } catch (err) {
+      alert("Eroare la încărcare imagine.");
     }
   };
 
   const actualizeazaCampDosar = async (camp: string, valoare: string) => {
-    if (!dosarSelectat) return;
+    if (!dosarSelectat || !userId) return;
     const { error } = await supabase.from('client_cases').update({ [camp]: valoare }).eq('id', dosarSelectat.id);
     if (!error) {
-      setDosarSelectat({ ...dosarSelectat, [camp]: valoare });
-      preiaSiGrupeazaDosare(userId!);
+      setDosarSelectat((prev: any) => ({ ...prev, [camp]: valoare }));
+      setDosare(prev => prev.map(d => d.id === dosarSelectat.id ? { ...d, [camp]: valoare } : d));
     }
   };
 
   const stergeDosarDefinitiv = async (idDosar: string) => {
-    if (!userId || !confirm("Ștergi definitiv acest client și tot istoricul lui?")) return;
-    const { error } = await supabase.from('client_cases').delete().eq('id', idDosar);
-    if (!error) {
-      preiaSiGrupeazaDosare(userId);
-      setDosarSelectat(null);
-    }
+    if (!userId || !confirm("Ștergi definitiv acest client?")) return;
+    await supabase.from('client_cases').delete().eq('id', idDosar);
+    setDosare(prev => prev.filter(d => d.id !== idDosar));
+    setDosarSelectat(null);
   };
 
-  const rezultateFiltrate = dosare.filter(d => {
+  const rezultateFiltrate = useMemo(() => {
     const termen = cautare.toLowerCase();
-    return (d.client_name || "").toLowerCase().includes(termen) || (d.phone_number || "").includes(termen);
-  });
+    return dosare.filter(d => 
+      (d.client_name || "").toLowerCase().includes(termen) || 
+      (d.phone_number || "").includes(termen)
+    );
+  }, [dosare, cautare]);
 
   return (
     <main className="min-h-screen bg-slate-50 p-6 md:p-12 font-sans text-slate-900">
       <div className="max-w-7xl mx-auto">
-        
-        <div className="mb-12 bg-white p-10 rounded-[50px] shadow-2xl shadow-slate-200/50 border-2 border-slate-50">
-          <h1 className="text-4xl md:text-6xl font-black italic uppercase tracking-tighter text-slate-900 leading-none">
+        <div className="mb-12 bg-white p-10 rounded-[50px] shadow-2xl border-2 border-slate-50">
+          <h1 className="text-4xl md:text-6xl font-black italic uppercase tracking-tighter text-slate-900">
             CLIENȚI <span className="text-amber-600">UNICI</span>
           </h1>
-          <p className="text-slate-400 font-black text-[10px] uppercase tracking-[0.4em] mt-4 italic">
-            SISTEM DE GESTIUNE ACTIV • {dosare.length} PROFILE
-          </p>
+          <p className="text-slate-400 font-black text-[10px] uppercase mt-4 italic">Sistem Automat • {dosare.length} Profile active</p>
         </div>
 
-        <div className="relative mb-16 group">
+        <div className="relative mb-16">
           <input
             type="text"
-            placeholder="CAUTĂ DUPĂ NUME SAU TELEFON..."
-            className="w-full p-8 pl-20 bg-white border-2 border-slate-100 rounded-[35px] outline-none focus:border-amber-500 font-black shadow-2xl shadow-slate-200/40 transition-all text-xl italic uppercase tracking-tight"
+            placeholder="CAUTĂ CLIENT..."
+            className="w-full p-8 pl-20 bg-white border-2 border-slate-100 rounded-[35px] outline-none focus:border-amber-500 font-black shadow-xl text-xl italic uppercase"
             value={cautare}
             onChange={(e) => setCautare(e.target.value)}
           />
@@ -202,87 +220,78 @@ export default function IstoricPage() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {incarcare ? (
-            <div className="col-span-full py-32 text-center italic font-black text-slate-300">Sincronizare...</div>
-          ) : rezultateFiltrate.length > 0 ? (
+            <div className="col-span-full py-32 text-center italic font-black text-slate-300">Sincronizare profile...</div>
+          ) : (
             rezultateFiltrate.map((dosar) => (
               <div
                 key={dosar.id}
                 onClick={() => setDosarSelectat(dosar)}
                 className="bg-white p-6 rounded-[40px] border-2 border-slate-50 hover:border-amber-400 shadow-lg hover:shadow-2xl transition-all cursor-pointer flex items-center gap-8 group"
               >
-                <div className="w-28 h-28 shrink-0 bg-slate-900 rounded-[30px] overflow-hidden flex items-center justify-center border-4 border-slate-100 group-hover:border-amber-500 transition-colors">
-                  {dosar.avatar_url ? (
-                    <img src={dosar.avatar_url} alt="" className="w-full h-full object-cover" />
-                  ) : (
-                    <span className="text-4xl font-black text-amber-500 italic">{(dosar.client_name || "C").charAt(0)}</span>
-                  )}
+                <div className="w-28 h-28 shrink-0 bg-slate-900 rounded-[30px] overflow-hidden flex items-center justify-center border-4 border-slate-100 group-hover:border-amber-500">
+                  {dosar.poza ? <img src={dosar.poza} className="w-full h-full object-cover" /> : <span className="text-4xl font-black text-amber-500 italic">{(dosar.client_name || "C").charAt(0)}</span>}
                 </div>
-
                 <div className="flex-grow min-w-0">
-                  <h3 className="text-2xl font-black text-slate-900 uppercase italic leading-tight truncate mb-1">
-                    {dosar.client_name || "Fără Nume"}
-                  </h3>
-                  <div className="flex items-center gap-3">
-                    <span className="text-[10px] font-black bg-amber-100 text-amber-700 px-3 py-1 rounded-full uppercase italic">
-                      {dosar.phone_number || "Fără Tel"}
-                    </span>
-                    <span className="text-[10px] font-black text-slate-400 uppercase italic truncate">
-                      {dosar.status}
-                    </span>
-                  </div>
-                  <div className="mt-4 flex items-center gap-2 text-[10px] font-black text-amber-600 uppercase italic group-hover:translate-x-2 transition-transform">
-                    Deschide fișa completă →
+                  <h3 className="text-2xl font-black text-slate-900 uppercase italic truncate">{dosar.client_name}</h3>
+                  <div className="flex items-center gap-3 mt-1">
+                    <span className="text-[10px] font-black bg-amber-100 text-amber-700 px-3 py-1 rounded-full">{dosar.phone_number || "Fără Tel"}</span>
+                    <span className="text-[10px] font-black text-slate-400 uppercase italic">{dosar.status}</span>
                   </div>
                 </div>
               </div>
             ))
-          ) : (
-            <div className="col-span-full text-center py-20 text-slate-300 font-black uppercase italic">Niciun rezultat găsit.</div>
           )}
         </div>
 
         {dosarSelectat && (
           <div className="fixed inset-0 bg-slate-900/90 backdrop-blur-xl z-[100] flex items-center justify-center p-4" onClick={() => setDosarSelectat(null)}>
-            <div className="bg-white w-full max-w-4xl rounded-[60px] overflow-hidden shadow-2xl relative flex flex-col max-h-[95vh]" onClick={e => e.stopPropagation()}>
+            <div className="bg-white w-full max-w-4xl rounded-[60px] overflow-hidden shadow-2xl flex flex-col max-h-[95vh]" onClick={e => e.stopPropagation()}>
               <div className="p-10 bg-slate-900 text-white flex justify-between items-center">
                 <div className="flex items-center gap-8 w-full mr-10">
-                  <div className="w-20 h-20 bg-amber-600 rounded-[25px] flex items-center justify-center text-3xl font-black italic shrink-0 overflow-hidden">
-                    {dosarSelectat.avatar_url ? <img src={dosarSelectat.avatar_url} className="w-full h-full object-cover" /> : (dosarSelectat.client_name || "C").charAt(0)}
-                  </div>
+                  <label className="cursor-pointer group relative shrink-0">
+                    <div className="w-24 h-24 bg-amber-600 rounded-[30px] flex items-center justify-center text-3xl font-black italic overflow-hidden border-2 border-amber-400 group-hover:opacity-75 transition-all">
+                      {dosarSelectat.poza ? <img src={dosarSelectat.poza} className="w-full h-full object-cover" /> : (dosarSelectat.client_name || "C").charAt(0)}
+                    </div>
+                    <input type="file" className="hidden" accept="image/*" onChange={handleImageUpload} />
+                  </label>
                   <input 
-                    className="bg-transparent text-4xl font-black uppercase italic tracking-tighter border-none outline-none focus:ring-2 focus:ring-amber-500 rounded-xl w-full px-2"
+                    className="bg-transparent text-4xl font-black uppercase italic tracking-tighter border-none outline-none focus:ring-2 focus:ring-amber-500 rounded-xl w-full"
                     value={dosarSelectat.client_name || ""}
-                    title="Modifică Numele"
-                    onChange={(e) => actualizeazaCampDosar('client_name', e.target.value)}
+                    onChange={(e) => setDosarSelectat({...dosarSelectat, client_name: e.target.value})}
+                    onBlur={(e) => actualizeazaCampDosar('client_name', e.target.value)}
                   />
                 </div>
-                <button onClick={() => setDosarSelectat(null)} className="bg-white/10 hover:bg-red-500 w-14 h-14 rounded-[20px] transition-all shrink-0">✕</button>
+                <button onClick={() => setDosarSelectat(null)} className="bg-white/10 hover:bg-red-500 w-14 h-14 rounded-[20px]">✕</button>
               </div>
               
-              <div className="p-12 overflow-y-auto bg-slate-50 flex-grow">
+              <div className="p-12 overflow-y-auto bg-slate-50 flex-grow scrollbar-hide">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
                   <div className="bg-white p-8 rounded-[35px] border-2 border-slate-100">
-                    <p className="text-[10px] font-black text-slate-400 uppercase italic mb-4">CONTACT</p>
+                    <p className="text-[10px] font-black text-slate-400 uppercase italic mb-4">Contact client</p>
                     <div className="space-y-4">
-                        <input className="w-full bg-slate-50 p-4 rounded-2xl font-black italic outline-none focus:ring-2 focus:ring-amber-500 text-[11px]" value={dosarSelectat.phone_number || ""} onChange={(e) => actualizeazaCampDosar('phone_number', e.target.value)} placeholder="TELEFON" />
-                        <input className="w-full bg-slate-50 p-4 rounded-2xl font-black italic outline-none focus:ring-2 focus:ring-amber-500 text-[11px]" value={dosarSelectat.client_email || ""} onChange={(e) => actualizeazaCampDosar('client_email', e.target.value)} placeholder="EMAIL" />
+                      <input className="w-full bg-slate-50 p-4 rounded-2xl font-black italic outline-none text-[11px]" value={dosarSelectat.phone_number || ""} readOnly />
+                      <input className="w-full bg-slate-50 p-4 rounded-2xl font-black italic outline-none text-[11px]" value={dosarSelectat.client_email || ""} readOnly />
                     </div>
                   </div>
                   <div className="bg-white p-8 rounded-[35px] border-2 border-slate-100">
-                    <p className="text-[10px] font-black text-slate-400 uppercase italic mb-4">DETALII CLASIFICARE</p>
-                    <div className="space-y-4">
-                        <select className="w-full bg-slate-50 p-4 rounded-2xl font-black italic uppercase outline-none text-[11px]" value={dosarSelectat.status} onChange={(e) => actualizeazaCampDosar('status', e.target.value)}>
-                            <option value="Activ">🟢 ACTIV</option>
-                            <option value="Inchis">🔴 ÎNCHIS</option>
-                        </select>
-                        <input className="w-full bg-slate-50 p-4 rounded-2xl font-black italic uppercase outline-none text-[11px]" value={dosarSelectat.case_type || ""} onChange={(e) => actualizeazaCampDosar('case_type', e.target.value)} placeholder="TIP DOSAR" />
-                    </div>
+                    <p className="text-[10px] font-black text-slate-400 uppercase italic mb-4">Status Dosar</p>
+                    <select className="w-full bg-slate-50 p-4 rounded-2xl font-black italic uppercase outline-none text-[11px]" value={dosarSelectat.status} onChange={(e) => actualizeazaCampDosar('status', e.target.value)}>
+                      <option value="Activ">🟢 ACTIV</option>
+                      <option value="Inchis">🔴 ÎNCHIS</option>
+                    </select>
                   </div>
                 </div>
-                <p className="text-[10px] font-black text-slate-400 uppercase italic mb-4 ml-4">ISTORIC ȘI NOTE EVOLUȚIE</p>
-                <textarea className="w-full bg-white p-10 rounded-[40px] border-2 border-slate-100 mb-10 font-medium italic text-slate-700 leading-relaxed min-h-[300px] outline-none focus:border-amber-400" value={dosarSelectat.description || ""} onChange={(e) => actualizeazaCampDosar('description', e.target.value)} />
+
+                <p className="text-[10px] font-black text-slate-400 uppercase italic mb-4 ml-4">Istoric Servicii</p>
+                <textarea 
+                  className="w-full bg-white p-10 rounded-[40px] border-2 border-slate-100 mb-10 font-medium italic text-slate-700 min-h-[300px] outline-none" 
+                  value={dosarSelectat.description || ""} 
+                  onChange={(e) => setDosarSelectat({...dosarSelectat, description: e.target.value})}
+                  onBlur={(e) => actualizeazaCampDosar('description', e.target.value)}
+                />
+
                 <div className="flex justify-center">
-                  <button onClick={() => stergeDosarDefinitiv(dosarSelectat.id)} className="px-10 py-5 bg-red-50 text-red-600 border-2 border-red-100 rounded-[22px] font-black text-[11px] uppercase italic">🗑️ ELIMINĂ CLIENTUL DEFINITIV</button>
+                  <button onClick={() => stergeDosarDefinitiv(dosarSelectat.id)} className="px-10 py-5 bg-red-50 text-red-600 border-2 border-red-100 rounded-[22px] font-black text-[11px] uppercase hover:bg-red-500 hover:text-white transition-all">🗑️ ELIMINĂ CLIENT DIN ISTORIC</button>
                 </div>
               </div>
             </div>

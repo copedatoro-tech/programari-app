@@ -36,6 +36,8 @@ export default function AdminSettingsHub() {
 
   useEffect(() => {
     if (typeof window !== "undefined") {
+      // CORECȚIE: Ne asigurăm că luăm doar domeniul principal (ex: https://site.ro)
+      // fără calea curentă (/admin/setari), pentru ca link-ul public să fie corect.
       setBaseUrl(window.location.origin);
     }
   }, []);
@@ -239,6 +241,7 @@ export default function AdminSettingsHub() {
     return () => document.removeEventListener("mousedown", handleOutsideClick);
   }, [showDayModal]);
 
+  // MODIFICARE CRUCIALĂ: Construim link-ul public forțat fără sub-foldere de admin
   const bookingUrl = `${baseUrl}/rezervare/${slug}`;
 
   const handlePrintQR = () => {
@@ -312,7 +315,7 @@ export default function AdminSettingsHub() {
           <div>
             <h1 className="text-2xl md:text-3xl font-black italic uppercase tracking-tighter border-l-4 border-amber-500 pl-4 text-slate-900">Configurare <span className="text-amber-500">Disponibilitate</span></h1>
             <div className="mt-1 ml-5 flex gap-2">
-               <span className="text-[7px] font-black px-1.5 py-0.5 bg-slate-900 text-white rounded-md uppercase italic">{userPlan}</span>
+                <span className="text-[7px] font-black px-1.5 py-0.5 bg-slate-900 text-white rounded-md uppercase italic">{userPlan}</span>
             </div>
           </div>
           <div className="flex gap-2">
@@ -327,11 +330,10 @@ export default function AdminSettingsHub() {
           </div>
         </header>
 
-        {/* Compact Hub Section - New Aligned Layout */}
+        {/* Compact Hub Section */}
         <section className="bg-slate-900 rounded-[30px] p-6 mb-8 flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl relative overflow-hidden">
           <div className="absolute top-0 right-0 w-48 h-48 bg-amber-500/10 rounded-full blur-3xl -mr-24 -mt-24"></div>
           
-          {/* Link Section */}
           <div className="flex-1 w-full md:w-auto relative z-10">
             <h2 className="text-amber-500 font-black italic uppercase tracking-widest text-[8px] mb-2">Link-ul tău Chronos</h2>
             <div className="bg-white/5 border border-white/10 rounded-xl px-5 py-6 flex items-center overflow-hidden">
@@ -340,9 +342,7 @@ export default function AdminSettingsHub() {
             </div>
           </div>
 
-          {/* Action Hub - Perfect Alignment */}
           <div className="flex items-center gap-2 relative z-10">
-            {/* Double Buttons Column */}
             <div className="flex flex-col gap-2 h-[120px]">
               <button 
                 onClick={() => {
@@ -361,12 +361,10 @@ export default function AdminSettingsHub() {
               </button>
             </div>
 
-            {/* QR Code Container - Matches buttons height */}
             <div className="bg-white p-2.5 rounded-xl flex items-center justify-center h-[120px] w-[120px] shadow-lg" ref={qrRef}>
               <QRCodeSVG value={bookingUrl} size={100} level="H" includeMargin={false} />
             </div>
 
-            {/* Vertical Print Button - Full Height */}
             <button 
               onClick={handlePrintQR}
               className="bg-amber-500 text-black h-[120px] px-3 rounded-xl font-black uppercase text-[9px] italic hover:bg-white transition-all shadow-md flex flex-col items-center justify-center gap-2"

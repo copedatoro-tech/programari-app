@@ -43,7 +43,6 @@ function ProgramariContent() {
   const [loadingDB, setLoadingDB] = useState(true);
   const [popupProgramare, setPopupProgramare] = useState<Programare | null>(null);
   const [userPlan, setUserPlan] = useState<string>("chronos free");
-  const [countLunaCurenta, setCountLunaCurenta] = useState(0);
   const [isTrialing, setIsTrialing] = useState(false);
   const [daysLeft, setDaysLeft] = useState<number | null>(null);
 
@@ -79,9 +78,6 @@ function ProgramariContent() {
     angajat_id: "",
     serviciu_id: ""
   });
-
-  const limitaCurenta = isTrialing ? 999999 : (LIMITE_ABONAMENTE[userPlan] || 30);
-  const esteLimitat = countLunaCurenta >= limitaCurenta;
 
   const fetchProgramari = useCallback(async (userId: string) => {
     if (!supabase) return;
@@ -136,22 +132,15 @@ function ProgramariContent() {
     if (sv) setServicii(sv);
   }, []);
 
-  const checkSubscriptionLimit = useCallback(async (userId: string) => {
-    if (!supabase) return;
-    const inceputLuna = new Date(); inceputLuna.setDate(1);
-    const { count } = await supabase.from('appointments').select('*', { count: 'exact', head: true }).eq('user_id', userId).gte('date', inceputLuna.toISOString().split('T')[0]);
-    setCountLunaCurenta(count || 0);
-  }, []);
-
   const fetchInitialData = useCallback(async () => {
     if (!supabase) return;
     setLoadingDB(true);
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) return;
-      await Promise.all([fetchProgramari(session.user.id), fetchResurse(session.user.id), checkSubscriptionLimit(session.user.id)]);
+      await Promise.all([fetchProgramari(session.user.id), fetchResurse(session.user.id)]);
     } catch (err) { console.error(err); } finally { setLoadingDB(false); }
-  }, [fetchProgramari, fetchResurse, checkSubscriptionLimit]);
+  }, [fetchProgramari, fetchResurse]);
 
   const serviciiFiltrate = useMemo(() => {
     if (!formular.angajat_id) return servicii;
@@ -217,18 +206,40 @@ function ProgramariContent() {
 
   const salveazaInCloud = async () => {
     if (!supabase) return;
-    if (esteLimitat) { alert("Atenționare: Limita lunară de programări a fost atinsă!"); return; }
-    if (!formular.nume || !formular.telefon) { alert("Atenționare: Completează Numele și Telefonul."); return; }
-    
+    if (!formular.nume || !formular.telefon) {
+      alert("Atenționare: Completează Numele și Telefonul.");
+      return;
+    }
+
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
+
+    // Re-verificare live a limitei înainte de insert (cumulat din ambele surse)
+    if (!isTrialing) {
+      const limit = LIMITE_ABONAMENTE[userPlan] || 30;
+      const inceputLuna = new Date();
+      inceputLuna.setDate(1);
+      const firstDay = inceputLuna.toISOString().split('T')[0];
+
+      // Numărăm TOATE programările lunii, indiferent de sursă (admin sau client)
+      const { count } = await supabase
+        .from('appointments')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', user.id)
+        .gte('date', firstDay);
+
+      if ((count || 0) >= limit) {
+        alert("Atenționare: Limita lunară de programări a fost atinsă!");
+        return;
+      }
+    }
 
     const serviciuSelectat = servicii.find(s => s.id === formular.serviciu_id);
     const angajatSelectat = angajati.find(a => a.id === formular.angajat_id);
 
     const payload = {
       user_id: user.id,
-      title: formular.nume, 
+      title: formular.nume,
       email: formular.email,
       date: formular.data,
       time: formular.ora,
@@ -247,8 +258,8 @@ function ProgramariContent() {
         docs: formular.documente,
         minutes: formular.reminderMinutes,
         volume: formular.reminderVolume,
-        angajat_id: formular.angajat_id,
-        serviciu_id: formular.serviciu_id,
+        angajat_id: formular.angajat_id || null,
+        serviciu_id: formular.serviciu_id || null,
       }
     };
 
@@ -263,14 +274,27 @@ function ProgramariContent() {
     if (confirm("Ștergi programarea?")) {
       await supabase.from('appointments').delete().eq('id', id);
       setProgramari(prev => prev.filter(p => p.id !== id));
-      setCountLunaCurenta(prev => Math.max(0, prev - 1));
     }
   };
+
+  // Calculăm dacă butonul de salvare trebuie dezactivat (doar pentru UI feedback)
+  // Verificarea reală se face live în salveazaInCloud
+  const limitaCurenta = isTrialing ? 999999 : (LIMITE_ABONAMENTE[userPlan] || 30);
+  const esteLimitatUI = programari.filter(p => {
+    const inceputLuna = new Date();
+    inceputLuna.setDate(1);
+    return p.data >= inceputLuna.toISOString().split('T')[0];
+  }).length >= limitaCurenta;
 
   const azi = new Date().toISOString().split('T')[0];
   const programariAzi = programari.filter(p => p.data === azi);
   const totalAzi = programariAzi.length;
   const onlineAzi = programariAzi.filter(p => p.created_by_client).length;
+  const countLunaCurenta = programari.filter(p => {
+    const inceputLuna = new Date();
+    inceputLuna.setDate(1);
+    return p.data >= inceputLuna.toISOString().split('T')[0];
+  }).length;
 
   if (loadingDB) return (
     <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center">
@@ -394,9 +418,9 @@ function ProgramariContent() {
                 ))}
               </div>
             </div>
-            <button onClick={salveazaInCloud} disabled={esteLimitat} title={esteLimitat ? "Limita de programări a fost atinsă" : "Salvează programarea în sistem"} className={`w-full lg:w-[280px] h-[85px] rounded-[30px] font-black uppercase shadow-xl transition-all italic flex flex-col items-center justify-center gap-0.5 group active:scale-95 ${esteLimitat ? 'bg-slate-300 cursor-not-allowed text-slate-500 opacity-60' : 'bg-amber-600 text-white hover:bg-slate-900'}`}>
-              <span className="text-[10px] opacity-70">{esteLimitat ? "LIMITA ATINSĂ" : "✓ FINALIZARE"}</span>
-              <span className="text-sm tracking-tighter">{esteLimitat ? "Actualizează Planul" : "Salvează Programarea"}</span>
+            <button onClick={salveazaInCloud} disabled={esteLimitatUI} title={esteLimitatUI ? "Limita de programări a fost atinsă" : "Salvează programarea în sistem"} className={`w-full lg:w-[280px] h-[85px] rounded-[30px] font-black uppercase shadow-xl transition-all italic flex flex-col items-center justify-center gap-0.5 group active:scale-95 ${esteLimitatUI ? 'bg-slate-300 cursor-not-allowed text-slate-500 opacity-60' : 'bg-amber-600 text-white hover:bg-slate-900'}`}>
+              <span className="text-[10px] opacity-70">{esteLimitatUI ? "LIMITA ATINSĂ" : "✓ FINALIZARE"}</span>
+              <span className="text-sm tracking-tighter">{esteLimitatUI ? "Actualizează Planul" : "Salvează Programarea"}</span>
             </button>
           </div>
         </section>
