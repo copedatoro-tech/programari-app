@@ -174,7 +174,6 @@ export default function AdminSettingsHub() {
         const tempDate = new Date(year, m, d);
         if (selectedWeekdays.includes(tempDate.getDay())) {
           const dateStr = `${year}-${(m + 1).toString().padStart(2, '0')}-${d.toString().padStart(2, '0')}`;
-          // Copiem exact blocajele din ziua curentă în toate celelalte zile selectate
           newBlocks[dateStr] = [...currentBlocks]; 
         }
       }
@@ -310,7 +309,7 @@ export default function AdminSettingsHub() {
           </div>
         </header>
 
-        <section className="bg-slate-900 rounded-[30px] p-6 mb-8 flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl relative overflow-hidden">
+        <section className="bg-slate-900 rounded-[30px] p-6 mb-4 flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl relative overflow-hidden">
           <div className="absolute top-0 right-0 w-48 h-48 bg-amber-500/10 rounded-full blur-3xl -mr-24 -mt-24"></div>
           
           <div className="flex-1 w-full md:w-auto relative z-10">
@@ -352,6 +351,23 @@ export default function AdminSettingsHub() {
             </button>
           </div>
         </section>
+
+        {/* --- INCEPUT SECTIUNE AVERTISMENT SLUG --- */}
+        <div className="mb-8 px-6 py-4 bg-amber-50 border-2 border-amber-200 rounded-2xl flex items-center gap-4 shadow-sm">
+          <div className="flex-shrink-0 w-10 h-10 bg-amber-500 rounded-full flex items-center justify-center text-black text-xl animate-pulse">
+            ⚠️
+          </div>
+          <div>
+            <p className="text-[10px] font-black uppercase text-amber-900 tracking-tight italic">
+              Atenție la Funcționalitate:
+            </p>
+            <p className="text-[9px] font-bold text-amber-800/80 leading-tight uppercase">
+              Codul QR și Link-ul de mai sus funcționează EXCLUSIV cu <span className="text-black underline decoration-amber-500 decoration-2">ADRESA UNICĂ (SLUG)</span>. 
+              Asigură-te că ai setat un nume unic în <Link href="/settings" className="text-black hover:text-amber-600 font-black">Pagina de Profil</Link> pentru ca pacienții să te poată găsi!
+            </p>
+          </div>
+        </div>
+        {/* --- SFARSIT SECTIUNE AVERTISMENT SLUG --- */}
 
         <div className="bg-white p-5 md:p-8 rounded-[40px] shadow-2xl border border-slate-100 mb-10 relative">
           <div className="flex flex-col md:flex-row items-center justify-between mb-6 gap-4">
