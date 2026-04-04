@@ -36,6 +36,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       case "/sugestii": return "Sugestii Sistem";
       case "/settings": return "Settings Admin";
       case "/profil": return "Profil Utilizator";
+      case "/contacte-utile": return "Contacte Utile";
       default: return "Sistem Chronos";
     }
   };
@@ -144,6 +145,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
                   <div className="flex items-center gap-2 md:gap-4 relative" ref={menuRef}>
                     <button 
+                      title="Deschide Meniul Principal"
                       onClick={(e) => {
                         e.stopPropagation();
                         setIsMenuOpen(!isMenuOpen);
@@ -167,6 +169,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                             { href: "/programari", icon: "📅", label: "Programări" },
                             { href: "/programari/calendar", icon: "🗓️", label: "Calendar" },
                             { href: "/dosare-clienti", icon: "👥", label: "Dosare Clienți" },
+                            { href: "/contacte-utile", icon: "📞", label: "Contacte Utile" },
                             { href: "/resurse", icon: "📦", label: "Resurse" },
                             { href: "/abonamente", icon: "💎", label: "Abonamente" },
                             { href: "/rapoarte", icon: "📊", label: "Analiză & Rapoarte" },
@@ -177,6 +180,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                             <Link 
                               key={item.href}
                               href={item.href} 
+                              title={`Accesează ${item.label}`}
                               onClick={() => setIsMenuOpen(false)}
                               className={`flex items-center gap-3 p-4 rounded-[20px] font-black text-[11px] uppercase italic transition-all ${
                                 path === item.href 
@@ -192,6 +196,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
                         <div className="mt-2 pt-2 border-t-2 border-slate-100 bg-white">
                           <button 
+                            title="Ieșire securizată din cont"
                             onClick={handleLogout}
                             className="w-full text-left p-4 text-red-500 font-black text-[11px] uppercase italic hover:bg-red-50 rounded-[20px] transition-all flex items-center gap-3"
                           >

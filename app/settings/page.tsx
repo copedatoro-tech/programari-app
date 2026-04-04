@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, useMemo, useCallback } from "react";
+import { useState, useEffect, useRef, useMemo, useCallback, startTransition } from "react";
 import { createBrowserClient } from "@supabase/ssr";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -153,6 +153,7 @@ export default function AdminSettingsHub() {
     );
   };
 
+  // ✅ FIX INP: folosim startTransition pentru a nu bloca thread-ul UI
   const applyToSelectedWeekdays = () => {
     if (!selectedDate || selectedWeekdays.length === 0) {
       alert("Te rugăm să selectezi cel puțin o zi a săptămânii.");
@@ -165,22 +166,27 @@ export default function AdminSettingsHub() {
 
     if (!confirm(`Vrei să aplici programul selectat în această zi pentru toate zilele de [${selectedNames}] din acest an?`)) return;
 
-    const newBlocks = { ...manualBlocks };
-    const year = currentMonth.getFullYear();
+    // startTransition marchează update-ul ca non-urgent,
+    // astfel UI-ul rămâne responsive în timpul iterației
+    startTransition(() => {
+      const newBlocks = { ...manualBlocks };
+      const year = currentMonth.getFullYear();
 
-    for (let m = 0; m < 12; m++) {
-      const totalDays = new Date(year, m + 1, 0).getDate();
-      for (let d = 1; d <= totalDays; d++) {
-        const tempDate = new Date(year, m, d);
-        if (selectedWeekdays.includes(tempDate.getDay())) {
-          const dateStr = `${year}-${(m + 1).toString().padStart(2, '0')}-${d.toString().padStart(2, '0')}`;
-          newBlocks[dateStr] = [...currentBlocks]; 
+      for (let m = 0; m < 12; m++) {
+        const totalDays = new Date(year, m + 1, 0).getDate();
+        for (let d = 1; d <= totalDays; d++) {
+          const tempDate = new Date(year, m, d);
+          if (selectedWeekdays.includes(tempDate.getDay())) {
+            const dateStr = `${year}-${(m + 1).toString().padStart(2, '0')}-${d.toString().padStart(2, '0')}`;
+            newBlocks[dateStr] = [...currentBlocks];
+          }
         }
       }
-    }
 
-    setManualBlocks(newBlocks);
-    setIsDirty(true);
+      setManualBlocks(newBlocks);
+      setIsDirty(true);
+    });
+
     alert(`✅ Programul a fost aplicat pentru toate zilele de ${selectedNames}.`);
   };
 
@@ -417,6 +423,7 @@ export default function AdminSettingsHub() {
                   </button>
 
                   <div className="flex flex-col items-stretch">
+                    {/* ✅ Butonul cu fix-ul INP aplicat */}
                     <button 
                       onClick={applyToSelectedWeekdays}
                       className="h-[50px] px-6 bg-amber-500 text-black rounded-xl font-black text-[9px] uppercase italic shadow-lg hover:bg-slate-900 hover:text-white transition-all transform hover:scale-105"
