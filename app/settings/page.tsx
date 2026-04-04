@@ -29,6 +29,8 @@ export default function AdminSettingsHub() {
   const [daysWithBookings, setDaysWithBookings] = useState<string[]>([]);
   const [isDirty, setIsDirty] = useState(false);
 
+  // Stare pentru activarea modului de selecție zile
+  const [isSelectingWeekdays, setIsSelectingWeekdays] = useState(false);
   const [selectedWeekdays, setSelectedWeekdays] = useState<number[]>([]);
 
   const modalRef = useRef<HTMLDivElement>(null);
@@ -102,6 +104,7 @@ export default function AdminSettingsHub() {
       await saveSettings(manualBlocks);
     }
     setShowDayModal(false);
+    setIsSelectingWeekdays(false);
   };
 
   const toggleHourBlock = (baseSlot: string) => {
@@ -148,35 +151,40 @@ export default function AdminSettingsHub() {
   };
 
   const toggleWeekdaySelection = (day: number) => {
+    if (!isSelectingWeekdays) return;
     setSelectedWeekdays(prev => 
       prev.includes(day) ? prev.filter(d => d !== day) : [...prev, day]
     );
   };
 
-  // ✅ SOLUȚIE INP: Optimizare procesare masivă și feedback vizual
   const applyToSelectedWeekdays = () => {
-    if (!selectedDate || selectedWeekdays.length === 0) {
-      alert("Te rugăm să selectezi cel puțin o zi a săptămânii.");
+    if (!selectedDate) return;
+
+    if (!isSelectingWeekdays) {
+      setIsSelectingWeekdays(true);
       return;
     }
 
-    const currentBlocks = manualBlocks[selectedDate] || [];
-    const dayNames = ["Dum", "Lun", "Mar", "Mie", "Joi", "Vin", "Sâm"];
-    const selectedNames = selectedWeekdays.map(d => dayNames[d]).join(", ");
+    if (selectedWeekdays.length === 0) {
+      alert("Te rugăm să selectezi cel puțin o zi din săptămână.");
+      return;
+    }
 
-    if (!confirm(`Vrei să aplici programul selectat în această zi pentru toate zilele de [${selectedNames}] din acest an?`)) return;
-
-    // Folosim o referință locală pentru a evita multiple rerenderări în buclă
+    const currentBlocks = manualBlocks[selectedDate] ? [...manualBlocks[selectedDate]] : [];
+    
     startTransition(() => {
       const newBlocks = { ...manualBlocks };
-      const year = currentMonth.getFullYear();
-
-      // Optimizare: Iterăm prin luni și zile într-un mod mai eficient
-      for (let m = 0; m < 12; m++) {
-        const date = new Date(year, m, 1);
-        while (date.getMonth() === m) {
+      const currentYear = new Date().getFullYear();
+      
+      for (let monthIdx = 0; monthIdx < 12; monthIdx++) {
+        const date = new Date(currentYear, monthIdx, 1);
+        while (date.getMonth() === monthIdx) {
           if (selectedWeekdays.includes(date.getDay())) {
-            const dateStr = date.toISOString().split('T')[0];
+            const y = date.getFullYear();
+            const m = (date.getMonth() + 1).toString().padStart(2, '0');
+            const d = date.getDate().toString().padStart(2, '0');
+            const dateStr = `${y}-${m}-${d}`;
+            
             newBlocks[dateStr] = [...currentBlocks];
           }
           date.setDate(date.getDate() + 1);
@@ -185,9 +193,9 @@ export default function AdminSettingsHub() {
 
       setManualBlocks(newBlocks);
       setIsDirty(true);
+      setIsSelectingWeekdays(false);
+      alert("✅ Programul a fost aplicat pentru zilele selectate în tot anul curent!");
     });
-
-    alert(`✅ Programul a fost aplicat pentru toate zilele de ${selectedNames}.`);
   };
 
   const renderCalendar = () => {
@@ -197,7 +205,10 @@ export default function AdminSettingsHub() {
     const startDay = new Date(year, month, 1).getDay();
     const offset = startDay === 0 ? 6 : startDay - 1;
     const days = [];
-    for (let i = 0; i < offset; i++) days.push(<div key={`empty-${i}`} className="h-20 md:h-24 bg-slate-50/50 rounded-[25px]"></div>);
+    
+    for (let i = 0; i < offset; i++) {
+      days.push(<div key={`empty-${i}`} className="h-20 md:h-24 bg-slate-50/50 rounded-[25px]"></div>);
+    }
     
     const slots15Count = generateSlots(15).length;
 
@@ -211,13 +222,15 @@ export default function AdminSettingsHub() {
         <button
           key={d}
           onClick={async () => {
-            const dateObj = new Date(dateStr);
+            const [y, m, day] = dateStr.split('-').map(Number);
+            const dateObj = new Date(y, m - 1, day); 
             setSelectedDate(dateStr);
             setSelectedWeekdays([dateObj.getDay()]); 
             const { data } = await supabase.from("appointments").select("time").eq("date", dateStr).eq("user_id", userId);
             setExistingBookings(data ? data.map(b => b.time.substring(0, 5)) : []);
             setShowDayModal(true);
           }}
+          title={hasBooking ? "Această zi are rezervări" : "Configurează disponibilitatea"}
           className={`h-20 md:h-24 p-3 md:p-4 rounded-[25px] border-2 transition-all flex flex-col justify-between items-start relative overflow-hidden shadow-sm transform hover:scale-105 hover:z-10 ${isBlocked ? 'bg-red-50 border-red-100 opacity-60' : 'bg-white border-slate-100 hover:border-amber-500 shadow-md'}`}
         >
           <span className={`text-lg font-black ${isToday ? 'text-amber-500 underline decoration-2' : 'text-slate-900'}`}>{d}</span>
@@ -358,7 +371,6 @@ export default function AdminSettingsHub() {
           </div>
         </section>
 
-        {/* --- INCEPUT SECTIUNE AVERTISMENT SLUG --- */}
         <div className="mb-8 px-6 py-4 bg-amber-50 border-2 border-amber-200 rounded-2xl flex items-center gap-4 shadow-sm">
           <div className="flex-shrink-0 w-10 h-10 bg-amber-500 rounded-full flex items-center justify-center text-black text-xl animate-pulse">
             ⚠️
@@ -373,7 +385,6 @@ export default function AdminSettingsHub() {
             </p>
           </div>
         </div>
-        {/* --- SFARSIT SECTIUNE AVERTISMENT SLUG --- */}
 
         <div className="bg-white p-5 md:p-8 rounded-[40px] shadow-2xl border border-slate-100 mb-10 relative">
           <div className="flex flex-col md:flex-row items-center justify-between mb-6 gap-4">
@@ -381,8 +392,8 @@ export default function AdminSettingsHub() {
               {currentMonth.toLocaleString('ro-RO', { month: 'long' })} <span className="text-amber-500">{currentMonth.getFullYear()}</span>
             </h2>
             <div className="flex gap-2">
-              <button onClick={() => setCurrentMonth(new Date(currentMonth.setMonth(currentMonth.getMonth() - 1)))} className="w-10 h-10 flex items-center justify-center bg-slate-50 border-2 border-slate-100 rounded-lg hover:border-amber-500 transition-all">←</button>
-              <button onClick={() => setCurrentMonth(new Date(currentMonth.setMonth(currentMonth.getMonth() + 1)))} className="w-10 h-10 flex items-center justify-center bg-slate-50 border-2 border-slate-100 rounded-lg hover:border-amber-500 transition-all">→</button>
+              <button onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1))} className="w-10 h-10 flex items-center justify-center bg-slate-50 border-2 border-slate-100 rounded-lg hover:border-amber-500 transition-all">←</button>
+              <button onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1))} className="w-10 h-10 flex items-center justify-center bg-slate-50 border-2 border-slate-100 rounded-lg hover:border-amber-500 transition-all">→</button>
             </div>
           </div>
 
@@ -405,7 +416,10 @@ export default function AdminSettingsHub() {
               <div>
                 <span className="text-[9px] font-black text-amber-500 uppercase tracking-widest italic mb-1 block">Management Calendar</span>
                 <h3 className="text-3xl font-black uppercase italic text-slate-900 tracking-tighter">
-                  {new Date(selectedDate).toLocaleDateString('ro-RO', { weekday: 'long', day: 'numeric', month: 'long' })}
+                  {(() => {
+                     const [y, m, d] = selectedDate.split('-').map(Number);
+                     return new Date(y, m - 1, d).toLocaleDateString('ro-RO', { weekday: 'long', day: 'numeric', month: 'long' });
+                  })()}
                 </h3>
               </div>
               
@@ -413,6 +427,7 @@ export default function AdminSettingsHub() {
                 <div className="flex items-start gap-2">
                   <button 
                     onClick={toggleAllDay} 
+                    title="Blochează sau deblochează întreaga zi"
                     className={`h-[50px] px-6 rounded-xl font-black text-[9px] uppercase italic transition-all border-2 ${
                       isDayFullyBlocked 
                       ? 'bg-green-500 border-green-500 text-white shadow-lg' 
@@ -425,22 +440,28 @@ export default function AdminSettingsHub() {
                   <div className="flex flex-col items-stretch">
                     <button 
                       onClick={applyToSelectedWeekdays}
-                      className="h-[50px] px-6 bg-amber-500 text-black rounded-xl font-black text-[9px] uppercase italic shadow-lg hover:bg-slate-900 hover:text-white transition-all transform hover:scale-105"
-                      title="Aplică blocajele din această zi la toate zilele selectate mai jos"
+                      className={`h-[50px] px-6 rounded-xl font-black text-[9px] uppercase italic shadow-lg transition-all transform hover:scale-105 ${
+                        isSelectingWeekdays 
+                        ? 'bg-slate-900 text-white' 
+                        : 'bg-amber-500 text-black'
+                      }`}
+                      title={isSelectingWeekdays ? "Confirmă aplicarea programului" : "Activează selecția zilelor pentru program predefinit"}
                     >
-                      📋 Setează program predefinit
+                      {isSelectingWeekdays ? '🚀 Aplică Acum' : '📋 Setează program predefinit'}
                     </button>
                     
-                    <div className="flex justify-between mt-1.5 px-1">
+                    <div className={`flex justify-between mt-1.5 px-1 transition-opacity ${isSelectingWeekdays ? 'opacity-100' : 'opacity-40 cursor-not-allowed'}`}>
                       {[1, 2, 3, 4, 5, 6, 0].map(d => (
                         <button
                           key={d}
+                          disabled={!isSelectingWeekdays}
                           onClick={() => toggleWeekdaySelection(d)}
+                          title={isSelectingWeekdays ? `Selectează ${["Duminică", "Luni", "Marți", "Miercuri", "Joi", "Vineri", "Sâmbătă"][d]}` : "Apasă butonul galben pentru a activa selecția"}
                           className={`w-7 h-7 rounded-full font-black text-[7px] transition-all border-2 flex items-center justify-center ${
                             selectedWeekdays.includes(d) 
                             ? 'bg-amber-500 border-amber-500 text-black shadow-md' 
                             : 'bg-white border-slate-200 text-slate-400 hover:border-amber-500 hover:text-amber-500'
-                          }`}
+                          } ${!isSelectingWeekdays && 'cursor-not-allowed'}`}
                         >
                           {["D", "L", "M", "M", "J", "V", "S"][d]}
                         </button>
@@ -450,6 +471,7 @@ export default function AdminSettingsHub() {
 
                   <button 
                     onClick={handleCloseAndSave} 
+                    title="Închide și salvează automat"
                     className="w-12 h-[50px] flex items-center justify-center bg-slate-900 text-white rounded-xl font-black hover:bg-red-500 transition-colors shadow-lg"
                   >
                     ✕
@@ -464,6 +486,7 @@ export default function AdminSettingsHub() {
                 <div className="grid grid-cols-1 gap-2">
                   {[60, 30, 15].map(v => (
                     <button key={v} onClick={() => { setBookingInterval(v); setIsDirty(true); }}
+                      title={`Schimbă intervalul la ${v} minute`}
                       className={`py-4 rounded-xl font-black text-[10px] border-2 transition-all ${
                         bookingInterval === v 
                         ? 'border-amber-500 bg-amber-500 text-black shadow-md' 
@@ -479,7 +502,9 @@ export default function AdminSettingsHub() {
                     💡 Info Predefinit:
                   </p>
                   <p className="text-[8px] font-medium text-amber-900 leading-relaxed uppercase">
-                    Blochează orele dorite (negru), bifează zilele (L, M, M...) și apasă butonul <span className="font-black text-black">GALBEN</span> pentru a replica programul în tot anul.
+                    1. Blochează orele dorite pentru această zi.<br/>
+                    2. Apasă butonul <span className="font-black text-black">GALBEN</span>.<br/>
+                    3. Selectează zilele (L, M...) și apasă <span className="font-black text-black">APLICĂ</span> pentru a replica programul în tot anul.
                   </p>
                 </div>
               </div>
@@ -491,6 +516,7 @@ export default function AdminSettingsHub() {
                     <button
                       key={slot}
                       onClick={() => toggleHourBlock(slot)}
+                      title={existingBookings.includes(slot) ? "Slot ocupat de o programare" : `Blochează/Deblochează ora ${slot}`}
                       className={`py-5 rounded-xl font-black text-[12px] border-2 transition-all italic ${
                         existingBookings.includes(slot) ? 'bg-slate-50 border-slate-100 text-slate-300 cursor-not-allowed opacity-50' :
                         (manualBlocks[selectedDate] || []).includes(slot) ? 'bg-slate-900 text-white border-slate-900 shadow-xl scale-[0.98]' : 'bg-white border-slate-100 text-slate-900 hover:border-amber-500 hover:text-amber-500'
