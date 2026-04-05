@@ -1,116 +1,126 @@
 "use client";
 
-import { useState, useEffect, Suspense, useCallback, useMemo, useRef } from "react";  
-import { useParams } from "next/navigation";  
-import { createBrowserClient } from "@supabase/ssr";  
+import { useState, useEffect, Suspense, useCallback, useMemo, useRef } from "react";
+import { useParams } from "next/navigation";
+import { createBrowserClient } from "@supabase/ssr";
 import Image from "next/image";
 
-interface StaffRow {  
-  id: string;  
-  name: string;  
-  services: string[];  
+interface StaffRow {
+  id: string;
+  name: string;
+  services: string[];
 }
 
-interface ServiceRow {  
-  id: string;  
-  nume_serviciu: string;  
-  price: number;  
-  duration: number;  
+interface ServiceRow {
+  id: string;
+  nume_serviciu: string;
+  price: number;
+  duration: number;
 }
 
-function RezervareContent() {  
-  const params = useParams();  
+// CORECȚIE: tipul corect pentru manual_blocks
+type ManualBlocksMap = Record<string, string[]>;
+
+const DAY_NAMES_LONG = ["Duminică", "Luni", "Marți", "Miercuri", "Joi", "Vineri", "Sâmbătă"];
+
+// CORECȚIE: tipul erorii de limită pentru a distinge între
+// limita de plan vs oră blocată vs zi închisă
+type LimitReason = "plan_limit" | "hour_blocked" | "day_closed" | "outside_hours";
+
+function RezervareContent() {
+  const params = useParams();
   const rawSlug = params?.slug as string | undefined;
 
-  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;  
-  const [adminId, setAdminId] = useState("");  
-  const [adminIdReady, setAdminIdReady] = useState(false);  
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+  const [adminId, setAdminId] = useState("");
+  const [adminIdReady, setAdminIdReady] = useState(false);
   const [showLimitPopup, setShowLimitPopup] = useState(false);
+  const [limitReason, setLimitReason] = useState<LimitReason>("plan_limit");
 
-  const supabase = useMemo(() =>  
-    createBrowserClient(  
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,  
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!  
-    ),  
+  const supabase = useMemo(() =>
+    createBrowserClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    ),
   []);
 
-  const fetchAdminIdBySlug = useCallback(async (slug: string) => {  
-    try {  
-      const { data, error } = await supabase.from("profiles").select("id").eq("slug", slug).single();  
-      if (error) {  
-        console.error("Eroare la căutarea slug-ului:", error);  
-        return null;  
-      }  
-      return data?.id || null;  
-    } catch (e) {  
-      console.error("Eroare la căutarea slug-ului:", e);  
-      return null;  
-    }  
+  const fetchAdminIdBySlug = useCallback(async (slug: string) => {
+    try {
+      const { data, error } = await supabase.from("profiles").select("id").eq("slug", slug).single();
+      if (error) {
+        console.error("Eroare la căutarea slug-ului:", error);
+        return null;
+      }
+      return data?.id || null;
+    } catch (e) {
+      console.error("Eroare la căutarea slug-ului:", e);
+      return null;
+    }
   }, [supabase]);
 
-  useEffect(() => {  
-    async function init() {  
-      if (!rawSlug) {  
-        setAdminIdReady(true);  
-        return;  
-      }  
-      if (uuidRegex.test(rawSlug)) {  
-        setAdminId(rawSlug);  
-        setAdminIdReady(true);  
-      } else {  
-        const id = await fetchAdminIdBySlug(rawSlug);  
-        if (id) setAdminId(id);  
-        setAdminIdReady(true);  
-      }  
-    }  
-    init();  
+  useEffect(() => {
+    async function init() {
+      if (!rawSlug) {
+        setAdminIdReady(true);
+        return;
+      }
+      if (uuidRegex.test(rawSlug)) {
+        setAdminId(rawSlug);
+        setAdminIdReady(true);
+      } else {
+        const id = await fetchAdminIdBySlug(rawSlug);
+        if (id) setAdminId(id);
+        setAdminIdReady(true);
+      }
+    }
+    init();
   }, [rawSlug, fetchAdminIdBySlug]);
 
-  const [trimis, setTrimis] = useState(false);  
-  const [loading, setLoading] = useState(false);  
-  const [fetchingConfig, setFetchingConfig] = useState(true);  
-  const [showPicker, setShowPicker] = useState(false);  
+  const [trimis, setTrimis] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [fetchingConfig, setFetchingConfig] = useState(true);
+  const [showPicker, setShowPicker] = useState(false);
   const [pickerStep, setPickerStep] = useState<"hours" | "minutes">("hours");
 
-  const [specialisti, setSpecialisti] = useState<StaffRow[]>([]);  
+  const [specialisti, setSpecialisti] = useState<StaffRow[]>([]);
   const [servicii, setServicii] = useState<ServiceRow[]>([]);
 
-  const [feedbacks, setFeedbacks] = useState<any[]>([]);  
-  const [rating, setRating] = useState(0);  
-  const [hover, setHover] = useState(0);  
-  const [numeFeedback, setNumeFeedback] = useState("");  
-  const [mesajFeedback, setMesajFeedback] = useState("");  
-  const [incarcareFeedback, setIncarcareFeedback] = useState(false);  
+  const [feedbacks, setFeedbacks] = useState<any[]>([]);
+  const [rating, setRating] = useState(0);
+  const [hover, setHover] = useState(0);
+  const [numeFeedback, setNumeFeedback] = useState("");
+  const [mesajFeedback, setMesajFeedback] = useState("");
+  const [incarcareFeedback, setIncarcareFeedback] = useState(false);
   const [feedbackTrimisSucces, setFeedbackTrimisSucces] = useState(false);
 
-  const today = new Date().toISOString().split("T")[0];  
-  const [form, setForm] = useState({  
-    nume: "",  
-    telefon: "",  
-    email: "",  
-    data: today,  
-    ora: "00:00",  
-    serviciu_id: "",  
-    specialist_id: "",  
-    detalii: ""  
+  const today = new Date().toISOString().split("T")[0];
+  const [form, setForm] = useState({
+    nume: "",
+    telefon: "",
+    email: "",
+    data: today,
+    ora: "00:00",
+    serviciu_id: "",
+    specialist_id: "",
+    detalii: ""
   });
 
   const [errors, setErrors] = useState<Record<string, boolean>>({});
 
-  const selectedHour = useRef(0);  
-  const selectedMinute = useRef(0);  
-  const [displayHour, setDisplayHour] = useState(0);  
+  const selectedHour = useRef(0);
+  const selectedMinute = useRef(0);
+  const [displayHour, setDisplayHour] = useState(0);
   const [displayMinute, setDisplayMinute] = useState(0);
 
-  const pickerRef = useRef<HTMLDivElement>(null);  
-  const limitPopupRef = useRef<HTMLDivElement>(null);  
-  const feedbackSuccessPopupRef = useRef<HTMLDivElement>(null);  
+  const pickerRef = useRef<HTMLDivElement>(null);
+  const limitPopupRef = useRef<HTMLDivElement>(null);
+  const feedbackSuccessPopupRef = useRef<HTMLDivElement>(null);
   const dateInputRef = useRef<HTMLInputElement>(null);
 
-  const fetchAdminConfig = useCallback(async () => {  
-    if (!adminIdReady || !adminId) {  
-      setFetchingConfig(false);  
-      return;  
+  const fetchAdminConfig = useCallback(async () => {
+    if (!adminIdReady || !adminId) {
+      setFetchingConfig(false);
+      return;
     }
     setFetchingConfig(true);
     try {
@@ -143,55 +153,55 @@ function RezervareContent() {
     }
   }, [adminId, adminIdReady, supabase]);
 
-  useEffect(() => {  
-    if (adminIdReady && adminId) {  
-      fetchAdminConfig();  
-    } else if (adminIdReady && !adminId) {  
-      setFetchingConfig(false);  
-    }  
+  useEffect(() => {
+    if (adminIdReady && adminId) {
+      fetchAdminConfig();
+    } else if (adminIdReady && !adminId) {
+      setFetchingConfig(false);
+    }
   }, [adminIdReady, adminId, fetchAdminConfig]);
 
-  const filteredServicii = useMemo(() => {  
-    if (!form.specialist_id) return servicii;  
-    const expert = specialisti.find(s => s.id === form.specialist_id);  
-    if (!expert?.services?.length) return servicii;  
-    return servicii.filter(s => expert.services.includes(s.id));  
+  const filteredServicii = useMemo(() => {
+    if (!form.specialist_id) return servicii;
+    const expert = specialisti.find(s => s.id === form.specialist_id);
+    if (!expert?.services?.length) return servicii;
+    return servicii.filter(s => expert.services.includes(s.id));
   }, [form.specialist_id, servicii, specialisti]);
 
-  const filteredSpecialisti = useMemo(() => {  
-    if (!form.serviciu_id) return specialisti;  
-    return specialisti.filter(e => e.services?.includes(form.serviciu_id));  
+  const filteredSpecialisti = useMemo(() => {
+    if (!form.serviciu_id) return specialisti;
+    return specialisti.filter(e => e.services?.includes(form.serviciu_id));
   }, [form.serviciu_id, specialisti]);
 
-  useEffect(() => {  
-    const handleClickOutside = (event: MouseEvent) => {  
-      if (pickerRef.current && !pickerRef.current.contains(event.target as Node)) {  
-        setShowPicker(false);  
-        setPickerStep("hours");  
-      }  
-      if (limitPopupRef.current && !limitPopupRef.current.contains(event.target as Node)) {  
-        setShowLimitPopup(false);  
-      }  
-      if (feedbackSuccessPopupRef.current && !feedbackSuccessPopupRef.current.contains(event.target as Node)) {  
-        setFeedbackTrimisSucces(false);  
-      }  
-    };  
-    if (showPicker || showLimitPopup || feedbackTrimisSucces) {  
-      document.addEventListener("mousedown", handleClickOutside);  
-    }  
-    return () => document.removeEventListener("mousedown", handleClickOutside);  
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (pickerRef.current && !pickerRef.current.contains(event.target as Node)) {
+        setShowPicker(false);
+        setPickerStep("hours");
+      }
+      if (limitPopupRef.current && !limitPopupRef.current.contains(event.target as Node)) {
+        setShowLimitPopup(false);
+      }
+      if (feedbackSuccessPopupRef.current && !feedbackSuccessPopupRef.current.contains(event.target as Node)) {
+        setFeedbackTrimisSucces(false);
+      }
+    };
+    if (showPicker || showLimitPopup || feedbackTrimisSucces) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [showPicker, showLimitPopup, feedbackTrimisSucces]);
 
-  const updateOra = () => {  
-    const hh = selectedHour.current.toString().padStart(2, "0");  
-    const mm = selectedMinute.current.toString().padStart(2, "0");  
-    setForm(prev => ({ ...prev, ora: `${hh}:${mm}` }));  
-    setDisplayHour(selectedHour.current);  
-    setDisplayMinute(selectedMinute.current);  
-    setErrors(prev => ({ ...prev, ora: false }));  
+  const updateOra = () => {
+    const hh = selectedHour.current.toString().padStart(2, "0");
+    const mm = selectedMinute.current.toString().padStart(2, "0");
+    setForm(prev => ({ ...prev, ora: `${hh}:${mm}` }));
+    setDisplayHour(selectedHour.current);
+    setDisplayMinute(selectedMinute.current);
+    setErrors(prev => ({ ...prev, ora: false }));
   };
 
-  const trimiteRezervare = async (e: React.FormEvent) => {  
+  const trimiteRezervare = async (e: React.FormEvent) => {
     e.preventDefault();
     const newErrors: Record<string, boolean> = {};
     if (!form.nume.trim()) newErrors.nume = true;
@@ -217,7 +227,7 @@ function RezervareContent() {
     try {
       const { data: profileData } = await supabase
         .from("profiles")
-        .select("plan_type, trial_started_at")
+        .select("plan_type, trial_started_at, manual_blocks, working_hours")
         .eq("id", adminId)
         .single();
 
@@ -234,6 +244,66 @@ function RezervareContent() {
         }
       }
 
+      // ─── CORECȚIE: Verificare manual_blocks ──────────────────────────────────
+      if (profileData?.manual_blocks) {
+        const blocks = profileData.manual_blocks as ManualBlocksMap;
+        const daySlots: string[] = blocks[form.data] || [];
+
+        if (daySlots.length > 0) {
+          // Generăm sub-slot-urile de 15 min pentru ora aleasă
+          const [h, m] = form.ora.split(':').map(Number);
+          const subSlots: string[] = [];
+          for (let i = 0; i < 60; i += 15) {
+            const totalMin = m + i;
+            const sH = h + Math.floor(totalMin / 60);
+            const sM = totalMin % 60;
+            if (sH < 24) {
+              subSlots.push(`${sH.toString().padStart(2, '0')}:${sM.toString().padStart(2, '0')}`);
+            }
+          }
+
+          // Dacă toate slot-urile din zi sunt blocate = zi complet blocată (96 slot-uri)
+          if (daySlots.length >= 94) {
+            setLimitReason("day_closed");
+            setShowLimitPopup(true);
+            setLoading(false);
+            return;
+          }
+
+          // Verificăm dacă ora specifică e blocată
+          if (subSlots.some(slot => daySlots.includes(slot))) {
+            setLimitReason("hour_blocked");
+            setShowLimitPopup(true);
+            setLoading(false);
+            return;
+          }
+        }
+      }
+
+      // ─── CORECȚIE: Verificare working_hours ──────────────────────────────────
+      if (profileData?.working_hours) {
+        const workingHours: any[] = profileData.working_hours;
+        const dateObj = new Date(form.data + 'T00:00:00');
+        const dayName = DAY_NAMES_LONG[dateObj.getDay()];
+        const schedule = workingHours.find((h: any) => h.day === dayName);
+
+        if (schedule?.closed) {
+          setLimitReason("day_closed");
+          setShowLimitPopup(true);
+          setLoading(false);
+          return;
+        }
+
+        if (schedule && (form.ora < schedule.start || form.ora > schedule.end)) {
+          setLimitReason("outside_hours");
+          setShowLimitPopup(true);
+          setLoading(false);
+          return;
+        }
+      }
+      // ─────────────────────────────────────────────────────────────────────────
+
+      // Verificare limită plan
       if (!isTeamPlan && !isTrialActive) {
         let limit = 30;
         if (planType.includes("ELITE")) limit = 500;
@@ -250,6 +320,7 @@ function RezervareContent() {
           .gte("date", firstDay);
 
         if ((count || 0) >= limit) {
+          setLimitReason("plan_limit");
           setShowLimitPopup(true);
           setLoading(false);
           return;
@@ -261,6 +332,8 @@ function RezervareContent() {
 
       const payload = {
         user_id: adminId,
+        // CORECȚIE: salvăm în title, prenume și nume pentru compatibilitate totală
+        title: form.nume.trim(),
         prenume: form.nume.trim(),
         nume: form.nume.trim(),
         phone: form.telefon,
@@ -296,39 +369,70 @@ function RezervareContent() {
     }
   };
 
-  const trimiteFeedback = async () => {  
-    if (!adminId || rating === 0 || !numeFeedback.trim() || !mesajFeedback.trim()) {  
-      alert("Completează toate câmpurile pentru recenzie.");  
-      return;  
-    }  
-    setIncarcareFeedback(true);  
-    try {  
-      const { error } = await supabase.from("feedbacks").insert([{  
-        nume_client: numeFeedback.trim(),  
-        stele: rating,  
-        comentariu: mesajFeedback.trim(),  
-        aprobat: false,  
-        admin_id: adminId  
-      }]);  
-      if (!error) {  
-        setNumeFeedback("");  
-        setMesajFeedback("");  
-        setRating(0);  
-        setFeedbackTrimisSucces(true);  
-        const { data: fbs } = await supabase.from("feedbacks").select("*")  
-          .eq("admin_id", adminId)  
-          .order("created_at", { ascending: false });  
-        setFeedbacks(fbs || []);  
-      }  
-    } catch (err: any) {  
-      alert(`Eroare: ${err.message}`);  
-    } finally {  
-      setIncarcareFeedback(false);  
-    }  
+  const trimiteFeedback = async () => {
+    if (!adminId || rating === 0 || !numeFeedback.trim() || !mesajFeedback.trim()) {
+      alert("Completează toate câmpurile pentru recenzie.");
+      return;
+    }
+    setIncarcareFeedback(true);
+    try {
+      const { error } = await supabase.from("feedbacks").insert([{
+        nume_client: numeFeedback.trim(),
+        stele: rating,
+        comentariu: mesajFeedback.trim(),
+        aprobat: false,
+        admin_id: adminId
+      }]);
+      if (!error) {
+        setNumeFeedback("");
+        setMesajFeedback("");
+        setRating(0);
+        setFeedbackTrimisSucces(true);
+        const { data: fbs } = await supabase.from("feedbacks").select("*")
+          .eq("admin_id", adminId)
+          .order("created_at", { ascending: false });
+        setFeedbacks(fbs || []);
+      }
+    } catch (err: any) {
+      alert(`Eroare: ${err.message}`);
+    } finally {
+      setIncarcareFeedback(false);
+    }
   };
 
-  if (adminIdReady && !adminId) {  
-    return (  
+  // CORECȚIE: mesaje diferențiate pentru fiecare tip de blocare
+  const getLimitPopupContent = () => {
+    switch (limitReason) {
+      case "hour_blocked":
+        return {
+          icon: "🕐",
+          title: "Oră Indisponibilă",
+          message: "Această oră nu este disponibilă pentru programări. Te rugăm să alegi un alt interval orar."
+        };
+      case "day_closed":
+        return {
+          icon: "🗓️",
+          title: "Zi Închisă",
+          message: "Această zi nu este disponibilă pentru programări. Te rugăm să alegi o altă dată."
+        };
+      case "outside_hours":
+        return {
+          icon: "⏰",
+          title: "În Afara Programului",
+          message: "Ora aleasă este în afara programului de lucru. Te rugăm să alegi o oră în intervalul disponibil."
+        };
+      case "plan_limit":
+      default:
+        return {
+          icon: "⚠️",
+          title: "Limită Atinsă",
+          message: "Ne pare rău, acest salon a atins limita de rezervări disponibile pentru luna curentă conform planului tarifar."
+        };
+    }
+  };
+
+  if (adminIdReady && !adminId) {
+    return (
       <main className="min-h-screen bg-slate-50 flex items-center justify-center p-6">
         <div className="text-center">
           <div className="text-6xl mb-4">❌</div>
@@ -336,20 +440,22 @@ function RezervareContent() {
           <p className="text-slate-500">Acest link de rezervare nu există sau a expirat.</p>
         </div>
       </main>
-    );  
+    );
   }
 
-  if (fetchingConfig) {  
-    return (  
+  if (fetchingConfig) {
+    return (
       <main className="min-h-screen bg-slate-50 flex items-center justify-center p-6">
         <div className="animate-pulse font-black uppercase italic text-slate-400">
           Sincronizare în timp real...
         </div>
       </main>
-    );  
+    );
   }
 
-  return (  
+  const popupContent = getLimitPopupContent();
+
+  return (
     <main className="min-h-screen bg-slate-50 flex flex-col items-center p-4 md:p-10 font-sans text-slate-900">
       {trimis ? (
         <div className="w-full max-w-2xl bg-white rounded-[55px] p-20 text-center shadow-2xl border-t-8 border-amber-500">
@@ -481,16 +587,16 @@ function RezervareContent() {
         </div>
       )}
 
-      {/* POPUP LIMITĂ REZERVĂRI */}
+      {/* POPUP LIMITĂ / BLOCARE */}
       {showLimitPopup && (
         <div className="fixed inset-0 bg-slate-950/60 backdrop-blur-md z-[110] flex items-center justify-center p-6 animate-in fade-in duration-300">
           <div ref={limitPopupRef} className="bg-white w-full max-w-[400px] rounded-[40px] p-10 text-center shadow-2xl border-[4px] border-amber-500 relative">
             <button onClick={() => setShowLimitPopup(false)}
               className="absolute top-4 right-6 text-slate-300 hover:text-red-500 text-xl font-black transition-colors" title="Închide">✕</button>
-            <div className="text-5xl mb-4">⚠️</div>
-            <h3 className="text-xl font-black uppercase italic mb-3 text-slate-900">Limită Atinsă</h3>
+            <div className="text-5xl mb-4">{popupContent.icon}</div>
+            <h3 className="text-xl font-black uppercase italic mb-3 text-slate-900">{popupContent.title}</h3>
             <p className="text-slate-500 font-bold text-sm leading-relaxed mb-6 italic">
-              Ne pare rău, acest salon a atins limita de rezervări disponibile pentru luna curentă conform planului tarifar.
+              {popupContent.message}
             </p>
             <button onClick={() => setShowLimitPopup(false)}
               className="bg-slate-900 text-white px-8 py-4 rounded-2xl font-black uppercase italic text-[12px] hover:bg-amber-500 hover:text-black transition-all">
@@ -644,17 +750,17 @@ function RezervareContent() {
         <p className="text-[10px] font-black uppercase tracking-[0.5em] text-slate-400">Powered by Chronos Resource Management</p>
       </div>
     </main>
-  );  
+  );
 }
 
-export default function RezervarePage() {  
-  return (  
-    <Suspense fallback={  
+export default function RezervarePage() {
+  return (
+    <Suspense fallback={
       <div className="min-h-screen flex items-center justify-center">
         Se încarcă...
-      </div>  
-    }>  
+      </div>
+    }>
       <RezervareContent />
-    </Suspense>  
-  );  
+    </Suspense>
+  );
 }

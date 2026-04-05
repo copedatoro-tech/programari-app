@@ -112,7 +112,6 @@ export default function AbonamentePage() {
 
         setTrialUsed(profile.trial_used || false);
 
-        // Logică consolidată: Dacă planul în DB este TEAM și există un trial început
         if (profile.trial_started_at) {
           const start = new Date(profile.trial_started_at);
           const end = new Date(start.getTime() + 10 * 24 * 60 * 60 * 1000); 
@@ -124,7 +123,6 @@ export default function AbonamentePage() {
             setCurrentPlan("CHRONOS TEAM");
             startTimer(end);
           } else {
-            // Dacă trial-ul a expirat, facem update în DB să nu mai figureze ca TEAM dacă nu a plătit
             setIsTrialActive(false);
             if (profile.plan_type === "CHRONOS TEAM") {
                 await supabase.from("profiles").update({ plan_type: "CHRONOS FREE" }).eq("id", authUser.id);

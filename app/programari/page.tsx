@@ -30,6 +30,9 @@ type Programare = {
   created_by_client?: boolean;
 };
 
+// CORECȚIE: tipul corect pentru manual_blocks
+type ManualBlocksMap = Record<string, string[]>;
+
 const LIMITE_ABONAMENTE: Record<string, number> = {
   "chronos free": 30,
   "start (gratuit)": 30,
@@ -37,6 +40,8 @@ const LIMITE_ABONAMENTE: Record<string, number> = {
   "chronos elite": 500,
   "chronos team": 999999
 };
+
+const DAY_NAMES_LONG = ["Duminică", "Luni", "Marți", "Miercuri", "Joi", "Vineri", "Sâmbătă"];
 
 function ProgramariContent() {
   const [programari, setProgramari] = useState<Programare[]>([]);
@@ -48,6 +53,10 @@ function ProgramariContent() {
 
   const [angajati, setAngajati] = useState<StaffRow[]>([]);
   const [servicii, setServicii] = useState<ServiceRow[]>([]);
+
+  // CORECȚIE: stocăm manual_blocks și working_hours pentru validare
+  const [manualBlocks, setManualBlocks] = useState<ManualBlocksMap>({});
+  const [workingHours, setWorkingHours] = useState<any[]>([]);
 
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [filteredClients, setFilteredClients] = useState<any[]>([]);
@@ -90,7 +99,8 @@ function ProgramariContent() {
     if (data) {
       setProgramari(data.map((item: any) => ({
         id: item.id,
-        nume: item.title || "",
+        // CORECȚIE: citim title ca sursă primară (inserat de pagina programări)
+        nume: item.title || item.prenume || item.nume || "",
         email: item.email || "",
         data: item.date || "",
         ora: item.time || "",
@@ -112,7 +122,12 @@ function ProgramariContent() {
 
   const fetchResurse = useCallback(async (userId: string) => {
     if (!supabase) return;
-    const { data: profileData } = await supabase.from('profiles').select('plan_type, trial_started_at').eq('id', userId).single();
+    const { data: profileData } = await supabase
+      .from('profiles')
+      .select('plan_type, trial_started_at, manual_blocks, working_hours')
+      .eq('id', userId)
+      .single();
+
     if (profileData) {
       let plan = profileData.plan_type?.toLowerCase() || "chronos free";
       if (profileData.trial_started_at) {
@@ -125,6 +140,16 @@ function ProgramariContent() {
         } else { setIsTrialing(false); setDaysLeft(null); }
       }
       setUserPlan(plan);
+
+      // CORECȚIE: citim manual_blocks ca obiect
+      const rawBlocks = profileData.manual_blocks;
+      if (rawBlocks && typeof rawBlocks === 'object' && !Array.isArray(rawBlocks)) {
+        setManualBlocks(rawBlocks as ManualBlocksMap);
+      } else {
+        setManualBlocks({});
+      }
+
+      setWorkingHours(Array.isArray(profileData.working_hours) ? profileData.working_hours : []);
     }
     const { data: st } = await supabase.from('staff').select('*').eq('user_id', userId).order('created_at', { ascending: false });
     const { data: sv } = await supabase.from('services').select('*').eq('user_id', userId).order('created_at', { ascending: false });
@@ -204,6 +229,42 @@ function ProgramariContent() {
 
   const eliminaDocument = (id: number) => setFormular(prev => ({ ...prev, documente: prev.documente.filter(d => d.id !== id) }));
 
+  // CORECȚIE: funcție de validare orar înainte de salvare
+  const verificaDisponibilitate = (): { valid: boolean; motiv?: string } => {
+    const { data, ora } = formular;
+
+    // Verifică manual_blocks
+    const daySlots: string[] = manualBlocks[data] || [];
+    if (daySlots.length > 0) {
+      const [h, m] = ora.split(':').map(Number);
+      const subSlots: string[] = [];
+      for (let i = 0; i < 60; i += 15) {
+        const totalMin = m + i;
+        const sH = h + Math.floor(totalMin / 60);
+        const sM = totalMin % 60;
+        if (sH < 24) {
+          subSlots.push(`${sH.toString().padStart(2, '0')}:${sM.toString().padStart(2, '0')}`);
+        }
+      }
+      if (subSlots.some(slot => daySlots.includes(slot))) {
+        return { valid: false, motiv: "⚠️ Această oră este blocată în calendar. Alege altă oră." };
+      }
+    }
+
+    // Verifică working_hours
+    const dateObj = new Date(data + 'T00:00:00');
+    const dayName = DAY_NAMES_LONG[dateObj.getDay()];
+    const schedule = workingHours.find((h: any) => h.day === dayName);
+    if (schedule?.closed) {
+      return { valid: false, motiv: `⚠️ Ziua de ${dayName} este marcată ca închisă în setări.` };
+    }
+    if (schedule && (ora < schedule.start || ora > schedule.end)) {
+      return { valid: false, motiv: `⚠️ Ora ${ora} este în afara programului de lucru (${schedule.start} - ${schedule.end}).` };
+    }
+
+    return { valid: true };
+  };
+
   const salveazaInCloud = async () => {
     if (!supabase) return;
     if (!formular.nume || !formular.telefon) {
@@ -211,17 +272,22 @@ function ProgramariContent() {
       return;
     }
 
+    // CORECȚIE: validare orar înainte de orice altceva
+    const disponibilitate = verificaDisponibilitate();
+    if (!disponibilitate.valid) {
+      alert(disponibilitate.motiv);
+      return;
+    }
+
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
-    // Re-verificare live a limitei înainte de insert (cumulat din ambele surse)
     if (!isTrialing) {
       const limit = LIMITE_ABONAMENTE[userPlan] || 30;
       const inceputLuna = new Date();
       inceputLuna.setDate(1);
       const firstDay = inceputLuna.toISOString().split('T')[0];
 
-      // Numărăm TOATE programările lunii, indiferent de sursă (admin sau client)
       const { count } = await supabase
         .from('appointments')
         .select('*', { count: 'exact', head: true })
@@ -239,7 +305,10 @@ function ProgramariContent() {
 
     const payload = {
       user_id: user.id,
+      // CORECȚIE: salvăm în toate câmpurile relevante pentru compatibilitate totală
       title: formular.nume,
+      prenume: formular.nume,
+      nume: formular.nume,
       email: formular.email,
       date: formular.data,
       time: formular.ora,
@@ -277,8 +346,6 @@ function ProgramariContent() {
     }
   };
 
-  // Calculăm dacă butonul de salvare trebuie dezactivat (doar pentru UI feedback)
-  // Verificarea reală se face live în salveazaInCloud
   const limitaCurenta = isTrialing ? 999999 : (LIMITE_ABONAMENTE[userPlan] || 30);
   const esteLimitatUI = programari.filter(p => {
     const inceputLuna = new Date();
