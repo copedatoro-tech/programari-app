@@ -1,11 +1,11 @@
 "use client";
 
+import "./globals.css";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useEffect, useState, useRef } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import Image from "next/image";
-import "./globals.css";
 
 import GDPRModal from "@/components/GDPRModal";
 import TermeniModal from "@/components/TermeniModal";
@@ -14,9 +14,12 @@ import CookiesModal from "@/components/CookiesModal";
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   const path = usePathname();
   const router = useRouter();
+  
   const [authLoaded, setAuthLoaded] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
+  
   const menuRef = useRef<HTMLDivElement>(null);
 
   const [modalOpen, setModalOpen] = useState({
@@ -24,6 +27,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     termeni: false,
     cookies: false,
   });
+
+  // Prevenim Flash of Unstyled Content prin asigurarea montării pe client
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const getPageTitle = () => {
     switch (path) {
@@ -46,7 +54,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     path === "/" ||
     path === "/register" ||
     path === "/forgot-password" ||
-    path.startsWith("/rezervare");
+    (path && path.startsWith("/rezervare"));
 
   useEffect(() => {
     const syncAuth = async () => {
@@ -67,7 +75,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     syncAuth();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event, session) => { setIsLoggedIn(!!session); }
+      (_event, session) => { 
+        setIsLoggedIn(!!session); 
+      }
     );
 
     return () => { if (subscription) subscription.unsubscribe(); };
@@ -85,8 +95,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         setIsMenuOpen(false);
       }
     };
-    if (isMenuOpen) document.addEventListener("click", handleClickOutside);
-    return () => document.removeEventListener("click", handleClickOutside);
+    if (isMenuOpen) document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [isMenuOpen]);
 
   const handleLogout = async () => {
@@ -100,6 +110,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       window.location.href = "/login";
     }
   };
+
+  // Dacă nu e montat, returnăm o structură minimă pentru a evita erorile de layout
+  if (!isMounted) {
+    return (
+      <html lang="ro">
+        <body className="bg-slate-50 min-h-screen" />
+      </html>
+    );
+  }
 
   return (
     <html lang="ro">

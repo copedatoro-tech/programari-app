@@ -4,6 +4,7 @@
 "use client";
 
 import { createRoot } from "react-dom/client";
+import React from "react";
 
 type ToastType = "success" | "error" | "warning" | "info";
 
@@ -33,12 +34,12 @@ function ToastComponent({ title, message, type = "info", onClose }: ToastOptions
 
   return (
     <div
-      className="fixed inset-0 z-[9999] flex items-center justify-center p-4"
+      className="fixed inset-0 z-[9999] flex items-center justify-center p-4 animate-in fade-in duration-300"
       style={{ backgroundColor: "rgba(15,23,42,0.5)", backdropFilter: "blur(8px)" }}
       onClick={onClose}
     >
       <div
-        className={`bg-white w-full max-w-sm rounded-[35px] p-8 shadow-2xl border-2 ${c.border} animate-in zoom-in-95 fade-in duration-200`}
+        className={`bg-white w-full max-w-sm rounded-[35px] p-8 shadow-2xl border-2 ${c.border} animate-in zoom-in-95 duration-200`}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex flex-col items-center text-center gap-4">
@@ -67,14 +68,19 @@ function ToastComponent({ title, message, type = "info", onClose }: ToastOptions
 
 export function showToast(options: ToastOptions): Promise<void> {
   return new Promise((resolve) => {
+    if (typeof document === "undefined") return;
+
     const container = document.createElement("div");
+    container.id = "chronos-toast-container";
     document.body.appendChild(container);
 
     const root = createRoot(container);
 
     const close = () => {
       root.unmount();
-      document.body.removeChild(container);
+      if (document.body.contains(container)) {
+        document.body.removeChild(container);
+      }
       resolve();
     };
 
@@ -115,12 +121,12 @@ function ConfirmComponent({ title, message, confirmText = "Confirmă", cancelTex
 
   return (
     <div
-      className="fixed inset-0 z-[9999] flex items-center justify-center p-4"
+      className="fixed inset-0 z-[9999] flex items-center justify-center p-4 animate-in fade-in duration-300"
       style={{ backgroundColor: "rgba(15,23,42,0.5)", backdropFilter: "blur(8px)" }}
       onClick={onCancel}
     >
       <div
-        className="bg-white w-full max-w-sm rounded-[35px] p-8 shadow-2xl border-2 border-slate-100 animate-in zoom-in-95 fade-in duration-200"
+        className="bg-white w-full max-w-sm rounded-[35px] p-8 shadow-2xl border-2 border-slate-100 animate-in zoom-in-95 duration-200"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex flex-col items-center text-center gap-4">
@@ -155,14 +161,19 @@ function ConfirmComponent({ title, message, confirmText = "Confirmă", cancelTex
 
 export function showConfirm(options: ConfirmOptions): Promise<boolean> {
   return new Promise((resolve) => {
+    if (typeof document === "undefined") return;
+
     const container = document.createElement("div");
+    container.id = "chronos-confirm-container";
     document.body.appendChild(container);
 
     const root = createRoot(container);
 
     const cleanup = (result: boolean) => {
       root.unmount();
-      document.body.removeChild(container);
+      if (document.body.contains(container)) {
+        document.body.removeChild(container);
+      }
       resolve(result);
     };
 
