@@ -2,11 +2,13 @@
 
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { createBrowserClient } from "@supabase/ssr";
+import { showToast, showConfirm } from "@/lib/toast";
 
+// --- CONFIGURAȚIE PLANURI ---
 const plans = [
   {
     id: "CHRONOS FREE",
-    name: "Chronos Free",
+    name: "CHRONOS FREE",
     priceDisplay: "0",
     description: "Esențial pentru început de drum.",
     features: [
@@ -21,7 +23,7 @@ const plans = [
   },
   {
     id: "CHRONOS PRO",
-    name: "Chronos Pro",
+    name: "CHRONOS PRO",
     priceDisplay: "49",
     description: "Pentru profesioniști în creștere.",
     features: [
@@ -36,7 +38,7 @@ const plans = [
   },
   {
     id: "CHRONOS ELITE",
-    name: "Chronos Elite",
+    name: "CHRONOS ELITE",
     priceDisplay: "99",
     description: "Puterea comunicării directe.",
     features: [
@@ -51,7 +53,7 @@ const plans = [
   },
   {
     id: "CHRONOS TEAM",
-    name: "Chronos Team",
+    name: "CHRONOS TEAM",
     priceDisplay: "199",
     description: "Control total pentru clinici.",
     features: [
@@ -66,6 +68,46 @@ const plans = [
   }
 ];
 
+// Modal elegant de schimbare plan (înlocuiește window.alert)
+function ElegantModal({ title, message, onConfirm, onCancel }: {
+  title: string;
+  message: string;
+  onConfirm: () => void;
+  onCancel: () => void;
+}) {
+  return (
+    <div
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-300"
+      onClick={onCancel}
+    >
+      <div
+        className="bg-white p-8 rounded-[35px] shadow-2xl border border-slate-100 max-w-sm w-full mx-4 transform animate-in zoom-in-95 duration-300"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex flex-col items-center text-center">
+          <div className="w-16 h-16 bg-amber-50 rounded-full flex items-center justify-center mb-4 text-amber-500 text-2xl">⚠️</div>
+          <h3 className="text-xl font-black italic uppercase tracking-tighter mb-2">{title}</h3>
+          <p className="text-slate-500 font-medium italic text-sm mb-6">{message}</p>
+          <div className="flex flex-col w-full gap-3">
+            <button
+              onClick={onConfirm}
+              className="w-full bg-slate-900 text-white py-4 rounded-[20px] font-black uppercase italic text-[10px] tracking-widest border-b-4 border-slate-700 hover:scale-[1.02] transition-all"
+            >
+              Confirm Schimbarea
+            </button>
+            <button
+              onClick={onCancel}
+              className="w-full bg-slate-100 text-slate-500 py-3 rounded-[20px] font-black uppercase italic text-[9px]"
+            >
+              Anulează
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function AbonamentePage() {
   const [currentPlan, setCurrentPlan] = useState<string>("CHRONOS FREE");
   const [mounted, setMounted] = useState(false);
@@ -73,6 +115,7 @@ export default function AbonamentePage() {
   const [trialUsed, setTrialUsed] = useState(false);
   const [isTrialActive, setIsTrialActive] = useState(false);
   const [user, setUser] = useState<any>(null);
+  const [showModal, setShowModal] = useState<any>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   const supabase = useMemo(() => createBrowserClient(
@@ -93,159 +136,158 @@ export default function AbonamentePage() {
         }
         setUser(authUser);
 
-        const { data: profile, error } = await supabase
+        const { data: profile } = await supabase
           .from("profiles")
           .select("plan_type, trial_started_at, trial_used")
           .eq("id", authUser.id)
           .single();
 
-        if (error) {
-          console.error("Error fetching profile:", error);
-          setCurrentPlan("CHRONOS FREE");
-          return;
-        }
+        if (profile) {
+          setTrialUsed(profile.trial_used || false);
+          // Normalizăm planul din DB
+          const rawPlan = (profile.plan_type || "CHRONOS FREE").toUpperCase().trim();
+          let dbPlan = "CHRONOS FREE";
+          if (rawPlan.includes("TEAM")) dbPlan = "CHRONOS TEAM";
+          else if (rawPlan.includes("ELITE")) dbPlan = "CHRONOS ELITE";
+          else if (rawPlan.includes("PRO")) dbPlan = "CHRONOS PRO";
+          else dbPlan = "CHRONOS FREE";
 
-        if (!profile) {
-          setCurrentPlan("CHRONOS FREE");
-          return;
-        }
+          if (profile.trial_started_at) {
+            const start = new Date(profile.trial_started_at);
+            const end = new Date(start.getTime() + 10 * 24 * 60 * 60 * 1000);
+            const acum = new Date();
+            const diffMs = end.getTime() - acum.getTime();
 
-        setTrialUsed(profile.trial_used || false);
-
-        if (profile.trial_started_at) {
-          const start = new Date(profile.trial_started_at);
-          const end = new Date(start.getTime() + 10 * 24 * 60 * 60 * 1000); 
-          const acum = new Date();
-          const diffMs = end.getTime() - acum.getTime();
-
-          if (diffMs > 0) {
-            setIsTrialActive(true);
-            setCurrentPlan("CHRONOS TEAM");
-            startTimer(end);
-          } else {
-            setIsTrialActive(false);
-            if (profile.plan_type === "CHRONOS TEAM") {
+            if (diffMs > 0) {
+              setIsTrialActive(true);
+              setCurrentPlan("CHRONOS TEAM");
+              startTimer(end);
+            } else {
+              setIsTrialActive(false);
+              if (dbPlan === "CHRONOS TEAM") {
                 await supabase.from("profiles").update({ plan_type: "CHRONOS FREE" }).eq("id", authUser.id);
                 setCurrentPlan("CHRONOS FREE");
-            } else {
-                setCurrentPlan(profile.plan_type?.toUpperCase() || "CHRONOS FREE");
+              } else {
+                setCurrentPlan(dbPlan);
+              }
             }
+          } else {
+            setCurrentPlan(dbPlan);
           }
-        } else {
-          setCurrentPlan(profile.plan_type?.toUpperCase() || "CHRONOS FREE");
         }
       } catch (err) {
-        console.error("Error in fetchData:", err);
+        console.error("Error:", err);
       }
     };
 
     fetchData();
-
-    return () => {
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
-      }
-    };
+    return () => { if (timerRef.current) clearInterval(timerRef.current); };
   }, [supabase]);
 
   const startTimer = (endTime: Date) => {
-    if (timerRef.current) {
-      clearInterval(timerRef.current);
-    }
-
+    if (timerRef.current) clearInterval(timerRef.current);
     const updateTimer = () => {
       const acum = new Date();
       const diffMs = endTime.getTime() - acum.getTime();
-
       if (diffMs <= 0) {
         if (timerRef.current) clearInterval(timerRef.current);
         setIsTrialActive(false);
         window.location.reload();
         return;
       }
-
-      const zile = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-      const ore = Math.floor((diffMs / (1000 * 60 * 60)) % 24);
-      const minute = Math.floor((diffMs / (1000 * 60)) % 60);
-      const secunde = Math.floor((diffMs / 1000) % 60);
-
-      setTimeLeft({ zile, ore, minute, secunde });
+      setTimeLeft({
+        zile: Math.floor(diffMs / (1000 * 60 * 60 * 24)),
+        ore: Math.floor((diffMs / (1000 * 60 * 60)) % 24),
+        minute: Math.floor((diffMs / (1000 * 60)) % 60),
+        secunde: Math.floor((diffMs / 1000) % 60)
+      });
     };
-
     updateTimer();
     timerRef.current = setInterval(updateTimer, 1000);
   };
 
   const handleActivateTrial = async () => {
     if (!user) return;
-    try {
-      const { error } = await supabase
-        .from("profiles")
-        .update({
-          plan_type: "CHRONOS TEAM",
-          trial_started_at: new Date().toISOString(),
-          trial_used: true
-        })
-        .eq("id", user.id);
+    const { error } = await supabase
+      .from("profiles")
+      .update({
+        plan_type: "CHRONOS TEAM",
+        trial_started_at: new Date().toISOString(),
+        trial_used: true
+      })
+      .eq("id", user.id);
 
-      if (error) {
-        alert(`Eroare la activare: ${error.message}`);
-      } else {
-        window.location.reload();
-      }
-    } catch (err) {
-      console.error("Error in handleActivateTrial:", err);
+    if (!error) window.location.reload();
+    else await showToast({ message: "Eroare la activarea trial-ului. Încearcă din nou.", type: "error", title: "Eroare" });
+  };
+
+  const confirmPlanChange = (plan: any) => {
+    if (plan.id === currentPlan) return;
+    if (plan.stripeLink && plan.stripeLink !== "#") {
+      window.location.href = plan.stripeLink;
+    } else if (plan.id === "CHRONOS FREE") {
+      showToast({ message: "Ești deja pe planul gratuit sau contactează suportul pentru downgrade.", type: "info", title: "Info" });
     }
   };
 
   const handlePlanClick = (plan: any) => {
+    if (plan.id === currentPlan) return;
     if (isTrialActive) {
-      const confirmChange = window.confirm("⚠️ Ești în perioada de probă TEAM. Dacă schimbi planul acum, pierzi accesul gratuit. Continui?");
-      if (!confirmChange) return;
-    }
-    if (plan.id === "CHRONOS FREE" && currentPlan === "CHRONOS FREE") return;
-    if (plan.stripeLink !== "#") {
-      window.location.href = plan.stripeLink;
+      setShowModal(plan);
+    } else {
+      confirmPlanChange(plan);
     }
   };
 
   if (!mounted) return null;
 
   return (
-    <main className="min-h-screen bg-slate-50 py-16 px-4 md:px-8 font-sans">
-      <div className="max-w-7xl mx-auto">
+    <main className="min-h-screen bg-slate-50 py-10 px-4 md:px-8 font-sans">
+      {showModal && (
+        <ElegantModal
+          title="Schimbare Plan"
+          message={`Ești în perioada de probă CHRONOS TEAM. Dacă treci la ${showModal.name}, vei pierde zilele rămase de acces gratuit. Continui?`}
+          onConfirm={() => { confirmPlanChange(showModal); setShowModal(null); }}
+          onCancel={() => setShowModal(null)}
+        />
+      )}
 
-        {/* Header Elegance */}
-        <div className="text-center mb-16 space-y-4">
-          <h1 className="text-4xl md:text-5xl font-black italic tracking-tighter text-slate-900 uppercase">
-            Planuri <span className="text-amber-500">Chronos</span>
+      <div className="max-w-7xl mx-auto">
+        <div className="text-center mb-8 space-y-2">
+          <h1 className="text-3xl md:text-4xl font-black italic tracking-tighter text-slate-900 uppercase">
+            Abonamente <span className="text-amber-500">Chronos</span>
           </h1>
-          <p className="text-slate-500 font-medium text-lg max-w-2xl mx-auto">
-            Alege structura potrivită pentru afacerea ta. Simplitate, eficiență și control absolut.
+          <p className="text-slate-500 font-medium text-base max-w-2xl mx-auto italic">
+            Performanță și organizare la nivel profesionist.
           </p>
         </div>
 
-        {/* Banner Status - Minimalist */}
+        {/* Banner Status — afișează planul activ în loc de "Start Gratuit" */}
         {user && (
-          <div className="mb-16 max-w-4xl mx-auto bg-white border border-slate-200 rounded-[40px] p-8 shadow-sm flex flex-col md:flex-row items-center justify-between gap-6 transition-all hover:shadow-md">
+          <div className="mb-10 max-w-4xl mx-auto bg-white border border-slate-200 rounded-[30px] p-6 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.4)] flex flex-col md:flex-row items-center justify-between gap-4 transition-all hover:shadow-[0_25px_50px_-12px_rgba(0,0,0,0.5)]">
             <div>
-              <p className="text-[10px] font-black uppercase tracking-widest text-amber-500 mb-1">Statusul tău curent</p>
-              <h2 className="text-2xl font-black italic uppercase text-slate-900">{currentPlan}</h2>
-              <p className="text-slate-400 text-xs font-bold uppercase">{user.email}</p>
+              <p className="text-[9px] font-black uppercase tracking-widest text-amber-500 mb-1">
+                {isTrialActive ? "Acces Temporar Activ" : "Abonament Activ"}
+              </p>
+              {/* SCHIMBARE: afișăm numele planului activ, nu "Start Gratuit" */}
+              <h2 className="text-xl font-black italic uppercase text-slate-900">
+                {isTrialActive ? "CHRONOS TEAM (PERIOADĂ PROBĂ)" : currentPlan}
+              </h2>
+              <p className="text-slate-400 text-[10px] font-bold uppercase tracking-tight">{user.email}</p>
             </div>
 
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3">
               {isTrialActive ? (
-                <div className="flex gap-2">
-                  {[ 
+                <div className="flex gap-1.5">
+                  {[
                     { l: "Zile", v: timeLeft.zile },
                     { l: "Ore", v: timeLeft.ore },
                     { l: "Min", v: timeLeft.minute },
                     { l: "Sec", v: timeLeft.secunde }
                   ].map((t, i) => (
-                    <div key={i} className="bg-slate-900 w-16 h-16 rounded-2xl flex flex-col items-center justify-center shadow-lg">
-                      <span className="text-white font-black text-xl leading-none">{t.v}</span>
-                      <span className="text-[8px] text-slate-400 font-bold uppercase">{t.l}</span>
+                    <div key={i} className="bg-slate-900 w-14 h-14 rounded-xl flex flex-col items-center justify-center shadow-md border-b-2 border-slate-700">
+                      <span className="text-white font-black text-lg leading-none">{t.v}</span>
+                      <span className="text-[7px] text-slate-400 font-bold uppercase">{t.l}</span>
                     </div>
                   ))}
                 </div>
@@ -253,9 +295,9 @@ export default function AbonamentePage() {
                 !trialUsed && (
                   <button
                     onClick={handleActivateTrial}
-                    className="bg-amber-500 text-black px-8 py-4 rounded-2xl font-black italic uppercase text-xs hover:bg-black hover:text-white transition-all duration-300 shadow-xl shadow-amber-500/20"
+                    className="bg-amber-500 text-black px-6 py-3 rounded-xl font-black italic uppercase text-[10px] hover:bg-black hover:text-white transition-all duration-300 shadow-lg shadow-amber-500/20"
                   >
-                    Activează 10 zile TEAM
+                    Activează 10 zile CHRONOS TEAM (Gratuit)
                   </button>
                 )
               )}
@@ -263,49 +305,46 @@ export default function AbonamentePage() {
           </div>
         )}
 
-        {/* Pricing Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 items-stretch">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-stretch">
           {plans.map((plan, index) => {
             const isSelected = currentPlan === plan.id;
-
             return (
               <div
                 key={index}
-                className={`relative flex flex-col bg-white rounded-[45px] p-10 transition-all duration-500 border-2 ${
+                className={`relative flex flex-col bg-white rounded-[40px] p-8 transition-all duration-500 border-2 ${
                   isSelected
-                    ? "border-amber-500 shadow-2xl scale-[1.02] z-10"
-                    : "border-transparent shadow-xl shadow-slate-200/50 hover:border-slate-200 hover:translate-y-[-5px]"
+                    ? "border-amber-500 shadow-2xl scale-[1.01] z-10"
+                    : "border-transparent shadow-xl shadow-slate-200/50 hover:border-slate-200 hover:translate-y-[-3px]"
                 }`}
               >
                 {plan.popular && !isSelected && (
-                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-[9px] font-black px-4 py-1.5 rounded-full uppercase tracking-widest shadow-lg">
-                    Recomandat
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-slate-900 text-amber-500 text-[8px] font-black px-3 py-1 rounded-full uppercase tracking-widest shadow-lg">
+                    Popular
                   </div>
                 )}
-
                 {isSelected && (
-                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-amber-500 text-black text-[9px] font-black px-4 py-1.5 rounded-full uppercase tracking-widest shadow-lg">
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-amber-500 text-black text-[8px] font-black px-3 py-1 rounded-full uppercase tracking-widest shadow-lg">
                     Plan Activ
                   </div>
                 )}
 
-                <div className="mb-8">
-                  <h3 className="text-xl font-black italic uppercase text-slate-900 mb-2">{plan.name}</h3>
-                  <p className="text-slate-400 text-xs font-bold leading-relaxed h-8">{plan.description}</p>
+                <div className="mb-6">
+                  <h3 className="text-lg font-black italic uppercase text-slate-900 mb-1">{plan.name}</h3>
+                  <p className="text-slate-400 text-[11px] font-bold leading-relaxed h-7">{plan.description}</p>
                 </div>
 
-                <div className="mb-10 flex items-baseline gap-1">
-                  <span className="text-5xl font-black tracking-tighter text-slate-900">{plan.priceDisplay}</span>
-                  <span className="text-sm font-black text-slate-300 uppercase italic">Ron</span>
+                <div className="mb-8 flex items-baseline gap-1">
+                  <span className="text-4xl font-black tracking-tighter text-slate-900">{plan.priceDisplay}</span>
+                  <span className="text-xs font-black text-slate-300 uppercase italic">Ron / lună</span>
                 </div>
 
-                <div className="space-y-4 flex-1 mb-12">
+                <div className="space-y-3 flex-1 mb-10">
                   {plan.features.map((feature, i) => (
-                    <div key={i} className="flex items-center gap-3">
-                      <div className="flex-shrink-0 w-5 h-5 rounded-full bg-amber-50 flex items-center justify-center">
-                        <span className="text-amber-600 text-[10px] font-black">✓</span>
+                    <div key={i} className="flex items-center gap-2.5">
+                      <div className="flex-shrink-0 w-4 h-4 rounded-full bg-amber-50 flex items-center justify-center">
+                        <span className="text-amber-600 text-[9px] font-black">✓</span>
                       </div>
-                      <span className="text-[11px] font-bold text-slate-600 uppercase italic tracking-tight">{feature}</span>
+                      <span className="text-[10px] font-bold text-slate-600 uppercase italic tracking-tight">{feature}</span>
                     </div>
                   ))}
                 </div>
@@ -313,11 +352,10 @@ export default function AbonamentePage() {
                 <button
                   onClick={() => handlePlanClick(plan)}
                   disabled={isSelected}
-                  title={plan.name}
-                  className={`w-full py-5 rounded-[22px] font-black italic uppercase text-[11px] tracking-widest transition-all duration-300 ${
+                  className={`w-full py-4 rounded-[20px] font-black italic uppercase text-[10px] tracking-widest transition-all duration-300 ${
                     isSelected
                       ? "bg-amber-500 text-black cursor-default border border-slate-200"
-                      : "bg-slate-900 text-white hover:bg-amber-500 hover:text-black shadow-xl shadow-slate-900/10 active:scale-95"
+                      : "bg-slate-900 text-white hover:bg-amber-500 hover:text-black shadow-lg shadow-slate-900/10 active:scale-95"
                   }`}
                 >
                   {isSelected ? "Deja Activat" : plan.buttonText}
@@ -325,13 +363,6 @@ export default function AbonamentePage() {
               </div>
             );
           })}
-        </div>
-
-        {/* Footer Info */}
-        <div className="mt-20 text-center">
-          <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.3em]">
-            Toate abonamentele includ actualizări automate și suport tehnic.
-          </p>
         </div>
       </div>
     </main>
