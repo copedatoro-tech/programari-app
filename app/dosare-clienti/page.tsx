@@ -61,7 +61,7 @@ export default function IstoricPage() {
     setDosare(listaFinala);
   }, []);
 
-  // --- Sincronizare simplificată ---
+  // --- Sincronizare Programări -> Dosare ---
   const sincronizeazaProgramariInDosare = async (currentUserId: string) => {
     try {
       const { data: programari } = await supabase
@@ -83,37 +83,51 @@ export default function IstoricPage() {
       });
 
       for (const prog of programari) {
-        if (!prog.phone && !prog.email) continue;
-
-        // Luăm orice text găsim în câmpurile de nume și le unim simplu
-        const numeDinCalendar = `${prog.prenume || ""} ${prog.nume || ""}`.trim();
-        const numeFinal = numeDinCalendar || prog.phone || "Client Nou";
-
-        const dataProgr = prog.date ? new Date(prog.date).toLocaleDateString('ro-RO') : 'Nespecificată';
-        const linieIstoric = `• ${dataProgr}: ${prog.nume_serviciu || 'Serviciu'}`;
+        // Căutăm telefonul în toate variantele posibile de coloane
+        const telSursa = (prog.phone_number || prog.phone || prog.telefon || "").replace(/\s+/g, '');
+        const emailSursa = (prog.client_email || prog.email || "").toLowerCase().trim();
         
-        const telCheie = prog.phone?.replace(/\s+/g, '');
-        const emailCheie = prog.email?.toLowerCase().trim();
-        const dosarExistent = mapDosare.get(telCheie) || mapDosare.get(emailCheie);
+        if (!telSursa && !emailSursa) continue;
+
+        // Încercăm să extragem numele din câmpurile disponibile
+        // Prioritate: client_name > full_name > (prenume + nume)
+        const numeDinCalendar = (
+          prog.client_name || 
+          prog.full_name || 
+          `${prog.prenume || ""} ${prog.nume || ""}`.trim() ||
+          prog.title
+        );
+        
+        const numeFinal = numeDinCalendar || telSursa || "Client Nou";
+
+        const dataProgr = (prog.date || prog.start_time) ? new Date(prog.date || prog.start_time).toLocaleDateString('ro-RO') : 'Nespecificată';
+        const linieIstoric = `• ${dataProgr}: ${prog.nume_serviciu || prog.service_name || 'Serviciu'}`;
+        
+        const dosarExistent = mapDosare.get(telSursa) || mapDosare.get(emailSursa);
 
         if (!dosarExistent) {
-          await supabase.from('client_cases').insert([{
+          const { data: nouDosar } = await supabase.from('client_cases').insert([{
             user_id: currentUserId,
             client_name: numeFinal,
-            client_email: prog.email || "",
-            phone_number: prog.phone || "",
+            client_email: emailSursa,
+            phone_number: telSursa,
             case_type: "Dosar Client",
             status: "Activ",
             description: `ISTORIC:\n${linieIstoric}`,
-            poza: prog.poza || null
-          }]);
+            poza: prog.poza || null,
+            appointment_id: prog.id // Salvăm ID-ul pentru referință
+          }]).select().single();
+
+          if (nouDosar) {
+            if (telSursa) mapDosare.set(telSursa, nouDosar);
+            if (emailSursa) mapDosare.set(emailSursa, nouDosar);
+          }
         } else {
           let updateData: any = {};
           let needsUpdate = false;
 
           const numeActualInDosar = (dosarExistent.client_name || "").trim();
           
-          // Dacă numele din calendar este mai lung sau cel actual e generic, actualizăm
           if (numeDinCalendar && (numeDinCalendar !== numeActualInDosar)) {
             const esteGeneric = numeActualInDosar.toLowerCase().includes("client") || numeActualInDosar === dosarExistent.phone_number;
             if (esteGeneric || numeDinCalendar.length > numeActualInDosar.length) {
@@ -261,7 +275,7 @@ export default function IstoricPage() {
                     onBlur={(e) => actualizeazaCampDosar('client_name', e.target.value)}
                   />
                 </div>
-                <button onClick={() => setDosarSelectat(null)} className="bg-white/10 hover:bg-red-500 w-14 h-14 rounded-[20px]">✕</button>
+                <button title="Închide" onClick={() => setDosarSelectat(null)} className="bg-white/10 hover:bg-red-500 w-14 h-14 rounded-[20px]">✕</button>
               </div>
               
               <div className="p-12 overflow-y-auto bg-slate-50 flex-grow scrollbar-hide">
