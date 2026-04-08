@@ -11,15 +11,23 @@ import { debounce } from "lodash";
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 1000 * 60 * 5, // Cache-ul rămâne valabil 5 minute
-      refetchOnWindowFocus: false, // Nu refetch-ui la focus
+      staleTime: 1000 * 60 * 5,
+      refetchOnWindowFocus: false,
     },
   },
 });
 
 // Încarcă componentele grele doar când sunt necesare
-const ChronosTimePicker = lazy(() => import("@/components/ChronosDateTimePickers").then((mod) => ({ default: mod.ChronosTimePicker })));
-const ChronosDatePicker = lazy(() => import("@/components/ChronosDateTimePickers").then((mod) => ({ default: mod.ChronosDatePicker })));
+const ChronosTimePicker = lazy(() =>
+  import("@/components/ChronosDateTimePickers").then((mod) => ({
+    default: mod.ChronosTimePicker,
+  }))
+);
+const ChronosDatePicker = lazy(() =>
+  import("@/components/ChronosDateTimePickers").then((mod) => ({
+    default: mod.ChronosDatePicker,
+  }))
+);
 
 type DocumentAttachment = { id: number; name: string; url: string };
 type StaffRow = { id: string; name: string; services: string[] };
@@ -53,12 +61,41 @@ const LIMITE_ABONAMENTE: Record<string, number> = {
   "chronos team": 999999,
 };
 
+// Componentă pentru confirmare
+const ConfirmationDialog = ({ message, onConfirm, onCancel }: { message: string; onConfirm: () => void; onCancel: () => void }) => (
+  <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[600] flex items-center justify-center p-4">
+    <div className="bg-white rounded-[30px] p-8 shadow-2xl border border-slate-100 max-w-md w-full">
+      <div className="flex flex-col items-center gap-6">
+        <div className="w-16 h-16 bg-amber-50 rounded-full flex items-center justify-center">
+          <span className="text-2xl">⏰</span>
+        </div>
+        <p className="text-center text-slate-800 font-bold text-lg">{message}</p>
+        <div className="flex gap-4 w-full">
+          <button
+            onClick={onCancel}
+            className="flex-1 py-3 bg-slate-100 text-slate-500 rounded-[15px] font-bold uppercase text-sm hover:bg-slate-200 transition-all"
+          >
+            Anulează
+          </button>
+          <button
+            onClick={onConfirm}
+            className="flex-1 py-3 bg-amber-500 text-white rounded-[15px] font-bold uppercase text-sm hover:bg-amber-600 transition-all shadow-lg"
+          >
+            Confirmă
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
 function ProgramariContent() {
+  const today = new Date().toISOString().split("T")[0];
   const [formular, setFormular] = useState<Programare>({
     id: 0,
     nume: "",
     email: "",
-    data: new Date().toISOString().split("T")[0],
+    data: today,
     ora: "09:00",
     motiv: "",
     telefon: "",
@@ -78,6 +115,10 @@ function ProgramariContent() {
   const [filteredClients, setFilteredClients] = useState<Programare[]>([]);
   const [showTimePicker, setShowTimePicker] = useState(false);
   const [showDatePicker, setShowDatePicker] = useState(false);
+  const [showDateConfirm, setShowDateConfirm] = useState(false);
+  const [showTimeConfirm, setShowTimeConfirm] = useState(false);
+  const [tempDate, setTempDate] = useState<string>(today);
+  const [tempTime, setTempTime] = useState<string>("09:00");
 
   const suggestionsRef = useRef<HTMLDivElement>(null);
   const popupRef = useRef<HTMLDivElement>(null);
@@ -170,7 +211,6 @@ function ProgramariContent() {
     return (angajati || []).filter((a: StaffRow) => a.services?.includes(formular.serviciu_id));
   }, [formular.serviciu_id, angajati]);
 
-  const today = new Date().toISOString().split("T")[0];
   const programariAzi = useMemo(() => (programari || []).filter((p: any) => p.date === today), [programari, today]);
   const statsAzi = useMemo(() => ({ total: programariAzi.length, online: programariAzi.filter((p: any) => p.is_client_booking).length }), [programariAzi]);
   const countLunaCurenta = useMemo(() => {
@@ -184,8 +224,16 @@ function ProgramariContent() {
   const handleNumeChange = useCallback(debounce((val: string) => {
     setFormular((prev) => ({ ...prev, nume: val }));
     if (val.length > 1 && programari) {
-      const unique = Array.from(new Map((programari as any[]).map((item) => [item.title.toLowerCase(), item])).values());
-      const filtered = unique.filter((c: any) => c.title.toLowerCase().includes(val.toLowerCase())).slice(0, 5);
+      const unique = Array.from(
+        new Map(
+          (programari as any[])
+            .filter(item => item.title)
+            .map((item) => [item.title.toLowerCase(), item])
+        ).values()
+      );
+      const filtered = unique.filter((c: any) =>
+        c.title.toLowerCase().includes(val.toLowerCase())
+      ).slice(0, 5);
       setFilteredClients(filtered.map(f => ({ ...f, nume: f.title, telefon: f.phone })));
       setShowSuggestions(filtered.length > 0);
     } else {
@@ -212,7 +260,29 @@ function ProgramariContent() {
     setFormular((prev) => ({ ...prev, documente: newDocuments }));
   };
 
-  const eliminaDocument = (id: number) => setFormular((prev) => ({ ...prev, documente: prev.documente.filter((d) => d.id !== id) }));
+  const eliminaDocument = (id: number) => {
+    setFormular((prev) => ({ ...prev, documente: prev.documente.filter((d) => d.id !== id) }));
+  };
+
+  const handleDateSelect = (val: string) => {
+    setTempDate(val);
+    setShowDateConfirm(true);
+  };
+
+  const handleTimeSelect = (val: string) => {
+    setTempTime(val);
+    setShowTimeConfirm(true);
+  };
+
+  const handleDateConfirm = () => {
+    setFormular({ ...formular, data: tempDate });
+    setShowDateConfirm(false);
+  };
+
+  const handleTimeConfirm = () => {
+    setFormular({ ...formular, ora: tempTime });
+    setShowTimeConfirm(false);
+  };
 
   const salveazaInCloud = async () => {
     if (!formular.nume || !formular.telefon) {
@@ -275,7 +345,7 @@ function ProgramariContent() {
         <Suspense fallback={null}>
           <ChronosDatePicker
             value={formular.data}
-            onChange={(val) => setFormular({ ...formular, data: val })}
+            onChange={handleDateSelect}
             onClose={() => setShowDatePicker(false)}
             minDate={today}
           />
@@ -285,10 +355,24 @@ function ProgramariContent() {
         <Suspense fallback={null}>
           <ChronosTimePicker
             value={formular.ora}
-            onChange={(val) => setFormular({ ...formular, ora: val })}
+            onChange={handleTimeSelect}
             onClose={() => setShowTimePicker(false)}
           />
         </Suspense>
+      )}
+      {showDateConfirm && (
+        <ConfirmationDialog
+          message={`Confirmi data selectată: ${tempDate}?`}
+          onConfirm={handleDateConfirm}
+          onCancel={() => setShowDateConfirm(false)}
+        />
+      )}
+      {showTimeConfirm && (
+        <ConfirmationDialog
+          message={`Confirmi ora selectată: ${tempTime}?`}
+          onConfirm={handleTimeConfirm}
+          onCancel={() => setShowTimeConfirm(false)}
+        />
       )}
 
       <div className="max-w-6xl mx-auto">
