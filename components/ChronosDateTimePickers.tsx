@@ -30,8 +30,8 @@ export function ChronosTimePicker({
   onChange: (val: string) => void;
   onClose: () => void;
 }) {
-  const [step, setStep] = useState<"hour" | "minute">("hour");
   const [selectedHour, setSelectedHour] = useState(value?.split(":")[0] || "09");
+  const [selectedMinute, setSelectedMinute] = useState(value?.split(":")[1] || "00");
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -43,58 +43,83 @@ export function ChronosTimePicker({
     return () => document.removeEventListener("mousedown", clickOut);
   }, [onClose]);
 
-  const hours = Array.from({ length: 24 }, (_, i) => String(i).padStart(2, "0"));
+  const hours = Array.from({ length: 15 }, (_, i) => String(i + 8).padStart(2, "0")); // 08:00 - 22:00
   const minutes = ["00", "15", "30", "45"];
 
+  const handleFinalize = (m: string) => {
+    setSelectedMinute(m);
+    onChange(`${selectedHour}:${m}`);
+    onClose();
+  };
+
   return (
-    <div className="fixed inset-0 z-[600] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm">
+    <div className="fixed inset-0 z-[600] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md">
       <div
         ref={containerRef}
-        className="bg-white border-4 border-slate-900 rounded-[40px] shadow-2xl p-8 w-full max-w-xs"
+        className="bg-white w-full max-w-md rounded-[45px] border-4 border-slate-900 shadow-2xl overflow-hidden"
       >
-        <div className="text-center mb-6">
-          <p className="text-[10px] font-black uppercase italic text-amber-600 tracking-widest">
-            Selectează {step === "hour" ? "Ora" : "Minutele"}
+        {/* HEADER - IDENTIC CU DATE PICKER */}
+        <div className="bg-slate-900 p-8 text-center border-b-4 border-amber-500">
+          <p className="text-[10px] font-black text-amber-500 uppercase italic tracking-[0.3em] mb-2">
+            Chronos Hour Picker
           </p>
-          <p className="text-3xl font-black italic text-slate-900">
-            {selectedHour}:{step === "minute" ? "--" : value?.split(":")[1] || "00"}
-          </p>
+          <h3 className="text-4xl font-black text-white italic">
+            {selectedHour}<span className="animate-pulse">:</span>{selectedMinute}
+          </h3>
         </div>
 
-        <div className="grid grid-cols-4 gap-2 h-64 overflow-y-auto pr-2">
-          {step === "hour"
-            ? hours.map((h) => (
+        <div className="p-6 space-y-6">
+          {/* SECTOR ORE */}
+          <div className="bg-slate-50 p-5 rounded-[30px] border-2 border-slate-100 relative">
+            <label className="text-[9px] font-black uppercase italic text-slate-400 absolute -top-3 left-6 bg-white px-2 border border-slate-100 rounded-full">
+              ORE
+            </label>
+            <div className="grid grid-cols-5 gap-2">
+              {hours.map((h) => (
                 <button
                   key={h}
-                  onClick={() => { setSelectedHour(h); setStep("minute"); }}
-                  className={`py-4 rounded-2xl font-black italic transition-all ${
+                  onClick={() => setSelectedHour(h)}
+                  className={`py-3 rounded-xl font-black text-[13px] transition-all border-2 ${
                     selectedHour === h
-                      ? "bg-slate-900 text-white"
-                      : "bg-slate-50 text-slate-400 hover:bg-amber-100"
+                      ? "bg-slate-900 text-amber-500 border-slate-900 shadow-md scale-105"
+                      : "bg-white text-slate-400 border-slate-200 hover:border-amber-500 hover:text-slate-900"
                   }`}
                 >
                   {h}
                 </button>
-              ))
-            : minutes.map((m) => (
+              ))}
+            </div>
+          </div>
+
+          {/* SECTOR MINUTE */}
+          <div className="bg-slate-50 p-5 rounded-[30px] border-2 border-slate-100 relative">
+            <label className="text-[9px] font-black uppercase italic text-slate-400 absolute -top-3 left-6 bg-white px-2 border border-slate-100 rounded-full">
+              MINUTE
+            </label>
+            <div className="grid grid-cols-4 gap-3">
+              {minutes.map((m) => (
                 <button
                   key={m}
-                  onClick={() => { onChange(`${selectedHour}:${m}`); onClose(); }}
-                  className="col-span-2 py-6 bg-slate-50 rounded-3xl font-black italic text-slate-900 hover:bg-amber-500 hover:text-white transition-all text-lg"
+                  onClick={() => handleFinalize(m)}
+                  className={`py-5 rounded-2xl font-black text-lg transition-all border-2 ${
+                    selectedMinute === m
+                      ? "bg-amber-500 text-black border-amber-500 shadow-md"
+                      : "bg-white text-slate-400 border-slate-200 hover:border-amber-500"
+                  }`}
                 >
                   :{m}
                 </button>
               ))}
-        </div>
+            </div>
+          </div>
 
-        {step === "minute" && (
           <button
-            onClick={() => setStep("hour")}
-            className="w-full mt-4 py-3 text-[10px] font-black uppercase italic text-slate-400 hover:text-slate-900 transition-all"
+            onClick={onClose}
+            className="w-full py-4 bg-slate-900 text-white rounded-[20px] font-black uppercase italic text-[10px] hover:bg-amber-500 hover:text-black transition-all border-b-4 border-slate-800"
           >
-            ← Înapoi la ore
+            Anulează
           </button>
-        )}
+        </div>
       </div>
     </div>
   );
@@ -154,11 +179,11 @@ export function ChronosDatePicker({
         ref={containerRef}
         className="bg-white w-full max-w-md rounded-[45px] border-4 border-slate-900 shadow-2xl overflow-hidden"
       >
-        <div className="bg-slate-900 p-6 text-center">
-          <p className="text-[10px] font-black text-amber-500 uppercase italic tracking-[0.3em]">
+        <div className="bg-slate-900 p-8 text-center border-b-4 border-amber-500">
+          <p className="text-[10px] font-black text-amber-500 uppercase italic tracking-[0.3em] mb-2">
             Chronos Date Picker
           </p>
-          <div className="flex items-center justify-between mt-2">
+          <div className="flex items-center justify-between">
             <button
               onClick={() => navMonth(-1)}
               className="text-white hover:text-amber-500 font-black text-lg px-3 transition-all"
@@ -205,7 +230,7 @@ export function ChronosDatePicker({
                   className={`aspect-square rounded-xl text-[11px] font-black flex items-center justify-center transition-all
                     ${!isCurrentMonth ? "opacity-20" : "opacity-100"}
                     ${isPast ? "opacity-10 cursor-not-allowed" : ""}
-                    ${isSelected ? "bg-amber-500 text-white shadow-lg" : ""}
+                    ${isSelected ? "bg-amber-500 text-white shadow-lg scale-105" : ""}
                     ${isToday && !isSelected ? "border-2 border-amber-500 text-amber-600" : ""}
                     ${!isSelected && !isPast ? "hover:bg-slate-100 text-slate-900" : ""}
                   `}
@@ -218,7 +243,7 @@ export function ChronosDatePicker({
 
           <button
             onClick={onClose}
-            className="w-full mt-4 py-4 bg-slate-100 text-slate-900 rounded-[20px] font-black uppercase italic text-[10px] hover:bg-slate-200 transition-all"
+            className="w-full mt-4 py-4 bg-slate-900 text-white rounded-[20px] font-black uppercase italic text-[10px] hover:bg-amber-500 hover:text-black transition-all border-b-4 border-slate-800"
           >
             Închide
           </button>

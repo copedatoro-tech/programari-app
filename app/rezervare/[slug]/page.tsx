@@ -13,6 +13,14 @@ const DAY_NAMES_LONG = ["Duminică", "Luni", "Marți", "Miercuri", "Joi", "Viner
 
 type LimitReason = "plan_limit" | "hour_blocked" | "day_closed" | "outside_hours" | "service_overlap";
 
+// Definirea limitelor pentru fiecare plan conform cartelelor de abonament
+const PLAN_LIMITS: Record<string, number> = {
+  "START (GRATUIT)": 30,
+  "CHRONOS PRO": 150,
+  "CHRONOS ELITE": 500,
+  "CHRONOS TEAM": Infinity
+};
+
 function addMinutesToTime(timeStr: string, minutes: number): string {
   const [h, m] = timeStr.split(":").map(Number);
   const totalMin = h * 60 + m + minutes;
@@ -23,7 +31,7 @@ function addMinutesToTime(timeStr: string, minutes: number): string {
 
 function ChronosPopup({ icon, title, message, onClose }: { icon: string; title: string; message: string; onClose: () => void }) {
   return (
-    <div className="fixed inset-0 bg-slate-950/60 backdrop-blur-md z-[110] flex items-center justify-center p-6" onClick={onClose}>
+    <div className="fixed inset-0 bg-slate-950/60 backdrop-blur-md z-[700] flex items-center justify-center p-6" onClick={onClose}>
       <div className="bg-white w-full max-w-[400px] rounded-[40px] p-10 text-center shadow-2xl border-[4px] border-amber-500 relative" onClick={(e) => e.stopPropagation()}>
         <button onClick={onClose} className="absolute top-4 right-6 text-slate-300 hover:text-red-500 text-xl font-black transition-colors">✕</button>
         <div className="text-5xl mb-4">{icon}</div>
@@ -37,7 +45,7 @@ function ChronosPopup({ icon, title, message, onClose }: { icon: string; title: 
 
 function SuccessPopup({ onClose }: { onClose: () => void }) {
   return (
-    <div className="fixed inset-0 bg-slate-950/60 backdrop-blur-md z-[110] flex items-center justify-center p-6" onClick={onClose}>
+    <div className="fixed inset-0 bg-slate-950/60 backdrop-blur-md z-[700] flex items-center justify-center p-6" onClick={onClose}>
       <div className="bg-white w-full max-w-[380px] rounded-[40px] p-10 text-center shadow-2xl border-[4px] border-amber-500 relative" onClick={(e) => e.stopPropagation()}>
         <button onClick={onClose} className="absolute top-4 right-6 text-slate-300 hover:text-red-500 text-xl font-black transition-colors">✕</button>
         <div className="text-5xl mb-4">⭐</div>
@@ -200,6 +208,7 @@ function RezervareContent() {
       case "day_closed": return { icon: "🗓️", title: "Zi Închisă", message: "Această zi nu este disponibilă pentru programări." };
       case "outside_hours": return { icon: "⏰", title: "În Afara Programului", message: "Ora aleasă este în afara programului de lucru." };
       case "service_overlap": return { icon: "⏱️", title: "Durată Depășită", message: "Serviciul ales se termină în afara programului de lucru." };
+      case "plan_limit": return { icon: "🚀", title: "Capacitate Maximă", message: "Acest salon a atins limita de programări pentru luna aceasta conform planului activ." };
       default: return { icon: "⚠️", title: "Limită Atinsă", message: "Ne pare rău, acest salon a atins limita de rezervări disponibile." };
     }
   };
@@ -216,18 +225,48 @@ function RezervareContent() {
 
     setLoading(true);
     try {
-      const { data: profileData } = await supabase.from("profiles").select("working_hours").eq("id", adminId).single();
-      if (profileData?.working_hours) {
-        const workingHours: any[] = profileData.working_hours;
-        const dateObj = new Date(form.data + "T00:00:00");
-        const dayName = DAY_NAMES_LONG[dateObj.getDay()];
-        const schedule = workingHours.find((h: any) => h.day === dayName);
-        if (schedule?.closed) { setPopup(getLimitPopupContent("day_closed")); setLoading(false); return; }
-        if (schedule) {
-          if (form.ora < schedule.start || form.ora > schedule.end) { setPopup(getLimitPopupContent("outside_hours")); setLoading(false); return; }
-          if (serviceDuration > 0) {
-            const endTime = addMinutesToTime(form.ora, serviceDuration);
-            if (endTime > schedule.end) { setPopup(getLimitPopupContent("service_overlap")); setLoading(false); return; }
+      // 1. Verificare Plan și Limitări Programări
+      const { data: profileData } = await supabase
+        .from("profiles")
+        .select("working_hours, plan_type")
+        .eq("id", adminId)
+        .single();
+
+      if (profileData) {
+        const plan = profileData.plan_type || "START (GRATUIT)";
+        const maxAppointments = PLAN_LIMITS[plan] || 30;
+
+        // Numărare programări în luna curentă
+        const startOfMonth = new Date();
+        startOfMonth.setDate(1);
+        startOfMonth.setHours(0, 0, 0, 0);
+
+        const { count, error: countError } = await supabase
+          .from("appointments")
+          .select("*", { count: 'exact', head: true })
+          .eq("user_id", adminId)
+          .gte("created_at", startOfMonth.toISOString());
+
+        if (!countError && count !== null && count >= maxAppointments) {
+          setPopup(getLimitPopupContent("plan_limit"));
+          setLoading(false);
+          return;
+        }
+
+        // 2. Verificare Program de Lucru
+        if (profileData.working_hours) {
+          const workingHours: any[] = profileData.working_hours;
+          const dateObj = new Date(form.data + "T00:00:00");
+          const dayName = DAY_NAMES_LONG[dateObj.getDay()];
+          const schedule = workingHours.find((h: any) => h.day === dayName);
+
+          if (schedule?.closed) { setPopup(getLimitPopupContent("day_closed")); setLoading(false); return; }
+          if (schedule) {
+            if (form.ora < schedule.start || form.ora > schedule.end) { setPopup(getLimitPopupContent("outside_hours")); setLoading(false); return; }
+            if (serviceDuration > 0) {
+              const endTime = addMinutesToTime(form.ora, serviceDuration);
+              if (endTime > schedule.end) { setPopup(getLimitPopupContent("service_overlap")); setLoading(false); return; }
+            }
           }
         }
       }
@@ -312,12 +351,31 @@ function RezervareContent() {
         </div>
       )}
 
+      {/* RENDERARE PICKERS CU Z-INDEX CORECT ȘI LOGICĂ DE ÎNCHIDERE */}
       {showDatePicker && (
-        <ChronosDatePicker value={form.data} onChange={(val) => setForm({ ...form, data: val })} onClose={() => setShowDatePicker(false)} minDate={today} />
+        <div className="fixed inset-0 z-[700] bg-slate-950/40 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => setShowDatePicker(false)}>
+          <div onClick={(e) => e.stopPropagation()}>
+            <ChronosDatePicker 
+              value={form.data} 
+              onChange={(val) => { setForm({ ...form, data: val }); setShowDatePicker(false); }} 
+              onClose={() => setShowDatePicker(false)} 
+              minDate={today} 
+            />
+          </div>
+        </div>
       )}
       {showTimePicker && (
-        <ChronosTimePicker value={form.ora} onChange={(val) => { setForm({ ...form, ora: val }); setErrors({ ...errors, ora: false }); }} onClose={() => setShowTimePicker(false)} />
+        <div className="fixed inset-0 z-[700] bg-slate-950/40 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => setShowTimePicker(false)}>
+          <div onClick={(e) => e.stopPropagation()}>
+            <ChronosTimePicker 
+              value={form.ora} 
+              onChange={(val) => { setForm({ ...form, ora: val }); setErrors({ ...errors, ora: false }); setShowTimePicker(false); }} 
+              onClose={() => setShowTimePicker(false)} 
+            />
+          </div>
+        </div>
       )}
+      
       {popup && <ChronosPopup {...popup} onClose={() => setPopup(null)} />}
       {feedbackTrimisSucces && <SuccessPopup onClose={() => setFeedbackTrimisSucces(false)} />}
 
