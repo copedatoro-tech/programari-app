@@ -78,16 +78,12 @@ function normalizeDocuments(raw: any): DocumentAttachment[] {
   });
 }
 
-// ─── FIX 1: mapRow normalizează data corect (coloana date e de tip date în DB) ───
 function mapRow(item: any): Programare {
-  // Coloana "date" din DB e de tip date → vine ca "2025-01-15" (string simplu)
-  // Dacă vine cu ora (timestamp), păstrăm doar data
   const rawDate: string = item.date ?? "";
   const dataStr = rawDate.includes("T") ? rawDate.split("T")[0] : rawDate;
 
   return {
     id: item.id,
-    // FIX: am adăugat item.nume în select, deci acum funcționează corect
     nume: item.title || item.prenume || item.nume || "Client",
     email: item.email ?? "",
     data: dataStr,
@@ -101,8 +97,6 @@ function mapRow(item: any): Programare {
     duration: item.duration ?? 0,
   };
 }
-
-// ─── INLINE DATE PICKER ───────────────────────────────────────────────────────
 
 function InlineDatePicker({ currentDate, onSelectDate, onClose }: {
   currentDate: string;
@@ -166,8 +160,6 @@ function InlineDatePicker({ currentDate, onSelectDate, onClose }: {
   );
 }
 
-// ─── INLINE TIME PICKER ──────────────────────────────────────────────────────
-
 function InlineTimePicker({ currentTime, onSelectTime, onClose }: {
   currentTime: string;
   onSelectTime: (timeStr: string) => void;
@@ -224,8 +216,6 @@ function InlineTimePicker({ currentTime, onSelectTime, onClose }: {
     </div>
   );
 }
-
-// ─── DATE PICKER MODAL ────────────────────────────────────────────────────────
 
 function DatePickerModal({ currentDate, onSelectDate, onClose }: {
   currentDate: Date;
@@ -359,7 +349,6 @@ function CalendarContent() {
     return { start, end };
   }, [selectedDate.getFullYear(), selectedDate.getMonth()]);
 
-  // ─── FIX 2: Am adăugat "nume" în lista de coloane selectate ───────────────
   const { data: programari = [], isLoading: loadingAppts } = useQuery<Programare[]>({
     queryKey: ["appointments", userId, dateRange.start, dateRange.end],
     enabled: !!userId,
@@ -372,13 +361,10 @@ function CalendarContent() {
         .lte("date", dateRange.end)
         .order("date", { ascending: true });
 
-      // FIX 3: logăm eroarea dacă există, ca să o vedem în console
       if (error) {
         console.error("[Calendar] Eroare fetch appointments:", error);
         return [];
       }
-
-      console.log("[Calendar] Appointments fetchate:", data?.length, data);
       return (data ?? []).map(mapRow);
     },
   });
@@ -514,7 +500,6 @@ function CalendarContent() {
   const programariByDate = useMemo(() => {
     const map: Record<string, Programare[]> = {};
     filteredProgramari.forEach((p) => {
-      // FIX 4: data e deja normalizată în mapRow, nu mai e nevoie de split("T") aici
       const key = p.data;
       if (key) { if (!map[key]) map[key] = []; map[key].push(p); }
     });
@@ -675,16 +660,16 @@ function CalendarContent() {
                   <p className="text-[8px] font-black text-amber-500 uppercase italic mb-1">Specialist</p>
                   <select className="w-full bg-transparent font-black text-xs text-white outline-none cursor-pointer uppercase italic"
                     value={editForm.expertId || ""} onChange={(e) => setEditForm({ ...editForm, expertId: e.target.value })}>
-                    <option value="" className="text-slate-900">Alege...</option>
-                    {angajatiFiltratiInModal.map((a) => <option key={a.id} value={a.id} className="text-slate-900">{a.name}</option>)}
+                    <option value="" className="text-orange-500 bg-slate-900">Alege...</option>
+                    {angajatiFiltratiInModal.map((a) => <option key={a.id} value={a.id} className="text-orange-500 bg-slate-900">{a.name}</option>)}
                   </select>
                 </div>
-                <div className="bg-amber-500 p-5 rounded-[30px] shadow-xl shadow-amber-100">
-                  <p className="text-[8px] font-black text-white uppercase italic mb-1 opacity-80">Serviciu</p>
+                <div className="bg-slate-900 p-5 rounded-[30px] shadow-xl">
+                  <p className="text-[8px] font-black text-amber-500 uppercase italic mb-1">Serviciu</p>
                   <select className="w-full bg-transparent font-black text-xs text-white outline-none cursor-pointer uppercase italic"
                     value={editForm.serviciuId || ""} onChange={(e) => setEditForm({ ...editForm, serviciuId: e.target.value })}>
-                    <option value="" className="text-amber-700">Alege...</option>
-                    {serviciiFiltrateInModal.map((s) => <option key={s.id} value={s.id} className="text-slate-900">{s.nume_serviciu?.toUpperCase()}</option>)}
+                    <option value="" className="text-orange-500 bg-slate-900">Alege...</option>
+                    {serviciiFiltrateInModal.map((s) => <option key={s.id} value={s.id} className="text-orange-500 bg-slate-900">{s.nume_serviciu?.toUpperCase()}</option>)}
                   </select>
                 </div>
               </div>
