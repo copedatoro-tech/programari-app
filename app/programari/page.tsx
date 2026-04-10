@@ -71,12 +71,14 @@ const ConfirmationDialog = ({ message, onConfirm, onCancel }: { message: string;
           <button
             onClick={onCancel}
             className="flex-1 py-3 bg-slate-100 text-slate-500 rounded-[15px] font-bold uppercase text-sm hover:bg-slate-200 transition-all"
+            title="Revino la editare"
           >
             Anulează
           </button>
           <button
             onClick={onConfirm}
             className="flex-1 py-3 bg-amber-500 text-white rounded-[15px] font-bold uppercase text-sm hover:bg-amber-600 transition-all shadow-lg"
+            title="Confirmă selecția"
           >
             Confirmă
           </button>
@@ -135,7 +137,7 @@ function ProgramariContent() {
       const startDate = dateLimit.toISOString().split("T")[0];
       const { data } = await supabase
         .from("appointments")
-        .select("id, title, date, time, details, phone, email, file_url, is_client_booking, angajat_id, serviciu_id, documente")
+        .select("id, title, date, time, details, phone, email, file_url, is_client_booking, angajat_id, serviciu_id, documente, nume_serviciu")
         .eq("user_id", session.user.id)
         .gte("date", startDate)
         .order("date", { ascending: false });
@@ -208,6 +210,10 @@ function ProgramariContent() {
     return (angajati || []).filter((a: StaffRow) => a.services?.includes(formular.serviciu_id));
   }, [formular.serviciu_id, angajati]);
 
+  const durataSelectata = useMemo(() => {
+    return servicii?.find((s: ServiceRow) => s.id === formular.serviciu_id)?.duration || 30;
+  }, [formular.serviciu_id, servicii]);
+
   const programariAzi = useMemo(() => (programari || []).filter((p: any) => p.date === today), [programari, today]);
   const statsAzi = useMemo(() => ({ total: programariAzi.length, online: programariAzi.filter((p: any) => p.is_client_booking).length }), [programariAzi]);
 
@@ -218,6 +224,29 @@ function ProgramariContent() {
 
   const limitaCurenta = isTrialing ? 999999 : LIMITE_ABONAMENTE[userPlan] || 30;
   const esteLimitatUI = countLunaCurenta >= limitaCurenta;
+
+  const currentWorkingHours = useMemo(() => {
+    const defaultHours = { start: "08:00", end: "20:00" };
+    if (!profileData?.working_hours) return defaultHours;
+
+    const [year, month, day] = formular.data.split('-').map(Number);
+    const dateObj = new Date(year, month - 1, day);
+    
+    const dayNames = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
+    const dayKey = dayNames[dateObj.getDay()];
+    
+    const hoursData = profileData.working_hours;
+    const daySchedule = hoursData[dayKey] || hoursData[dayKey.charAt(0).toUpperCase() + dayKey.slice(1)];
+
+    if (!daySchedule || daySchedule.closed) {
+        return defaultHours;
+    }
+
+    return {
+      start: daySchedule.start && daySchedule.start !== "" ? daySchedule.start : "08:00",
+      end: daySchedule.end && daySchedule.end !== "" ? daySchedule.end : "20:00"
+    };
+  }, [profileData, formular.data]);
 
   const handleNumeChange = useCallback(debounce((val: string) => {
     setFormular((prev) => ({ ...prev, nume: val }));
@@ -297,7 +326,6 @@ function ProgramariContent() {
     const angajatSelectat = angajati?.find((a: StaffRow) => a.id === formular.angajat_id);
 
     const telefonCurat = formular.telefon.replace(/\D/g, '');
-
     const dataRo = new Date(formular.data).toLocaleDateString('ro-RO');
     const numeServ = serviciuSelectat?.nume_serviciu || "Programare";
     const linieIstoric = `• ${dataRo} la ora ${formular.ora}: ${numeServ} (${angajatSelectat?.name || "General"})`;
@@ -392,6 +420,11 @@ function ProgramariContent() {
             value={formular.ora || "09:00"}
             onChange={handleTimeSelect}
             onClose={() => setShowTimePicker(false)}
+            workingStart={currentWorkingHours.start}
+            workingEnd={currentWorkingHours.end}
+            appointments={programari?.filter((p: any) => p.date === formular.data) || []}
+            duration={durataSelectata}
+            blockedSlots={profileData?.manual_blocks || []}
           />
         </Suspense>
       )}
@@ -436,7 +469,7 @@ function ProgramariContent() {
               <span className="w-3 h-3 bg-amber-500 rounded-full animate-pulse"></span>
               <p className="text-[11px] font-black uppercase italic text-slate-600">Azi: <span className="text-amber-600">{statsAzi.total} Total</span> • <span className="text-blue-500">{statsAzi.online} Online</span></p>
             </div>
-            <Link href="/programari/calendar" className="bg-white px-6 py-3 rounded-2xl shadow-sm border border-slate-200 flex items-center gap-3 hover:bg-slate-50 transition-all active:scale-95" title="Vezi Calendarul">
+            <Link href="/programari/calendar" className="bg-white px-6 py-3 rounded-2xl shadow-sm border border-slate-200 flex items-center gap-3 hover:bg-slate-50 transition-all active:scale-95" title="Vezi Calendarul complet">
               <span className="text-xs">📅</span>
               <p className="text-[11px] font-black uppercase italic text-slate-600">Calendar</p>
             </Link>
@@ -461,7 +494,7 @@ function ProgramariContent() {
                     r.readAsDataURL(e.target.files[0]);
                   }
                 }} />
-                <label htmlFor="f-pick" className="absolute inset-0 cursor-pointer z-10" title="Schimbă poza"></label>
+                <label htmlFor="f-pick" className="absolute inset-0 cursor-pointer z-10" title="Încarcă poză de profil client"></label>
               </div>
               <p className="text-[10px] font-black uppercase italic text-slate-400">Poza Profil Client</p>
             </div>
@@ -475,6 +508,7 @@ function ProgramariContent() {
                   className="p-5 bg-slate-50 rounded-[25px] border-2 border-transparent focus:border-amber-500 font-bold text-lg outline-none shadow-inner"
                   value={formular.nume}
                   onChange={(e) => handleNumeChange(e.target.value)}
+                  title="Introdu numele clientului pentru sugestii"
                 />
                 {showSuggestions && (
                   <div ref={suggestionsRef} className="absolute top-full left-0 right-0 mt-2 bg-white border border-slate-100 rounded-[20px] shadow-xl z-50 overflow-hidden">
@@ -483,6 +517,7 @@ function ProgramariContent() {
                         key={idx}
                         onClick={() => selecteazaClient(client)}
                         className="w-full px-6 py-3 text-left hover:bg-amber-50 text-sm font-bold text-slate-700 transition-colors"
+                        title={`Selectează ${client.nume}`}
                       >
                         {client.nume} — {client.telefon}
                       </button>
@@ -490,6 +525,7 @@ function ProgramariContent() {
                   </div>
                 )}
               </div>
+              
               <div className="flex flex-col gap-2">
                 <label className="text-[10px] font-black uppercase ml-4 text-slate-400 italic">E-mail</label>
                 <input
@@ -498,8 +534,10 @@ function ProgramariContent() {
                   className="p-5 bg-slate-50 rounded-[25px] border-2 border-transparent focus:border-amber-500 font-bold text-lg outline-none shadow-inner"
                   value={formular.email}
                   onChange={(e) => setFormular({ ...formular, email: e.target.value })}
+                  title="E-mailul clientului"
                 />
               </div>
+
               <div className="flex flex-col gap-2">
                 <label className="text-[10px] font-black uppercase ml-4 text-slate-400 italic">Telefon</label>
                 <input
@@ -508,8 +546,10 @@ function ProgramariContent() {
                   className="p-5 bg-slate-50 rounded-[25px] border-2 border-transparent focus:border-amber-500 font-bold text-lg outline-none shadow-inner"
                   value={formular.telefon}
                   onChange={(e) => setFormular({ ...formular, telefon: e.target.value })}
+                  title="Numărul de telefon"
                 />
               </div>
+
               <div className="flex flex-col gap-2">
                 <label className="text-[10px] font-black uppercase ml-4 text-slate-400 italic">
                   Alege Specialist {formular.serviciu_id && <span className="text-amber-500 ml-1">(filtrat)</span>}
@@ -518,6 +558,7 @@ function ProgramariContent() {
                   className="p-5 bg-slate-50 rounded-[25px] border-2 border-transparent focus:border-amber-500 font-bold text-lg outline-none shadow-inner cursor-pointer"
                   value={formular.angajat_id}
                   onChange={(e) => setFormular({ ...formular, angajat_id: e.target.value })}
+                  title="Selectează membrul echipei"
                 >
                   <option value="">Alege Specialist...</option>
                   {angajatiFiltrati?.map((a: StaffRow) => (
@@ -525,6 +566,7 @@ function ProgramariContent() {
                   ))}
                 </select>
               </div>
+
               <div className="flex flex-col gap-2">
                 <label className="text-[10px] font-black uppercase ml-4 text-slate-400 italic">
                   Alege Serviciu {formular.angajat_id && <span className="text-amber-500 ml-1">(filtrat)</span>}
@@ -533,6 +575,7 @@ function ProgramariContent() {
                   className="p-5 bg-slate-50 rounded-[25px] border-2 border-transparent focus:border-amber-500 font-bold text-lg outline-none shadow-inner cursor-pointer"
                   value={formular.serviciu_id}
                   onChange={(e) => setFormular({ ...formular, serviciu_id: e.target.value })}
+                  title="Selectează procedura"
                 >
                   <option value="">Alege Serviciu...</option>
                   {serviciiFiltrate?.map((s: ServiceRow) => (
@@ -540,30 +583,33 @@ function ProgramariContent() {
                   ))}
                 </select>
               </div>
+
               <div className="flex flex-col gap-2">
                 <label className="text-[10px] font-black uppercase ml-4 text-slate-400 italic">Data</label>
                 <button
                   type="button"
                   onClick={() => setShowDatePicker(true)}
                   className="w-full p-5 bg-slate-50 rounded-[25px] border-2 border-transparent hover:border-amber-500 font-bold text-lg shadow-inner text-left flex justify-between items-center transition-all active:scale-95"
-                  title="Selectează data"
+                  title="Alege data programării"
                 >
                   <span>{formular.data}</span>
                   <span className="text-amber-600 text-[10px]">📅</span>
                 </button>
               </div>
+
               <div className="flex flex-col gap-2">
                 <label className="text-[10px] font-black uppercase ml-4 text-slate-400 italic">Ora</label>
                 <button
                   type="button"
                   onClick={() => setShowTimePicker(true)}
                   className="w-full p-5 bg-slate-50 rounded-[25px] font-bold text-lg shadow-inner text-left flex justify-between items-center border-2 border-transparent hover:border-amber-500 transition-all active:scale-95"
-                  title="Selectează ora"
+                  title="Alege ora (se va calcula automat disponibilitatea)"
                 >
                   {formular.ora || "Selectează ora..."}
                   <span className="text-amber-600 text-[10px]">🕒</span>
                 </button>
               </div>
+
               <div className="md:col-span-2 flex flex-col gap-2">
                 <label className="text-[10px] font-black uppercase ml-4 text-slate-400 italic">Observații</label>
                 <textarea
@@ -571,6 +617,7 @@ function ProgramariContent() {
                   className="p-5 bg-slate-50 rounded-[25px] border-2 border-transparent focus:border-amber-500 font-bold text-lg h-16 resize-none outline-none shadow-inner"
                   value={formular.motiv}
                   onChange={(e) => setFormular({ ...formular, motiv: e.target.value })}
+                  title="Note suplimentare"
                 />
               </div>
             </div>
@@ -581,7 +628,7 @@ function ProgramariContent() {
               <div className="flex items-center justify-between mb-3 px-2">
                 <span className="text-[9px] font-black uppercase text-slate-500 italic">Fișiere atașate ({formular.documente.length})</span>
                 <input type="file" id="doc-upload" className="hidden" multiple onChange={handleFileUpload} />
-                <label htmlFor="doc-upload" className="bg-slate-900 text-white px-5 py-2.5 rounded-xl font-black text-[10px] uppercase italic cursor-pointer hover:bg-amber-600 transition-colors shadow-sm active:scale-95" title="Încarcă documente">Adaugă Fișier +</label>
+                <label htmlFor="doc-upload" className="bg-slate-900 text-white px-5 py-2.5 rounded-xl font-black text-[10px] uppercase italic cursor-pointer hover:bg-amber-600 transition-colors shadow-sm active:scale-95" title="Adaugă documente la dosarul clientului">Adaugă Fișier +</label>
               </div>
               <div className="flex flex-wrap gap-2 max-h-32 overflow-y-auto p-1">
                 {formular.documente.length === 0 && <p className="text-[9px] font-bold text-slate-300 italic uppercase px-2">Niciun fișier adăugat</p>}
@@ -591,7 +638,7 @@ function ProgramariContent() {
                       <span className="flex items-center justify-center h-full text-[10px]">📄</span>
                     </div>
                     <span className="text-[8px] font-black text-slate-600 truncate uppercase italic">{doc.name}</span>
-                    <button onClick={() => eliminaDocument(doc.id)} className="absolute right-1.5 w-5 h-5 bg-red-50 text-red-500 rounded-lg flex items-center justify-center text-[10px] font-black hover:bg-red-500 hover:text-white transition-all active:scale-90" title="Elimină fișier">✕</button>
+                    <button onClick={() => eliminaDocument(doc.id)} className="absolute right-1.5 w-5 h-5 bg-red-50 text-red-500 rounded-lg flex items-center justify-center text-[10px] font-black hover:bg-red-500 hover:text-white transition-all active:scale-90" title="Elimină acest fișier">✕</button>
                   </div>
                 ))}
               </div>
@@ -603,7 +650,7 @@ function ProgramariContent() {
               className={`w-full lg:w-[280px] h-[85px] rounded-[30px] font-black uppercase shadow-xl transition-all italic flex flex-col items-center justify-center gap-0.5 group active:scale-95 ${
                 esteLimitatUI ? "bg-slate-300 cursor-not-allowed text-slate-500 opacity-60" : "bg-amber-600 text-white hover:bg-slate-900"
               }`}
-              title={esteLimitatUI ? "Limită atinsă" : "Salvează în cloud"}
+              title={esteLimitatUI ? "Limită abonament atinsă" : "Confirmă și salvează în cloud"}
             >
               <span className="text-[10px] opacity-70">{esteLimitatUI ? "LIMITA ATINSĂ" : "✓ FINALIZARE"}</span>
               <span className="text-sm tracking-tighter">{esteLimitatUI ? "Actualizează Planul" : "Salvează Programarea"}</span>
@@ -625,12 +672,12 @@ function ProgramariContent() {
                 key={p.id}
                 className="relative bg-white p-5 rounded-[35px] shadow-sm border border-amber-200 ring-2 ring-amber-100 transition-all cursor-pointer hover:shadow-lg hover:scale-[1.02] active:scale-95"
                 onClick={() => setPopupProgramare(p)}
-                title="Vezi detalii"
+                title="Apasă pentru detalii"
               >
                 <button
                   onClick={(e) => eliminaProgramare(p.id, e)}
                   className="absolute top-4 right-4 text-red-500 font-black text-[10px] z-10 hover:scale-125 transition-transform active:scale-90"
-                  title="Șterge programarea"
+                  title="Elimină programarea"
                 >
                   ✕
                 </button>
@@ -665,7 +712,7 @@ function ProgramariContent() {
             <button
               onClick={() => setPopupProgramare(null)}
               className="absolute top-8 right-8 w-10 h-10 bg-slate-50 rounded-2xl flex items-center justify-center font-black text-slate-400 hover:bg-red-50 hover:text-red-500 transition-all z-10 active:scale-90"
-              title="Închide"
+              title="Închide fereastra"
             >
               ✕
             </button>
@@ -714,7 +761,7 @@ function ProgramariContent() {
                   <p className="text-[8px] font-black text-slate-400 uppercase italic mb-3">Fișiere atașate</p>
                   <div className="grid grid-cols-1 gap-2">
                     {popupProgramare.documente.map((doc: any, idx: number) => (
-                      <a key={idx} href={doc.url} target="_blank" rel="noopener noreferrer" className="flex items-center justify-between p-3 bg-white rounded-2xl border border-slate-100 hover:border-amber-500 transition-all group">
+                      <a key={idx} href={doc.url} target="_blank" rel="noopener noreferrer" className="flex items-center justify-between p-3 bg-white rounded-2xl border border-slate-100 hover:border-amber-500 transition-all group" title="Deschide documentul">
                         <div className="flex items-center gap-3 overflow-hidden">
                           <span className="text-lg">📄</span>
                           <p className="text-[10px] font-black text-slate-700 truncate italic uppercase">{doc.name || "Document"}</p>

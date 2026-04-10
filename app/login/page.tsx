@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { createBrowserClient } from "@supabase/ssr";
 import Image from "next/image";
 import Link from "next/link";
@@ -18,6 +18,19 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
+  // Verificăm și curățăm sesiunile invalide la încărcare pentru a preveni erorile de Refresh Token
+  useEffect(() => {
+    const checkSession = async () => {
+      const { error } = await supabase.auth.getSession();
+      if (error && error.message.includes("Refresh Token Not Found")) {
+        console.warn("Sesiune invalidă detectată, curățăm datele locale...");
+        await supabase.auth.signOut();
+        router.refresh();
+      }
+    };
+    checkSession();
+  }, [supabase, router]);
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     if (loading) return;
@@ -33,7 +46,15 @@ export default function LoginPage() {
 
       if (error) {
         console.error("Eroare detaliată:", error);
-        alert("Eroare: " + error.message);
+        
+        // Tratăm cazul specific de refresh token și în timpul logării
+        if (error.message.includes("Refresh Token Not Found")) {
+          await supabase.auth.signOut();
+          alert("Sesiunea a expirat. Vă rugăm să încercați din nou.");
+        } else {
+          alert("Eroare: " + error.message);
+        }
+        
         setLoading(false);
         return;
       }

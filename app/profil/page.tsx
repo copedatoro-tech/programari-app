@@ -49,6 +49,7 @@ export default function ProfilPage() {
   const [telefon, setTelefon] = useState("");
   const [functie, setFunctie] = useState(""); 
   const [slug, setSlug] = useState(""); 
+  const [hasInitialSlug, setHasInitialSlug] = useState(false); // Flag pentru a vedea dacă avea deja slug
   const [avatarUrl, setAvatarUrl] = useState("");
   const [subscriptionPlan, setSubscriptionPlan] = useState("chronos free");
   const [isTrialActive, setIsTrialActive] = useState(false);
@@ -60,6 +61,7 @@ export default function ProfilPage() {
     return text
       .toLowerCase()
       .trim()
+      .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // Elimină diacriticele
       .replace(/[^\w\s-]/g, '') 
       .replace(/[\s_-]+/g, '-') 
       .replace(/^-+|-+$/g, '');
@@ -80,6 +82,7 @@ export default function ProfilPage() {
           setTelefon("0700000000");
           setFunctie("Administrator (Demo)");
           setSlug("demo-salon");
+          setHasInitialSlug(true);
           setSubscriptionPlan("chronos elite");
           setLoading(false);
         }
@@ -107,10 +110,15 @@ export default function ProfilPage() {
         if (isMounted) {
           setUser(u);
           setEmail(u.email || "");
-          setNume(profile?.full_name || u.user_metadata?.full_name || "Utilizator Chronos");
+          setNume(profile?.full_name || u.user_metadata?.full_name || "");
           setTelefon(profile?.phone || u.user_metadata?.phone || "");
           setFunctie(profile?.role || "Administrator Sistem");
-          setSlug(profile?.slug || ""); 
+          
+          if (profile?.slug) {
+            setSlug(profile.slug);
+            setHasInitialSlug(true);
+          }
+          
           setAvatarUrl(profile?.avatar_url || "");
           setIsTrialActive(profile?.trial_activated === true);
           
@@ -184,6 +192,7 @@ export default function ProfilPage() {
       if (error) throw error;
       
       setSlug(finalSlug);
+      setHasInitialSlug(true);
       alert("✅ Felicitări! Adresa ta unică a fost rezervată cu succes.");
     } catch (err: any) {
       alert("Eroare: " + err.message);
@@ -225,7 +234,6 @@ export default function ProfilPage() {
     window.location.href = "/login";
   };
 
-  // MODIFICARE: Fundalul este acum alb (bg-slate-50) pentru a corespunde paginii finale
   if (!isClient || loading) return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50">
       <div className="w-12 h-12 border-4 border-slate-200 border-t-amber-500 rounded-full animate-spin mb-4"></div>
@@ -262,7 +270,7 @@ export default function ProfilPage() {
                 {isDemo ? "MOD VIZUALIZARE" : `ID: ${user?.id?.substring(0, 8)}`}
             </div>
             <h1 className="text-5xl font-black text-white uppercase italic tracking-tighter leading-none mb-2 min-h-[1em]">
-              {nume}
+              {nume || "Utilizator Chronos"}
             </h1>
             <p className="text-slate-400 text-xs font-bold uppercase tracking-widest italic min-h-[1.2em]">
               {functie}
@@ -284,7 +292,7 @@ export default function ProfilPage() {
           </div>
         </div>
 
-        {/* Plan Section - Actualizat cu denumirile din imagine */}
+        {/* Plan Section */}
         <div className="px-12 py-8 bg-slate-50 border-b border-slate-100 flex flex-col md:flex-row items-center justify-between gap-8">
           <div className="flex items-center gap-6">
             <div className="w-16 h-16 bg-white rounded-3xl flex items-center justify-center shadow-xl border border-slate-100 text-3xl">💎</div>
@@ -308,27 +316,62 @@ export default function ProfilPage() {
 
         <div className="p-12 space-y-12 bg-white">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-            {[
-              { label: "Nume Complet", val: nume, set: setNume, icon: "👤", editable: !isDemo },
-              { label: "Email", val: email, set: null, icon: "✉️", editable: false },
-              { label: "Telefon", val: telefon, set: setTelefon, icon: "📱", editable: !isDemo },
-              { label: "Rol / Funcție", val: functie, set: setFunctie, icon: "💼", editable: !isDemo },
-            ].map((item, idx) => (
-              <div key={idx} className="space-y-3">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4 italic flex items-center gap-2">
-                  {item.icon} {item.label}
-                </label>
-                <input 
-                  type="text" 
-                  value={item.val} 
-                  onChange={item.set && item.editable ? (e) => item.set!(e.target.value) : undefined}
-                  readOnly={!item.editable}
-                  className={`w-full p-6 rounded-[25px] font-bold text-sm outline-none transition-all ${item.editable ? 'bg-slate-50 border-2 border-slate-100 focus:border-amber-500 focus:bg-white' : 'bg-slate-100 text-slate-600 italic'}`}
-                />
-              </div>
-            ))}
+            {/* Nume Complet cu Auto-Slug */}
+            <div className="space-y-3">
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4 italic flex items-center gap-2">
+                👤 Nume Complet
+              </label>
+              <input 
+                type="text" 
+                value={nume} 
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setNume(val);
+                  // Generează slug automat doar dacă utilizatorul nu are unul deja salvat în DB
+                  if (!hasInitialSlug && !isDemo) {
+                    setSlug(formatSlug(val));
+                  }
+                }}
+                readOnly={isDemo}
+                className={`w-full p-6 rounded-[25px] font-bold text-sm outline-none transition-all ${!isDemo ? 'bg-slate-50 border-2 border-slate-100 focus:border-amber-500 focus:bg-white' : 'bg-slate-100 text-slate-600 italic'}`}
+              />
+            </div>
+
+            <div className="space-y-3">
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4 italic flex items-center gap-2">
+                ✉️ Email
+              </label>
+              <input type="text" value={email} readOnly className="w-full p-6 rounded-[25px] font-bold text-sm bg-slate-100 text-slate-600 italic outline-none" />
+            </div>
+
+            <div className="space-y-3">
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4 italic flex items-center gap-2">
+                📱 Telefon
+              </label>
+              <input 
+                type="text" 
+                value={telefon} 
+                onChange={!isDemo ? (e) => setTelefon(e.target.value) : undefined}
+                readOnly={isDemo}
+                className={`w-full p-6 rounded-[25px] font-bold text-sm outline-none transition-all ${!isDemo ? 'bg-slate-50 border-2 border-slate-100 focus:border-amber-500 focus:bg-white' : 'bg-slate-100 text-slate-600 italic'}`}
+              />
+            </div>
+
+            <div className="space-y-3">
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4 italic flex items-center gap-2">
+                💼 Rol / Funcție
+              </label>
+              <input 
+                type="text" 
+                value={functie} 
+                onChange={!isDemo ? (e) => setFunctie(e.target.value) : undefined}
+                readOnly={isDemo}
+                className={`w-full p-6 rounded-[25px] font-bold text-sm outline-none transition-all ${!isDemo ? 'bg-slate-50 border-2 border-slate-100 focus:border-amber-500 focus:bg-white' : 'bg-slate-100 text-slate-600 italic'}`}
+              />
+            </div>
           </div>
 
+          {/* Configurare Link Public */}
           <div className="bg-amber-50/30 p-8 md:p-10 rounded-[40px] border-2 border-dashed border-amber-200 space-y-6 relative">
             <div className="absolute -top-4 left-10 bg-amber-500 text-white text-[8px] font-black px-4 py-1 rounded-full uppercase italic tracking-widest">
                 Configurare Link Public
@@ -345,7 +388,11 @@ export default function ProfilPage() {
                     type="text" 
                     placeholder="nume-afacere"
                     value={slug} 
-                    onChange={(e) => setSlug(formatSlug(e.target.value))}
+                    onChange={(e) => {
+                      setSlug(formatSlug(e.target.value));
+                      // Dacă utilizatorul modifică manual, considerăm că nu mai vrem auto-slug de la nume
+                      if(e.target.value !== "") setHasInitialSlug(true);
+                    }}
                     readOnly={isDemo}
                     className={`w-full p-6 pl-28 rounded-[25px] font-black text-sm outline-none transition-all ${!isDemo ? 'bg-white border-2 border-amber-100 focus:border-amber-500' : 'bg-slate-100 text-slate-600 italic'}`}
                   />
