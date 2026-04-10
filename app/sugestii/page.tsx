@@ -7,6 +7,8 @@ export default function PareriClienti() {
   const [feedbacks, setFeedbacks] = useState<any[]>([]);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [currentAdminId, setCurrentAdminId] = useState<string | null>(null);
+  const [userPlan, setUserPlan] = useState<string | null>(null);
+  const [loadingPlan, setLoadingPlan] = useState(true);
 
   const [rating, setRating] = useState(0);
   const [hover, setHover] = useState(0);
@@ -51,13 +53,24 @@ export default function PareriClienti() {
         adminIdToUse = "ed9cd915-6684-422c-a214-4ac5c25e98f3";
       }
 
-      if (!adminIdToUse) return;
+      if (!adminIdToUse) {
+        setLoadingPlan(false);
+        return;
+      }
 
+      // Verificăm planul utilizatorului din tabela profiles
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("plan_type")
+        .eq("id", adminIdToUse)
+        .single();
+
+      setUserPlan(profile?.plan_type || "START (GRATUIT)");
+      setLoadingPlan(false);
       setIsLoggedIn(true);
       setCurrentAdminId(adminIdToUse);
       preiaFeedback(adminIdToUse);
 
-      // Curățăm canalul existent dacă există înainte de a crea unul nou
       if (channelRef.current) {
         supabase.removeChannel(channelRef.current);
       }
@@ -77,7 +90,6 @@ export default function PareriClienti() {
           }
         );
       
-      // Înregistrăm referința și ABIA APOI apelăm subscribe()
       channelRef.current = channel;
       channel.subscribe();
     };
@@ -209,6 +221,37 @@ export default function PareriClienti() {
     }
   };
 
+  if (loadingPlan) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50 font-black uppercase italic text-slate-400">
+        Se verifică accesul...
+      </div>
+    );
+  }
+
+  // LIMITARE: Dacă planul este cel gratuit (din DB-ul tău: START (GRATUIT))
+  if (userPlan === "START (GRATUIT)") {
+    return (
+      <main className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
+        <div className="max-w-md w-full bg-white p-10 rounded-[50px] shadow-2xl border border-slate-100 text-center">
+          <div className="w-20 h-20 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center text-4xl mb-6 mx-auto">
+            🔒
+          </div>
+          <h2 className="text-2xl font-black uppercase italic mb-4">Funcție Pro</h2>
+          <p className="text-slate-500 font-bold italic text-sm mb-8 leading-relaxed">
+            Gestionarea recenziilor și feedback-ul clienților sunt disponibile doar pentru planurile <span className="text-amber-600 font-black">CHRONOS PRO, ELITE și TEAM</span>.
+          </p>
+          <Link
+            href="/abonamente"
+            className="block w-full py-6 rounded-[25px] bg-slate-900 text-white font-black uppercase italic text-[11px] border-b-8 border-slate-700 hover:bg-amber-500 hover:text-black transition-all"
+          >
+            Actualizează Abonamentul
+          </Link>
+        </div>
+      </main>
+    );
+  }
+
   const totalRecenzii = feedbacks.length;
   const aprobate = feedbacks.filter((f) => f.aprobat).length;
   const neaprobate = feedbacks.filter((f) => !f.aprobat).length;
@@ -237,13 +280,18 @@ export default function PareriClienti() {
               Gestiune <span className="text-amber-600">Recenzii</span>
             </h1>
           </div>
-          <Link
-            href="/rezervare"
-            title="Navighează către pagina de rezervări"
-            className="font-black uppercase italic text-[9px] py-4 px-8 bg-slate-900 text-white rounded-2xl shadow-xl hover:bg-amber-500 hover:text-black transition-all"
-          >
-            Vezi Pagina de Rezervări →
-          </Link>
+          <div className="flex items-center gap-4">
+            <span className="text-[9px] font-black uppercase bg-amber-100 text-amber-700 px-4 py-2 rounded-full italic">
+              Plan: {userPlan?.replace("(GRATUIT)", "")}
+            </span>
+            <Link
+              href="/rezervare"
+              title="Navighează către pagina de rezervări"
+              className="font-black uppercase italic text-[9px] py-4 px-8 bg-slate-900 text-white rounded-2xl shadow-xl hover:bg-amber-500 hover:text-black transition-all"
+            >
+              Vezi Pagina de Rezervări →
+            </Link>
+          </div>
         </div>
 
         {/* Statistici */}

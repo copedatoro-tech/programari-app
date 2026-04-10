@@ -40,6 +40,7 @@ function RapoarteContent() {
   const [staff, setStaff] = useState<Staff[]>([]);
   const [loading, setLoading] = useState(true);
   const [userName, setUserName] = useState<string>("");
+  const [planType, setPlanType] = useState<string>("START (GRATUIT)");
   
   const channelRef = useRef<any>(null);
 
@@ -57,13 +58,16 @@ function RapoarteContent() {
         supabase.from('appointments').select('*').eq('user_id', user.id),
         supabase.from('services').select('*').eq('user_id', user.id),
         supabase.from('staff').select('*').eq('user_id', user.id),
-        supabase.from('profiles').select('full_name, email').eq('id', user.id).maybeSingle(),
+        supabase.from('profiles').select('full_name, email, plan_type').eq('id', user.id).maybeSingle(),
       ]);
 
       if (apptsRes.data) setAppointments(apptsRes.data);
       if (srvRes.data) setServices(srvRes.data);
       if (staffRes.data) setStaff(staffRes.data);
-      if (profileRes.data) setUserName(profileRes.data.full_name || user.email || "");
+      if (profileRes.data) {
+        setUserName(profileRes.data.full_name || user.email || "");
+        setPlanType(profileRes.data.plan_type || "START (GRATUIT)");
+      }
     } catch (err) {
       console.error("Eroare sincronizare:", err);
     } finally {
@@ -187,6 +191,31 @@ function RapoarteContent() {
     </div>
   );
 
+  // Verificare restricție Plan FREE
+  if (planType === "START (GRATUIT)") {
+    return (
+      <main className="min-h-screen bg-[#fcfcfc] flex items-center justify-center p-6">
+        <div className="max-w-md w-full bg-white p-10 rounded-[45px] shadow-xl border border-slate-100 text-center">
+          <div className="mb-6 flex justify-center">
+            <div className="w-20 h-20 bg-amber-50 rounded-full flex items-center justify-center">
+              <span className="text-4xl">🔒</span>
+            </div>
+          </div>
+          <h2 className="text-2xl font-black italic uppercase tracking-tighter text-slate-900 mb-4">Acces Restricționat</h2>
+          <p className="text-slate-500 font-bold text-sm leading-relaxed mb-8">
+            Rapoartele de business sunt disponibile exclusiv pentru planurile <span className="text-amber-600">PRO, ELITE și TEAM</span>. Upgradează-ți contul pentru a vizualiza analizele de performanță.
+          </p>
+          <Link href="/abonamente" className="block w-full bg-slate-900 text-white py-4 rounded-[20px] font-black text-[12px] uppercase italic border-b-4 border-slate-700 hover:scale-105 transition-all">
+            Vezi Planuri
+          </Link>
+          <Link href="/programari" className="block mt-4 text-[10px] font-black uppercase italic text-slate-400 hover:text-slate-600 transition-colors">
+            Înapoi la calendar
+          </Link>
+        </div>
+      </main>
+    );
+  }
+
   return (
     <>
       <style jsx global>{`
@@ -215,7 +244,7 @@ function RapoarteContent() {
                   Raport <span className="text-amber-600">Business</span>
                 </h1>
                 <p className="text-slate-400 font-bold uppercase text-[10px] tracking-widest italic mt-2">
-                  Admin: {userName} | Data: {new Date().toLocaleDateString('ro-RO')}
+                  Admin: {userName} | Plan: {planType} | Data: {new Date().toLocaleDateString('ro-RO')}
                 </p>
               </div>
             </div>
@@ -225,7 +254,6 @@ function RapoarteContent() {
             </div>
           </div>
 
-          {/* Indicatori Principali - Text Mărit conform solicitării */}
           <div className="grid grid-cols-2 md:grid-cols-5 gap-6 mb-12">
             {[
               { label: "Total Programări", val: stats.totalCount, color: "text-slate-900" },
@@ -242,7 +270,6 @@ function RapoarteContent() {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 mb-8">
-            {/* Volum Săptămânal - Folosește mai mult spațiu */}
             <div className="lg:col-span-2 bg-white p-10 rounded-[45px] shadow-md border border-slate-50 flex flex-col h-[500px]">
               <div className="flex justify-between items-center mb-12">
                 <h3 className="text-lg font-black uppercase italic tracking-tighter border-l-8 border-amber-500 pl-4">Volum Săptămânal</h3>
@@ -272,7 +299,6 @@ function RapoarteContent() {
               </div>
             </div>
 
-            {/* Profitabilitate Servicii - Text mărit și spațiu optimizat */}
             <div className="bg-white p-10 rounded-[45px] shadow-md border border-slate-100 flex flex-col">
               <h3 className="text-lg font-black uppercase italic mb-10 tracking-tighter border-l-8 border-emerald-500 pl-4">Profitabilitate</h3>
               <div className="space-y-8">
@@ -300,16 +326,23 @@ function RapoarteContent() {
             </div>
           </div>
 
-          <div className="bg-slate-900 p-10 rounded-[45px] text-white relative overflow-hidden mt-10 border border-slate-800 shadow-2xl">
-            <div className="relative z-10">
-              <h3 className="text-[10px] font-black uppercase italic mb-4 text-amber-500 tracking-widest">Chronos Business Intelligence</h3>
-              <p className="text-2xl md:text-3xl font-black italic leading-tight uppercase tracking-tighter max-w-4xl">
-                Analiza confirmă un volum de {stats.totalCount} unități. 
-                {stats.totalCount > 10 ? ` Performanță ridicată în retenție la ${stats.rataRevenire}%.` : " Continuați colectarea datelor pentru o prognoză relevantă."}
-              </p>
+          {/* Analiza avansată pentru planuri ELITE sau TEAM */}
+          {(planType === "CHRONOS ELITE" || planType === "CHRONOS TEAM") ? (
+            <div className="bg-slate-900 p-10 rounded-[45px] text-white relative overflow-hidden mt-10 border border-slate-800 shadow-2xl">
+              <div className="relative z-10">
+                <h3 className="text-[10px] font-black uppercase italic mb-4 text-amber-500 tracking-widest">Chronos Business Intelligence ({planType})</h3>
+                <p className="text-2xl md:text-3xl font-black italic leading-tight uppercase tracking-tighter max-w-4xl">
+                  Analiza confirmă un volum de {stats.totalCount} unități. 
+                  {stats.totalCount > 10 ? ` Performanță ridicată în retenție la ${stats.rataRevenire}%.` : " Continuați colectarea datelor pentru o prognoză relevantă."}
+                </p>
+              </div>
+              <div className="absolute -right-10 -bottom-10 text-[120px] font-black italic text-white/5 select-none uppercase pointer-events-none no-print">ANALYTICS</div>
             </div>
-            <div className="absolute -right-10 -bottom-10 text-[120px] font-black italic text-white/5 select-none uppercase pointer-events-none no-print">ANALYTICS</div>
-          </div>
+          ) : (
+            <div className="mt-10 bg-slate-100 p-8 rounded-[45px] border-2 border-dashed border-slate-200 text-center">
+               <p className="text-[10px] font-black uppercase italic text-slate-400">Upgrade la ELITE/TEAM pentru Analiză Business Avansată</p>
+            </div>
+          )}
         </div>
       </main>
     </>

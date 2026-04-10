@@ -1,11 +1,14 @@
 @import "tailwindcss";
 
+/* Folosim @layer base pentru variabilele de tema 
+  pentru a fi recunoscute corect de compilator 
+*/
 @theme {
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-/* Definim animațiile pentru a elimina erorile de compilare */
+/* Definim animațiile */
 @utility fade-in {
   animation: fadeIn 0.3s ease-out forwards;
 }

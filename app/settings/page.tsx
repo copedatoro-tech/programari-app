@@ -5,7 +5,7 @@ import { createBrowserClient } from "@supabase/ssr";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { QRCodeSVG } from "qrcode.react";
-import { showToast, showConfirm } from "@/lib/toast";
+import { showToast } from "@/lib/toast";
 
 type ManualBlocksMap = Record<string, string[]>;
 
@@ -32,14 +32,32 @@ export default function AdminSettingsHub() {
   const [daysWithBookings, setDaysWithBookings] = useState<string[]>([]);
   const [isDirty, setIsDirty] = useState(false);
 
-  const [isSelectingWeekdays, setIsSelectingWeekdays] = useState(false);
+  // State-uri noi pentru fluxul de confirmare
+  const [showConfirmPopup, setShowConfirmPopup] = useState(false);
+  const [isApplying, setIsApplying] = useState(false);
+  const [showSuccessTick, setShowSuccessTick] = useState(false);
+
   const [selectedWeekdays, setSelectedWeekdays] = useState<number[]>([]);
 
   const modalRef = useRef<HTMLDivElement>(null);
+  const confirmPopupRef = useRef<HTMLDivElement>(null);
   const qrRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (typeof window !== "undefined") setBaseUrl(window.location.origin);
+
+    // Închidere pop-up la click în exterior conform regulii salvate
+    const handleClickOutside = (event: MouseEvent) => {
+      if (modalRef.current && !modalRef.current.contains(event.target as Node)) {
+        setShowDayModal(false);
+      }
+      if (confirmPopupRef.current && !confirmPopupRef.current.contains(event.target as Node)) {
+        setShowConfirmPopup(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   const generateSlots = useCallback((step: number) => {
@@ -68,12 +86,21 @@ export default function AdminSettingsHub() {
       if (!session) { router.replace("/login"); return; }
       const currentUid = session.user.id;
       setUserId(currentUid);
-      const { data: profile } = await supabase.from('profiles').select('*').eq('id', currentUid).single();
+      
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', currentUid)
+        .maybeSingle();
+
+      if (profileError) {
+        console.error("Eroare profil:", profileError.message);
+      }
+
       if (profile) {
         setUserPlan(profile.plan_type?.toUpperCase() || "CHRONOS FREE");
         setBookingInterval(profile.booking_interval || 60);
         setSlug(profile.slug || "");
-
         const rawBlocks = profile.manual_blocks;
         if (rawBlocks && typeof rawBlocks === 'object' && !Array.isArray(rawBlocks)) {
           setManualBlocks(rawBlocks as ManualBlocksMap);
@@ -89,7 +116,6 @@ export default function AdminSettingsHub() {
 
   const saveSettings = async (blocksToSave: ManualBlocksMap = manualBlocks) => {
     if (!userId) return;
-    setLoading(true);
     const { error } = await supabase.from('profiles').update({
       manual_blocks: blocksToSave,
       booking_interval: bookingInterval
@@ -97,19 +123,15 @@ export default function AdminSettingsHub() {
 
     if (!error) {
       setIsDirty(false);
-      if (!showDayModal) {
-        await showToast({ message: "Setările au fost salvate cu succes!", type: "success", title: "Salvat!" });
-      }
     } else {
       await showToast({ message: error.message, type: "error", title: "Eroare la salvare" });
     }
-    setLoading(false);
   };
 
   const handleCloseAndSave = async () => {
     if (isDirty) await saveSettings(manualBlocks);
     setShowDayModal(false);
-    setIsSelectingWeekdays(false);
+    setShowConfirmPopup(false);
   };
 
   const toggleHourBlock = (baseSlot: string) => {
@@ -118,14 +140,12 @@ export default function AdminSettingsHub() {
     const currentDayBlocks = [...(manualBlocks[selectedDate] || [])];
     const subSlots: string[] = [];
     const [h, m] = baseSlot.split(':').map(Number);
-
     for (let i = 0; i < bookingInterval; i += 15) {
       const totalMinutes = m + i;
       const slotH = h + Math.floor(totalMinutes / 60);
       const slotM = totalMinutes % 60;
       if (slotH < 24) subSlots.push(`${slotH.toString().padStart(2, '0')}:${slotM.toString().padStart(2, '0')}`);
     }
-
     const isAlreadyBlocked = currentDayBlocks.includes(baseSlot);
     let updatedDayBlocks;
     if (isAlreadyBlocked) {
@@ -159,17 +179,9 @@ export default function AdminSettingsHub() {
   };
 
   const applyToSelectedWeekdays = async () => {
-    if (!selectedDate) return;
+    if (!selectedDate || selectedWeekdays.length === 0) return;
 
-    if (!isSelectingWeekdays) {
-      setIsSelectingWeekdays(true);
-      return;
-    }
-
-    if (selectedWeekdays.length === 0) {
-      await showToast({ message: "Te rugăm să selectezi cel puțin o zi din săptămână.", type: "warning", title: "Selecție necesară" });
-      return;
-    }
+    setIsApplying(true);
 
     const currentBlocks = manualBlocks[selectedDate] ? [...manualBlocks[selectedDate]] : [];
 
@@ -177,8 +189,8 @@ export default function AdminSettingsHub() {
       const newBlocks = { ...manualBlocks };
       const startDate = new Date(selectedDate);
       const currentYear = startDate.getFullYear();
-
       const date = new Date(startDate);
+
       while (date.getFullYear() === currentYear) {
         if (selectedWeekdays.includes(date.getDay())) {
           const y = date.getFullYear();
@@ -191,10 +203,14 @@ export default function AdminSettingsHub() {
 
       setManualBlocks(newBlocks);
       setIsDirty(true);
-      setIsSelectingWeekdays(false);
 
       saveSettings(newBlocks).then(() => {
-        showToast({ message: "Programul a fost aplicat cu succes pentru zilele selectate până la sfârșitul anului!", type: "success", title: "Aplicat!" });
+        setIsApplying(false);
+        setShowSuccessTick(true);
+        setTimeout(() => {
+          setShowSuccessTick(false);
+          setShowConfirmPopup(false);
+        }, 1500);
       });
     });
   };
@@ -206,13 +222,10 @@ export default function AdminSettingsHub() {
     const startDay = new Date(year, month, 1).getDay();
     const offset = startDay === 0 ? 6 : startDay - 1;
     const days = [];
-
     for (let i = 0; i < offset; i++) {
       days.push(<div key={`empty-${i}`} className="h-20 md:h-24 bg-slate-50/50 rounded-[25px]"></div>);
     }
-
     const slots15Count = generateSlots(15).length;
-
     for (let d = 1; d <= totalDays; d++) {
       const dateStr = `${year}-${(month + 1).toString().padStart(2, '0')}-${d.toString().padStart(2, '0')}`;
       const isToday = new Date().toISOString().split('T')[0] === dateStr;
@@ -220,9 +233,10 @@ export default function AdminSettingsHub() {
       const isBlocked = blockedSlots >= (slots15Count - 2);
       const isPartiallyBlocked = blockedSlots > 0 && blockedSlots < (slots15Count - 2);
       const hasBooking = daysWithBookings.includes(dateStr);
-
       days.push(
         <button key={d}
+          type="button"
+          title="Vezi detalii zi și modifică disponibilitatea"
           onClick={async () => {
             const [y, m, day] = dateStr.split('-').map(Number);
             const dateObj = new Date(y, m - 1, day);
@@ -232,7 +246,6 @@ export default function AdminSettingsHub() {
             setExistingBookings(data ? data.map((b: any) => b.time.substring(0, 5)) : []);
             setShowDayModal(true);
           }}
-          title={hasBooking ? "Această zi are rezervări" : isBlocked ? "Zi complet blocată" : isPartiallyBlocked ? "Zi parțial blocată" : "Configurează disponibilitatea"}
           className={`h-20 md:h-24 p-3 md:p-4 rounded-[25px] border-2 transition-all flex flex-col justify-between items-start relative overflow-hidden shadow-sm transform hover:scale-105 hover:z-10 ${
             isBlocked ? 'bg-red-50 border-red-100 opacity-60'
               : isPartiallyBlocked ? 'bg-amber-50 border-amber-200'
@@ -258,19 +271,6 @@ export default function AdminSettingsHub() {
     return days;
   };
 
-  const closeRef = useRef(handleCloseAndSave);
-  useEffect(() => { closeRef.current = handleCloseAndSave; }, [handleCloseAndSave]);
-
-  useEffect(() => {
-    const handleOutsideClick = (e: MouseEvent) => {
-      if (modalRef.current && !modalRef.current.contains(e.target as Node)) {
-        closeRef.current();
-      }
-    };
-    if (showDayModal) document.addEventListener("mousedown", handleOutsideClick);
-    return () => document.removeEventListener("mousedown", handleOutsideClick);
-  }, [showDayModal]);
-
   const bookingUrl = `${baseUrl}/rezervare/${slug}`;
 
   const handlePrintQR = () => {
@@ -283,19 +283,13 @@ export default function AdminSettingsHub() {
           <title>Listare Cod QR Chronos</title>
           <style>
             @page { margin: 0; size: auto; }
-            body { margin: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; font-family: sans-serif; text-align: center; -webkit-print-color-adjust: exact; }
-            .qr-container { padding: 40px; border: 2px solid #f59e0b; border-radius: 40px; display: inline-block; page-break-inside: avoid; }
-            h1 { font-size: 24px; text-transform: uppercase; margin: 0 0 10px 0; }
-            p { font-size: 14px; color: #666; margin: 0 0 30px 0; }
+            body { margin: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; font-family: sans-serif; text-align: center; }
+            .qr-container { padding: 40px; border: 2px solid #f59e0b; border-radius: 40px; display: inline-block; }
             svg { width: 300px !important; height: 300px !important; }
           </style>
         </head>
         <body>
-          <div class="qr-container">
-            <h1>Scanează pentru Programare</h1>
-            <p>Accesează agenda mea digitală pe Chronos</p>
-            ${qrSvg}
-          </div>
+          <div class="qr-container">${qrSvg}</div>
           <script>window.onload = () => { setTimeout(() => { window.print(); window.close(); }, 500); }</script>
         </body>
       </html>
@@ -311,9 +305,9 @@ export default function AdminSettingsHub() {
   const handleCopyLink = async () => {
     try {
       await navigator.clipboard.writeText(bookingUrl);
-      await showToast({ message: "Link-ul a fost copiat în clipboard!", type: "success", title: "Copiat!" });
+      await showToast({ message: "Link-ul a fost copiat!", type: "success", title: "Copiat!" });
     } catch {
-      await showToast({ message: "Nu s-a putut copia link-ul. Copiază manual.", type: "error", title: "Eroare" });
+      await showToast({ message: "Eroare la copiere", type: "error", title: "Eroare" });
     }
   };
 
@@ -334,81 +328,71 @@ export default function AdminSettingsHub() {
           </div>
           <div className="flex gap-2">
             {isDirty && (
-              <button onClick={() => saveSettings()} className="px-5 py-3 bg-amber-500 text-black rounded-xl font-black uppercase text-[9px] italic shadow-lg hover:bg-slate-900 hover:text-white transition-all">
+              <button 
+                type="button"
+                title="Salvează modificările făcute în calendar"
+                onClick={() => saveSettings()} 
+                className="px-5 py-3 bg-amber-500 text-black rounded-xl font-black uppercase text-[9px] italic shadow-lg hover:bg-slate-900 hover:text-white transition-all"
+              >
                 Salvează ✨
               </button>
             )}
-            <Link href="/programari" className="px-5 py-3 bg-white border-2 border-slate-900 text-slate-900 rounded-xl font-black uppercase text-[9px] italic hover:bg-slate-900 hover:text-white transition-all shadow-[0_3px_0_0_rgba(15,23,42,1)] active:translate-y-0.5">
+            <Link 
+              href="/programari" 
+              title="Înapoi la lista de programări"
+              className="px-5 py-3 bg-white border-2 border-slate-900 text-slate-900 rounded-xl font-black uppercase text-[9px] italic hover:bg-slate-900 hover:text-white transition-all shadow-[0_3px_0_0_rgba(15,23,42,1)]"
+            >
               ← Înapoi
             </Link>
           </div>
         </header>
 
-        {/* Link & QR */}
         <section className="bg-slate-900 rounded-[30px] p-6 mb-4 flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-48 h-48 bg-amber-500/10 rounded-full blur-3xl -mr-24 -mt-24"></div>
-
           <div className="flex-1 w-full md:w-auto relative z-10">
             <h2 className="text-amber-500 font-black italic uppercase tracking-widest text-[8px] mb-2">Link-ul tău Chronos</h2>
             <div className="bg-white/5 border border-white/10 rounded-xl px-5 py-6 flex items-center overflow-hidden">
               <span className="text-white/40 font-mono text-sm mr-1 truncate">{baseUrl}/rezervare/</span>
-              <span className="text-amber-500 font-black font-mono text-base md:text-lg truncate">{slug}</span>
+              <span className="text-amber-500 font-black font-mono text-base md:text-lg truncate">{slug || "nesetat"}</span>
             </div>
           </div>
-
           <div className="flex items-center gap-2 relative z-10">
             <div className="flex flex-col gap-2 h-[120px]">
-              <button onClick={handleCopyLink} className="flex-1 bg-white text-black px-6 rounded-xl font-black uppercase text-[9px] italic hover:bg-amber-500 transition-all shadow-md">
-                Copiază
-              </button>
-              <button onClick={handleWhatsAppShare} className="flex-1 bg-[#25D366] text-white px-6 rounded-xl font-black uppercase text-[9px] italic hover:scale-105 transition-all shadow-md">
-                WhatsApp
-              </button>
+              <button type="button" onClick={handleCopyLink} disabled={!slug} title="Copiază link-ul de rezervare" className="flex-1 bg-white text-black px-6 rounded-xl font-black uppercase text-[9px] italic hover:bg-amber-500 transition-all shadow-md disabled:opacity-50">Copiază</button>
+              <button type="button" onClick={handleWhatsAppShare} disabled={!slug} title="Trimite link-ul pe WhatsApp" className="flex-1 bg-[#25D366] text-white px-6 rounded-xl font-black uppercase text-[9px] italic hover:scale-105 transition-all shadow-md disabled:opacity-50">WhatsApp</button>
             </div>
-
             <div className="bg-white p-2.5 rounded-xl flex items-center justify-center h-[120px] w-[120px] shadow-lg" ref={qrRef}>
-              <QRCodeSVG value={bookingUrl} size={100} level="H" includeMargin={false} />
+              <QRCodeSVG value={slug ? bookingUrl : "https://chronos.ro"} size={100} level="H" includeMargin={false} />
             </div>
-
-            <button onClick={handlePrintQR} className="bg-amber-500 text-black h-[120px] px-3 rounded-xl font-black uppercase text-[9px] italic hover:bg-white transition-all shadow-md flex flex-col items-center justify-center gap-2">
+            <button type="button" onClick={handlePrintQR} disabled={!slug} title="Printează codul QR pentru clienți" className="bg-amber-500 text-black h-[120px] px-3 rounded-xl font-black uppercase text-[9px] italic hover:bg-white transition-all shadow-md flex flex-col items-center justify-center gap-2 disabled:opacity-50">
               <span className="[writing-mode:vertical-lr] rotate-180">🖨️ PRINTARE</span>
             </button>
           </div>
         </section>
 
-        {/* Warning slug */}
-        <div className="mb-8 px-6 py-4 bg-amber-50 border-2 border-amber-200 rounded-2xl flex items-center gap-4 shadow-sm">
-          <div className="flex-shrink-0 w-10 h-10 bg-amber-500 rounded-full flex items-center justify-center text-black text-xl animate-pulse">⚠️</div>
-          <div>
-            <p className="text-[10px] font-black uppercase text-amber-900 tracking-tight italic">Atenție la Funcționalitate:</p>
-            <p className="text-[9px] font-bold text-amber-800/80 leading-tight uppercase">
-              Codul QR și Link-ul funcționează EXCLUSIV cu <span className="text-black underline decoration-amber-500 decoration-2">ADRESA UNICĂ (SLUG)</span>.
-              Asigură-te că ai setat un nume unic în <Link href="/settings" className="text-black hover:text-amber-600 font-black">Pagina de Profil</Link> pentru ca pacienții să te poată găsi!
-            </p>
+        {!slug && (
+          <div className="mb-8 p-6 bg-red-50 border-2 border-red-200 rounded-[25px] flex flex-col md:flex-row items-center justify-between gap-4 relative z-0">
+            <div className="flex items-center gap-4">
+              <span className="text-3xl">⚠️</span>
+              <div>
+                <h4 className="text-red-900 font-black uppercase italic text-sm tracking-tighter">Atenție: Link-ul nu este activ!</h4>
+                <p className="text-red-700 font-bold text-[10px] uppercase italic">Vă rugăm accesați pagina contul meu din meniu pentru a activa link-ul.</p>
+              </div>
+            </div>
           </div>
-        </div>
+        )}
 
-        {/* Calendar */}
-        <div className="bg-white p-5 md:p-8 rounded-[40px] shadow-2xl border border-slate-100 mb-10 relative">
+        <div className="bg-white p-5 md:p-8 rounded-[40px] shadow-2xl border border-slate-100 mb-10">
           <div className="flex flex-col md:flex-row items-center justify-between mb-6 gap-4">
             <div>
               <h2 className="text-2xl font-black uppercase italic text-slate-900 tracking-tighter">
                 {currentMonth.toLocaleString('ro-RO', { month: 'long' })} <span className="text-amber-500">{currentMonth.getFullYear()}</span>
               </h2>
-              <p className="text-[8px] font-bold text-slate-400 uppercase italic mt-1 ml-1">Click pe o zi pentru a gestiona disponibilitatea</p>
             </div>
             <div className="flex gap-2">
-              <button onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1))} className="w-10 h-10 flex items-center justify-center bg-slate-50 border-2 border-slate-100 rounded-lg hover:border-amber-500 transition-all">←</button>
-              <button onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1))} className="w-10 h-10 flex items-center justify-center bg-slate-50 border-2 border-slate-100 rounded-lg hover:border-amber-500 transition-all">→</button>
+              <button type="button" title="Luna precedentă" onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1))} className="w-10 h-10 flex items-center justify-center bg-slate-50 border-2 border-slate-100 rounded-lg">←</button>
+              <button type="button" title="Luna următoare" onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1))} className="w-10 h-10 flex items-center justify-center bg-slate-50 border-2 border-slate-100 rounded-lg">→</button>
             </div>
           </div>
-
-          <div className="flex gap-4 mb-4 flex-wrap">
-            <div className="flex items-center gap-1.5"><div className="w-3 h-3 bg-amber-500 rounded-full"></div><span className="text-[8px] font-black uppercase text-slate-400">Are rezervări</span></div>
-            <div className="flex items-center gap-1.5"><div className="w-3 h-3 bg-orange-400 rounded-full"></div><span className="text-[8px] font-black uppercase text-slate-400">Parțial blocat</span></div>
-            <div className="flex items-center gap-1.5"><div className="w-3 h-3 bg-red-200 rounded-full"></div><span className="text-[8px] font-black uppercase text-slate-400">Complet blocat</span></div>
-          </div>
-
           <div className="grid grid-cols-7 gap-2 md:gap-3">
             {["Lun", "Mar", "Mie", "Joi", "Vin", "Sâm", "Dum"].map(z => (
               <div key={z} className="text-center p-2 border-b-2 border-amber-500/10 mb-1">
@@ -420,11 +404,10 @@ export default function AdminSettingsHub() {
         </div>
       </div>
 
-      {/* Modal Zi */}
       {showDayModal && selectedDate && (
         <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md">
-          <div ref={modalRef} className="bg-white w-full max-w-6xl rounded-[45px] p-6 md:p-10 relative shadow-2xl border-t-[10px] border-amber-500 overflow-y-auto max-h-[90vh]">
-
+          {/* Ajustat max-h la 75vh pentru a face scroll-ul mai evident */}
+          <div ref={modalRef} className="bg-white w-full max-w-6xl rounded-[45px] p-6 md:p-10 relative shadow-2xl border-t-[10px] border-amber-500 overflow-y-auto max-h-[75vh] custom-scrollbar">
             <div className="flex flex-col md:flex-row justify-between items-start gap-4 mb-8">
               <div>
                 <span className="text-[9px] font-black text-amber-500 uppercase tracking-widest italic mb-1 block">Management Calendar</span>
@@ -434,51 +417,26 @@ export default function AdminSettingsHub() {
                     return new Date(y, m - 1, d).toLocaleDateString('ro-RO', { weekday: 'long', day: 'numeric', month: 'long' });
                   })()}
                 </h3>
-                <p className="text-[8px] font-bold text-slate-400 uppercase italic mt-1">
-                  {(manualBlocks[selectedDate] || []).length} slot-uri blocate din {generateSlots(15).length} totale
-                </p>
               </div>
-
-              <div className="flex flex-col items-end gap-2">
-                <div className="flex items-start gap-2">
-                  <button
-                    onClick={toggleAllDay}
-                    title="Blochează sau deblochează întreaga zi"
-                    className={`h-[50px] px-6 rounded-xl font-black text-[9px] uppercase italic transition-all border-2 ${
-                      isDayFullyBlocked
-                        ? 'bg-green-500 border-green-500 text-white shadow-lg'
-                        : 'bg-slate-100 border-slate-100 text-slate-900 hover:bg-red-500 hover:text-white hover:border-red-500'
-                    }`}
-                  >
+              <div className="flex items-center gap-2">
+                  <button 
+                    type="button"
+                    title="Blochează sau deblochează întreaga zi dintr-un singur click"
+                    onClick={toggleAllDay} 
+                    className={`h-[50px] px-6 rounded-xl font-black text-[9px] uppercase italic transition-all border-2 ${isDayFullyBlocked ? 'bg-green-500 border-green-500 text-white' : 'bg-slate-100 border-slate-100 text-slate-900'}`}>
                     {isDayFullyBlocked ? '✅ Deblochează tot' : '🚫 Blochează tot'}
                   </button>
+                  
+                  <button 
+                    type="button"
+                    title="Copiază programul de azi în alte zile ale săptămânii"
+                    onClick={() => setShowConfirmPopup(true)} 
+                    className="h-[50px] px-6 bg-amber-500 text-black rounded-xl font-black text-[9px] uppercase italic shadow-lg hover:scale-105 transition-all"
+                  >
+                    📋 Setează program predefinit
+                  </button>
 
-                  <div className="flex flex-col items-stretch">
-                    <button
-                      onClick={applyToSelectedWeekdays}
-                      className={`h-[50px] px-6 rounded-xl font-black text-[9px] uppercase italic shadow-lg transition-all transform hover:scale-105 ${
-                        isSelectingWeekdays ? 'bg-slate-900 text-white animate-pulse' : 'bg-amber-500 text-black'
-                      }`}
-                    >
-                      {isSelectingWeekdays ? '🚀 Aplică Acum' : '📋 Setează program predefinit'}
-                    </button>
-
-                    <div className="flex justify-between mt-1.5 px-1">
-                      {[1, 2, 3, 4, 5, 6, 0].map(d => (
-                        <button key={d} onClick={() => toggleWeekdaySelection(d)}
-                          className={`w-7 h-7 rounded-full font-black text-[7px] transition-all border-2 flex items-center justify-center ${
-                            selectedWeekdays.includes(d)
-                              ? 'bg-amber-500 border-amber-500 text-black shadow-md'
-                              : 'bg-white border-slate-200 text-slate-400 hover:border-amber-500 hover:text-amber-500'
-                          }`}>
-                          {["D", "L", "M", "M", "J", "V", "S"][d]}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  <button onClick={handleCloseAndSave} className="w-12 h-[50px] flex items-center justify-center bg-slate-900 text-white rounded-xl font-black hover:bg-red-500 transition-colors shadow-lg">✕</button>
-                </div>
+                  <button type="button" title="Închide fereastra" onClick={handleCloseAndSave} className="w-12 h-[50px] flex items-center justify-center bg-slate-900 text-white rounded-xl font-black hover:bg-red-500 transition-colors shadow-lg">✕</button>
               </div>
             </div>
 
@@ -487,56 +445,18 @@ export default function AdminSettingsHub() {
                 <p className="text-[8px] font-black uppercase text-slate-400 mb-3 italic tracking-widest">Pas Rezervare</p>
                 <div className="grid grid-cols-1 gap-2">
                   {[60, 30, 15].map(v => (
-                    <button key={v} onClick={() => { setBookingInterval(v); setIsDirty(true); }}
-                      className={`py-4 rounded-xl font-black text-[10px] border-2 transition-all ${
-                        bookingInterval === v
-                          ? 'border-amber-500 bg-amber-500 text-black shadow-md'
-                          : 'border-slate-100 text-slate-400 hover:bg-slate-900 hover:text-white hover:border-slate-900'
-                      }`}>
+                    <button type="button" key={v} title={`Schimbă durata unei sesiuni la ${v} minute`} onClick={() => { setBookingInterval(v); setIsDirty(true); }} className={`py-4 rounded-xl font-black text-[10px] border-2 transition-all ${bookingInterval === v ? 'border-amber-500 bg-amber-500 text-black' : 'border-slate-100 text-slate-400'}`}>
                       {v === 60 ? "1 ORĂ (Fixo)" : `${v} MINUTE`}
                     </button>
                   ))}
                 </div>
-
-                <div className="mt-6 p-4 bg-amber-50 rounded-2xl border border-amber-100">
-                  <p className="text-[9px] font-black text-black leading-relaxed uppercase italic mb-1">💡 Info Predefinit:</p>
-                  <p className="text-[8px] font-medium text-amber-900 leading-relaxed uppercase">
-                    1. Blochează orele dorite pentru această zi.<br/>
-                    2. Selectează zilele de sub butonul galben (L, M...).<br/>
-                    3. Apasă butonul <span className="font-black text-black">GALBEN</span> pentru a replica programul în restul anului.
-                  </p>
-                </div>
-
-                <div className="mt-4 p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                  <p className="text-[9px] font-black text-slate-600 uppercase italic mb-2">Stare Zi Curentă</p>
-                  <div className="flex items-center gap-2">
-                    <div className={`w-3 h-3 rounded-full ${isDayFullyBlocked ? 'bg-red-500' : (manualBlocks[selectedDate] || []).length > 0 ? 'bg-orange-400' : 'bg-green-500'}`}></div>
-                    <p className="text-[8px] font-bold text-slate-500 uppercase">
-                      {isDayFullyBlocked ? 'Zi complet blocată' : (manualBlocks[selectedDate] || []).length > 0 ? 'Parțial disponibilă' : 'Complet disponibilă'}
-                    </p>
-                  </div>
-                </div>
               </div>
 
               <div className="lg:col-span-9">
-                <p className="text-[8px] font-black uppercase text-slate-400 mb-3 italic tracking-widest text-center md:text-left">
-                  Program Zilnic (Apasă pe oră pentru blocare/deblocare)
-                </p>
                 <div className="max-h-[400px] overflow-y-auto pr-2 grid grid-cols-2 sm:grid-cols-4 gap-2 custom-scrollbar">
                   {dynamicTimeSlots.map(slot => (
-                    <button key={slot} onClick={() => toggleHourBlock(slot)}
-                      title={existingBookings.includes(slot) ? "Slot ocupat de o programare" : `Blochează/Deblochează ora ${slot}`}
-                      className={`py-5 rounded-xl font-black text-[12px] border-2 transition-all italic ${
-                        existingBookings.includes(slot)
-                          ? 'bg-amber-50 border-amber-200 text-amber-600 cursor-not-allowed'
-                          : (manualBlocks[selectedDate] || []).includes(slot)
-                          ? 'bg-slate-900 text-white border-slate-900 shadow-xl scale-[0.98]'
-                          : 'bg-white border-slate-100 text-slate-900 hover:border-amber-500 hover:text-amber-500'
-                      }`}>
+                    <button type="button" key={slot} title={existingBookings.includes(slot) ? "Slot ocupat de o programare existentă" : `Click pentru a ${manualBlocks[selectedDate]?.includes(slot) ? 'debloca' : 'bloca'} ora ${slot}`} onClick={() => toggleHourBlock(slot)} className={`py-5 rounded-xl font-black text-[12px] border-2 transition-all italic ${existingBookings.includes(slot) ? 'bg-amber-50 border-amber-200 text-amber-600 cursor-not-allowed' : (manualBlocks[selectedDate] || []).includes(slot) ? 'bg-slate-900 text-white border-slate-900 shadow-xl' : 'bg-white border-slate-100 text-slate-900'}`}>
                       {slot}
-                      {existingBookings.includes(slot) && (
-                        <span className="block text-[7px] font-bold uppercase mt-0.5 opacity-70">Ocupat</span>
-                      )}
                     </button>
                   ))}
                 </div>
@@ -544,11 +464,69 @@ export default function AdminSettingsHub() {
             </div>
 
             <div className="mt-8 text-center border-t border-slate-100 pt-6">
-              <button onClick={handleCloseAndSave}
-                className="px-16 py-5 bg-amber-500 text-black rounded-[25px] font-black text-[11px] uppercase italic tracking-widest shadow-xl hover:bg-slate-900 hover:text-white transition-all transform hover:scale-105">
+              <button type="button" title="Salvează și confirmă programul pentru această zi" onClick={handleCloseAndSave} className="px-16 py-5 bg-amber-500 text-black rounded-[25px] font-black text-[11px] uppercase italic tracking-widest shadow-xl hover:scale-105 transition-all">
                 Confirmă Disponibilitatea
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {showConfirmPopup && (
+        <div className="fixed inset-0 z-[300] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
+          <div ref={confirmPopupRef} className="bg-white w-full max-w-md rounded-[35px] p-8 shadow-2xl border-b-[8px] border-amber-500 text-center relative overflow-hidden">
+            
+            {showSuccessTick ? (
+              <div className="py-6 animate-in zoom-in duration-300">
+                <div className="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg shadow-green-200">
+                  <span className="text-white text-4xl">✓</span>
+                </div>
+                <h3 className="text-2xl font-black uppercase italic text-slate-900 tracking-tighter">Operațiune Reușită!</h3>
+                <p className="text-[10px] font-bold text-slate-400 uppercase italic mt-2">Programul a fost replicat cu succes.</p>
+              </div>
+            ) : (
+              <>
+                <h3 className="text-2xl font-black uppercase italic text-slate-900 tracking-tighter mb-2">Aplică Programul</h3>
+                <p className="text-[10px] font-bold text-slate-400 uppercase italic mb-6">Alege zilele în care vrei să replici programul de azi:</p>
+                
+                <div className="flex justify-center gap-2 mb-8">
+                  {[1, 2, 3, 4, 5, 6, 0].map(d => (
+                    <button type="button" key={d} 
+                      title={`Selectează ${["Duminică", "Luni", "Marți", "Miercuri", "Joi", "Vineri", "Sâmbătă"][d]}`}
+                      onClick={() => toggleWeekdaySelection(d)}
+                      className={`w-10 h-10 rounded-full font-black text-[10px] transition-all border-2 flex items-center justify-center ${
+                        selectedWeekdays.includes(d)
+                          ? 'bg-amber-500 border-amber-500 text-black shadow-md'
+                          : 'bg-white border-slate-200 text-slate-400 hover:border-amber-500'
+                      }`}>
+                      {["D", "L", "M", "M", "J", "V", "S"][d]}
+                    </button>
+                  ))}
+                </div>
+
+                <div className="flex flex-col gap-3">
+                  <button 
+                    type="button"
+                    title="Pornește procesul de replicare a programului"
+                    disabled={isApplying || selectedWeekdays.length === 0}
+                    onClick={applyToSelectedWeekdays}
+                    className={`w-full py-5 rounded-2xl font-black text-[11px] uppercase italic tracking-widest transition-all ${
+                      isApplying ? 'bg-slate-100 text-slate-400' : 'bg-slate-900 text-white hover:bg-amber-500 hover:text-black shadow-xl'
+                    }`}
+                  >
+                    {isApplying ? "Se aplică..." : "Aplică Acum 🚀"}
+                  </button>
+                  <button 
+                    type="button"
+                    title="Renunță și închide fereastra"
+                    onClick={() => setShowConfirmPopup(false)}
+                    className="w-full py-4 text-slate-400 font-black text-[9px] uppercase italic hover:text-red-500"
+                  >
+                    Anulează
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         </div>
       )}

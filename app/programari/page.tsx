@@ -5,9 +5,8 @@ import { QueryClient, QueryClientProvider, useQuery } from "@tanstack/react-quer
 import { supabase } from "@/lib/supabaseClient";
 import Link from "next/link";
 import Image from "next/image";
-import { debounce } from "lodash";
+import debounce from "lodash/debounce";
 
-// Creează un QueryClient separat
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -17,7 +16,6 @@ const queryClient = new QueryClient({
   },
 });
 
-// Încarcă componentele grele doar când sunt necesare
 const ChronosTimePicker = lazy(() =>
   import("@/components/ChronosDateTimePickers").then((mod) => ({
     default: mod.ChronosTimePicker,
@@ -61,10 +59,9 @@ const LIMITE_ABONAMENTE: Record<string, number> = {
   "chronos team": 999999,
 };
 
-// Componentă pentru confirmare
 const ConfirmationDialog = ({ message, onConfirm, onCancel }: { message: string; onConfirm: () => void; onCancel: () => void }) => (
-  <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[600] flex items-center justify-center p-4">
-    <div className="bg-white rounded-[30px] p-8 shadow-2xl border border-slate-100 max-w-md w-full">
+  <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[600] flex items-center justify-center p-4" onClick={onCancel}>
+    <div className="bg-white rounded-[30px] p-8 shadow-2xl border border-slate-100 max-w-md w-full" onClick={(e) => e.stopPropagation()}>
       <div className="flex flex-col items-center gap-6">
         <div className="w-16 h-16 bg-amber-50 rounded-full flex items-center justify-center">
           <span className="text-2xl">⏰</span>
@@ -96,7 +93,7 @@ function ProgramariContent() {
     nume: "",
     email: "",
     data: today,
-    ora: "09:00",
+    ora: "",
     motiv: "",
     telefon: "",
     poza: null,
@@ -118,7 +115,7 @@ function ProgramariContent() {
   const [showDateConfirm, setShowDateConfirm] = useState(false);
   const [showTimeConfirm, setShowTimeConfirm] = useState(false);
   const [tempDate, setTempDate] = useState<string>(today);
-  const [tempTime, setTempTime] = useState<string>("09:00");
+  const [tempTime, setTempTime] = useState<string>("");
 
   const suggestionsRef = useRef<HTMLDivElement>(null);
   const popupRef = useRef<HTMLDivElement>(null);
@@ -153,7 +150,7 @@ function ProgramariContent() {
       if (!session) return null;
       const { data } = await supabase
         .from("profiles")
-        .select("plan_type, trial_started_at")
+        .select("plan_type, trial_started_at, working_hours, manual_blocks")
         .eq("id", session.user.id)
         .single();
       return data;
@@ -213,6 +210,7 @@ function ProgramariContent() {
 
   const programariAzi = useMemo(() => (programari || []).filter((p: any) => p.date === today), [programari, today]);
   const statsAzi = useMemo(() => ({ total: programariAzi.length, online: programariAzi.filter((p: any) => p.is_client_booking).length }), [programariAzi]);
+
   const countLunaCurenta = useMemo(() => {
     const firstDay = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split("T")[0];
     return (programari || []).filter((p: any) => p.date >= firstDay).length;
@@ -277,23 +275,60 @@ function ProgramariContent() {
   const handleDateConfirm = () => {
     setFormular({ ...formular, data: tempDate });
     setShowDateConfirm(false);
+    setShowDatePicker(false);
   };
 
   const handleTimeConfirm = () => {
     setFormular({ ...formular, ora: tempTime });
     setShowTimeConfirm(false);
+    setShowTimePicker(false);
   };
 
   const salveazaInCloud = async () => {
-    if (!formular.nume || !formular.telefon) {
-      alert("Atenționare: Completează Numele și Telefonul.");
+    if (!formular.nume || !formular.telefon || !formular.ora) {
+      alert("Atenționare: Completează Numele, Telefonul și Ora programării.");
       return;
     }
+
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
     const serviciuSelectat = servicii?.find((s: ServiceRow) => s.id === formular.serviciu_id);
     const angajatSelectat = angajati?.find((a: StaffRow) => a.id === formular.angajat_id);
+
+    const telefonCurat = formular.telefon.replace(/\D/g, '');
+
+    const dataRo = new Date(formular.data).toLocaleDateString('ro-RO');
+    const numeServ = serviciuSelectat?.nume_serviciu || "Programare";
+    const linieIstoric = `• ${dataRo} la ora ${formular.ora}: ${numeServ} (${angajatSelectat?.name || "General"})`;
+
+    const { data: clientExistent } = await supabase
+      .from('client_cases')
+      .select('id, description')
+      .eq('phone_number', telefonCurat)
+      .eq('user_id', user.id)
+      .maybeSingle();
+
+    if (clientExistent) {
+      const istoricNou = `${clientExistent.description || ""}\n${linieIstoric}`;
+      await supabase
+        .from('client_cases')
+        .update({
+          description: istoricNou,
+          client_name: formular.nume,
+          client_email: formular.email
+        })
+        .eq('id', clientExistent.id);
+    } else {
+      await supabase.from('client_cases').insert([{
+        user_id: user.id,
+        client_name: formular.nume,
+        phone_number: telefonCurat,
+        client_email: formular.email,
+        description: `ISTORIC PROGRAMĂRI:\n${linieIstoric}`,
+        status: 'Activ'
+      }]);
+    }
 
     const payload = {
       user_id: user.id,
@@ -303,20 +338,20 @@ function ProgramariContent() {
       date: formular.data,
       time: formular.ora,
       details: formular.motiv,
-      phone: formular.telefon,
+      phone: telefonCurat,
       file_url: formular.poza,
       is_client_booking: false,
       angajat_id: formular.angajat_id || null,
       serviciu_id: formular.serviciu_id || null,
       specialist: angajatSelectat?.name || null,
-      nume_serviciu: serviciuSelectat?.nume_serviciu || "Programare",
+      nume_serviciu: numeServ,
       documente: formular.documente,
       notifications: { sound: true, vibration: true, sendToClient: true, minutes: 10, volume: 70 }
     };
 
     const { error } = await supabase.from("appointments").insert([payload]);
     if (!error) {
-      alert("Programare salvată!");
+      alert("Programare salvată și dosar client actualizat!");
       window.location.reload();
     }
   };
@@ -354,7 +389,7 @@ function ProgramariContent() {
       {showTimePicker && (
         <Suspense fallback={null}>
           <ChronosTimePicker
-            value={formular.ora}
+            value={formular.ora || "09:00"}
             onChange={handleTimeSelect}
             onClose={() => setShowTimePicker(false)}
           />
@@ -525,7 +560,7 @@ function ProgramariContent() {
                   className="w-full p-5 bg-slate-50 rounded-[25px] font-bold text-lg shadow-inner text-left flex justify-between items-center border-2 border-transparent hover:border-amber-500 transition-all active:scale-95"
                   title="Selectează ora"
                 >
-                  {formular.ora}
+                  {formular.ora || "Selectează ora..."}
                   <span className="text-amber-600 text-[10px]">🕒</span>
                 </button>
               </div>
@@ -611,7 +646,7 @@ function ProgramariContent() {
                     <h4 className="font-black text-slate-800 uppercase text-[11px] truncate italic leading-tight">{p.title}</h4>
                     <p className="text-[9px] font-black text-amber-600 uppercase italic">{p.time} • {angajati?.find((a: any) => a.id === p.angajat_id)?.name || "General"}</p>
                     <p className="text-[9px] font-bold text-slate-400 italic uppercase">
-                      {servicii?.find((s: any) => s.id === p.serviciu_id)?.nume_serviciu || "Procedură"}
+                      {p.nume_serviciu || "Procedură"}
                     </p>
                   </div>
                 </div>
@@ -667,7 +702,7 @@ function ProgramariContent() {
                 </div>
                 <div className="bg-slate-50 p-4 rounded-3xl border border-slate-100">
                   <p className="text-[8px] font-black text-slate-400 uppercase italic mb-1">Serviciu</p>
-                  <p className="font-black text-xs text-slate-700">{servicii?.find((s: any) => s.id === popupProgramare.serviciu_id)?.nume_serviciu || "Procedură"}</p>
+                  <p className="font-black text-xs text-slate-700">{popupProgramare.nume_serviciu || "Procedură"}</p>
                 </div>
               </div>
               <div className="bg-slate-900 p-6 rounded-[35px] text-white">

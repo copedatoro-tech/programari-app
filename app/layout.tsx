@@ -1,9 +1,10 @@
 "use client";
 
+// @ts-ignore - Ignorăm eroarea TS(2882) pentru importul CSS care funcționează la runtime
 import "./globals.css";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import Image from "next/image";
 
@@ -28,16 +29,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     cookies: false,
   });
 
-  // Prevenim Flash of Unstyled Content prin asigurarea montării pe client
   useEffect(() => {
     setIsMounted(true);
   }, []);
 
-  const getPageTitle = () => {
+  const getPageTitle = useCallback(() => {
     switch (path) {
       case "/programari": return "Programări";
       case "/programari/calendar": return "Calendar Programări";
-      case "/dosare-clienti": return "Dosare Clienți";
+      case "/clienti": return "Clienți";
       case "/resurse": return "Resurse";
       case "/abonamente": return "Abonamente";
       case "/rapoarte": return "Analiză & Rapoarte";
@@ -47,7 +47,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       case "/contacte-utile": return "Contacte Utile";
       default: return "Sistem Chronos";
     }
-  };
+  }, [path]);
 
   const isPublicPage =
     path === "/login" ||
@@ -57,18 +57,17 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     (path && path.startsWith("/rezervare"));
 
   useEffect(() => {
+    let mounted = true;
+
     const syncAuth = async () => {
-      if (!supabase || typeof supabase.auth === "undefined") {
-        setAuthLoaded(true);
-        return;
-      }
       try {
         const { data: { session } } = await supabase.auth.getSession();
-        setIsLoggedIn(!!session);
+        if (mounted) {
+          setIsLoggedIn(!!session);
+          setAuthLoaded(true);
+        }
       } catch (error) {
-        console.error("Auth error:", error);
-      } finally {
-        setAuthLoaded(true);
+        if (mounted) setAuthLoaded(true);
       }
     };
 
@@ -77,10 +76,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (_event, session) => { 
         setIsLoggedIn(!!session); 
+        setAuthLoaded(true);
       }
     );
 
-    return () => { if (subscription) subscription.unsubscribe(); };
+    return () => { 
+      mounted = false;
+      if (subscription) subscription.unsubscribe(); 
+    };
   }, []);
 
   useEffect(() => {
@@ -102,7 +105,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   const handleLogout = async () => {
     setIsMenuOpen(false);
     try {
-      if (supabase && supabase.auth) await supabase.auth.signOut();
+      await supabase.auth.signOut();
     } catch (err) {
       console.log("Logout transition...");
     } finally {
@@ -111,7 +114,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     }
   };
 
-  // Dacă nu e montat, returnăm o structură minimă pentru a evita erorile de layout
   if (!isMounted) {
     return (
       <html lang="ro">
@@ -172,14 +174,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
                     {isMenuOpen && (
                       <div
-                        onClick={(e) => e.stopPropagation()}
                         className="absolute top-[calc(100%+15px)] right-0 w-72 bg-white border-4 border-slate-900 rounded-[30px] shadow-[0_20px_50px_rgba(0,0,0,0.2)] p-3 z-[110] flex flex-col max-h-[80vh]"
                       >
                         <div className="space-y-1 overflow-y-auto pr-1 scrollbar-thin">
                           {[
                             { href: "/programari", icon: "📅", label: "Programări" },
                             { href: "/programari/calendar", icon: "🗓️", label: "Calendar" },
-                            { href: "/dosare-clienti", icon: "👥", label: "Dosare Clienți" },
+                            { href: "/clienti", icon: "👥", label: "Clienți" },
                             { href: "/contacte-utile", icon: "📞", label: "Contacte Utile" },
                             { href: "/resurse", icon: "📦", label: "Resurse" },
                             { href: "/abonamente", icon: "💎", label: "Abonamente" },

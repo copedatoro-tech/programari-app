@@ -108,10 +108,7 @@ export default function ProfilPage() {
           setUser(u);
           setEmail(u.email || "");
           setNume(profile?.full_name || u.user_metadata?.full_name || "Utilizator Chronos");
-          
-          // --- PRELUARE TELEFON (PROFIL SAU METADATE ÎNREGISTRARE) ---
           setTelefon(profile?.phone || u.user_metadata?.phone || "");
-          
           setFunctie(profile?.role || "Administrator Sistem");
           setSlug(profile?.slug || ""); 
           setAvatarUrl(profile?.avatar_url || "");
@@ -228,10 +225,11 @@ export default function ProfilPage() {
     window.location.href = "/login";
   };
 
+  // MODIFICARE: Fundalul este acum alb (bg-slate-50) pentru a corespunde paginii finale
   if (!isClient || loading) return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-slate-900">
-      <div className="w-12 h-12 border-4 border-slate-800 border-t-amber-500 rounded-full animate-spin mb-4"></div>
-      <p className="italic font-black text-amber-500/80 animate-pulse uppercase tracking-[0.3em] text-[10px]">Sincronizare Profil...</p>
+    <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50">
+      <div className="w-12 h-12 border-4 border-slate-200 border-t-amber-500 rounded-full animate-spin mb-4"></div>
+      <p className="italic font-black text-slate-400 animate-pulse uppercase tracking-[0.3em] text-[10px]">Sincronizare Profil...</p>
     </div>
   );
 
@@ -273,13 +271,14 @@ export default function ProfilPage() {
 
           <div className="flex flex-col gap-4 z-10">
             <button 
+              title="Salvează modificările profilului"
               onClick={handleUpdateAll} 
               disabled={updating || isDemo} 
               className={`px-10 py-4 text-[11px] font-black rounded-2xl uppercase italic transition-all border-b-8 ${isDemo ? 'bg-slate-700 text-slate-500 border-slate-800' : 'bg-amber-500 text-slate-900 border-amber-700 hover:bg-white'}`}
             >
               {updating ? "Așteaptă..." : "Salvează"}
             </button>
-            <button onClick={handleSignOut} className="px-10 py-4 bg-slate-800 text-slate-400 text-[11px] font-black rounded-2xl uppercase italic border-b-8 border-slate-700 hover:bg-red-600 hover:text-white transition-all">
+            <button title="Deconectare din cont" onClick={handleSignOut} className="px-10 py-4 bg-slate-800 text-slate-400 text-[11px] font-black rounded-2xl uppercase italic border-b-8 border-slate-700 hover:bg-red-600 hover:text-white transition-all">
               {isDemo ? "Ieșire Demo" : "Deconectare"}
             </button>
           </div>
@@ -302,7 +301,7 @@ export default function ProfilPage() {
               </p>
             </div>
           </div>
-          <button onClick={() => router.push('/abonamente')} className="px-8 py-4 bg-slate-900 text-white text-[10px] font-black rounded-2xl uppercase italic hover:bg-amber-500 hover:text-slate-900 border-b-8 border-slate-800 transition-all shadow-lg">
+          <button title="Vezi opțiunile de abonament" onClick={() => router.push('/abonamente')} className="px-8 py-4 bg-slate-900 text-white text-[10px] font-black rounded-2xl uppercase italic hover:bg-amber-500 hover:text-slate-900 border-b-8 border-slate-800 transition-all shadow-lg">
             Schimbă Abonamentul
           </button>
         </div>
@@ -354,6 +353,7 @@ export default function ProfilPage() {
               </div>
               
               <button 
+                title="Rezervă adresa URL personalizată"
                 onClick={handleUpdateSlug}
                 disabled={updating || isDemo}
                 className="px-10 py-6 bg-slate-900 text-amber-500 text-[10px] font-black rounded-[25px] uppercase italic border-b-8 border-slate-800 hover:bg-amber-500 hover:text-white transition-all shadow-xl"
@@ -375,6 +375,7 @@ export default function ProfilPage() {
           
           <div className="pt-6 border-t border-slate-50 flex justify-center">
             <button 
+              title="Modifică parola de securitate"
               onClick={() => { if(!isDemo) setShowPassModal(true); else alert("🔒 Dezactivat în Demo."); }} 
               className="flex items-center gap-4 px-8 py-4 rounded-full text-[11px] font-black uppercase italic transition-all bg-slate-50 text-slate-500 hover:text-amber-600 border border-transparent hover:border-amber-200"
             >
@@ -395,7 +396,7 @@ export default function ProfilPage() {
               <input type="password" placeholder="PAROLĂ NOUĂ" value={pass1} onChange={(e) => setPass1(e.target.value)} className="w-full p-6 bg-slate-50 border-2 border-slate-100 rounded-[25px] font-bold text-center outline-none focus:border-amber-500" />
               <input type="password" placeholder="CONFIRMĂ PAROLA" value={pass2} onChange={(e) => setPass2(e.target.value)} className="w-full p-6 bg-slate-50 border-2 border-slate-100 rounded-[25px] font-bold text-center outline-none focus:border-amber-500" />
             </div>
-            <button onClick={handleConfirmPassword} className="w-full py-6 bg-slate-900 text-amber-500 rounded-[25px] font-black text-[12px] uppercase italic border-b-8 border-slate-800 hover:bg-amber-500 hover:text-white transition-all">
+            <button title="Confirmă noua parolă" onClick={handleConfirmPassword} className="w-full py-6 bg-slate-900 text-amber-500 rounded-[25px] font-black text-[12px] uppercase italic border-b-8 border-slate-800 hover:bg-amber-500 hover:text-white transition-all">
               {updating ? "..." : "Actualizează"}
             </button>
           </div>

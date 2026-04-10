@@ -4,8 +4,8 @@ import { useState, useRef, useEffect } from "react";
 
 const dayNamesShort = ["Lun", "Mar", "Mie", "Joi", "Vin", "Sâm", "Dum"];
 const monthNames = [
-  "Ianuarie","Februarie","Martie","Aprilie","Mai","Iunie",
-  "Iulie","August","Septembrie","Octombrie","Noiembrie","Decembrie"
+  "Ianuarie", "Februarie", "Martie", "Aprilie", "Mai", "Iunie",
+  "Iulie", "August", "Septembrie", "Octombrie", "Noiembrie", "Decembrie"
 ];
 
 function sameDay(a: Date, b: Date) {
@@ -13,6 +13,7 @@ function sameDay(a: Date, b: Date) {
     a.getMonth() === b.getMonth() &&
     a.getDate() === b.getDate();
 }
+
 function addDays(date: Date, days: number) {
   const d = new Date(date);
   d.setDate(d.getDate() + days);

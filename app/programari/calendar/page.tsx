@@ -22,20 +22,24 @@ const queryClient = new QueryClient({
 function sameDay(a: Date, b: Date) {
   return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
 }
+
 function getWeekStart(date: Date) {
   const d = new Date(date);
   const day = (d.getDay() + 6) % 7;
   d.setDate(d.getDate() - day);
   return d;
 }
+
 function addDays(date: Date, days: number) {
   const d = new Date(date);
   d.setDate(d.getDate() + days);
   return d;
 }
+
 function formatDateKey(d: Date) {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
+
 function addMinutesToTime(timeStr: string, minutes: number): string {
   if (!timeStr) return "";
   const [h, m] = timeStr.split(":").map(Number);
@@ -50,13 +54,16 @@ const dayNamesLong = ["Duminică", "Luni", "Marți", "Miercuri", "Joi", "Vineri"
 const monthNames = ["Ianuarie","Februarie","Martie","Aprilie","Mai","Iunie","Iulie","August","Septembrie","Octombrie","Noiembrie","Decembrie"];
 
 type DocumentAttachment = { id: number | string; name: string; url: string };
+
 type Programare = {
   id: any; nume: string; email?: string; data: string; ora: string;
   telefon?: string; motiv?: string; poza?: string; documente: DocumentAttachment[];
   user_id?: string; expertId?: string; serviciuId?: string; duration?: number;
 };
+
 type ViewMode = "day" | "week" | "month";
 type ManualBlocksMap = Record<string, string[]>;
+
 interface StaffRow { id: string; name: string; services: string[] }
 interface ServiceRow { id: string; nume_serviciu: string; price: number; duration: number }
 interface WorkingHour { day: string; start: string; end: string; closed: boolean }
@@ -71,12 +78,19 @@ function normalizeDocuments(raw: any): DocumentAttachment[] {
   });
 }
 
+// ─── FIX 1: mapRow normalizează data corect (coloana date e de tip date în DB) ───
 function mapRow(item: any): Programare {
+  // Coloana "date" din DB e de tip date → vine ca "2025-01-15" (string simplu)
+  // Dacă vine cu ora (timestamp), păstrăm doar data
+  const rawDate: string = item.date ?? "";
+  const dataStr = rawDate.includes("T") ? rawDate.split("T")[0] : rawDate;
+
   return {
     id: item.id,
+    // FIX: am adăugat item.nume în select, deci acum funcționează corect
     nume: item.title || item.prenume || item.nume || "Client",
     email: item.email ?? "",
-    data: item.date ?? "",
+    data: dataStr,
     ora: item.time ?? "",
     telefon: item.phone ?? "",
     motiv: item.details ?? "",
@@ -89,6 +103,7 @@ function mapRow(item: any): Programare {
 }
 
 // ─── INLINE DATE PICKER ───────────────────────────────────────────────────────
+
 function InlineDatePicker({ currentDate, onSelectDate, onClose }: {
   currentDate: string;
   onSelectDate: (dateStr: string) => void;
@@ -96,13 +111,11 @@ function InlineDatePicker({ currentDate, onSelectDate, onClose }: {
 }) {
   const parsedDate = currentDate ? new Date(currentDate + "T00:00:00") : new Date();
   const [pickerMonth, setPickerMonth] = useState(new Date(parsedDate));
-
   const navPickerMonth = (dir: number) => {
     const d = new Date(pickerMonth);
     d.setMonth(d.getMonth() + dir);
     setPickerMonth(d);
   };
-
   const pickerGrid = useMemo(() => {
     const year = pickerMonth.getFullYear();
     const month = pickerMonth.getMonth();
@@ -153,7 +166,8 @@ function InlineDatePicker({ currentDate, onSelectDate, onClose }: {
   );
 }
 
-// ─── INLINE TIME PICKER — identic ca cel de dată ──────────────────────────────
+// ─── INLINE TIME PICKER ──────────────────────────────────────────────────────
+
 function InlineTimePicker({ currentTime, onSelectTime, onClose }: {
   currentTime: string;
   onSelectTime: (timeStr: string) => void;
@@ -162,13 +176,11 @@ function InlineTimePicker({ currentTime, onSelectTime, onClose }: {
   const [step, setStep] = useState<"hour" | "minute">("hour");
   const [selectedHour, setSelectedHour] = useState(currentTime?.split(":")[0] || "09");
   const [selectedMinute, setSelectedMinute] = useState(currentTime?.split(":")[1] || "00");
-
   const hours = Array.from({ length: 24 }, (_, i) => String(i).padStart(2, "0"));
   const minutes = ["00", "15", "30", "45"];
 
   return (
     <div className="bg-white border-2 border-amber-500 rounded-[30px] p-5 shadow-xl">
-      {/* Header cu ora selectată */}
       <div className="text-center mb-4 bg-slate-50 rounded-[20px] py-3">
         <p className="text-[8px] font-black text-slate-400 uppercase italic tracking-widest mb-1">
           {step === "hour" ? "Selectează Ora" : "Selectează Minutele"}
@@ -179,8 +191,6 @@ function InlineTimePicker({ currentTime, onSelectTime, onClose }: {
           <span className={step === "minute" ? "text-amber-500" : "text-slate-900"}>{selectedMinute}</span>
         </p>
       </div>
-
-      {/* Grid ore sau minute */}
       {step === "hour" ? (
         <div className="grid grid-cols-6 gap-1.5 mb-4 max-h-48 overflow-y-auto pr-1">
           {hours.map((h) => (
@@ -204,8 +214,6 @@ function InlineTimePicker({ currentTime, onSelectTime, onClose }: {
           ))}
         </div>
       )}
-
-      {/* Butoane navigare */}
       <div className="flex gap-2">
         {step === "minute" && (
           <button onClick={() => setStep("hour")} className="flex-1 py-3 bg-slate-100 text-slate-500 rounded-[15px] font-black uppercase text-[9px] italic hover:bg-slate-200 transition-all">← Ore</button>
@@ -217,7 +225,8 @@ function InlineTimePicker({ currentTime, onSelectTime, onClose }: {
   );
 }
 
-// ─── DATE PICKER MODAL pentru navigarea calendarului principal ────────────────
+// ─── DATE PICKER MODAL ────────────────────────────────────────────────────────
+
 function DatePickerModal({ currentDate, onSelectDate, onClose }: {
   currentDate: Date;
   onSelectDate: (date: Date) => void;
@@ -225,7 +234,6 @@ function DatePickerModal({ currentDate, onSelectDate, onClose }: {
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [pickerMonth, setPickerMonth] = useState(new Date(currentDate));
-
   useEffect(() => {
     function clickOut(e: MouseEvent) {
       if (containerRef.current && !containerRef.current.contains(e.target as Node)) onClose();
@@ -310,6 +318,7 @@ function CalendarContent() {
     queryFn: async () => { const { data: { session } } = await supabase.auth.getSession(); return session; },
     staleTime: Infinity,
   });
+
   const userId = session?.user?.id;
 
   const { data: profile } = useQuery({
@@ -350,17 +359,26 @@ function CalendarContent() {
     return { start, end };
   }, [selectedDate.getFullYear(), selectedDate.getMonth()]);
 
+  // ─── FIX 2: Am adăugat "nume" în lista de coloane selectate ───────────────
   const { data: programari = [], isLoading: loadingAppts } = useQuery<Programare[]>({
     queryKey: ["appointments", userId, dateRange.start, dateRange.end],
     enabled: !!userId,
     queryFn: async () => {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("appointments")
         .select("id, title, prenume, nume, email, date, time, details, phone, poza, file_url, documente, angajat_id, serviciu_id, duration")
         .eq("user_id", userId!)
         .gte("date", dateRange.start)
         .lte("date", dateRange.end)
         .order("date", { ascending: true });
+
+      // FIX 3: logăm eroarea dacă există, ca să o vedem în console
+      if (error) {
+        console.error("[Calendar] Eroare fetch appointments:", error);
+        return [];
+      }
+
+      console.log("[Calendar] Appointments fetchate:", data?.length, data);
       return (data ?? []).map(mapRow);
     },
   });
@@ -496,7 +514,8 @@ function CalendarContent() {
   const programariByDate = useMemo(() => {
     const map: Record<string, Programare[]> = {};
     filteredProgramari.forEach((p) => {
-      const key = p.data.includes("T") ? p.data.split("T")[0] : p.data;
+      // FIX 4: data e deja normalizată în mapRow, nu mai e nevoie de split("T") aici
+      const key = p.data;
       if (key) { if (!map[key]) map[key] = []; map[key].push(p); }
     });
     return map;
@@ -547,7 +566,6 @@ function CalendarContent() {
 
   return (
     <main className="min-h-screen bg-slate-50 p-2 md:p-8 flex flex-col items-center font-sans">
-
       {showDatePickerModal && (
         <DatePickerModal currentDate={selectedDate} onSelectDate={goToDay} onClose={() => setShowDatePickerModal(false)} />
       )}
@@ -556,7 +574,6 @@ function CalendarContent() {
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[500] flex items-center justify-center p-4" onClick={handleCloseModal}>
           <div ref={modalRef} onClick={(e) => e.stopPropagation()} className="bg-white w-full max-w-xl rounded-[50px] overflow-hidden shadow-2xl border border-slate-100 relative">
             <button onClick={handleCloseModal} title="Închide" className="absolute top-8 right-8 w-12 h-12 bg-white/10 backdrop-blur-md rounded-2xl flex items-center justify-center font-black text-white hover:bg-red-500 transition-all z-30 shadow-xl border border-white/20">✕</button>
-
             <div className="h-44 bg-slate-900 relative flex items-end p-10">
               <div className="absolute inset-0 bg-gradient-to-t from-slate-900 to-transparent opacity-20 pointer-events-none" />
               <div className="flex items-center gap-6 z-10">
@@ -571,18 +588,14 @@ function CalendarContent() {
                 </div>
               </div>
             </div>
-
             <div className="p-10 space-y-6 max-h-[65vh] overflow-y-auto bg-white">
-
               <div className="bg-slate-50 p-6 rounded-[35px] border border-slate-100 focus-within:border-amber-500 transition-all">
                 <p className="text-[9px] font-black text-slate-400 uppercase italic mb-2 ml-1">Nume Complet Client</p>
                 <input type="text" className="w-full bg-transparent text-xl font-black uppercase italic tracking-tight text-slate-900 outline-none"
                   value={editForm.nume} onChange={(e) => setEditForm({ ...editForm, nume: e.target.value })} />
               </div>
 
-              {/* Data + Ora — ambele inline */}
               <div className="grid grid-cols-2 gap-4">
-                {/* DATA */}
                 <div>
                   <div onClick={() => { setShowInlineDatePicker(!showInlineDatePicker); setShowInlineTimePicker(false); }}
                     className={`bg-slate-50 p-5 rounded-[30px] border-2 cursor-pointer transition-all ${showInlineDatePicker ? "border-amber-500 bg-amber-50/30" : "border-slate-100 hover:border-amber-300"}`}>
@@ -602,8 +615,6 @@ function CalendarContent() {
                     </div>
                   )}
                 </div>
-
-                {/* ORA */}
                 <div>
                   <div onClick={() => { setShowInlineTimePicker(!showInlineTimePicker); setShowInlineDatePicker(false); }}
                     className={`bg-slate-50 p-5 rounded-[30px] border-2 cursor-pointer transition-all ${showInlineTimePicker ? "border-amber-500 bg-amber-50/30" : "border-slate-100 hover:border-amber-300"}`}>
@@ -682,19 +693,17 @@ function CalendarContent() {
                 <p className="text-[8px] font-black text-slate-400 uppercase italic mb-3">Documente și Fișiere Atașate</p>
                 {editForm.documente.length > 0 ? (
                   <div className="grid grid-cols-1 gap-2">
-                    {editForm.documente.map((doc) => {
-                      return (
-                        <a key={String(doc.id)} href={doc.url} target="_blank" rel="noopener noreferrer"
-                          className="flex items-center justify-between p-3 bg-white border border-slate-200 rounded-2xl hover:border-amber-500 transition-all group"
-                          title="Deschide Document">
-                          <div className="flex items-center gap-3 overflow-hidden">
-                            <span className="text-lg">📄</span>
-                            <p className="text-[10px] font-black text-slate-700 uppercase italic truncate">{doc.name}</p>
-                          </div>
-                          <span className="text-[10px] font-black text-amber-600 opacity-0 group-hover:opacity-100 transition-opacity italic">VEZI</span>
-                        </a>
-                      );
-                    })}
+                    {editForm.documente.map((doc) => (
+                      <a key={String(doc.id)} href={doc.url} target="_blank" rel="noopener noreferrer"
+                        className="flex items-center justify-between p-3 bg-white border border-slate-200 rounded-2xl hover:border-amber-500 transition-all group"
+                        title="Deschide Document">
+                        <div className="flex items-center gap-3 overflow-hidden">
+                          <span className="text-lg">📄</span>
+                          <p className="text-[10px] font-black text-slate-700 uppercase italic truncate">{doc.name}</p>
+                        </div>
+                        <span className="text-[10px] font-black text-amber-600 opacity-0 group-hover:opacity-100 transition-opacity italic">VEZI</span>
+                      </a>
+                    ))}
                   </div>
                 ) : (
                   <p className="text-[9px] font-bold text-slate-400 italic">Niciun document încărcat pentru această programare.</p>
