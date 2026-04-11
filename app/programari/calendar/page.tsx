@@ -374,7 +374,6 @@ function CalendarContent() {
     },
   });
 
-  // ✅ REALTIME: Subscripții pentru sincronizare imediată
   useEffect(() => {
     if (!userId) return;
 
@@ -382,20 +381,14 @@ function CalendarContent() {
       .channel(`calendar-profile-${userId}`)
       .on("postgres_changes",
         { event: "UPDATE", schema: "public", table: "profiles", filter: `id=eq.${userId}` },
-        () => {
-          // Când settings-ul modifică working_hours sau manual_blocks → refetch imediat
-          refetchProfile();
-        })
+        () => { refetchProfile(); })
       .subscribe();
 
     const appointmentsChannel = supabase
       .channel(`calendar-appointments-${userId}`)
       .on("postgres_changes",
         { event: "*", schema: "public", table: "appointments", filter: `user_id=eq.${userId}` },
-        () => {
-          // Când o programare nouă vine din pagina de rezervare clienți → refetch
-          refetchAppts();
-        })
+        () => { refetchAppts(); })
       .subscribe();
 
     return () => {
@@ -423,19 +416,15 @@ function CalendarContent() {
     };
   }, [profile]);
 
-  // ✅ FIXED: isDateBlocked verifică acum și overlap-urile cu programările existente
   const isDateBlocked = useCallback((dateStr: string, timeStr?: string, serviceDuration?: number) => {
-    // 1. Verificare blocuri manuale (din settings)
     const daySlots: string[] = manualBlocks[dateStr] || [];
     if (daySlots.length >= TOTAL_SLOTS_PER_DAY - 2) return { blocked: true, reason: "Zi Blocată Manual" };
 
-    // 2. Verificare working_hours (ziua închisă)
     const dateObj = new Date(dateStr + "T00:00:00");
     const dayName = dayNamesLong[dateObj.getDay()];
     const daySchedule = workingHours.find((h) => h.day === dayName);
     if (daySchedule?.closed) return { blocked: true, reason: "Închis (Weekend/Sărbătoare)" };
 
-    // 3. Verificare oră în afara programului
     if (timeStr && daySchedule) {
       if (timeStr < daySchedule.start || timeStr > daySchedule.end)
         return { blocked: true, reason: `În afara programului (${daySchedule.start}-${daySchedule.end})` };
@@ -445,7 +434,6 @@ function CalendarContent() {
       }
     }
 
-    // 4. Verificare oră blocată manual
     if (timeStr && daySlots.length > 0) {
       const [h, m] = timeStr.split(":").map(Number);
       const checkMinutes = serviceDuration && serviceDuration > 0 ? serviceDuration : 60;
@@ -459,7 +447,6 @@ function CalendarContent() {
       if (subSlots.some((slot) => daySlots.includes(slot))) return { blocked: true, reason: "Oră blocată" };
     }
 
-    // ✅ 5. ADĂUGAT: Verificare overlap cu programările existente
     if (timeStr && serviceDuration && serviceDuration > 0) {
       const dayAppts = programari.filter((p) => p.data === dateStr);
       const newStart = timeToMinutes(timeStr);
@@ -476,7 +463,6 @@ function CalendarContent() {
     return { blocked: false };
   }, [manualBlocks, workingHours, programari]);
 
-  // ✅ ADĂUGAT: Verificare dacă o zi are sloturi disponibile (pentru afișare în calendar)
   const isDayFullyOccupied = useCallback((dateStr: string): boolean => {
     const daySchedule = workingHours.find((h) => {
       const dateObj = new Date(dateStr + "T00:00:00");
@@ -487,15 +473,12 @@ function CalendarContent() {
     const dayAppts = programari.filter((p) => p.data === dateStr);
     const dayBlocks = manualBlocks[dateStr] || [];
 
-    // Dacă ziua e complet blocată manual
     if (dayBlocks.length >= TOTAL_SLOTS_PER_DAY - 2) return true;
 
-    // Calculăm sloturi disponibile în intervalul de lucru
     const startMin = timeToMinutes(daySchedule.start);
     const endMin = timeToMinutes(daySchedule.end);
     const totalWorkMinutes = endMin - startMin;
-    
-    // Calculăm minutele ocupate de programări
+
     const occupiedMinutes = dayAppts.reduce((acc, appt) => {
       return acc + (appt.duration && appt.duration > 0 ? appt.duration : 30);
     }, 0);
@@ -540,7 +523,6 @@ function CalendarContent() {
     const service = rawServices.find((s) => s.id === editForm.serviciuId);
     const duration = service?.duration || 0;
 
-    // ✅ La update, excluem programarea curentă din verificarea de overlap
     const otherAppts = programari.filter((p) => p.id !== editForm.id && p.data === editForm.data);
     const newStart = timeToMinutes(editForm.ora);
     const newEnd = newStart + (duration > 0 ? duration : 30);
@@ -581,9 +563,6 @@ function CalendarContent() {
   };
 
   const sendWhatsAppReminder = async () => {
-    if (userSubscription?.plan.includes("FREE") || userSubscription?.plan.includes("PRO")) {
-      await showToast({ message: "Necesită plan ELITE", type: "warning" }); return;
-    }
     const clean = editForm?.telefon?.replace(/\D/g, "");
     window.open(`https://wa.me/${clean?.startsWith("0") ? "4" + clean : clean}?text=${encodeURIComponent(customMessage)}`, "_blank");
   };
@@ -650,6 +629,9 @@ function CalendarContent() {
     return <div className="min-h-screen flex items-center justify-center bg-slate-50 font-black italic text-slate-400 uppercase">Autentificare necesară...</div>;
   }
 
+  // ─── Variabilă centrală pentru acces WhatsApp ───────────────────────────────
+  const hasWhatsAppAccess = userSubscription?.plan.includes("ELITE") || userSubscription?.plan.includes("TEAM");
+
   return (
     <main className="min-h-screen bg-slate-50 p-2 md:p-8 flex flex-col items-center font-sans">
       {showDatePickerModal && (
@@ -674,13 +656,16 @@ function CalendarContent() {
                 </div>
               </div>
             </div>
+
             <div className="p-10 space-y-6 max-h-[65vh] overflow-y-auto bg-white">
+              {/* Nume client */}
               <div className="bg-slate-50 p-6 rounded-[35px] border border-slate-100 focus-within:border-amber-500 transition-all">
                 <p className="text-[9px] font-black text-slate-400 uppercase italic mb-2 ml-1">Nume Complet Client</p>
                 <input type="text" className="w-full bg-transparent text-xl font-black uppercase italic tracking-tight text-slate-900 outline-none"
                   value={editForm.nume} onChange={(e) => setEditForm({ ...editForm, nume: e.target.value })} />
               </div>
 
+              {/* Data & Ora */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <div onClick={() => { setShowInlineDatePicker(!showInlineDatePicker); setShowInlineTimePicker(false); }}
@@ -722,6 +707,7 @@ function CalendarContent() {
                 </div>
               </div>
 
+              {/* Interval ocupat */}
               {editForm.serviciuId && (() => {
                 const svc = rawServices.find((s) => s.id === editForm.serviciuId);
                 if (!svc?.duration) return null;
@@ -743,6 +729,7 @@ function CalendarContent() {
                 );
               })()}
 
+              {/* Telefon & Email */}
               <div className="grid grid-cols-2 gap-4">
                 <div className="bg-slate-50 p-5 rounded-[30px] border border-slate-100">
                   <p className="text-[8px] font-black text-slate-400 uppercase italic mb-1">Telefon</p>
@@ -756,6 +743,7 @@ function CalendarContent() {
                 </div>
               </div>
 
+              {/* Specialist & Serviciu */}
               <div className="grid grid-cols-2 gap-4">
                 <div className="bg-slate-900 p-5 rounded-[30px] shadow-xl">
                   <p className="text-[8px] font-black text-amber-500 uppercase italic mb-1">Specialist</p>
@@ -775,6 +763,7 @@ function CalendarContent() {
                 </div>
               </div>
 
+              {/* Documente */}
               <div className="bg-slate-50 p-6 rounded-[35px] border border-slate-100">
                 <p className="text-[8px] font-black text-slate-400 uppercase italic mb-3">Documente și Fișiere Atașate</p>
                 {editForm.documente.length > 0 ? (
@@ -796,26 +785,69 @@ function CalendarContent() {
                 )}
               </div>
 
+              {/* Notițe */}
               <div className="bg-slate-50 p-6 rounded-[35px] border border-slate-100">
                 <p className="text-[8px] font-black text-slate-400 uppercase italic mb-2">Notițe Suplimentare</p>
                 <textarea className="w-full bg-transparent text-xs font-bold italic text-slate-700 outline-none resize-none" rows={2}
                   value={editForm.motiv || ""} onChange={(e) => setEditForm({ ...editForm, motiv: e.target.value })} placeholder="Adaugă detalii..." />
               </div>
 
-              <div className="bg-green-50 border border-green-100 p-6 rounded-[35px] space-y-3">
+              {/* ─── WhatsApp — limitat la ELITE & TEAM ─────────────────────────── */}
+              <div className={`border p-6 rounded-[35px] space-y-3 transition-all duration-300 ${
+                hasWhatsAppAccess ? "bg-green-50 border-green-100" : "bg-slate-50 border-slate-200 opacity-60"
+              }`}>
+                {/* Header */}
                 <div className="flex justify-between items-center">
-                  <p className="text-[10px] font-black text-green-700 uppercase italic tracking-widest">💬 Mesaj WhatsApp</p>
-                  {userSubscription?.plan.includes("FREE") && (
-                    <span className="text-[7px] bg-green-200 text-green-800 px-2 py-0.5 rounded-full font-black uppercase">Elite Only</span>
+                  <p className={`text-[10px] font-black uppercase italic tracking-widest ${
+                    hasWhatsAppAccess ? "text-green-700" : "text-slate-400"
+                  }`}>
+                    💬 Mesaj WhatsApp
+                  </p>
+                  {!hasWhatsAppAccess && (
+                    <span className="text-[7px] bg-amber-100 text-amber-700 px-2 py-1 rounded-full font-black uppercase tracking-widest border border-amber-200">
+                      🔒 ELITE &amp; TEAM
+                    </span>
                   )}
                 </div>
-                <textarea className="w-full bg-white/50 rounded-2xl p-4 text-[11px] font-bold text-slate-700 outline-none italic border border-green-200" rows={2}
-                  value={customMessage} onChange={(e) => setCustomMessage(e.target.value)} />
-                <button onClick={sendWhatsAppReminder} className="w-full py-4 bg-green-600 text-white rounded-2xl text-[10px] font-black uppercase italic shadow-lg shadow-green-200 hover:bg-green-700 active:scale-95 transition-all">
-                  Trimite Notificare WhatsApp
-                </button>
-              </div>
 
+                {/* Textarea */}
+                <textarea
+                  className={`w-full rounded-2xl p-4 text-[11px] font-bold outline-none italic border resize-none transition-all ${
+                    hasWhatsAppAccess
+                      ? "bg-white/50 border-green-200 text-slate-700"
+                      : "bg-slate-100 border-slate-200 text-slate-400 cursor-not-allowed"
+                  }`}
+                  rows={2}
+                  value={hasWhatsAppAccess ? customMessage : "Disponibil doar în planurile ELITE și TEAM..."}
+                  onChange={(e) => { if (hasWhatsAppAccess) setCustomMessage(e.target.value); }}
+                  readOnly={!hasWhatsAppAccess}
+                />
+
+                {/* Buton sau placeholder lock */}
+                {hasWhatsAppAccess ? (
+                  <button
+                    onClick={sendWhatsAppReminder}
+                    className="w-full py-4 bg-green-600 text-white rounded-2xl text-[10px] font-black uppercase italic shadow-lg shadow-green-200 hover:bg-green-700 active:scale-95 transition-all"
+                  >
+                    Trimite Notificare WhatsApp
+                  </button>
+                ) : (
+                  <>
+                    <div className="w-full py-4 bg-slate-200 text-slate-400 rounded-2xl text-[10px] font-black uppercase italic text-center cursor-not-allowed select-none">
+                      🔒 Necesită Plan ELITE sau TEAM
+                    </div>
+                    <p className="text-center text-[8px] font-black text-slate-400 uppercase italic leading-relaxed">
+                      Upgrade la{" "}
+                      <span className="text-amber-600">ELITE</span>{" "}sau{" "}
+                      <span className="text-amber-600">TEAM</span>{" "}
+                      pentru a trimite notificări WhatsApp clienților tăi
+                    </p>
+                  </>
+                )}
+              </div>
+              {/* ─────────────────────────────────────────────────────────────────── */}
+
+              {/* Acțiuni finale */}
               <div className="flex flex-col gap-3 pt-4 border-t border-slate-100">
                 <div className="flex gap-4">
                   <button onClick={handleCloseModal} className="flex-1 py-5 bg-slate-100 text-slate-500 rounded-[25px] font-black uppercase text-[10px] italic hover:bg-slate-200 transition-all">Anulează</button>
@@ -828,6 +860,7 @@ function CalendarContent() {
         </div>
       )}
 
+      {/* Header principal */}
       <div className="w-full max-w-6xl flex flex-col items-center mb-6 px-6 py-6 mt-4 gap-6 bg-white rounded-[40px] shadow-sm border border-slate-100">
         <div className="w-full flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="flex items-center gap-4">
@@ -870,6 +903,7 @@ function CalendarContent() {
         </div>
       </div>
 
+      {/* Calendar principal */}
       <div className="w-full max-w-6xl bg-white rounded-[40px] shadow-2xl border border-slate-200 overflow-hidden mb-20">
         <div className="p-4 md:p-8 border-b border-slate-100 flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-4">
@@ -924,7 +958,6 @@ function CalendarContent() {
                         <span className="text-[10px] font-black uppercase italic rotate-45 border-2 border-red-500 text-red-600 px-2 rounded-lg">Închis</span>
                       </div>
                     )}
-                    {/* ✅ Indicator vizual pentru zi complet ocupată */}
                     {!blockStatus.blocked && fullyOccupied && list.length > 0 && (
                       <div className="absolute top-2 right-2 w-2 h-2 bg-red-400 rounded-full" title="Zi complet ocupată" />
                     )}

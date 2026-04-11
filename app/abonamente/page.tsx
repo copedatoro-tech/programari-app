@@ -12,10 +12,12 @@ const plans = [
     priceDisplay: "0",
     description: "Esențial pentru început de drum.",
     features: [
-      "📌 30 Programări / lună",
-      "📇 30 Clienți (Capacitate)",
-      "👤 1 Profesionist (Solo)",
-      "🔒 Securitate date"
+      { text: "📌 30 Programări / lună", available: true },
+      { text: "📇 30 Clienți (Capacitate)", available: true },
+      { text: "👤 1 Profesionist (Solo)", available: true },
+      { text: "📊 Raport INDISPONIBIL", available: false },
+      { text: "📵 Fără WhatsApp", available: false },
+      { text: "🔒 Securitate date", available: true }
     ],
     buttonText: "Alege Free",
     stripeLink: "#",
@@ -27,10 +29,12 @@ const plans = [
     priceDisplay: "49",
     description: "Pentru profesioniști în creștere.",
     features: [
-      "🚀 150 Programări / lună",
-      "👥 150 Clienți (Capacitate)",
-      "📊 Raport sumar activitate",
-      "📧 Suport e-mail dedicat"
+      { text: "🚀 150 Programări / lună", available: true },
+      { text: "👥 150 Clienți (Capacitate)", available: true },
+      { text: "👤 1 Profesionist (Solo)", available: true },
+      { text: "📊 Raport SUMAR activitate", available: true, highlight: "SUMAR" },
+      { text: "📵 Fără WhatsApp", available: false },
+      { text: "🔒 Securitate date", available: true }
     ],
     buttonText: "Alege Pro",
     stripeLink: "https://buy.stripe.com/8x2eV76Qg5EugHF8lG0RG04",
@@ -42,10 +46,12 @@ const plans = [
     priceDisplay: "99",
     description: "Puterea comunicării directe.",
     features: [
-      "✨ 500 Programări / lună",
-      "👥 500 Clienți (Capacitate)",
-      "📲 WhatsApp Direct",
-      "👨‍⚕️ 5 Profesioniști"
+      { text: "✨ 500 Programări / lună", available: true },
+      { text: "👥 500 Clienți (Capacitate)", available: true },
+      { text: "👨‍⚕️ 5 Profesioniști", available: true },
+      { text: "📈 Raport DETALIAT activitate", available: true, highlight: "DETALIAT" },
+      { text: "📲 WhatsApp Direct", available: true },
+      { text: "🔒 Securitate date", available: true }
     ],
     buttonText: "Alege Elite",
     stripeLink: "https://buy.stripe.com/28EaER6Qgff4bnl59u0RG02",
@@ -57,10 +63,12 @@ const plans = [
     priceDisplay: "199",
     description: "Control total pentru clinici.",
     features: [
-      "💎 Programări Nelimitate",
-      "♾️ Clienți Nelimitați",
-      "📊 Analiză avansată echipă",
-      "👥 Până la 50 membri"
+      { text: "💎 Programări Nelimitate", available: true },
+      { text: "♾️ Clienți Nelimitați", available: true },
+      { text: "👥 Până la 50 membri", available: true },
+      { text: "📊 Raport DETALIAT + ANALIZĂ ECHIPĂ", available: true, highlight: "DETALIAT + ANALIZĂ ECHIPĂ" },
+      { text: "📲 WhatsApp Direct", available: true },
+      { text: "🔒 Securitate date", available: true }
     ],
     buttonText: "Alege Team",
     stripeLink: "https://buy.stripe.com/8x2eV76QgaYO9fdeK40RG06",
@@ -68,7 +76,7 @@ const plans = [
   }
 ];
 
-// Modal elegant de schimbare plan (înlocuiește window.alert)
+// Modal elegant de schimbare plan
 function ElegantModal({ title, message, onConfirm, onCancel }: {
   title: string;
   message: string;
@@ -144,7 +152,6 @@ export default function AbonamentePage() {
 
         if (profile) {
           setTrialUsed(profile.trial_used || false);
-          // Normalizăm planul din DB
           const rawPlan = (profile.plan_type || "CHRONOS FREE").toUpperCase().trim();
           let dbPlan = "CHRONOS FREE";
           if (rawPlan.includes("TEAM")) dbPlan = "CHRONOS TEAM";
@@ -262,14 +269,12 @@ export default function AbonamentePage() {
           </p>
         </div>
 
-        {/* Banner Status — afișează planul activ în loc de "Start Gratuit" */}
         {user && (
           <div className="mb-10 max-w-4xl mx-auto bg-white border border-slate-200 rounded-[30px] p-6 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.4)] flex flex-col md:flex-row items-center justify-between gap-4 transition-all hover:shadow-[0_25px_50px_-12px_rgba(0,0,0,0.5)]">
             <div>
               <p className="text-[9px] font-black uppercase tracking-widest text-amber-500 mb-1">
                 {isTrialActive ? "Acces Temporar Activ" : "Abonament Activ"}
               </p>
-              {/* SCHIMBARE: afișăm numele planului activ, nu "Start Gratuit" */}
               <h2 className="text-xl font-black italic uppercase text-slate-900">
                 {isTrialActive ? "CHRONOS TEAM (PERIOADĂ PROBĂ)" : currentPlan}
               </h2>
@@ -339,14 +344,26 @@ export default function AbonamentePage() {
                 </div>
 
                 <div className="space-y-3 flex-1 mb-10">
-                  {plan.features.map((feature, i) => (
-                    <div key={i} className="flex items-center gap-2.5">
-                      <div className="flex-shrink-0 w-4 h-4 rounded-full bg-amber-50 flex items-center justify-center">
-                        <span className="text-amber-600 text-[9px] font-black">✓</span>
+                  {plan.features.map((feature, i) => {
+                    const parts = feature.highlight 
+                      ? feature.text.split(new RegExp(`(${feature.highlight})`, 'g'))
+                      : [feature.text];
+
+                    return (
+                      <div key={i} className="flex items-center gap-2.5">
+                        <div className={`flex-shrink-0 w-4 h-4 rounded-full flex items-center justify-center ${feature.available ? "bg-amber-50" : "bg-red-50"}`}>
+                          <span className={`${feature.available ? "text-amber-600" : "text-red-500"} text-[9px] font-black`}>
+                            {feature.available ? "✓" : "✕"}
+                          </span>
+                        </div>
+                        <span className={`text-[10px] font-bold uppercase italic tracking-tight ${feature.available ? "text-slate-600" : "text-slate-300"}`}>
+                          {parts.map((part, idx) => 
+                            part === feature.highlight ? <strong key={idx} className="text-slate-900 underline decoration-amber-500/50">{part}</strong> : part
+                          )}
+                        </span>
                       </div>
-                      <span className="text-[10px] font-bold text-slate-600 uppercase italic tracking-tight">{feature}</span>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
 
                 <button

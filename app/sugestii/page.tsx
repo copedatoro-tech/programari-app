@@ -65,33 +65,40 @@ export default function PareriClienti() {
         .eq("id", adminIdToUse)
         .single();
 
-      setUserPlan(profile?.plan_type || "START (GRATUIT)");
+      const currentPlan = profile?.plan_type || "START (GRATUIT)";
+      setUserPlan(currentPlan);
       setLoadingPlan(false);
       setIsLoggedIn(true);
       setCurrentAdminId(adminIdToUse);
-      preiaFeedback(adminIdToUse);
-
-      if (channelRef.current) {
-        supabase.removeChannel(channelRef.current);
-      }
-
-      const channel = supabase
-        .channel(`feedbacks-admin-${adminIdToUse}`)
-        .on(
-          "postgres_changes",
-          {
-            event: "*",
-            schema: "public",
-            table: "feedbacks",
-            filter: `admin_id=eq.${adminIdToUse}`,
-          },
-          () => {
-            preiaFeedback(adminIdToUse!);
-          }
-        );
       
-      channelRef.current = channel;
-      channel.subscribe();
+      // Accesul la datele de feedback este permis DOAR pentru ELITE și TEAM
+      const areAcces = currentPlan === "CHRONOS ELITE" || currentPlan === "CHRONOS TEAM";
+
+      if (areAcces) {
+        preiaFeedback(adminIdToUse);
+
+        if (channelRef.current) {
+          supabase.removeChannel(channelRef.current);
+        }
+
+        const channel = supabase
+          .channel(`feedbacks-admin-${adminIdToUse}`)
+          .on(
+            "postgres_changes",
+            {
+              event: "*",
+              schema: "public",
+              table: "feedbacks",
+              filter: `admin_id=eq.${adminIdToUse}`,
+            },
+            () => {
+              preiaFeedback(adminIdToUse!);
+            }
+          );
+        
+        channelRef.current = channel;
+        channel.subscribe();
+      }
     };
 
     initApp();
@@ -229,23 +236,25 @@ export default function PareriClienti() {
     );
   }
 
-  // LIMITARE: Dacă planul este cel gratuit (din DB-ul tău: START (GRATUIT))
-  if (userPlan === "START (GRATUIT)") {
+  // LIMITARE: Acces doar pentru ELITE și TEAM. (START și PRO sunt blocate)
+  const isPlanRestricted = userPlan === "START (GRATUIT)" || userPlan === "CHRONOS PRO";
+
+  if (isPlanRestricted) {
     return (
       <main className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
         <div className="max-w-md w-full bg-white p-10 rounded-[50px] shadow-2xl border border-slate-100 text-center">
           <div className="w-20 h-20 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center text-4xl mb-6 mx-auto">
             🔒
           </div>
-          <h2 className="text-2xl font-black uppercase italic mb-4">Funcție Pro</h2>
+          <h2 className="text-2xl font-black uppercase italic mb-4">Funcție Premium</h2>
           <p className="text-slate-500 font-bold italic text-sm mb-8 leading-relaxed">
-            Gestionarea recenziilor și feedback-ul clienților sunt disponibile doar pentru planurile <span className="text-amber-600 font-black">CHRONOS PRO, ELITE și TEAM</span>.
+            Gestionarea recenziilor este o funcție avansată corelată cu pagina de rezervări online, disponibilă doar pentru planurile <span className="text-amber-600 font-black">CHRONOS ELITE și TEAM</span>.
           </p>
           <Link
             href="/abonamente"
             className="block w-full py-6 rounded-[25px] bg-slate-900 text-white font-black uppercase italic text-[11px] border-b-8 border-slate-700 hover:bg-amber-500 hover:text-black transition-all"
           >
-            Actualizează Abonamentul
+            Actualizează la ELITE
           </Link>
         </div>
       </main>

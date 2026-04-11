@@ -32,21 +32,23 @@ export default function AdminSettingsHub() {
   const [daysWithBookings, setDaysWithBookings] = useState<string[]>([]);
   const [isDirty, setIsDirty] = useState(false);
 
-  // State-uri noi pentru fluxul de confirmare
   const [showConfirmPopup, setShowConfirmPopup] = useState(false);
   const [isApplying, setIsApplying] = useState(false);
   const [showSuccessTick, setShowSuccessTick] = useState(false);
-
   const [selectedWeekdays, setSelectedWeekdays] = useState<number[]>([]);
 
   const modalRef = useRef<HTMLDivElement>(null);
   const confirmPopupRef = useRef<HTMLDivElement>(null);
   const qrRef = useRef<HTMLDivElement>(null);
 
+  // Helper pentru permisiuni
+  const isEliteOrTeam = useMemo(() => {
+    return userPlan.includes("ELITE") || userPlan.includes("TEAM");
+  }, [userPlan]);
+
   useEffect(() => {
     if (typeof window !== "undefined") setBaseUrl(window.location.origin);
 
-    // Închidere pop-up la click în exterior conform regulii salvate
     const handleClickOutside = (event: MouseEvent) => {
       if (modalRef.current && !modalRef.current.contains(event.target as Node)) {
         setShowDayModal(false);
@@ -93,10 +95,6 @@ export default function AdminSettingsHub() {
         .eq('id', currentUid)
         .maybeSingle();
 
-      if (profileError) {
-        console.error("Eroare profil:", profileError.message);
-      }
-
       if (profile) {
         setUserPlan(profile.plan_type?.toUpperCase() || "CHRONOS FREE");
         setBookingInterval(profile.booking_interval || 60);
@@ -123,6 +121,7 @@ export default function AdminSettingsHub() {
 
     if (!error) {
       setIsDirty(false);
+      showToast({ message: "Configurările au fost salvate!", type: "success", title: "Succes" });
     } else {
       await showToast({ message: error.message, type: "error", title: "Eroare la salvare" });
     }
@@ -180,17 +179,13 @@ export default function AdminSettingsHub() {
 
   const applyToSelectedWeekdays = async () => {
     if (!selectedDate || selectedWeekdays.length === 0) return;
-
     setIsApplying(true);
-
     const currentBlocks = manualBlocks[selectedDate] ? [...manualBlocks[selectedDate]] : [];
-
     startTransition(() => {
       const newBlocks = { ...manualBlocks };
       const startDate = new Date(selectedDate);
       const currentYear = startDate.getFullYear();
       const date = new Date(startDate);
-
       while (date.getFullYear() === currentYear) {
         if (selectedWeekdays.includes(date.getDay())) {
           const y = date.getFullYear();
@@ -200,10 +195,8 @@ export default function AdminSettingsHub() {
         }
         date.setDate(date.getDate() + 1);
       }
-
       setManualBlocks(newBlocks);
       setIsDirty(true);
-
       saveSettings(newBlocks).then(() => {
         setIsApplying(false);
         setShowSuccessTick(true);
@@ -274,6 +267,7 @@ export default function AdminSettingsHub() {
   const bookingUrl = `${baseUrl}/rezervare/${slug}`;
 
   const handlePrintQR = () => {
+    if (!isEliteOrTeam) return;
     const printWindow = window.open('', '_blank');
     if (!printWindow) return;
     const qrSvg = qrRef.current?.innerHTML;
@@ -298,11 +292,13 @@ export default function AdminSettingsHub() {
   };
 
   const handleWhatsAppShare = () => {
+    if (!isEliteOrTeam) return;
     const message = encodeURIComponent(`Salut! Poți face o programare direct aici: ${bookingUrl}`);
     window.open(`https://wa.me/?text=${message}`, '_blank');
   };
 
   const handleCopyLink = async () => {
+    if (!isEliteOrTeam) return;
     try {
       await navigator.clipboard.writeText(bookingUrl);
       await showToast({ message: "Link-ul a fost copiat!", type: "success", title: "Copiat!" });
@@ -347,30 +343,46 @@ export default function AdminSettingsHub() {
           </div>
         </header>
 
-        <section className="bg-slate-900 rounded-[30px] p-6 mb-4 flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl relative overflow-hidden">
-          <div className="flex-1 w-full md:w-auto relative z-10">
-            <h2 className="text-amber-500 font-black italic uppercase tracking-widest text-[8px] mb-2">Link-ul tău Chronos</h2>
-            <div className="bg-white/5 border border-white/10 rounded-xl px-5 py-6 flex items-center overflow-hidden">
-              <span className="text-white/40 font-mono text-sm mr-1 truncate">{baseUrl}/rezervare/</span>
-              <span className="text-amber-500 font-black font-mono text-base md:text-lg truncate">{slug || "nesetat"}</span>
+        {/* SECTIUNE LINK SI QR - PROTEJATA */}
+        <section className="relative bg-slate-900 rounded-[30px] p-6 mb-4 shadow-xl overflow-hidden">
+          {!isEliteOrTeam && (
+             <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-slate-900/60 backdrop-blur-md p-6 text-center">
+                <div className="bg-amber-500 text-black px-4 py-1 rounded-full font-black text-[10px] uppercase mb-2">Funcție Premium</div>
+                <h3 className="text-white font-black uppercase italic text-lg tracking-tighter">Rezervări Online & Cod QR</h3>
+                <p className="text-white/60 text-[10px] font-bold uppercase max-w-md mt-1">
+                  Activează planul <span className="text-amber-500">ELITE</span> sau <span className="text-amber-500">TEAM</span> pentru a primi link-ul tău personalizat și codul QR pentru clienți.
+                </p>
+                <Link href="/upgrade" className="mt-4 px-6 py-2 bg-white text-slate-900 rounded-lg font-black uppercase text-[9px] italic hover:bg-amber-500 transition-all">
+                  Vezi Planuri de Upgrade
+                </Link>
+             </div>
+          )}
+          
+          <div className={`flex flex-col md:flex-row items-center justify-between gap-6 transition-all ${!isEliteOrTeam ? 'blur-sm grayscale opacity-30 pointer-events-none' : ''}`}>
+            <div className="flex-1 w-full md:w-auto">
+              <h2 className="text-amber-500 font-black italic uppercase tracking-widest text-[8px] mb-2">Link-ul tău Chronos</h2>
+              <div className="bg-white/5 border border-white/10 rounded-xl px-5 py-6 flex items-center overflow-hidden">
+                <span className="text-white/40 font-mono text-sm mr-1 truncate">{baseUrl}/rezervare/</span>
+                <span className="text-amber-500 font-black font-mono text-base md:text-lg truncate">{slug || "nesetat"}</span>
+              </div>
             </div>
-          </div>
-          <div className="flex items-center gap-2 relative z-10">
-            <div className="flex flex-col gap-2 h-[120px]">
-              <button type="button" onClick={handleCopyLink} disabled={!slug} title="Copiază link-ul de rezervare" className="flex-1 bg-white text-black px-6 rounded-xl font-black uppercase text-[9px] italic hover:bg-amber-500 transition-all shadow-md disabled:opacity-50">Copiază</button>
-              <button type="button" onClick={handleWhatsAppShare} disabled={!slug} title="Trimite link-ul pe WhatsApp" className="flex-1 bg-[#25D366] text-white px-6 rounded-xl font-black uppercase text-[9px] italic hover:scale-105 transition-all shadow-md disabled:opacity-50">WhatsApp</button>
+            <div className="flex items-center gap-2">
+              <div className="flex flex-col gap-2 h-[120px]">
+                <button type="button" onClick={handleCopyLink} disabled={!slug} className="flex-1 bg-white text-black px-6 rounded-xl font-black uppercase text-[9px] italic hover:bg-amber-500 transition-all shadow-md">Copiază</button>
+                <button type="button" onClick={handleWhatsAppShare} disabled={!slug} className="flex-1 bg-[#25D366] text-white px-6 rounded-xl font-black uppercase text-[9px] italic hover:scale-105 transition-all shadow-md">WhatsApp</button>
+              </div>
+              <div className="bg-white p-2.5 rounded-xl flex items-center justify-center h-[120px] w-[120px] shadow-lg" ref={qrRef}>
+                <QRCodeSVG value={slug ? bookingUrl : "https://chronos.ro"} size={100} level="H" includeMargin={false} />
+              </div>
+              <button type="button" onClick={handlePrintQR} disabled={!slug} className="bg-amber-500 text-black h-[120px] px-3 rounded-xl font-black uppercase text-[9px] italic hover:bg-white transition-all shadow-md flex flex-col items-center justify-center gap-2">
+                <span className="[writing-mode:vertical-lr] rotate-180">🖨️ PRINTARE</span>
+              </button>
             </div>
-            <div className="bg-white p-2.5 rounded-xl flex items-center justify-center h-[120px] w-[120px] shadow-lg" ref={qrRef}>
-              <QRCodeSVG value={slug ? bookingUrl : "https://chronos.ro"} size={100} level="H" includeMargin={false} />
-            </div>
-            <button type="button" onClick={handlePrintQR} disabled={!slug} title="Printează codul QR pentru clienți" className="bg-amber-500 text-black h-[120px] px-3 rounded-xl font-black uppercase text-[9px] italic hover:bg-white transition-all shadow-md flex flex-col items-center justify-center gap-2 disabled:opacity-50">
-              <span className="[writing-mode:vertical-lr] rotate-180">🖨️ PRINTARE</span>
-            </button>
           </div>
         </section>
 
-        {!slug && (
-          <div className="mb-8 p-6 bg-red-50 border-2 border-red-200 rounded-[25px] flex flex-col md:flex-row items-center justify-between gap-4 relative z-0">
+        {isEliteOrTeam && !slug && (
+          <div className="mb-8 p-6 bg-red-50 border-2 border-red-200 rounded-[25px] flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-4">
               <span className="text-3xl">⚠️</span>
               <div>
@@ -381,6 +393,7 @@ export default function AdminSettingsHub() {
           </div>
         )}
 
+        {/* CALENDAR - DISPONIBIL TUTUROR */}
         <div className="bg-white p-5 md:p-8 rounded-[40px] shadow-2xl border border-slate-100 mb-10">
           <div className="flex flex-col md:flex-row items-center justify-between mb-6 gap-4">
             <div>
@@ -389,8 +402,8 @@ export default function AdminSettingsHub() {
               </h2>
             </div>
             <div className="flex gap-2">
-              <button type="button" title="Luna precedentă" onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1))} className="w-10 h-10 flex items-center justify-center bg-slate-50 border-2 border-slate-100 rounded-lg">←</button>
-              <button type="button" title="Luna următoare" onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1))} className="w-10 h-10 flex items-center justify-center bg-slate-50 border-2 border-slate-100 rounded-lg">→</button>
+              <button type="button" onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1))} className="w-10 h-10 flex items-center justify-center bg-slate-50 border-2 border-slate-100 rounded-lg">←</button>
+              <button type="button" onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1))} className="w-10 h-10 flex items-center justify-center bg-slate-50 border-2 border-slate-100 rounded-lg">→</button>
             </div>
           </div>
           <div className="grid grid-cols-7 gap-2 md:gap-3">
@@ -404,9 +417,9 @@ export default function AdminSettingsHub() {
         </div>
       </div>
 
+      {/* MODAL MANAGEMENT ZI */}
       {showDayModal && selectedDate && (
         <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md">
-          {/* Ajustat max-h la 75vh pentru a face scroll-ul mai evident */}
           <div ref={modalRef} className="bg-white w-full max-w-6xl rounded-[45px] p-6 md:p-10 relative shadow-2xl border-t-[10px] border-amber-500 overflow-y-auto max-h-[75vh] custom-scrollbar">
             <div className="flex flex-col md:flex-row justify-between items-start gap-4 mb-8">
               <div>
@@ -419,24 +432,13 @@ export default function AdminSettingsHub() {
                 </h3>
               </div>
               <div className="flex items-center gap-2">
-                  <button 
-                    type="button"
-                    title="Blochează sau deblochează întreaga zi dintr-un singur click"
-                    onClick={toggleAllDay} 
-                    className={`h-[50px] px-6 rounded-xl font-black text-[9px] uppercase italic transition-all border-2 ${isDayFullyBlocked ? 'bg-green-500 border-green-500 text-white' : 'bg-slate-100 border-slate-100 text-slate-900'}`}>
+                  <button type="button" onClick={toggleAllDay} className={`h-[50px] px-6 rounded-xl font-black text-[9px] uppercase italic transition-all border-2 ${isDayFullyBlocked ? 'bg-green-500 border-green-500 text-white' : 'bg-slate-100 border-slate-100 text-slate-900'}`}>
                     {isDayFullyBlocked ? '✅ Deblochează tot' : '🚫 Blochează tot'}
                   </button>
-                  
-                  <button 
-                    type="button"
-                    title="Copiază programul de azi în alte zile ale săptămânii"
-                    onClick={() => setShowConfirmPopup(true)} 
-                    className="h-[50px] px-6 bg-amber-500 text-black rounded-xl font-black text-[9px] uppercase italic shadow-lg hover:scale-105 transition-all"
-                  >
+                  <button type="button" onClick={() => setShowConfirmPopup(true)} className="h-[50px] px-6 bg-amber-500 text-black rounded-xl font-black text-[9px] uppercase italic shadow-lg hover:scale-105 transition-all">
                     📋 Setează program predefinit
                   </button>
-
-                  <button type="button" title="Închide fereastra" onClick={handleCloseAndSave} className="w-12 h-[50px] flex items-center justify-center bg-slate-900 text-white rounded-xl font-black hover:bg-red-500 transition-colors shadow-lg">✕</button>
+                  <button type="button" onClick={handleCloseAndSave} className="w-12 h-[50px] flex items-center justify-center bg-slate-900 text-white rounded-xl font-black hover:bg-red-500 transition-colors shadow-lg">✕</button>
               </div>
             </div>
 
@@ -445,7 +447,7 @@ export default function AdminSettingsHub() {
                 <p className="text-[8px] font-black uppercase text-slate-400 mb-3 italic tracking-widest">Pas Rezervare</p>
                 <div className="grid grid-cols-1 gap-2">
                   {[60, 30, 15].map(v => (
-                    <button type="button" key={v} title={`Schimbă durata unei sesiuni la ${v} minute`} onClick={() => { setBookingInterval(v); setIsDirty(true); }} className={`py-4 rounded-xl font-black text-[10px] border-2 transition-all ${bookingInterval === v ? 'border-amber-500 bg-amber-500 text-black' : 'border-slate-100 text-slate-400'}`}>
+                    <button type="button" key={v} onClick={() => { setBookingInterval(v); setIsDirty(true); }} className={`py-4 rounded-xl font-black text-[10px] border-2 transition-all ${bookingInterval === v ? 'border-amber-500 bg-amber-500 text-black' : 'border-slate-100 text-slate-400'}`}>
                       {v === 60 ? "1 ORĂ (Fixo)" : `${v} MINUTE`}
                     </button>
                   ))}
@@ -455,7 +457,7 @@ export default function AdminSettingsHub() {
               <div className="lg:col-span-9">
                 <div className="max-h-[400px] overflow-y-auto pr-2 grid grid-cols-2 sm:grid-cols-4 gap-2 custom-scrollbar">
                   {dynamicTimeSlots.map(slot => (
-                    <button type="button" key={slot} title={existingBookings.includes(slot) ? "Slot ocupat de o programare existentă" : `Click pentru a ${manualBlocks[selectedDate]?.includes(slot) ? 'debloca' : 'bloca'} ora ${slot}`} onClick={() => toggleHourBlock(slot)} className={`py-5 rounded-xl font-black text-[12px] border-2 transition-all italic ${existingBookings.includes(slot) ? 'bg-amber-50 border-amber-200 text-amber-600 cursor-not-allowed' : (manualBlocks[selectedDate] || []).includes(slot) ? 'bg-slate-900 text-white border-slate-900 shadow-xl' : 'bg-white border-slate-100 text-slate-900'}`}>
+                    <button type="button" key={slot} onClick={() => toggleHourBlock(slot)} className={`py-5 rounded-xl font-black text-[12px] border-2 transition-all italic ${existingBookings.includes(slot) ? 'bg-amber-50 border-amber-200 text-amber-600 cursor-not-allowed' : (manualBlocks[selectedDate] || []).includes(slot) ? 'bg-slate-900 text-white border-slate-900 shadow-xl' : 'bg-white border-slate-100 text-slate-900'}`}>
                       {slot}
                     </button>
                   ))}
@@ -464,7 +466,7 @@ export default function AdminSettingsHub() {
             </div>
 
             <div className="mt-8 text-center border-t border-slate-100 pt-6">
-              <button type="button" title="Salvează și confirmă programul pentru această zi" onClick={handleCloseAndSave} className="px-16 py-5 bg-amber-500 text-black rounded-[25px] font-black text-[11px] uppercase italic tracking-widest shadow-xl hover:scale-105 transition-all">
+              <button type="button" onClick={handleCloseAndSave} className="px-16 py-5 bg-amber-500 text-black rounded-[25px] font-black text-[11px] uppercase italic tracking-widest shadow-xl hover:scale-105 transition-all">
                 Confirmă Disponibilitatea
               </button>
             </div>
@@ -472,10 +474,10 @@ export default function AdminSettingsHub() {
         </div>
       )}
 
+      {/* POPUP REPLICARE ZILE */}
       {showConfirmPopup && (
         <div className="fixed inset-0 z-[300] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
           <div ref={confirmPopupRef} className="bg-white w-full max-w-md rounded-[35px] p-8 shadow-2xl border-b-[8px] border-amber-500 text-center relative overflow-hidden">
-            
             {showSuccessTick ? (
               <div className="py-6 animate-in zoom-in duration-300">
                 <div className="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg shadow-green-200">
@@ -488,40 +490,18 @@ export default function AdminSettingsHub() {
               <>
                 <h3 className="text-2xl font-black uppercase italic text-slate-900 tracking-tighter mb-2">Aplică Programul</h3>
                 <p className="text-[10px] font-bold text-slate-400 uppercase italic mb-6">Alege zilele în care vrei să replici programul de azi:</p>
-                
                 <div className="flex justify-center gap-2 mb-8">
                   {[1, 2, 3, 4, 5, 6, 0].map(d => (
-                    <button type="button" key={d} 
-                      title={`Selectează ${["Duminică", "Luni", "Marți", "Miercuri", "Joi", "Vineri", "Sâmbătă"][d]}`}
-                      onClick={() => toggleWeekdaySelection(d)}
-                      className={`w-10 h-10 rounded-full font-black text-[10px] transition-all border-2 flex items-center justify-center ${
-                        selectedWeekdays.includes(d)
-                          ? 'bg-amber-500 border-amber-500 text-black shadow-md'
-                          : 'bg-white border-slate-200 text-slate-400 hover:border-amber-500'
-                      }`}>
+                    <button type="button" key={d} onClick={() => toggleWeekdaySelection(d)} className={`w-10 h-10 rounded-full font-black text-[10px] transition-all border-2 flex items-center justify-center ${selectedWeekdays.includes(d) ? 'bg-amber-500 border-amber-500 text-black shadow-md' : 'bg-white border-slate-200 text-slate-400 hover:border-amber-500'}`}>
                       {["D", "L", "M", "M", "J", "V", "S"][d]}
                     </button>
                   ))}
                 </div>
-
                 <div className="flex flex-col gap-3">
-                  <button 
-                    type="button"
-                    title="Pornește procesul de replicare a programului"
-                    disabled={isApplying || selectedWeekdays.length === 0}
-                    onClick={applyToSelectedWeekdays}
-                    className={`w-full py-5 rounded-2xl font-black text-[11px] uppercase italic tracking-widest transition-all ${
-                      isApplying ? 'bg-slate-100 text-slate-400' : 'bg-slate-900 text-white hover:bg-amber-500 hover:text-black shadow-xl'
-                    }`}
-                  >
+                  <button type="button" disabled={isApplying || selectedWeekdays.length === 0} onClick={applyToSelectedWeekdays} className={`w-full py-5 rounded-2xl font-black text-[11px] uppercase italic tracking-widest transition-all ${isApplying ? 'bg-slate-100 text-slate-400' : 'bg-slate-900 text-white hover:bg-amber-500 hover:text-black shadow-xl'}`}>
                     {isApplying ? "Se aplică..." : "Aplică Acum 🚀"}
                   </button>
-                  <button 
-                    type="button"
-                    title="Renunță și închide fereastra"
-                    onClick={() => setShowConfirmPopup(false)}
-                    className="w-full py-4 text-slate-400 font-black text-[9px] uppercase italic hover:text-red-500"
-                  >
+                  <button type="button" onClick={() => setShowConfirmPopup(false)} className="w-full py-4 text-slate-400 font-black text-[9px] uppercase italic hover:text-red-500">
                     Anulează
                   </button>
                 </div>
