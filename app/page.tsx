@@ -66,7 +66,7 @@ export default function LandingPage() {
         <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
           <Link 
             href="/login" 
-            className="bg-white px-6 py-2.5 rounded-2xl shadow-sm border border-slate-200 text-[10px] font-black uppercase italic text-slate-600 hover:bg-slate-900 hover:text-white transition-all active:scale-95 block"
+            className="bg-slate-900 px-6 py-2.5 rounded-2xl shadow-lg text-[10px] font-black uppercase italic text-white hover:bg-amber-600 transition-all active:scale-95 block tracking-widest"
           >
             Intră în cont
           </Link>
@@ -74,13 +74,13 @@ export default function LandingPage() {
       </nav>
 
       {/* --- HERO SECTION --- */}
-      <section className="px-6 pt-12 pb-24 max-w-7xl mx-auto flex flex-col lg:flex-row items-center gap-16">
+      <section className="px-6 pt-12 pb-24 max-w-7xl mx-auto flex flex-col lg:flex-row items-center gap-20">
         <div className="flex-1 text-center lg:text-left">
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="inline-block px-4 py-1.5 mb-8 rounded-full bg-slate-900 text-[9px] font-black uppercase italic text-white tracking-[0.2em]"
+            className="inline-block px-4 py-1.5 mb-10 rounded-full bg-slate-900 text-[9px] font-black uppercase italic text-white tracking-[0.2em]"
           >
             🚀 Gestiune Digitală Premium
           </motion.div>
@@ -89,17 +89,17 @@ export default function LandingPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
-            className="text-5xl md:text-7xl lg:text-8xl font-black italic uppercase tracking-tighter leading-[0.85] mb-8"
+            className="text-5xl md:text-7xl lg:text-8xl font-black italic uppercase tracking-tighter leading-tight mb-10"
           >
             ADIO HAOS ÎN <br />
-            <span className="text-amber-600 block mt-2">PROGRAMĂRI</span>
+            <span className="text-amber-600 block mt-4">PROGRAMĂRI</span>
           </motion.h1>
           
           <motion.p 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
-            className="max-w-xl mx-auto lg:mx-0 text-slate-400 text-xs md:text-sm font-black uppercase italic tracking-wide mb-12 leading-relaxed"
+            className="max-w-xl mx-auto lg:mx-0 text-slate-400 text-xs md:text-sm font-black uppercase italic tracking-wide mb-14 leading-relaxed"
           >
             Uită de agendele pierdute. Gestionează-ți afacerea de pe telefon 
             cu cel mai rapid sistem de programări din România.
@@ -140,13 +140,11 @@ export default function LandingPage() {
           animate={{ opacity: 1, scale: 1, rotate: 0 }}
           transition={{ duration: 0.8, ease: "easeOut" }}
         >
-          {/* Floating Effect Wrapper */}
           <motion.div
             animate={{ y: [0, -20, 0] }}
             transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
             className="relative bg-white rounded-[50px] p-8 md:p-10 shadow-2xl border border-white"
           >
-            {/* Header Widget */}
             <div className="flex items-center justify-between mb-8">
               <div>
                 <h4 className="font-black italic uppercase text-lg leading-none">REZERVARE NOUĂ</h4>
@@ -163,7 +161,6 @@ export default function LandingPage() {
               </motion.div>
             </div>
 
-            {/* Form Fields Dummy */}
             <div className="space-y-4">
               <motion.div whileHover={{ x: 5 }} className="flex flex-col gap-1.5">
                 <label className="text-[9px] font-black uppercase ml-4 text-slate-400 italic tracking-widest">Nume Client</label>
@@ -208,7 +205,6 @@ export default function LandingPage() {
               </div>
             </div>
 
-            {/* Badge floating */}
             <motion.div 
               animate={{ rotate: [6, 10, 6], scale: [1, 1.05, 1] }}
               transition={{ duration: 3, repeat: Infinity }}
@@ -260,8 +256,8 @@ export default function LandingPage() {
           &copy; 2026 - Eficiență Absolută • Creat pentru Profesioniști
         </p>
         <div className="flex gap-6">
-          <Link href="/terms" className="text-[9px] font-black text-slate-400 uppercase italic hover:text-amber-600">Termeni</Link>
-          <Link href="/privacy" className="text-[9px] font-black text-slate-400 uppercase italic hover:text-amber-600">Confidențialitate</Link>
+          <Link href="/terms" className="text-[9px] font-black text-slate-400 uppercase italic hover:text-amber-600 transition-colors">Termeni</Link>
+          <Link href="/privacy" className="text-[9px] font-black text-slate-400 uppercase italic hover:text-amber-600 transition-colors">Confidențialitate</Link>
         </div>
       </footer>
     </div>
