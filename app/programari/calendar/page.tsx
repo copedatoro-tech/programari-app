@@ -49,6 +49,12 @@ function addMinutesToTime(timeStr: string, minutes: number): string {
   return `${newH.toString().padStart(2, "0")}:${newM.toString().padStart(2, "0")}`;
 }
 
+function timeToMinutes(t: string): number {
+  if (!t || !t.includes(":")) return 0;
+  const [h, m] = t.split(":").map(Number);
+  return h * 60 + (m || 0);
+}
+
 const dayNamesShort = ["Lun", "Mar", "Mie", "Joi", "Vin", "Sâm", "Dum"];
 const dayNamesLong = ["Duminică", "Luni", "Marți", "Miercuri", "Joi", "Vineri", "Sâmbătă"];
 const monthNames = ["Ianuarie","Februarie","Martie","Aprilie","Mai","Iunie","Iulie","August","Septembrie","Octombrie","Noiembrie","Decembrie"];
@@ -81,7 +87,6 @@ function normalizeDocuments(raw: any): DocumentAttachment[] {
 function mapRow(item: any): Programare {
   const rawDate: string = item.date ?? "";
   const dataStr = rawDate.includes("T") ? rawDate.split("T")[0] : rawDate;
-
   return {
     id: item.id,
     nume: item.title || item.prenume || item.nume || "Client",
@@ -311,12 +316,16 @@ function CalendarContent() {
 
   const userId = session?.user?.id;
 
-  const { data: profile } = useQuery({
+  const { data: profile, refetch: refetchProfile } = useQuery({
     queryKey: ["profile", userId],
     enabled: !!userId,
     staleTime: 1000 * 60 * 10,
     queryFn: async () => {
-      const { data } = await supabase.from("profiles").select("plan_type, trial_started_at, manual_blocks, working_hours").eq("id", userId!).single();
+      const { data } = await supabase
+        .from("profiles")
+        .select("plan_type, trial_started_at, manual_blocks, working_hours")
+        .eq("id", userId!)
+        .single();
       return data;
     },
   });
@@ -349,7 +358,7 @@ function CalendarContent() {
     return { start, end };
   }, [selectedDate.getFullYear(), selectedDate.getMonth()]);
 
-  const { data: programari = [], isLoading: loadingAppts } = useQuery<Programare[]>({
+  const { data: programari = [], isLoading: loadingAppts, refetch: refetchAppts } = useQuery<Programare[]>({
     queryKey: ["appointments", userId, dateRange.start, dateRange.end],
     enabled: !!userId,
     queryFn: async () => {
@@ -360,14 +369,40 @@ function CalendarContent() {
         .gte("date", dateRange.start)
         .lte("date", dateRange.end)
         .order("date", { ascending: true });
-
-      if (error) {
-        console.error("[Calendar] Eroare fetch appointments:", error);
-        return [];
-      }
+      if (error) { console.error("[Calendar] Eroare fetch appointments:", error); return []; }
       return (data ?? []).map(mapRow);
     },
   });
+
+  // ✅ REALTIME: Subscripții pentru sincronizare imediată
+  useEffect(() => {
+    if (!userId) return;
+
+    const profileChannel = supabase
+      .channel(`calendar-profile-${userId}`)
+      .on("postgres_changes",
+        { event: "UPDATE", schema: "public", table: "profiles", filter: `id=eq.${userId}` },
+        () => {
+          // Când settings-ul modifică working_hours sau manual_blocks → refetch imediat
+          refetchProfile();
+        })
+      .subscribe();
+
+    const appointmentsChannel = supabase
+      .channel(`calendar-appointments-${userId}`)
+      .on("postgres_changes",
+        { event: "*", schema: "public", table: "appointments", filter: `user_id=eq.${userId}` },
+        () => {
+          // Când o programare nouă vine din pagina de rezervare clienți → refetch
+          refetchAppts();
+        })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(profileChannel);
+      supabase.removeChannel(appointmentsChannel);
+    };
+  }, [userId, refetchProfile, refetchAppts]);
 
   const { userSubscription, manualBlocks, workingHours } = useMemo(() => {
     if (!profile) return { userSubscription: null, manualBlocks: {} as ManualBlocksMap, workingHours: [] as WorkingHour[] };
@@ -388,13 +423,19 @@ function CalendarContent() {
     };
   }, [profile]);
 
+  // ✅ FIXED: isDateBlocked verifică acum și overlap-urile cu programările existente
   const isDateBlocked = useCallback((dateStr: string, timeStr?: string, serviceDuration?: number) => {
+    // 1. Verificare blocuri manuale (din settings)
     const daySlots: string[] = manualBlocks[dateStr] || [];
     if (daySlots.length >= TOTAL_SLOTS_PER_DAY - 2) return { blocked: true, reason: "Zi Blocată Manual" };
+
+    // 2. Verificare working_hours (ziua închisă)
     const dateObj = new Date(dateStr + "T00:00:00");
     const dayName = dayNamesLong[dateObj.getDay()];
     const daySchedule = workingHours.find((h) => h.day === dayName);
     if (daySchedule?.closed) return { blocked: true, reason: "Închis (Weekend/Sărbătoare)" };
+
+    // 3. Verificare oră în afara programului
     if (timeStr && daySchedule) {
       if (timeStr < daySchedule.start || timeStr > daySchedule.end)
         return { blocked: true, reason: `În afara programului (${daySchedule.start}-${daySchedule.end})` };
@@ -403,6 +444,8 @@ function CalendarContent() {
         if (endTime > daySchedule.end) return { blocked: true, reason: `Serviciul depășește programul (${daySchedule.end})` };
       }
     }
+
+    // 4. Verificare oră blocată manual
     if (timeStr && daySlots.length > 0) {
       const [h, m] = timeStr.split(":").map(Number);
       const checkMinutes = serviceDuration && serviceDuration > 0 ? serviceDuration : 60;
@@ -415,8 +458,50 @@ function CalendarContent() {
       }
       if (subSlots.some((slot) => daySlots.includes(slot))) return { blocked: true, reason: "Oră blocată" };
     }
+
+    // ✅ 5. ADĂUGAT: Verificare overlap cu programările existente
+    if (timeStr && serviceDuration && serviceDuration > 0) {
+      const dayAppts = programari.filter((p) => p.data === dateStr);
+      const newStart = timeToMinutes(timeStr);
+      const newEnd = newStart + serviceDuration;
+      const hasOverlap = dayAppts.some((appt) => {
+        const apptStart = timeToMinutes(appt.ora);
+        const apptDur = appt.duration && appt.duration > 0 ? appt.duration : 30;
+        const apptEnd = apptStart + apptDur;
+        return newStart < apptEnd && newEnd > apptStart;
+      });
+      if (hasOverlap) return { blocked: true, reason: "Interval ocupat de o altă programare" };
+    }
+
     return { blocked: false };
-  }, [manualBlocks, workingHours]);
+  }, [manualBlocks, workingHours, programari]);
+
+  // ✅ ADĂUGAT: Verificare dacă o zi are sloturi disponibile (pentru afișare în calendar)
+  const isDayFullyOccupied = useCallback((dateStr: string): boolean => {
+    const daySchedule = workingHours.find((h) => {
+      const dateObj = new Date(dateStr + "T00:00:00");
+      return h.day === dayNamesLong[dateObj.getDay()];
+    });
+    if (!daySchedule || daySchedule.closed) return true;
+
+    const dayAppts = programari.filter((p) => p.data === dateStr);
+    const dayBlocks = manualBlocks[dateStr] || [];
+
+    // Dacă ziua e complet blocată manual
+    if (dayBlocks.length >= TOTAL_SLOTS_PER_DAY - 2) return true;
+
+    // Calculăm sloturi disponibile în intervalul de lucru
+    const startMin = timeToMinutes(daySchedule.start);
+    const endMin = timeToMinutes(daySchedule.end);
+    const totalWorkMinutes = endMin - startMin;
+    
+    // Calculăm minutele ocupate de programări
+    const occupiedMinutes = dayAppts.reduce((acc, appt) => {
+      return acc + (appt.duration && appt.duration > 0 ? appt.duration : 30);
+    }, 0);
+
+    return occupiedMinutes >= totalWorkMinutes;
+  }, [workingHours, programari, manualBlocks]);
 
   useEffect(() => {
     if (editForm) {
@@ -454,8 +539,24 @@ function CalendarContent() {
     if (!editForm) return;
     const service = rawServices.find((s) => s.id === editForm.serviciuId);
     const duration = service?.duration || 0;
+
+    // ✅ La update, excluem programarea curentă din verificarea de overlap
+    const otherAppts = programari.filter((p) => p.id !== editForm.id && p.data === editForm.data);
+    const newStart = timeToMinutes(editForm.ora);
+    const newEnd = newStart + (duration > 0 ? duration : 30);
+    const hasOverlap = otherAppts.some((appt) => {
+      const apptStart = timeToMinutes(appt.ora);
+      const apptEnd = apptStart + (appt.duration && appt.duration > 0 ? appt.duration : 30);
+      return newStart < apptEnd && newEnd > apptStart;
+    });
+    if (hasOverlap) {
+      await showToast({ message: "Interval ocupat de o altă programare", type: "error", title: "Conflict de timp" });
+      return;
+    }
+
     const check = isDateBlocked(editForm.data, editForm.ora, duration);
     if (check.blocked) { await showToast({ message: `Indisponibil: ${check.reason}`, type: "error", title: "Eroare" }); return; }
+
     const { error } = await supabase.from("appointments").update({
       title: editForm.nume, prenume: editForm.nume, nume: editForm.nume,
       email: editForm.email || null, date: editForm.data, time: editForm.ora,
@@ -736,7 +837,7 @@ function CalendarContent() {
             <div>
               <h1 className="text-2xl font-black text-slate-900 tracking-tighter uppercase italic leading-none">Calendar <span className="text-amber-600">Chronos</span></h1>
               <div className="flex items-center gap-2 mt-1">
-                <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] italic">{loadingAppts ? "Se sincronizează..." : "Sincronizat"}</p>
+                <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] italic">{loadingAppts ? "Se sincronizează..." : "Sincronizat în timp real"}</p>
                 {userSubscription && <span className="text-[8px] bg-slate-100 text-slate-500 px-2 py-0.5 rounded-md font-bold uppercase">{userSubscription.plan}</span>}
               </div>
             </div>
@@ -810,6 +911,7 @@ function CalendarContent() {
                 const key = formatDateKey(day);
                 const list = programariByDate[key] || [];
                 const blockStatus = isDateBlocked(key);
+                const fullyOccupied = isDayFullyOccupied(key);
                 const isCurrentMonth = day.getMonth() === selectedDate.getMonth();
                 return (
                   <div key={idx} onClick={() => !blockStatus.blocked && goToDay(day)}
@@ -821,6 +923,10 @@ function CalendarContent() {
                       <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-20">
                         <span className="text-[10px] font-black uppercase italic rotate-45 border-2 border-red-500 text-red-600 px-2 rounded-lg">Închis</span>
                       </div>
+                    )}
+                    {/* ✅ Indicator vizual pentru zi complet ocupată */}
+                    {!blockStatus.blocked && fullyOccupied && list.length > 0 && (
+                      <div className="absolute top-2 right-2 w-2 h-2 bg-red-400 rounded-full" title="Zi complet ocupată" />
                     )}
                     <div className="w-full space-y-1.5 z-10">
                       {list.slice(0, 3).map((p) => <AppointmentChip key={p.id} p={p} />)}

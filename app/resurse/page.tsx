@@ -70,7 +70,6 @@ export default function ResursePage() {
       setLoading(true);
       setErrorMsg(null);
 
-      // CORECȚIE EROARE: Folosim select fără single pentru a evita crash-ul pe conturi noi
       const { data: profiles, error: profileError } = await supabase
         .from('profiles')
         .select('plan_type')
@@ -135,7 +134,6 @@ export default function ResursePage() {
     return () => { mounted = false; };
   }, [router, supabase, fetchResurse]);
 
-  // Click outside închide editarea
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as Node;
@@ -149,11 +147,9 @@ export default function ResursePage() {
   }, [editingId]);
 
   const getLimitaServicii = () => LIMITE.SERVICII[userPlan as keyof typeof LIMITE.SERVICII] ?? LIMITE.SERVICII["chronos free"];
-  const getLimitaStaff    = () => LIMITE.STAFF[userPlan as keyof typeof LIMITE.STAFF]       ?? LIMITE.STAFF["chronos free"];
+  const getLimitaStaff     = () => LIMITE.STAFF[userPlan as keyof typeof LIMITE.STAFF]       ?? LIMITE.STAFF["chronos free"];
   const getPlanLabel      = () => PLAN_LABELS[userPlan] ?? userPlan.toUpperCase();
 
-  // ─── HANDLERS SEPARATE ─────────────────────────────────────────────────────
-  
   async function handleAddService() {
     if (!newService.name.trim() || !userId || isDemo) return;
     if (services.length >= getLimitaServicii()) {
@@ -251,11 +247,12 @@ export default function ResursePage() {
     <div className="min-h-screen bg-[#fcfcfc] p-4 md:p-16 font-sans text-slate-900">
       <div className="max-w-6xl mx-auto">
 
-        {/* Header */}
+        {/* Header - Actualizat Titlul */}
         <header className="mb-12 flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
           <div>
-            <h1 className="text-4xl md:text-6xl font-black italic uppercase tracking-tighter text-slate-900 border-l-8 border-amber-500 pl-6 leading-none">
-              Gestiune <span className="text-amber-600">Resurse</span>
+            <h1 className="text-4xl md:text-5xl font-black italic uppercase tracking-tighter text-slate-900 border-l-8 border-amber-500 pl-6 leading-tight">
+              Gestiune <span className="text-amber-600">Servicii</span><br/>
+              și <span className="text-slate-500">Specialiști</span>
             </h1>
             <div className="flex items-center gap-2 ml-8 mt-4">
               <span className={`w-2 h-2 rounded-full animate-pulse ${isDemo ? 'bg-blue-500' : 'bg-amber-500'}`}></span>
@@ -267,6 +264,7 @@ export default function ResursePage() {
           <button
             onClick={() => router.push('/programari')}
             className="px-8 py-4 bg-white border-2 border-slate-900 rounded-[20px] font-black uppercase text-[10px] italic hover:bg-slate-900 hover:text-white transition-all shadow-lg border-b-4 active:translate-y-1 active:border-b-0 active:scale-95"
+            title="Înapoi la Panoul Principal"
           >
             ← PANOU PRINCIPAL
           </button>
@@ -276,7 +274,7 @@ export default function ResursePage() {
           <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-2xl text-red-600 text-[11px] font-black uppercase italic">⚠️ {errorMsg}</div>
         )}
 
-        {/* ─── SECȚIUNI ADĂUGARE (UNA SUB ALTA) ─── */}
+        {/* ─── SECȚIUNI ADĂUGARE UNIFORMIZATE ─── */}
         <div className="space-y-6 mb-16">
           
           {/* Formular SERVICIU */}
@@ -294,7 +292,7 @@ export default function ResursePage() {
               </div>
               <div className="flex flex-col gap-1">
                 <span className="text-[8px] font-black text-slate-400 ml-3 uppercase">Durată</span>
-                <div className="flex gap-1 bg-slate-50 p-2 rounded-2xl border border-slate-100">
+                <div className="flex gap-1 bg-slate-50 p-2 rounded-2xl border border-slate-100 shadow-inner">
                   <select
                     className="bg-white px-3 py-3 rounded-xl font-black text-[11px] outline-none shadow-sm"
                     value={newService.hour}
@@ -325,29 +323,33 @@ export default function ResursePage() {
                 onClick={handleAddService}
                 disabled={services.length >= getLimitaServicii()}
                 className="px-8 py-5 rounded-2xl font-black uppercase italic text-[11px] bg-slate-900 text-amber-500 border-b-4 border-slate-800 hover:bg-amber-500 hover:text-black transition-all active:translate-y-1 active:border-b-0 shadow-lg"
+                title="Confirmă adăugarea serviciului"
               >
                 + ADAUGĂ SERVICIU
               </button>
             </div>
           </div>
 
-          {/* Formular EXPERT */}
+          {/* Formular EXPERT - Uniformizat cu cel de Serviciu */}
           <div className={`bg-white p-8 rounded-[35px] shadow-xl border border-slate-100 transition-all ${isDemo ? 'opacity-40 pointer-events-none grayscale' : ''}`}>
-            <h3 className="text-[10px] font-black uppercase italic text-slate-400 mb-6 tracking-widest">Adaugă Expert Nou</h3>
+            <h3 className="text-[10px] font-black uppercase italic text-amber-600 mb-6 tracking-widest">Adaugă Expert Nou</h3>
             <div className="flex flex-wrap gap-4 items-end">
               <div className="flex-1 min-w-[200px] flex flex-col gap-1">
                 <span className="text-[8px] font-black text-slate-400 ml-3 uppercase">Nume Expert</span>
                 <input
-                  className="bg-slate-50 p-5 rounded-2xl font-black uppercase italic text-[11px] outline-none border-2 border-transparent focus:border-slate-900 transition-all shadow-inner"
+                  className="bg-slate-50 p-5 rounded-2xl font-black uppercase italic text-[11px] outline-none border-2 border-transparent focus:border-amber-500 transition-all shadow-inner"
                   placeholder="EX: ION MARIN..."
                   value={newStaff.name}
                   onChange={e => setNewStaff({ ...newStaff, name: e.target.value })}
                 />
               </div>
+              {/* Spacer pentru a menține alinierea butonului cu formularul de deasupra */}
+              <div className="hidden lg:block lg:w-[280px]"></div>
               <button
                 onClick={handleAddStaff}
                 disabled={staff.length >= getLimitaStaff()}
-                className="px-8 py-5 rounded-2xl font-black uppercase italic text-[11px] bg-slate-100 text-slate-900 border-b-4 border-slate-200 hover:bg-slate-900 hover:text-white transition-all active:translate-y-1 active:border-b-0 shadow-lg"
+                className="px-8 py-5 rounded-2xl font-black uppercase italic text-[11px] bg-slate-900 text-amber-500 border-b-4 border-slate-800 hover:bg-amber-500 hover:text-black transition-all active:translate-y-1 active:border-b-0 shadow-lg"
+                title="Confirmă adăugarea expertului"
               >
                 + ADAUGĂ EXPERT
               </button>

@@ -87,11 +87,9 @@ function RezervareContent() {
   const channelRef = useRef<any>(null);
   const configChannelRef = useRef<any>(null);
 
-  // Date sincronizate cu Supabase
   const [adminWorkingHours, setAdminWorkingHours] = useState<WorkingHourEntry[]>([]);
+  const [adminManualBlocks, setAdminManualBlocks] = useState<Record<string, string[]>>({});
   const [existingAppointments, setExistingAppointments] = useState<ExistingAppointment[]>([]);
-
-  // Profil salvat local
   const [savedUserProfiles, setSavedUserProfiles] = useState<{ nume: string; telefon: string; email: string }[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
 
@@ -126,7 +124,26 @@ function RezervareContent() {
     return addMinutesToTime(form.ora, serviceDuration);
   }, [serviceDuration, form.ora]);
 
-  // ── Fetch adminId ──
+  // ─── Verificare disponibilitate pentru o dată — folosită de DatePicker ───────
+  const isDateAvailable = useCallback((dateStr: string): boolean => {
+    if (!dateStr) return false;
+    const [y, mo, d] = dateStr.split("-").map(Number);
+    const dateObj = new Date(y, mo - 1, d);
+    const dayName = DAY_NAMES_LONG[dateObj.getDay()];
+
+    // Verifică orarul de lucru
+    if (adminWorkingHours.length > 0) {
+      const schedule = adminWorkingHours.find((h) => h.day === dayName);
+      if (!schedule || schedule.closed) return false;
+    }
+
+    // Verifică dacă întreaga zi e blocată manual (96 sloturi de 15min)
+    const dayBlocks = adminManualBlocks[dateStr] || [];
+    if (dayBlocks.length >= 94) return false; // toate sloturile blocate
+
+    return true;
+  }, [adminWorkingHours, adminManualBlocks]);
+
   const fetchAdminIdBySlug = useCallback(async (slug: string) => {
     try {
       const { data, error } = await supabase.from("profiles").select("id").eq("slug", slug).single();
@@ -134,6 +151,45 @@ function RezervareContent() {
       return data?.id || null;
     } catch { return null; }
   }, []);
+
+  const fetchAppointmentsForDate = useCallback(async (date: string) => {
+    if (!adminId) return;
+    const { data, error } = await supabase
+      .from("appointments")
+      .select("time, duration")
+      .eq("user_id", adminId)
+      .eq("date", date)
+      .neq("status", "cancelled");
+    if (!error && data) setExistingAppointments(data);
+  }, [adminId]);
+
+  const fetchAdminConfig = useCallback(async () => {
+    if (!adminIdReady || !adminId) { setFetchingConfig(false); return; }
+    try {
+      const [staffRes, servicesRes, feedbacksRes, profileRes] = await Promise.all([
+        supabase.from("staff").select("*").eq("user_id", adminId).order("created_at", { ascending: false }),
+        supabase.from("services").select("*").eq("user_id", adminId).order("created_at", { ascending: false }),
+        supabase.from("feedbacks").select("*").eq("admin_id", adminId).eq("aprobat", true).order("created_at", { ascending: false }),
+        supabase.from("profiles").select("working_hours, manual_blocks").eq("id", adminId).single(),
+      ]);
+
+      if (staffRes.data) setSpecialisti(staffRes.data);
+      if (servicesRes.data) setServicii(servicesRes.data);
+      if (feedbacksRes.data) setFeedbacks(feedbacksRes.data);
+      if (profileRes.data) {
+        setAdminWorkingHours(parseWH(profileRes.data.working_hours));
+        // Sincronizare manual_blocks din profiles
+        const rawBlocks = profileRes.data.manual_blocks;
+        if (rawBlocks && typeof rawBlocks === "object" && !Array.isArray(rawBlocks)) {
+          setAdminManualBlocks(rawBlocks as Record<string, string[]>);
+        }
+      }
+    } catch (e: any) {
+      console.error("Eroare fetch config:", e?.message);
+    } finally {
+      setFetchingConfig(false);
+    }
+  }, [adminId, adminIdReady]);
 
   useEffect(() => {
     async function init() {
@@ -154,63 +210,35 @@ function RezervareContent() {
     }
   }, [rawSlug, fetchAdminIdBySlug]);
 
-  // ── Fetch programări existente pentru data selectată ──
-  const fetchAppointmentsForDate = useCallback(async (date: string) => {
-    if (!adminId) return;
-    const { data, error } = await supabase
-      .from("appointments")
-      .select("time, duration")
-      .eq("user_id", adminId)
-      .eq("date", date)
-      .neq("status", "cancelled");
-    if (!error && data) setExistingAppointments(data);
-  }, [adminId]);
-
-  // ── Fetch config principal ──
-  const fetchAdminConfig = useCallback(async () => {
-    if (!adminIdReady || !adminId) { setFetchingConfig(false); return; }
-    try {
-      const [staffRes, servicesRes, feedbacksRes, profileRes] = await Promise.all([
-        supabase.from("staff").select("*").eq("user_id", adminId).order("created_at", { ascending: false }),
-        supabase.from("services").select("*").eq("user_id", adminId).order("created_at", { ascending: false }),
-        supabase.from("feedbacks").select("*").eq("admin_id", adminId).eq("aprobat", true).order("created_at", { ascending: false }),
-        supabase.from("profiles").select("working_hours").eq("id", adminId).single(),
-      ]);
-
-      if (staffRes.data) setSpecialisti(staffRes.data);
-      if (servicesRes.data) setServicii(servicesRes.data);
-      if (feedbacksRes.data) setFeedbacks(feedbacksRes.data);
-      if (profileRes.data) setAdminWorkingHours(parseWH(profileRes.data.working_hours));
-    } catch (e: any) {
-      console.error("Eroare fetch config:", e?.message);
-    } finally {
-      setFetchingConfig(false);
-    }
-  }, [adminId, adminIdReady]);
-
   useEffect(() => {
     if (adminIdReady && adminId) fetchAdminConfig();
     else if (adminIdReady && !adminId) setFetchingConfig(false);
   }, [adminIdReady, adminId, fetchAdminConfig]);
 
-  // Reîncarcă programările când se schimbă data
   useEffect(() => {
     if (adminId && form.data) fetchAppointmentsForDate(form.data);
   }, [adminId, form.data, fetchAppointmentsForDate]);
 
-  // ── Realtime Supabase ──
+  // ─── Realtime subscriptions ────────────────────────────────────────────────
   useEffect(() => {
     if (!adminId) return;
 
     configChannelRef.current = supabase
       .channel(`config-${adminId}`)
-      .on("postgres_changes", { event: "*", schema: "public", table: "profiles", filter: `id=eq.${adminId}` },
+      .on("postgres_changes",
+        { event: "*", schema: "public", table: "profiles", filter: `id=eq.${adminId}` },
         (payload) => {
-          if ((payload.new as any)?.working_hours) {
-            setAdminWorkingHours(parseWH((payload.new as any).working_hours));
+          const newData = payload.new as any;
+          if (newData?.working_hours) {
+            setAdminWorkingHours(parseWH(newData.working_hours));
+          }
+          // ✅ SINCRONIZARE: actualizăm și manual_blocks în timp real
+          if (newData?.manual_blocks && typeof newData.manual_blocks === "object") {
+            setAdminManualBlocks(newData.manual_blocks as Record<string, string[]>);
           }
         })
-      .on("postgres_changes", { event: "*", schema: "public", table: "appointments", filter: `user_id=eq.${adminId}` },
+      .on("postgres_changes",
+        { event: "*", schema: "public", table: "appointments", filter: `user_id=eq.${adminId}` },
         () => fetchAppointmentsForDate(form.data))
       .subscribe();
 
@@ -263,16 +291,16 @@ function RezervareContent() {
   const getLimitPopupContent = (reason: LimitReason) => {
     switch (reason) {
       case "hour_blocked": return { icon: "🕐", title: "Oră Indisponibilă", message: "Această oră nu este disponibilă." };
-      case "day_closed": return { icon: "🗓️", title: "Zi Închisă", message: "Salonul este închis în această zi." };
+      case "day_closed": return { icon: "🗓️", title: "Zi Închisă", message: "Unitatea este închisă în această zi." };
       case "outside_hours": return { icon: "⏰", title: "În Afara Programului", message: "Ora aleasă este în afara programului de lucru." };
-      case "service_overlap": return { icon: "⏱️", title: "Durată Depășită", message: "Serviciul depășește ora de închidere a salonului." };
-      case "plan_limit": return { icon: "🚀", title: "Capacitate Maximă", message: "Salonul a atins limita de programări pentru luna aceasta." };
-      case "already_booked": return { icon: "🚫", title: "Interval Ocupat", message: "Această oră tocmai a fost ocupată. Te rugăm să alegi alta." };
+      case "service_overlap": return { icon: "⏱️", title: "Durată Depășită", message: "Serviciul depășește ora de închidere." };
+      case "plan_limit": return { icon: "🚀", title: "Capacitate Maximă", message: "S-a atins limita de programări pentru luna aceasta." };
+      case "already_booked": return { icon: "🚫", title: "Interval Indisponibil", message: "Există deja o programare activă în această perioadă. Te rugăm să alegi o altă oră." };
       default: return { icon: "⚠️", title: "Limită Atinsă", message: "Intervalul ales nu poate fi rezervat." };
     }
   };
 
-  // ── SUBMIT ──
+  // ─── Validare completă la submit ───────────────────────────────────────────
   const trimiteRezervare = async (e: React.FormEvent) => {
     e.preventDefault();
     const newErrors: Record<string, boolean> = {};
@@ -285,15 +313,13 @@ function RezervareContent() {
 
     setLoading(true);
     try {
-      // 1. Verificare plan și program de lucru
       const { data: profileData } = await supabase
         .from("profiles")
-        .select("working_hours, plan_type")
+        .select("working_hours, plan_type, manual_blocks")
         .eq("id", adminId)
         .single();
 
       if (profileData) {
-        // Verificare limită plan
         const plan = profileData.plan_type || "START (GRATUIT)";
         const maxAppointments = PLAN_LIMITS[plan] ?? 30;
         if (maxAppointments !== Infinity) {
@@ -310,7 +336,7 @@ function RezervareContent() {
           }
         }
 
-        // Verificare program de lucru
+        // ✅ Verificare working_hours
         const wh = parseWH(profileData.working_hours);
         if (wh.length > 0) {
           const [y, mo, d] = form.data.split("-").map(Number);
@@ -337,9 +363,31 @@ function RezervareContent() {
             }
           }
         }
+
+        // ✅ Verificare manual_blocks — sincronizat cu settings
+        const rawBlocks = profileData.manual_blocks;
+        if (rawBlocks && typeof rawBlocks === "object" && !Array.isArray(rawBlocks)) {
+          const dayBlocks: string[] = (rawBlocks as Record<string, string[]>)[form.data] || [];
+          if (dayBlocks.length > 0) {
+            const [h, m] = form.ora.split(":").map(Number);
+            const checkMinutes = serviceDuration > 0 ? serviceDuration : 30;
+            const subSlots: string[] = [];
+            for (let i = 0; i < checkMinutes; i += 15) {
+              const totalMin = m + i;
+              const sH = h + Math.floor(totalMin / 60);
+              const sM = totalMin % 60;
+              if (sH < 24) subSlots.push(`${sH.toString().padStart(2, "0")}:${sM.toString().padStart(2, "0")}`);
+            }
+            if (subSlots.some((slot) => dayBlocks.includes(slot))) {
+              setPopup(getLimitPopupContent("hour_blocked"));
+              setLoading(false);
+              return;
+            }
+          }
+        }
       }
 
-      // 2. Verificare suprapunere cu programările existente (query fresh)
+      // ✅ Verificare overlap cu programările existente (re-fetch fresh)
       const { data: latestAppts } = await supabase
         .from("appointments")
         .select("time, duration")
@@ -362,7 +410,6 @@ function RezervareContent() {
         }
       }
 
-      // 3. Insert programare
       const selectedService = servicii.find((s) => s.id === form.serviciu_id);
       const selectedExpert = specialisti.find((s) => s.id === form.specialist_id);
 
@@ -387,7 +434,6 @@ function RezervareContent() {
       const { error: insertError } = await supabase.from("appointments").insert([payload]);
 
       if (!insertError) {
-        // Salvează profilul local
         const newProfile = { nume: form.nume.trim(), telefon: form.telefon.trim(), email: form.email.trim() };
         const updated = [newProfile, ...savedUserProfiles.filter((p) => p.email !== newProfile.email)].slice(0, 3);
         localStorage.setItem("chronos_user_profiles", JSON.stringify(updated));
@@ -395,12 +441,10 @@ function RezervareContent() {
         setTrimis(true);
         window.scrollTo({ top: 0, behavior: "smooth" });
       } else {
-        console.error("Insert error:", insertError);
         setPopup({ icon: "❌", title: "Eroare", message: insertError.message });
       }
     } catch (err: any) {
-      console.error("Eroare:", err);
-      setPopup({ icon: "❌", title: "Eroare", message: err?.message || "A apărut o eroare neașteptată." });
+      setPopup({ icon: "❌", title: "Eroare", message: err?.message || "Eroare neașteptată." });
     } finally {
       setLoading(false);
     }
@@ -445,25 +489,26 @@ function RezervareContent() {
         </div>
       )}
 
-      {/* Date Picker */}
       {showDatePicker && (
         <div className="fixed inset-0 z-[800] bg-slate-950/40 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => setShowDatePicker(false)}>
           <div onClick={(e) => e.stopPropagation()}>
             <ChronosDatePicker
               value={form.data}
               onChange={(val) => {
-                setForm({ ...form, data: val, ora: "00:00" }); // resetăm ora la schimbarea datei
+                setForm({ ...form, data: val, ora: "00:00" });
                 setShowDatePicker(false);
               }}
               minDate={today}
               onClose={() => setShowDatePicker(false)}
               workingHours={adminWorkingHours}
+              // ✅ Transmitem manual_blocks și isDateAvailable pentru a bloca zilele închise
+              manualBlocks={adminManualBlocks}
+              isDateAvailable={isDateAvailable}
             />
           </div>
         </div>
       )}
 
-      {/* Time Picker */}
       {showTimePicker && (
         <div className="fixed inset-0 z-[800] bg-slate-950/40 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => setShowTimePicker(false)}>
           <div onClick={(e) => e.stopPropagation()}>
@@ -475,6 +520,8 @@ function RezervareContent() {
               existingAppointments={existingAppointments}
               selectedDate={form.data}
               serviceDuration={serviceDuration}
+              // ✅ Transmitem manual_blocks pentru a bloca orele blocate manual în settings
+              manualBlocks={adminManualBlocks}
             />
           </div>
         </div>
@@ -508,7 +555,6 @@ function RezervareContent() {
           </div>
 
           <form onSubmit={trimiteRezervare} className="p-8 md:p-14 space-y-10">
-            {/* Câmpuri personale */}
             <div className="space-y-6">
               <div className="relative">
                 <input
@@ -541,7 +587,6 @@ function RezervareContent() {
               </div>
             </div>
 
-            {/* Serviciu + Expert + Mențiuni */}
             <div className="grid grid-cols-1 gap-8 p-8 bg-slate-50 rounded-[45px] border-2 border-slate-100">
               <div className="space-y-2">
                 <label className="text-[12px] font-black uppercase italic text-slate-400 ml-4">Serviciu</label>
@@ -583,7 +628,6 @@ function RezervareContent() {
               </div>
             </div>
 
-            {/* Data + Ora */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <button type="button" onClick={() => setShowDatePicker(true)}
                 className="w-full h-[100px] bg-slate-900 text-white rounded-[35px] font-black text-[22px] uppercase italic hover:text-amber-500 transition-all">
@@ -610,7 +654,6 @@ function RezervareContent() {
         </div>
       )}
 
-      {/* Recenzii */}
       <div className="w-full max-w-5xl grid lg:grid-cols-2 gap-12 mb-10">
         <div className="bg-white p-12 rounded-[55px] shadow-xl border border-slate-100 h-fit">
           <h3 className="text-2xl font-black uppercase italic mb-8 border-l-8 border-amber-500 pl-4">LASĂ O RECENZIE</h3>

@@ -38,11 +38,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       case "/programari": return "Programări";
       case "/programari/calendar": return "Calendar Programări";
       case "/clienti": return "Clienți";
-      case "/resurse": return "Resurse";
+      case "/resurse": return "Gestiune Servicii & Specialiști";
       case "/abonamente": return "Abonamente";
       case "/rapoarte": return "Analiză & Rapoarte";
-      case "/sugestii": return "Sugestii Sistem";
-      case "/settings": return "Settings Admin";
+      case "/sugestii": return "Gestiune Recenzii";
+      case "/settings": return "Setări Orar & Programări Online";
       case "/profil": return "Profil Utilizator";
       case "/contacte-utile": return "Contacte Utile";
       default: return "Sistem Chronos";
@@ -182,11 +182,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                             { href: "/programari/calendar", icon: "🗓️", label: "Calendar" },
                             { href: "/clienti", icon: "👥", label: "Clienți" },
                             { href: "/contacte-utile", icon: "📞", label: "Contacte Utile" },
-                            { href: "/resurse", icon: "📦", label: "Resurse" },
+                            { href: "/resurse", icon: "📦", label: "Gestiune Servicii & Specialiști" },
                             { href: "/abonamente", icon: "💎", label: "Abonamente" },
                             { href: "/rapoarte", icon: "📊", label: "Analiză & Rapoarte" },
-                            { href: "/sugestii", icon: "💡", label: "Sugestii Sistem" },
-                            { href: "/settings", icon: "⚙️", label: "Settings Admin" },
+                            { href: "/sugestii", icon: "⭐", label: "Gestiune Recenzii" },
+                            { href: "/settings", icon: "⚙️", label: "Setări Orar & Programări" },
                             { href: "/profil", icon: "👤", label: "Contul Meu" },
                           ].map((item) => (
                             <Link
