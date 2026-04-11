@@ -141,7 +141,7 @@ export default function LoginPage() {
             </p>
             <Link
               href="/register"
-              className="w-full py-3 text-[9px] font-black uppercase italic bg-amber-500 text-white rounded-xl border-b-4 border-amber-700 hover:bg-amber-600 transition-all text-center"
+              className="w-full py-3 text-[11px] font-black uppercase italic bg-amber-500 text-slate-900 rounded-xl border-b-4 border-amber-600 hover:bg-amber-600 transition-all text-center"
             >
               CREEAZĂ CONT NOU
             </Link>
