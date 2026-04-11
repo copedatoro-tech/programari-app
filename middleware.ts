@@ -53,8 +53,9 @@ export async function middleware(req: NextRequest) {
   // IMPORTANT: Folosim getUser() pentru securitate
   const { data: { user } } = await supabase.auth.getUser()
 
-  // Adăugăm /rezervare în lista rutelor publice pentru a permite accesul clienților
+  // ✅ CORECȚIE: Am adăugat pathname === '/' pentru ca Landing Page-ul să fie public!
   const isPublicRoute = 
+    pathname === '/' || 
     pathname === '/login' || 
     pathname === '/register' || 
     pathname === '/forgot-password' ||
@@ -68,9 +69,10 @@ export async function middleware(req: NextRequest) {
 
   // Redirecționare dacă este deja logat și accesează pagini de auth (login/register)
   if (user && isPublicRoute) {
-    // Permitem accesul la rezervare chiar dacă e logat ca admin, 
+    // Permitem accesul la rezervare și la landing chiar dacă e logat, 
     // dar restul paginilor de auth le redirecționăm către dashboard
-    if (!pathname.includes('reset-password') && !pathname.startsWith('/rezervare')) {
+    // ✅ CORECȚIE: Nu redirecționăm dacă e pe '/' pentru a-i permite să vadă landing-ul sau să navigheze normal
+    if (pathname !== '/' && !pathname.includes('reset-password') && !pathname.startsWith('/rezervare')) {
       url.pathname = '/programari'
       return NextResponse.redirect(url)
     }
