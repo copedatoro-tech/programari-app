@@ -121,9 +121,15 @@ export default function LandingPage() {
                 whileHover={{ y: 0 }}
                 transition={{ duration: 0.3 }}
               />
-              <span className="relative z-10 text-[10px] opacity-70">CREEAZĂ CONT</span>
-              <span className="relative z-10 text-sm flex items-center gap-2">Începe Gratuit <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" /></span>
+              <span className="relative z-10 text-[10px] opacity-70">ÎNCEPE ACUM</span>
+              <span className="relative z-10 text-sm flex items-center gap-2">10 Zile Gratuit <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" /></span>
             </Link>
+            <div className="flex items-center gap-3">
+              <div className="flex -space-x-2">
+                {[1,2,3].map(i => <div key={i} className="w-8 h-8 rounded-full border-2 border-slate-50 bg-slate-300" />)}
+              </div>
+              <span className="text-[9px] font-black text-slate-400 uppercase italic tracking-tighter">Alătură-te celor 500+ specialiști</span>
+            </div>
           </motion.div>
         </div>
 
