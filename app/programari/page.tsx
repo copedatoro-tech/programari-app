@@ -625,7 +625,7 @@ function ProgramariContent() {
                   >
                     <option value="">Alege Serviciu...</option>
                     {(serviciiFiltrate as ServiceRow[])?.map((s) => (
-                      <option key={s.id} value={s.id}>{s.nume_serviciu} — {s.price} RON</option>
+                      <option key={s.id} value={s.id}>{s.nume_serviciu} </option>
                     ))}
                   </select>
                 </div>
