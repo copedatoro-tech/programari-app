@@ -6,6 +6,7 @@ import { supabase } from "@/lib/supabaseClient";
 import Link from "next/link";
 import Image from "next/image";
 import debounce from "lodash/debounce";
+import { ChronosTimePicker, ChronosDatePicker } from "@/components/ChronosDateTimePickers";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -15,17 +16,6 @@ const queryClient = new QueryClient({
     },
   },
 });
-
-const ChronosTimePicker = lazy(() =>
-  import("@/components/ChronosDateTimePickers").then((mod) => ({
-    default: mod.ChronosTimePicker,
-  }))
-);
-const ChronosDatePicker = lazy(() =>
-  import("@/components/ChronosDateTimePickers").then((mod) => ({
-    default: mod.ChronosDatePicker,
-  }))
-);
 
 type DocumentAttachment = { id: number; name: string; url: string };
 type StaffRow = { id: string; name: string; services: string[] };
@@ -51,6 +41,8 @@ type Programare = {
   created_by_client?: boolean;
 };
 
+type WorkingHourEntry = { day: string; start: string; end: string; closed: boolean };
+
 const LIMITE_ABONAMENTE: Record<string, number> = {
   "chronos free": 30,
   "start (gratuit)": 30,
@@ -59,66 +51,14 @@ const LIMITE_ABONAMENTE: Record<string, number> = {
   "chronos team": 999999,
 };
 
-// ─── Dialog confirmare dată / oră ────────────────────────────────────────────
-const ConfirmationDialog = ({
-  message,
-  onConfirm,
-  onCancel,
-}: {
-  message: string;
-  onConfirm: () => void;
-  onCancel: () => void;
-}) => (
-  <div
-    className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[700] flex items-center justify-center p-4"
-    onClick={onCancel}
-  >
-    <div
-      className="bg-white rounded-[30px] p-8 shadow-2xl border border-slate-100 max-w-md w-full"
-      onClick={(e) => e.stopPropagation()}
-    >
-      <div className="flex flex-col items-center gap-6">
-        <div className="w-16 h-16 bg-amber-50 rounded-full flex items-center justify-center">
-          <span className="text-2xl">⏰</span>
-        </div>
-        <p className="text-center text-slate-800 font-bold text-lg">{message}</p>
-        <div className="flex gap-4 w-full">
-          <button
-            onClick={onCancel}
-            className="flex-1 py-3 bg-slate-100 text-slate-500 rounded-[15px] font-bold uppercase text-sm hover:bg-slate-200 transition-all"
-          >
-            Anulează
-          </button>
-          <button
-            onClick={onConfirm}
-            className="flex-1 py-3 bg-amber-500 text-white rounded-[15px] font-bold uppercase text-sm hover:bg-amber-600 transition-all shadow-lg"
-          >
-            Confirmă
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-);
+const DAY_NAMES_LONG = ["Duminică", "Luni", "Marți", "Miercuri", "Joi", "Vineri", "Sâmbătă"];
 
-// ─── Wrapper overlay pentru picker-e (garantează z-index maxim) ───────────────
-function PickerOverlay({
-  onClose,
-  children,
-}: {
-  onClose: () => void;
-  children: React.ReactNode;
-}) {
-  return (
-    <div
-      className="fixed inset-0 z-[650] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm"
-      onClick={onClose}
-    >
-      <div onClick={(e) => e.stopPropagation()}>
-        {children}
-      </div>
-    </div>
-  );
+function parseWH(whData: any): WorkingHourEntry[] {
+  if (!whData) return [];
+  if (typeof whData === "string") {
+    try { return JSON.parse(whData); } catch { return []; }
+  }
+  return Array.isArray(whData) ? whData : [];
 }
 
 function ProgramariContent() {
@@ -147,18 +87,12 @@ function ProgramariContent() {
   const [filteredClients, setFilteredClients] = useState<Programare[]>([]);
   const [showTimePicker, setShowTimePicker] = useState(false);
   const [showDatePicker, setShowDatePicker] = useState(false);
-  const [showDateConfirm, setShowDateConfirm] = useState(false);
-  const [showTimeConfirm, setShowTimeConfirm] = useState(false);
-  const [tempDate, setTempDate] = useState<string>(today);
-  const [tempTime, setTempTime] = useState<string>("");
 
   const suggestionsRef = useRef<HTMLDivElement>(null);
   const popupRef = useRef<HTMLDivElement>(null);
 
   const getUserSession = async () => {
-    const {
-      data: { session },
-    } = await supabase.auth.getSession();
+    const { data: { session } } = await supabase.auth.getSession();
     return session;
   };
 
@@ -172,9 +106,7 @@ function ProgramariContent() {
       const startDate = dateLimit.toISOString().split("T")[0];
       const { data } = await supabase
         .from("appointments")
-        .select(
-          "id, title, date, time, details, phone, email, file_url, is_client_booking, angajat_id, serviciu_id, documente, nume_serviciu"
-        )
+        .select("id, title, date, time, details, phone, email, file_url, is_client_booking, angajat_id, serviciu_id, documente, nume_serviciu, duration")
         .eq("user_id", session.user.id)
         .gte("date", startDate)
         .order("date", { ascending: false });
@@ -235,27 +167,42 @@ function ProgramariContent() {
     return null;
   }, [profileData, isTrialing]);
 
+  // ─── working_hours ca array (identic cu pagina de rezervare) ────────────────
+  const adminWorkingHours = useMemo<WorkingHourEntry[]>(() => {
+    return parseWH(profileData?.working_hours);
+  }, [profileData?.working_hours]);
+
+  // ─── manual_blocks ca obiect {dată: [sloturi]} ───────────────────────────────
+  const adminManualBlocks = useMemo<Record<string, string[]>>(() => {
+    const raw = profileData?.manual_blocks;
+    if (!raw || typeof raw !== "object" || Array.isArray(raw)) return {};
+    return raw as Record<string, string[]>;
+  }, [profileData?.manual_blocks]);
+
+  // ─── programări existente pentru ziua selectată ──────────────────────────────
+  const existingAppointments = useMemo(() => {
+    if (!programari) return [];
+    return (programari as any[])
+      .filter((p) => p.date === formular.data)
+      .map((p) => ({ time: p.time, duration: p.duration || 30 }));
+  }, [programari, formular.data]);
+
+  // ─── durata serviciului selectat ─────────────────────────────────────────────
+  const durataSelectata = useMemo(() => {
+    return (servicii as ServiceRow[] | undefined)?.find((s) => s.id === formular.serviciu_id)?.duration || 0;
+  }, [formular.serviciu_id, servicii]);
+
   const serviciiFiltrate = useMemo(() => {
     if (!formular.angajat_id || !angajati) return servicii || [];
-    const specialist = angajati.find((a: StaffRow) => a.id === formular.angajat_id);
+    const specialist = (angajati as StaffRow[]).find((a) => a.id === formular.angajat_id);
     if (!specialist?.services?.length) return servicii || [];
-    return (servicii || []).filter((s: ServiceRow) =>
-      specialist.services.includes(s.id)
-    );
+    return (servicii as ServiceRow[] || []).filter((s) => specialist.services.includes(s.id));
   }, [formular.angajat_id, servicii, angajati]);
 
   const angajatiFiltrati = useMemo(() => {
     if (!formular.serviciu_id || !angajati) return angajati || [];
-    return (angajati || []).filter((a: StaffRow) =>
-      a.services?.includes(formular.serviciu_id)
-    );
+    return (angajati as StaffRow[] || []).filter((a) => a.services?.includes(formular.serviciu_id));
   }, [formular.serviciu_id, angajati]);
-
-  const durataSelectata = useMemo(() => {
-    return (
-      servicii?.find((s: ServiceRow) => s.id === formular.serviciu_id)?.duration || 30
-    );
-  }, [formular.serviciu_id, servicii]);
 
   const programariAzi = useMemo(
     () => (programari || []).filter((p: any) => p.date === today),
@@ -270,11 +217,7 @@ function ProgramariContent() {
   );
 
   const countLunaCurenta = useMemo(() => {
-    const firstDay = new Date(
-      new Date().getFullYear(),
-      new Date().getMonth(),
-      1
-    )
+    const firstDay = new Date(new Date().getFullYear(), new Date().getMonth(), 1)
       .toISOString()
       .split("T")[0];
     return (programari || []).filter((p: any) => p.date >= firstDay).length;
@@ -283,48 +226,7 @@ function ProgramariContent() {
   const limitaCurenta = isTrialing ? 999999 : LIMITE_ABONAMENTE[userPlan] || 30;
   const esteLimitatUI = countLunaCurenta >= limitaCurenta;
 
-  // ─── Program de lucru pentru ziua selectată ───────────────────────────────
-  const currentWorkingHours = useMemo(() => {
-    const defaultHours = { start: "08:00", end: "20:00" };
-    if (!profileData?.working_hours) return defaultHours;
-
-    const [year, month, day] = formular.data.split("-").map(Number);
-    const dateObj = new Date(year, month - 1, day);
-    const dayNames = [
-      "sunday","monday","tuesday","wednesday","thursday","friday","saturday",
-    ];
-    const dayKey = dayNames[dateObj.getDay()];
-    const hoursData = profileData.working_hours;
-    const daySchedule =
-      hoursData[dayKey] ||
-      hoursData[dayKey.charAt(0).toUpperCase() + dayKey.slice(1)];
-
-    if (!daySchedule || daySchedule.closed) return defaultHours;
-
-    return {
-      start:
-        daySchedule.start && daySchedule.start !== "" ? daySchedule.start : "08:00",
-      end:
-        daySchedule.end && daySchedule.end !== "" ? daySchedule.end : "20:00",
-    };
-  }, [profileData, formular.data]);
-
-  // ─── blockedSlots normalizat întotdeauna ca array ─────────────────────────
-  // manual_blocks poate veni din Supabase ca obiect {dată: [sloturi]} sau array
-  // ChronosTimePicker se așteaptă la un array plat de sloturi pentru ziua curentă
-  const blockedSlotsForDay = useMemo(() => {
-    const raw = profileData?.manual_blocks;
-    if (!raw) return [];
-    // Dacă e obiect cu cheie = dată, extrage sloturile pentru ziua din formular
-    if (!Array.isArray(raw) && typeof raw === "object") {
-      return (raw as Record<string, string[]>)[formular.data] || [];
-    }
-    // Dacă e deja array, îl trimitem direct
-    if (Array.isArray(raw)) return raw;
-    return [];
-  }, [profileData?.manual_blocks, formular.data]);
-
-  // ─── Sugestii autocomplete nume ───────────────────────────────────────────
+  // ─── Sugestii autocomplete nume ───────────────────────────────────────────────
   const handleNumeChange = useCallback(
     debounce((val: string) => {
       setFormular((prev) => ({ ...prev, nume: val }));
@@ -390,47 +292,21 @@ function ProgramariContent() {
     }));
   };
 
-  // ─── Handlers picker dată ─────────────────────────────────────────────────
-  const handleDateSelect = (val: string) => {
-    setTempDate(val);
-    setShowDateConfirm(true);
-  };
-
-  const handleDateConfirm = () => {
-    setFormular({ ...formular, data: tempDate });
-    setShowDateConfirm(false);
-    setShowDatePicker(false);
-  };
-
-  // ─── Handlers picker oră ──────────────────────────────────────────────────
-  const handleTimeSelect = (val: string) => {
-    setTempTime(val);
-    setShowTimeConfirm(true);
-  };
-
-  const handleTimeConfirm = () => {
-    setFormular({ ...formular, ora: tempTime });
-    setShowTimeConfirm(false);
-    setShowTimePicker(false);
-  };
-
-  // ─── Salvare programare ───────────────────────────────────────────────────
+  // ─── Salvare programare ────────────────────────────────────────────────────────
   const salveazaInCloud = async () => {
     if (!formular.nume || !formular.telefon || !formular.ora) {
       alert("Atenționare: Completează Numele, Telefonul și Ora programării.");
       return;
     }
 
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+    const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
-    const serviciuSelectat = servicii?.find(
-      (s: ServiceRow) => s.id === formular.serviciu_id
+    const serviciuSelectat = (servicii as ServiceRow[] | undefined)?.find(
+      (s) => s.id === formular.serviciu_id
     );
-    const angajatSelectat = angajati?.find(
-      (a: StaffRow) => a.id === formular.angajat_id
+    const angajatSelectat = (angajati as StaffRow[] | undefined)?.find(
+      (a) => a.id === formular.angajat_id
     );
 
     const telefonCurat = formular.telefon.replace(/\D/g, "");
@@ -475,6 +351,7 @@ function ProgramariContent() {
       email: formular.email,
       date: formular.data,
       time: formular.ora,
+      duration: serviciuSelectat?.duration || 0,
       details: formular.motiv,
       phone: telefonCurat,
       file_url: formular.poza,
@@ -522,78 +399,53 @@ function ProgramariContent() {
 
   return (
     <>
-      {/* ═══════════════════════════════════════════════════════════════════
-          OVERLAY-URI GLOBALE — montate în afara <main>, la rădăcina DOM
-          z-index 650+ garantează că apar deasupra oricărui alt element
-      ════════════════════════════════════════════════════════════════════ */}
-
-      {/* Picker Dată */}
+      {/* ─── OVERLAY DATE PICKER (identic cu rezervare) ─────────────────────── */}
       {showDatePicker && (
-        <PickerOverlay onClose={() => setShowDatePicker(false)}>
-          <Suspense
-            fallback={
-              <div className="bg-white rounded-[30px] p-8 w-80 flex items-center justify-center">
-                <div className="w-8 h-8 border-4 border-amber-500 border-t-transparent rounded-full animate-spin" />
-              </div>
-            }
-          >
+        <div
+          className="fixed inset-0 z-[800] bg-slate-950/40 backdrop-blur-sm flex items-center justify-center p-4"
+          onClick={() => setShowDatePicker(false)}
+        >
+          <div onClick={(e) => e.stopPropagation()}>
             <ChronosDatePicker
               value={formular.data}
-              onChange={handleDateSelect}
-              onClose={() => setShowDatePicker(false)}
+              onChange={(val) => {
+                setFormular({ ...formular, data: val, ora: "" });
+                setShowDatePicker(false);
+              }}
               minDate={today}
+              onClose={() => setShowDatePicker(false)}
+              workingHours={adminWorkingHours}
+              manualBlocks={adminManualBlocks}
             />
-          </Suspense>
-        </PickerOverlay>
+          </div>
+        </div>
       )}
 
-      {/* Picker Oră */}
+      {/* ─── OVERLAY TIME PICKER (identic cu rezervare) ─────────────────────── */}
       {showTimePicker && (
-        <PickerOverlay onClose={() => setShowTimePicker(false)}>
-          <Suspense
-            fallback={
-              <div className="bg-white rounded-[30px] p-8 w-80 flex items-center justify-center">
-                <div className="w-8 h-8 border-4 border-amber-500 border-t-transparent rounded-full animate-spin" />
-              </div>
-            }
-          >
+        <div
+          className="fixed inset-0 z-[800] bg-slate-950/40 backdrop-blur-sm flex items-center justify-center p-4"
+          onClick={() => setShowTimePicker(false)}
+        >
+          <div onClick={(e) => e.stopPropagation()}>
             <ChronosTimePicker
               value={formular.ora || "09:00"}
-              onChange={handleTimeSelect}
+              onChange={(val) => {
+                setFormular({ ...formular, ora: val });
+                setShowTimePicker(false);
+              }}
               onClose={() => setShowTimePicker(false)}
-              workingStart={currentWorkingHours.start}
-              workingEnd={currentWorkingHours.end}
-              appointments={
-                (programari || []).filter((p: any) => p.date === formular.data)
-              }
-              duration={durataSelectata}
-              blockedSlots={blockedSlotsForDay}
+              workingHours={adminWorkingHours}
+              existingAppointments={existingAppointments}
+              selectedDate={formular.data}
+              serviceDuration={durataSelectata}
+              manualBlocks={adminManualBlocks}
             />
-          </Suspense>
-        </PickerOverlay>
+          </div>
+        </div>
       )}
 
-      {/* Dialog confirmare dată */}
-      {showDateConfirm && (
-        <ConfirmationDialog
-          message={`Confirmi data selectată: ${tempDate}?`}
-          onConfirm={handleDateConfirm}
-          onCancel={() => setShowDateConfirm(false)}
-        />
-      )}
-
-      {/* Dialog confirmare oră */}
-      {showTimeConfirm && (
-        <ConfirmationDialog
-          message={`Confirmi ora selectată: ${tempTime}?`}
-          onConfirm={handleTimeConfirm}
-          onCancel={() => setShowTimeConfirm(false)}
-        />
-      )}
-
-      {/* ═══════════════════════════════════════════════════════════════════
-          CONȚINUT PRINCIPAL
-      ════════════════════════════════════════════════════════════════════ */}
+      {/* ─── CONȚINUT PRINCIPAL ────────────────────────────────────────────────── */}
       <main className="min-h-screen bg-slate-50 p-4 md:p-12 text-slate-900 font-sans">
         <div className="max-w-6xl mx-auto">
           {/* Banner Trial */}
@@ -657,11 +509,7 @@ function ProgramariContent() {
               <div className="lg:col-span-3 flex flex-col items-center">
                 <div className="w-44 h-44 bg-slate-50 rounded-[45px] overflow-hidden border-8 border-white shadow-xl relative group flex items-center justify-center mb-6">
                   {formular.poza ? (
-                    <img
-                      src={formular.poza}
-                      className="w-full h-full object-cover"
-                      alt="Client"
-                    />
+                    <img src={formular.poza} className="w-full h-full object-cover" alt="Client" />
                   ) : (
                     <div className="w-full h-full relative flex items-center justify-center bg-slate-50">
                       <Image
@@ -682,29 +530,21 @@ function ProgramariContent() {
                     onChange={(e) => {
                       if (e.target.files?.[0]) {
                         const r = new FileReader();
-                        r.onload = () =>
-                          setFormular({ ...formular, poza: r.result as string });
+                        r.onload = () => setFormular({ ...formular, poza: r.result as string });
                         r.readAsDataURL(e.target.files[0]);
                       }
                     }}
                   />
-                  <label
-                    htmlFor="f-pick"
-                    className="absolute inset-0 cursor-pointer z-10"
-                  />
+                  <label htmlFor="f-pick" className="absolute inset-0 cursor-pointer z-10" />
                 </div>
-                <p className="text-[10px] font-black uppercase italic text-slate-400">
-                  Poza Profil Client
-                </p>
+                <p className="text-[10px] font-black uppercase italic text-slate-400">Poza Profil Client</p>
               </div>
 
               {/* Câmpuri formular */}
               <div className="lg:col-span-9 grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Nume cu autocomplete */}
                 <div className="md:col-span-2 flex flex-col gap-2 relative">
-                  <label className="text-[10px] font-black uppercase ml-4 text-slate-400 italic">
-                    Nume Client
-                  </label>
+                  <label className="text-[10px] font-black uppercase ml-4 text-slate-400 italic">Nume Client</label>
                   <input
                     type="text"
                     placeholder="Nume..."
@@ -732,9 +572,7 @@ function ProgramariContent() {
 
                 {/* Email */}
                 <div className="flex flex-col gap-2">
-                  <label className="text-[10px] font-black uppercase ml-4 text-slate-400 italic">
-                    E-mail
-                  </label>
+                  <label className="text-[10px] font-black uppercase ml-4 text-slate-400 italic">E-mail</label>
                   <input
                     type="email"
                     placeholder="client@email.com"
@@ -746,9 +584,7 @@ function ProgramariContent() {
 
                 {/* Telefon */}
                 <div className="flex flex-col gap-2">
-                  <label className="text-[10px] font-black uppercase ml-4 text-slate-400 italic">
-                    Telefon
-                  </label>
+                  <label className="text-[10px] font-black uppercase ml-4 text-slate-400 italic">Telefon</label>
                   <input
                     type="tel"
                     placeholder="07xxxxxxxx"
@@ -762,22 +598,16 @@ function ProgramariContent() {
                 <div className="flex flex-col gap-2">
                   <label className="text-[10px] font-black uppercase ml-4 text-slate-400 italic">
                     Alege Specialist{" "}
-                    {formular.serviciu_id && (
-                      <span className="text-amber-500 ml-1">(filtrat)</span>
-                    )}
+                    {formular.serviciu_id && <span className="text-amber-500 ml-1">(filtrat)</span>}
                   </label>
                   <select
                     className="p-5 bg-slate-50 rounded-[25px] border-2 border-transparent focus:border-amber-500 font-bold text-lg outline-none shadow-inner cursor-pointer"
                     value={formular.angajat_id}
-                    onChange={(e) =>
-                      setFormular({ ...formular, angajat_id: e.target.value })
-                    }
+                    onChange={(e) => setFormular({ ...formular, angajat_id: e.target.value })}
                   >
                     <option value="">Alege Specialist...</option>
-                    {angajatiFiltrati?.map((a: StaffRow) => (
-                      <option key={a.id} value={a.id}>
-                        {a.name}
-                      </option>
+                    {(angajatiFiltrati as StaffRow[])?.map((a) => (
+                      <option key={a.id} value={a.id}>{a.name}</option>
                     ))}
                   </select>
                 </div>
@@ -786,61 +616,61 @@ function ProgramariContent() {
                 <div className="flex flex-col gap-2">
                   <label className="text-[10px] font-black uppercase ml-4 text-slate-400 italic">
                     Alege Serviciu{" "}
-                    {formular.angajat_id && (
-                      <span className="text-amber-500 ml-1">(filtrat)</span>
-                    )}
+                    {formular.angajat_id && <span className="text-amber-500 ml-1">(filtrat)</span>}
                   </label>
                   <select
                     className="p-5 bg-slate-50 rounded-[25px] border-2 border-transparent focus:border-amber-500 font-bold text-lg outline-none shadow-inner cursor-pointer"
                     value={formular.serviciu_id}
-                    onChange={(e) =>
-                      setFormular({ ...formular, serviciu_id: e.target.value })
-                    }
+                    onChange={(e) => setFormular({ ...formular, serviciu_id: e.target.value, ora: "" })}
                   >
                     <option value="">Alege Serviciu...</option>
-                    {serviciiFiltrate?.map((s: ServiceRow) => (
-                      <option key={s.id} value={s.id}>
-                        {s.nume_serviciu} — {s.price} RON
-                      </option>
+                    {(serviciiFiltrate as ServiceRow[])?.map((s) => (
+                      <option key={s.id} value={s.id}>{s.nume_serviciu} — {s.price} RON</option>
                     ))}
                   </select>
                 </div>
 
-                {/* Buton Dată */}
+                {/* Buton Dată — identic stilistic cu rezervare */}
                 <div className="flex flex-col gap-2">
-                  <label className="text-[10px] font-black uppercase ml-4 text-slate-400 italic">
-                    Data
-                  </label>
+                  <label className="text-[10px] font-black uppercase ml-4 text-slate-400 italic">Data</label>
                   <button
                     type="button"
                     onClick={() => setShowDatePicker(true)}
-                    className="w-full p-5 bg-slate-50 rounded-[25px] border-2 border-transparent hover:border-amber-500 font-bold text-lg shadow-inner text-left flex justify-between items-center transition-all active:scale-95"
+                    className="w-full h-[72px] bg-slate-900 text-white rounded-[25px] font-black text-[18px] uppercase italic hover:text-amber-500 transition-all flex items-center justify-center gap-3 shadow-inner"
                   >
-                    <span>{formular.data}</span>
-                    <span className="text-amber-600 text-[10px]">📅</span>
+                    <span>📅</span>
+                    <span>
+                      {new Date(formular.data + "T00:00:00").toLocaleDateString("ro-RO", {
+                        day: "2-digit",
+                        month: "2-digit",
+                        year: "numeric",
+                      })}
+                    </span>
                   </button>
                 </div>
 
-                {/* Buton Oră */}
+                {/* Buton Oră — identic stilistic cu rezervare */}
                 <div className="flex flex-col gap-2">
-                  <label className="text-[10px] font-black uppercase ml-4 text-slate-400 italic">
-                    Ora
-                  </label>
+                  <label className="text-[10px] font-black uppercase ml-4 text-slate-400 italic">Ora</label>
                   <button
                     type="button"
-                    onClick={() => setShowTimePicker(true)}
-                    className="w-full p-5 bg-slate-50 rounded-[25px] font-bold text-lg shadow-inner text-left flex justify-between items-center border-2 border-transparent hover:border-amber-500 transition-all active:scale-95"
+                    onClick={() => {
+                      if (!formular.serviciu_id) {
+                        alert("Alege mai întâi serviciul dorit pentru a vedea disponibilitatea.");
+                        return;
+                      }
+                      setShowTimePicker(true);
+                    }}
+                    className="w-full h-[72px] bg-slate-900 text-white rounded-[25px] font-black text-[18px] uppercase italic hover:text-amber-500 transition-all flex items-center justify-center gap-3 shadow-inner"
                   >
-                    {formular.ora || "Selectează ora..."}
-                    <span className="text-amber-600 text-[10px]">🕒</span>
+                    <span>🕒</span>
+                    <span>{formular.ora || "ORA"}</span>
                   </button>
                 </div>
 
                 {/* Observații */}
                 <div className="md:col-span-2 flex flex-col gap-2">
-                  <label className="text-[10px] font-black uppercase ml-4 text-slate-400 italic">
-                    Observații
-                  </label>
+                  <label className="text-[10px] font-black uppercase ml-4 text-slate-400 italic">Observații</label>
                   <textarea
                     placeholder="De ce vine clientul?"
                     className="p-5 bg-slate-50 rounded-[25px] border-2 border-transparent focus:border-amber-500 font-bold text-lg h-16 resize-none outline-none shadow-inner"
@@ -948,11 +778,7 @@ function ProgramariContent() {
                   <div className="flex gap-3 items-center mb-4 pr-6">
                     <div className="w-12 h-12 rounded-[18px] bg-slate-50 overflow-hidden border-2 border-white shadow-inner flex items-center justify-center relative">
                       {p.file_url ? (
-                        <img
-                          src={p.file_url}
-                          className="w-full h-full object-cover"
-                          alt={p.title}
-                        />
+                        <img src={p.file_url} className="w-full h-full object-cover" alt={p.title} />
                       ) : (
                         <Image
                           src="/logo-chronos.png"
@@ -969,8 +795,7 @@ function ProgramariContent() {
                       </h4>
                       <p className="text-[9px] font-black text-amber-600 uppercase italic">
                         {p.time} •{" "}
-                        {angajati?.find((a: any) => a.id === p.angajat_id)?.name ||
-                          "General"}
+                        {(angajati as StaffRow[] | undefined)?.find((a) => a.id === p.angajat_id)?.name || "General"}
                       </p>
                       <p className="text-[9px] font-bold text-slate-400 italic uppercase">
                         {p.nume_serviciu || "Procedură"}
@@ -1009,19 +834,9 @@ function ProgramariContent() {
                 <div className="absolute -bottom-12 left-10 w-24 h-24 rounded-[30px] bg-white p-2 shadow-xl border border-slate-50">
                   <div className="w-full h-full rounded-[22px] bg-slate-50 overflow-hidden relative flex items-center justify-center">
                     {popupProgramare.file_url ? (
-                      <img
-                        src={popupProgramare.file_url}
-                        className="w-full h-full object-cover"
-                        alt={popupProgramare.title}
-                      />
+                      <img src={popupProgramare.file_url} className="w-full h-full object-cover" alt={popupProgramare.title} />
                     ) : (
-                      <Image
-                        src="/logo-chronos.png"
-                        alt="logo"
-                        fill
-                        sizes="80px"
-                        style={{ objectFit: "contain", padding: "8px" }}
-                      />
+                      <Image src="/logo-chronos.png" alt="logo" fill sizes="80px" style={{ objectFit: "contain", padding: "8px" }} />
                     )}
                   </div>
                 </div>
@@ -1038,43 +853,30 @@ function ProgramariContent() {
                 <div className="grid grid-cols-2 gap-4 mb-8">
                   <div className="bg-slate-50 p-4 rounded-3xl border border-slate-100">
                     <p className="text-[8px] font-black text-slate-400 uppercase italic mb-1">Telefon</p>
-                    <p className="font-black text-xs text-slate-700">
-                      {popupProgramare.phone || "N/A"}
-                    </p>
+                    <p className="font-black text-xs text-slate-700">{popupProgramare.phone || "N/A"}</p>
                   </div>
                   <div className="bg-slate-50 p-4 rounded-3xl border border-slate-100">
                     <p className="text-[8px] font-black text-slate-400 uppercase italic mb-1">Email</p>
-                    <p className="font-black text-xs text-slate-700 truncate">
-                      {popupProgramare.email || "-"}
-                    </p>
+                    <p className="font-black text-xs text-slate-700 truncate">{popupProgramare.email || "-"}</p>
                   </div>
                   <div className="bg-slate-50 p-4 rounded-3xl border border-slate-100">
                     <p className="text-[8px] font-black text-slate-400 uppercase italic mb-1">Specialist</p>
                     <p className="font-black text-xs text-slate-700">
-                      {angajati?.find((a: any) => a.id === popupProgramare.angajat_id)
-                        ?.name || "General"}
+                      {(angajati as StaffRow[] | undefined)?.find((a) => a.id === popupProgramare.angajat_id)?.name || "General"}
                     </p>
                   </div>
                   <div className="bg-slate-50 p-4 rounded-3xl border border-slate-100">
                     <p className="text-[8px] font-black text-slate-400 uppercase italic mb-1">Serviciu</p>
-                    <p className="font-black text-xs text-slate-700">
-                      {popupProgramare.nume_serviciu || "Procedură"}
-                    </p>
+                    <p className="font-black text-xs text-slate-700">{popupProgramare.nume_serviciu || "Procedură"}</p>
                   </div>
                 </div>
                 <div className="bg-slate-900 p-6 rounded-[35px] text-white">
-                  <p className="text-[8px] font-black text-amber-500 uppercase italic mb-2">
-                    Motivul vizitei
-                  </p>
-                  <p className="text-xs font-medium italic opacity-90">
-                    {popupProgramare.details || "Fără observații."}
-                  </p>
+                  <p className="text-[8px] font-black text-amber-500 uppercase italic mb-2">Motivul vizitei</p>
+                  <p className="text-xs font-medium italic opacity-90">{popupProgramare.details || "Fără observații."}</p>
                 </div>
                 {popupProgramare.documente && popupProgramare.documente.length > 0 && (
                   <div className="mt-6 bg-slate-50 p-6 rounded-[35px] border border-slate-100">
-                    <p className="text-[8px] font-black text-slate-400 uppercase italic mb-3">
-                      Fișiere atașate
-                    </p>
+                    <p className="text-[8px] font-black text-slate-400 uppercase italic mb-3">Fișiere atașate</p>
                     <div className="grid grid-cols-1 gap-2">
                       {popupProgramare.documente.map((doc: any, idx: number) => (
                         <a
@@ -1086,13 +888,9 @@ function ProgramariContent() {
                         >
                           <div className="flex items-center gap-3 overflow-hidden">
                             <span className="text-lg">📄</span>
-                            <p className="text-[10px] font-black text-slate-700 truncate italic uppercase">
-                              {doc.name || "Document"}
-                            </p>
+                            <p className="text-[10px] font-black text-slate-700 truncate italic uppercase">{doc.name || "Document"}</p>
                           </div>
-                          <span className="text-[10px] font-black text-amber-600 opacity-0 group-hover:opacity-100 transition-opacity italic">
-                            VEZI
-                          </span>
+                          <span className="text-[10px] font-black text-amber-600 opacity-0 group-hover:opacity-100 transition-opacity italic">VEZI</span>
                         </a>
                       ))}
                     </div>

@@ -8,6 +8,7 @@ import { useSearchParams } from "next/navigation";
 import { QueryClient, QueryClientProvider, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabaseClient";
 import { showToast, showConfirm } from "@/lib/toast";
+import { ChronosTimePicker, ChronosDatePicker } from "@/components/ChronosDateTimePickers";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -53,6 +54,14 @@ function timeToMinutes(t: string): number {
   if (!t || !t.includes(":")) return 0;
   const [h, m] = t.split(":").map(Number);
   return h * 60 + (m || 0);
+}
+
+function parseWH(whData: any): WorkingHour[] {
+  if (!whData) return [];
+  if (typeof whData === "string") {
+    try { return JSON.parse(whData); } catch { return []; }
+  }
+  return Array.isArray(whData) ? whData : [];
 }
 
 const dayNamesShort = ["Lun", "Mar", "Mie", "Joi", "Vin", "Sâm", "Dum"];
@@ -103,125 +112,7 @@ function mapRow(item: any): Programare {
   };
 }
 
-function InlineDatePicker({ currentDate, onSelectDate, onClose }: {
-  currentDate: string;
-  onSelectDate: (dateStr: string) => void;
-  onClose: () => void;
-}) {
-  const parsedDate = currentDate ? new Date(currentDate + "T00:00:00") : new Date();
-  const [pickerMonth, setPickerMonth] = useState(new Date(parsedDate));
-  const navPickerMonth = (dir: number) => {
-    const d = new Date(pickerMonth);
-    d.setMonth(d.getMonth() + dir);
-    setPickerMonth(d);
-  };
-  const pickerGrid = useMemo(() => {
-    const year = pickerMonth.getFullYear();
-    const month = pickerMonth.getMonth();
-    const first = new Date(year, month, 1);
-    const start = (first.getDay() + 6) % 7;
-    const daysInMonth = new Date(year, month + 1, 0).getDate();
-    const cells: Date[] = [];
-    for (let i = 0; i < start; i++) cells.push(addDays(first, i - start));
-    for (let d = 1; d <= daysInMonth; d++) cells.push(new Date(year, month, d));
-    while (cells.length % 7 !== 0) cells.push(addDays(cells[cells.length - 1], 1));
-    return cells;
-  }, [pickerMonth]);
-
-  return (
-    <div className="bg-white border-2 border-amber-500 rounded-[30px] p-5 shadow-xl">
-      <div className="flex items-center justify-between mb-4">
-        <button onClick={() => navPickerMonth(-1)} className="w-9 h-9 flex items-center justify-center bg-slate-100 hover:bg-amber-500 hover:text-white rounded-xl font-black transition-all text-sm">◀</button>
-        <p className="text-xs font-black uppercase italic text-slate-900">
-          {monthNames[pickerMonth.getMonth()]} <span className="text-amber-600">{pickerMonth.getFullYear()}</span>
-        </p>
-        <button onClick={() => navPickerMonth(1)} className="w-9 h-9 flex items-center justify-center bg-slate-100 hover:bg-amber-500 hover:text-white rounded-xl font-black transition-all text-sm">▶</button>
-      </div>
-      <div className="grid grid-cols-7 gap-1 mb-2">
-        {dayNamesShort.map((d) => (
-          <div key={d} className="text-center text-[8px] font-black text-slate-400 uppercase italic">{d}</div>
-        ))}
-      </div>
-      <div className="grid grid-cols-7 gap-1 mb-4">
-        {pickerGrid.map((day, idx) => {
-          const dayStr = formatDateKey(day);
-          const isSelected = dayStr === currentDate;
-          const isCurrentMonth = day.getMonth() === pickerMonth.getMonth();
-          return (
-            <button key={idx} onClick={() => onSelectDate(formatDateKey(day))}
-              className={`aspect-square rounded-xl text-[9px] font-black flex items-center justify-center transition-all
-                ${!isCurrentMonth ? "opacity-20 pointer-events-none" : ""}
-                ${isSelected ? "bg-amber-500 text-white shadow-lg" : "hover:bg-slate-100 text-slate-800"}`}>
-              {day.getDate()}
-            </button>
-          );
-        })}
-      </div>
-      <div className="flex gap-2">
-        <button onClick={onClose} className="flex-1 py-3 bg-slate-100 text-slate-500 rounded-[15px] font-black uppercase text-[9px] italic hover:bg-slate-200 transition-all">Anulează</button>
-        <button onClick={onClose} className="flex-[2] py-3 bg-amber-500 text-white rounded-[15px] font-black uppercase text-[9px] italic hover:bg-amber-600 transition-all shadow-lg">✓ Confirmă Data</button>
-      </div>
-    </div>
-  );
-}
-
-function InlineTimePicker({ currentTime, onSelectTime, onClose }: {
-  currentTime: string;
-  onSelectTime: (timeStr: string) => void;
-  onClose: () => void;
-}) {
-  const [step, setStep] = useState<"hour" | "minute">("hour");
-  const [selectedHour, setSelectedHour] = useState(currentTime?.split(":")[0] || "09");
-  const [selectedMinute, setSelectedMinute] = useState(currentTime?.split(":")[1] || "00");
-  const hours = Array.from({ length: 24 }, (_, i) => String(i).padStart(2, "0"));
-  const minutes = ["00", "15", "30", "45"];
-
-  return (
-    <div className="bg-white border-2 border-amber-500 rounded-[30px] p-5 shadow-xl">
-      <div className="text-center mb-4 bg-slate-50 rounded-[20px] py-3">
-        <p className="text-[8px] font-black text-slate-400 uppercase italic tracking-widest mb-1">
-          {step === "hour" ? "Selectează Ora" : "Selectează Minutele"}
-        </p>
-        <p className="text-2xl font-black italic text-slate-900">
-          <span className={step === "hour" ? "text-amber-500" : "text-slate-900"}>{selectedHour}</span>
-          <span className="text-slate-400">:</span>
-          <span className={step === "minute" ? "text-amber-500" : "text-slate-900"}>{selectedMinute}</span>
-        </p>
-      </div>
-      {step === "hour" ? (
-        <div className="grid grid-cols-6 gap-1.5 mb-4 max-h-48 overflow-y-auto pr-1">
-          {hours.map((h) => (
-            <button key={h} onClick={() => { setSelectedHour(h); setStep("minute"); }}
-              className={`py-3 rounded-xl text-[10px] font-black transition-all ${
-                selectedHour === h ? "bg-amber-500 text-white shadow-lg" : "bg-slate-50 text-slate-600 hover:bg-amber-100 hover:text-amber-700"
-              }`}>
-              {h}
-            </button>
-          ))}
-        </div>
-      ) : (
-        <div className="grid grid-cols-2 gap-2 mb-4">
-          {minutes.map((m) => (
-            <button key={m} onClick={() => { setSelectedMinute(m); onSelectTime(`${selectedHour}:${m}`); }}
-              className={`py-4 rounded-[20px] text-sm font-black transition-all ${
-                selectedMinute === m ? "bg-amber-500 text-white shadow-lg" : "bg-slate-50 text-slate-600 hover:bg-amber-100 hover:text-amber-700"
-              }`}>
-              {selectedHour}:{m}
-            </button>
-          ))}
-        </div>
-      )}
-      <div className="flex gap-2">
-        {step === "minute" && (
-          <button onClick={() => setStep("hour")} className="flex-1 py-3 bg-slate-100 text-slate-500 rounded-[15px] font-black uppercase text-[9px] italic hover:bg-slate-200 transition-all">← Ore</button>
-        )}
-        <button onClick={onClose} className="flex-1 py-3 bg-slate-100 text-slate-500 rounded-[15px] font-black uppercase text-[9px] italic hover:bg-slate-200 transition-all">Anulează</button>
-        <button onClick={onClose} className="flex-[2] py-3 bg-amber-500 text-white rounded-[15px] font-black uppercase text-[9px] italic hover:bg-amber-600 transition-all shadow-lg">✓ Confirmă Ora</button>
-      </div>
-    </div>
-  );
-}
-
+// ─── Date Picker Modal pentru navigare calendar (nu picker rezervare) ────────
 function DatePickerModal({ currentDate, onSelectDate, onClose }: {
   currentDate: Date;
   onSelectDate: (date: Date) => void;
@@ -297,6 +188,7 @@ function CalendarContent() {
   const modalRef = useRef<HTMLDivElement>(null);
   const qClient = useQueryClient();
 
+  const today = new Date().toISOString().split("T")[0];
   const [viewMode, setViewMode] = useState<ViewMode>("month");
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [searchTerm, setSearchTerm] = useState("");
@@ -305,8 +197,10 @@ function CalendarContent() {
   const [editForm, setEditForm] = useState<Programare | null>(null);
   const [customMessage, setCustomMessage] = useState("");
   const [showDatePickerModal, setShowDatePickerModal] = useState(false);
-  const [showInlineDatePicker, setShowInlineDatePicker] = useState(false);
-  const [showInlineTimePicker, setShowInlineTimePicker] = useState(false);
+
+  // ─── Picker-e pentru modal editare — identice cu rezervare ─────────────────
+  const [showEditDatePicker, setShowEditDatePicker] = useState(false);
+  const [showEditTimePicker, setShowEditTimePicker] = useState(false);
 
   const { data: session } = useQuery({
     queryKey: ["session"],
@@ -397,8 +291,20 @@ function CalendarContent() {
     };
   }, [userId, refetchProfile, refetchAppts]);
 
-  const { userSubscription, manualBlocks, workingHours } = useMemo(() => {
-    if (!profile) return { userSubscription: null, manualBlocks: {} as ManualBlocksMap, workingHours: [] as WorkingHour[] };
+  // ─── working_hours ca array (identic cu rezervare) ─────────────────────────
+  const adminWorkingHours = useMemo<WorkingHour[]>(() => {
+    return parseWH(profile?.working_hours);
+  }, [profile?.working_hours]);
+
+  // ─── manual_blocks ca obiect {dată: [sloturi]} ──────────────────────────────
+  const adminManualBlocks = useMemo<ManualBlocksMap>(() => {
+    const raw = profile?.manual_blocks;
+    if (!raw || typeof raw !== "object" || Array.isArray(raw)) return {};
+    return raw as ManualBlocksMap;
+  }, [profile?.manual_blocks]);
+
+  const { userSubscription } = useMemo(() => {
+    if (!profile) return { userSubscription: null };
     const rawPlan = (profile.plan_type || "CHRONOS FREE").toUpperCase();
     let planFinal = rawPlan;
     if (profile.trial_started_at) {
@@ -411,18 +317,16 @@ function CalendarContent() {
         max_appointments: planFinal.includes("TEAM") ? 99999 : planFinal.includes("ELITE") ? 500 : planFinal.includes("PRO") ? 150 : 30,
         max_experts: planFinal.includes("TEAM") ? 50 : planFinal.includes("ELITE") ? 5 : 1,
       },
-      manualBlocks: (profile.manual_blocks ?? {}) as ManualBlocksMap,
-      workingHours: Array.isArray(profile.working_hours) ? profile.working_hours as WorkingHour[] : [],
     };
   }, [profile]);
 
   const isDateBlocked = useCallback((dateStr: string, timeStr?: string, serviceDuration?: number) => {
-    const daySlots: string[] = manualBlocks[dateStr] || [];
+    const daySlots: string[] = adminManualBlocks[dateStr] || [];
     if (daySlots.length >= TOTAL_SLOTS_PER_DAY - 2) return { blocked: true, reason: "Zi Blocată Manual" };
 
     const dateObj = new Date(dateStr + "T00:00:00");
     const dayName = dayNamesLong[dateObj.getDay()];
-    const daySchedule = workingHours.find((h) => h.day === dayName);
+    const daySchedule = adminWorkingHours.find((h) => h.day === dayName);
     if (daySchedule?.closed) return { blocked: true, reason: "Închis (Weekend/Sărbătoare)" };
 
     if (timeStr && daySchedule) {
@@ -461,17 +365,16 @@ function CalendarContent() {
     }
 
     return { blocked: false };
-  }, [manualBlocks, workingHours, programari]);
+  }, [adminManualBlocks, adminWorkingHours, programari]);
 
   const isDayFullyOccupied = useCallback((dateStr: string): boolean => {
-    const daySchedule = workingHours.find((h) => {
-      const dateObj = new Date(dateStr + "T00:00:00");
-      return h.day === dayNamesLong[dateObj.getDay()];
-    });
+    const dateObj = new Date(dateStr + "T00:00:00");
+    const dayName = dayNamesLong[dateObj.getDay()];
+    const daySchedule = adminWorkingHours.find((h) => h.day === dayName);
     if (!daySchedule || daySchedule.closed) return true;
 
     const dayAppts = programari.filter((p) => p.data === dateStr);
-    const dayBlocks = manualBlocks[dateStr] || [];
+    const dayBlocks = adminManualBlocks[dateStr] || [];
 
     if (dayBlocks.length >= TOTAL_SLOTS_PER_DAY - 2) return true;
 
@@ -484,7 +387,21 @@ function CalendarContent() {
     }, 0);
 
     return occupiedMinutes >= totalWorkMinutes;
-  }, [workingHours, programari, manualBlocks]);
+  }, [adminWorkingHours, programari, adminManualBlocks]);
+
+  // ─── programări existente pentru ziua din editForm (pentru TimePicker) ───────
+  const editExistingAppointments = useMemo(() => {
+    if (!editForm) return [];
+    return programari
+      .filter((p) => p.data === editForm.data && p.id !== editForm.id)
+      .map((p) => ({ time: p.ora, duration: p.duration || 30 }));
+  }, [programari, editForm?.data, editForm?.id]);
+
+  // ─── durata serviciului selectat în editForm ──────────────────────────────────
+  const editServiceDuration = useMemo(() => {
+    if (!editForm?.serviciuId) return 0;
+    return rawServices.find((s) => s.id === editForm.serviciuId)?.duration || 0;
+  }, [editForm?.serviciuId, rawServices]);
 
   useEffect(() => {
     if (editForm) {
@@ -495,16 +412,25 @@ function CalendarContent() {
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (modalRef.current && !modalRef.current.contains(event.target as Node) && !showInlineDatePicker && !showInlineTimePicker) {
+      if (modalRef.current && !modalRef.current.contains(event.target as Node) &&
+          !showEditDatePicker && !showEditTimePicker) {
         handleCloseModal();
       }
     }
     if (editForm) document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [editForm, showInlineDatePicker, showInlineTimePicker]);
+  }, [editForm, showEditDatePicker, showEditTimePicker]);
 
-  const handleOpenEdit = (p: Programare) => { setEditForm({ ...p }); setShowInlineDatePicker(false); setShowInlineTimePicker(false); };
-  const handleCloseModal = () => { setEditForm(null); setShowInlineDatePicker(false); setShowInlineTimePicker(false); };
+  const handleOpenEdit = (p: Programare) => {
+    setEditForm({ ...p });
+    setShowEditDatePicker(false);
+    setShowEditTimePicker(false);
+  };
+  const handleCloseModal = () => {
+    setEditForm(null);
+    setShowEditDatePicker(false);
+    setShowEditTimePicker(false);
+  };
 
   const angajatiFiltratiInModal = useMemo(() => {
     if (!editForm?.serviciuId) return rawStaff;
@@ -613,6 +539,8 @@ function CalendarContent() {
     return Array.from({ length: 7 }, (_, i) => addDays(start, i));
   }, [selectedDate]);
 
+  const hasWhatsAppAccess = userSubscription?.plan.includes("ELITE") || userSubscription?.plan.includes("TEAM");
+
   const AppointmentChip = ({ p }: { p: Programare }) => {
     const svc = rawServices.find((s) => s.id === p.serviciuId);
     const endTime = svc?.duration ? addMinutesToTime(p.ora, svc.duration) : null;
@@ -629,238 +557,256 @@ function CalendarContent() {
     return <div className="min-h-screen flex items-center justify-center bg-slate-50 font-black italic text-slate-400 uppercase">Autentificare necesară...</div>;
   }
 
-  // ─── Variabilă centrală pentru acces WhatsApp ───────────────────────────────
-  const hasWhatsAppAccess = userSubscription?.plan.includes("ELITE") || userSubscription?.plan.includes("TEAM");
-
   return (
     <main className="min-h-screen bg-slate-50 p-2 md:p-8 flex flex-col items-center font-sans">
+
+      {/* ─── OVERLAY CALENDAR NAVIGATION ──────────────────────────────────── */}
       {showDatePickerModal && (
         <DatePickerModal currentDate={selectedDate} onSelectDate={goToDay} onClose={() => setShowDatePickerModal(false)} />
       )}
 
+      {/* ─── MODAL EDITARE PROGRAMARE ─────────────────────────────────────── */}
       {editForm && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[500] flex items-center justify-center p-4" onClick={handleCloseModal}>
-          <div ref={modalRef} onClick={(e) => e.stopPropagation()} className="bg-white w-full max-w-xl rounded-[50px] overflow-hidden shadow-2xl border border-slate-100 relative">
-            <button onClick={handleCloseModal} title="Închide" className="absolute top-8 right-8 w-12 h-12 bg-white/10 backdrop-blur-md rounded-2xl flex items-center justify-center font-black text-white hover:bg-red-500 transition-all z-30 shadow-xl border border-white/20">✕</button>
-            <div className="h-44 bg-slate-900 relative flex items-end p-10">
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-900 to-transparent opacity-20 pointer-events-none" />
-              <div className="flex items-center gap-6 z-10">
-                <div className="w-24 h-24 rounded-[32px] bg-white p-1.5 shadow-2xl rotate-3">
-                  <div className="w-full h-full rounded-[25px] bg-slate-100 overflow-hidden relative flex items-center justify-center">
-                    {editForm.poza ? <img src={editForm.poza} className="w-full h-full object-cover" alt={editForm.nume} /> : <div className="text-3xl">👤</div>}
-                  </div>
-                </div>
-                <div>
-                  <p className="text-amber-500 font-black text-[10px] uppercase italic tracking-[0.3em] mb-1">Detalii Rezervare</p>
-                  <h2 className="text-3xl font-black text-white uppercase italic tracking-tighter leading-none">{editForm.nume || "Client"}</h2>
-                </div>
+        <>
+          {/* Date Picker pentru editare — identic cu rezervare */}
+          {showEditDatePicker && (
+            <div
+              className="fixed inset-0 z-[900] bg-slate-950/40 backdrop-blur-sm flex items-center justify-center p-4"
+              onClick={() => setShowEditDatePicker(false)}
+            >
+              <div onClick={(e) => e.stopPropagation()}>
+                <ChronosDatePicker
+                  value={editForm.data}
+                  onChange={(val) => {
+                    setEditForm({ ...editForm, data: val, ora: "" });
+                    setShowEditDatePicker(false);
+                  }}
+                  minDate={today}
+                  onClose={() => setShowEditDatePicker(false)}
+                  workingHours={adminWorkingHours}
+                  manualBlocks={adminManualBlocks}
+                />
               </div>
             </div>
+          )}
 
-            <div className="p-10 space-y-6 max-h-[65vh] overflow-y-auto bg-white">
-              {/* Nume client */}
-              <div className="bg-slate-50 p-6 rounded-[35px] border border-slate-100 focus-within:border-amber-500 transition-all">
-                <p className="text-[9px] font-black text-slate-400 uppercase italic mb-2 ml-1">Nume Complet Client</p>
-                <input type="text" className="w-full bg-transparent text-xl font-black uppercase italic tracking-tight text-slate-900 outline-none"
-                  value={editForm.nume} onChange={(e) => setEditForm({ ...editForm, nume: e.target.value })} />
+          {/* Time Picker pentru editare — identic cu rezervare */}
+          {showEditTimePicker && (
+            <div
+              className="fixed inset-0 z-[900] bg-slate-950/40 backdrop-blur-sm flex items-center justify-center p-4"
+              onClick={() => setShowEditTimePicker(false)}
+            >
+              <div onClick={(e) => e.stopPropagation()}>
+                <ChronosTimePicker
+                  value={editForm.ora || "09:00"}
+                  onChange={(val) => {
+                    setEditForm({ ...editForm, ora: val });
+                    setShowEditTimePicker(false);
+                  }}
+                  onClose={() => setShowEditTimePicker(false)}
+                  workingHours={adminWorkingHours}
+                  existingAppointments={editExistingAppointments}
+                  selectedDate={editForm.data}
+                  serviceDuration={editServiceDuration}
+                  manualBlocks={adminManualBlocks}
+                />
               </div>
+            </div>
+          )}
 
-              {/* Data & Ora */}
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <div onClick={() => { setShowInlineDatePicker(!showInlineDatePicker); setShowInlineTimePicker(false); }}
-                    className={`bg-slate-50 p-5 rounded-[30px] border-2 cursor-pointer transition-all ${showInlineDatePicker ? "border-amber-500 bg-amber-50/30" : "border-slate-100 hover:border-amber-300"}`}>
-                    <p className="text-[8px] font-black text-slate-400 uppercase italic mb-1">Data Programării</p>
-                    <div className="flex items-center justify-between">
-                      <p className="font-black text-sm text-slate-800 uppercase italic">{editForm.data}</p>
-                      <span className="text-amber-500 text-xs">📅</span>
+          <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[500] flex items-center justify-center p-4" onClick={handleCloseModal}>
+            <div ref={modalRef} onClick={(e) => e.stopPropagation()} className="bg-white w-full max-w-xl rounded-[50px] overflow-hidden shadow-2xl border border-slate-100 relative">
+              <button onClick={handleCloseModal} title="Închide" className="absolute top-8 right-8 w-12 h-12 bg-white/10 backdrop-blur-md rounded-2xl flex items-center justify-center font-black text-white hover:bg-red-500 transition-all z-30 shadow-xl border border-white/20">✕</button>
+              <div className="h-44 bg-slate-900 relative flex items-end p-10">
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-900 to-transparent opacity-20 pointer-events-none" />
+                <div className="flex items-center gap-6 z-10">
+                  <div className="w-24 h-24 rounded-[32px] bg-white p-1.5 shadow-2xl rotate-3">
+                    <div className="w-full h-full rounded-[25px] bg-slate-100 overflow-hidden relative flex items-center justify-center">
+                      {editForm.poza ? <img src={editForm.poza} className="w-full h-full object-cover" alt={editForm.nume} /> : <div className="text-3xl">👤</div>}
                     </div>
                   </div>
-                  {showInlineDatePicker && (
-                    <div className="mt-2" onClick={(e) => e.stopPropagation()}>
-                      <InlineDatePicker
-                        currentDate={editForm.data}
-                        onSelectDate={(dateStr) => setEditForm({ ...editForm, data: dateStr })}
-                        onClose={() => setShowInlineDatePicker(false)}
-                      />
-                    </div>
-                  )}
-                </div>
-                <div>
-                  <div onClick={() => { setShowInlineTimePicker(!showInlineTimePicker); setShowInlineDatePicker(false); }}
-                    className={`bg-slate-50 p-5 rounded-[30px] border-2 cursor-pointer transition-all ${showInlineTimePicker ? "border-amber-500 bg-amber-50/30" : "border-slate-100 hover:border-amber-300"}`}>
-                    <p className="text-[8px] font-black text-slate-400 uppercase italic mb-1">Ora Start</p>
-                    <div className="flex items-center justify-between">
-                      <p className="font-black text-sm text-slate-800 italic">{editForm.ora}</p>
-                      <span className="text-amber-500 text-xs">🕒</span>
-                    </div>
+                  <div>
+                    <p className="text-amber-500 font-black text-[10px] uppercase italic tracking-[0.3em] mb-1">Detalii Rezervare</p>
+                    <h2 className="text-3xl font-black text-white uppercase italic tracking-tighter leading-none">{editForm.nume || "Client"}</h2>
                   </div>
-                  {showInlineTimePicker && (
-                    <div className="mt-2" onClick={(e) => e.stopPropagation()}>
-                      <InlineTimePicker
-                        currentTime={editForm.ora}
-                        onSelectTime={(timeStr) => setEditForm({ ...editForm, ora: timeStr })}
-                        onClose={() => setShowInlineTimePicker(false)}
-                      />
-                    </div>
-                  )}
                 </div>
               </div>
 
-              {/* Interval ocupat */}
-              {editForm.serviciuId && (() => {
-                const svc = rawServices.find((s) => s.id === editForm.serviciuId);
-                if (!svc?.duration) return null;
-                const endTime = addMinutesToTime(editForm.ora, svc.duration);
-                return (
-                  <div className="bg-amber-50/50 border-2 border-dashed border-amber-200 rounded-[30px] p-5 flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 bg-amber-500 rounded-2xl flex items-center justify-center text-white text-lg shadow-lg shadow-amber-200">⏱️</div>
-                      <div>
-                        <p className="text-[9px] font-black text-amber-700 uppercase italic">Interval Ocupat</p>
-                        <p className="text-sm font-black text-slate-900 italic">{editForm.ora} — {endTime}</p>
+              <div className="p-10 space-y-6 max-h-[65vh] overflow-y-auto bg-white">
+                {/* Nume client */}
+                <div className="bg-slate-50 p-6 rounded-[35px] border border-slate-100 focus-within:border-amber-500 transition-all">
+                  <p className="text-[9px] font-black text-slate-400 uppercase italic mb-2 ml-1">Nume Complet Client</p>
+                  <input type="text" className="w-full bg-transparent text-xl font-black uppercase italic tracking-tight text-slate-900 outline-none"
+                    value={editForm.nume} onChange={(e) => setEditForm({ ...editForm, nume: e.target.value })} />
+                </div>
+
+                {/* Data & Ora — butoane identice cu pagina de rezervare */}
+                <div className="grid grid-cols-2 gap-4">
+                  <button
+                    type="button"
+                    onClick={() => { setShowEditDatePicker(true); setShowEditTimePicker(false); }}
+                    className="w-full h-[80px] bg-slate-900 text-white rounded-[25px] font-black text-base uppercase italic hover:text-amber-500 transition-all flex flex-col items-center justify-center gap-1"
+                  >
+                    <span className="text-[9px] text-slate-400 font-black uppercase italic tracking-widest">Data Programării</span>
+                    <span className="text-sm">📅 {editForm.data}</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => { setShowEditTimePicker(true); setShowEditDatePicker(false); }}
+                    className="w-full h-[80px] bg-slate-900 text-white rounded-[25px] font-black text-base uppercase italic hover:text-amber-500 transition-all flex flex-col items-center justify-center gap-1"
+                  >
+                    <span className="text-[9px] text-slate-400 font-black uppercase italic tracking-widest">Ora Start</span>
+                    <span className="text-sm">🕒 {editForm.ora || "Alege..."}</span>
+                  </button>
+                </div>
+
+                {/* Interval ocupat */}
+                {editForm.serviciuId && (() => {
+                  const svc = rawServices.find((s) => s.id === editForm.serviciuId);
+                  if (!svc?.duration || !editForm.ora) return null;
+                  const endTime = addMinutesToTime(editForm.ora, svc.duration);
+                  return (
+                    <div className="bg-amber-50/50 border-2 border-dashed border-amber-200 rounded-[30px] p-5 flex items-center justify-between">
+                      <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 bg-amber-500 rounded-2xl flex items-center justify-center text-white text-lg shadow-lg shadow-amber-200">⏱️</div>
+                        <div>
+                          <p className="text-[9px] font-black text-amber-700 uppercase italic">Interval Ocupat</p>
+                          <p className="text-sm font-black text-slate-900 italic">{editForm.ora} — {endTime}</p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-[8px] font-black text-amber-600 uppercase italic">Durată</p>
+                        <p className="text-[11px] font-black text-slate-900 uppercase italic">{svc.duration} min</p>
                       </div>
                     </div>
-                    <div className="text-right">
-                      <p className="text-[8px] font-black text-amber-600 uppercase italic">Durată</p>
-                      <p className="text-[11px] font-black text-slate-900 uppercase italic">{svc.duration} min</p>
+                  );
+                })()}
+
+                {/* Telefon & Email */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="bg-slate-50 p-5 rounded-[30px] border border-slate-100">
+                    <p className="text-[8px] font-black text-slate-400 uppercase italic mb-1">Telefon</p>
+                    <input type="text" className="w-full bg-transparent font-black text-sm text-slate-800 outline-none italic"
+                      value={editForm.telefon || ""} onChange={(e) => setEditForm({ ...editForm, telefon: e.target.value })} placeholder="07xx..." />
+                  </div>
+                  <div className="bg-slate-50 p-5 rounded-[30px] border border-slate-100">
+                    <p className="text-[8px] font-black text-slate-400 uppercase italic mb-1">Email</p>
+                    <input type="email" className="w-full bg-transparent font-black text-sm text-slate-800 outline-none italic"
+                      value={editForm.email || ""} onChange={(e) => setEditForm({ ...editForm, email: e.target.value })} placeholder="client@email.com" />
+                  </div>
+                </div>
+
+                {/* Specialist & Serviciu */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="bg-slate-900 p-5 rounded-[30px] shadow-xl">
+                    <p className="text-[8px] font-black text-amber-500 uppercase italic mb-1">Specialist</p>
+                    <select className="w-full bg-transparent font-black text-xs text-white outline-none cursor-pointer uppercase italic"
+                      value={editForm.expertId || ""} onChange={(e) => setEditForm({ ...editForm, expertId: e.target.value })}>
+                      <option value="" className="text-orange-500 bg-slate-900">Alege...</option>
+                      {angajatiFiltratiInModal.map((a) => <option key={a.id} value={a.id} className="text-orange-500 bg-slate-900">{a.name}</option>)}
+                    </select>
+                  </div>
+                  <div className="bg-slate-900 p-5 rounded-[30px] shadow-xl">
+                    <p className="text-[8px] font-black text-amber-500 uppercase italic mb-1">Serviciu</p>
+                    <select className="w-full bg-transparent font-black text-xs text-white outline-none cursor-pointer uppercase italic"
+                      value={editForm.serviciuId || ""} onChange={(e) => setEditForm({ ...editForm, serviciuId: e.target.value })}>
+                      <option value="" className="text-orange-500 bg-slate-900">Alege...</option>
+                      {serviciiFiltrateInModal.map((s) => <option key={s.id} value={s.id} className="text-orange-500 bg-slate-900">{s.nume_serviciu?.toUpperCase()}</option>)}
+                    </select>
+                  </div>
+                </div>
+
+                {/* Documente */}
+                <div className="bg-slate-50 p-6 rounded-[35px] border border-slate-100">
+                  <p className="text-[8px] font-black text-slate-400 uppercase italic mb-3">Documente și Fișiere Atașate</p>
+                  {editForm.documente.length > 0 ? (
+                    <div className="grid grid-cols-1 gap-2">
+                      {editForm.documente.map((doc) => (
+                        <a key={String(doc.id)} href={doc.url} target="_blank" rel="noopener noreferrer"
+                          className="flex items-center justify-between p-3 bg-white border border-slate-200 rounded-2xl hover:border-amber-500 transition-all group"
+                          title="Deschide Document">
+                          <div className="flex items-center gap-3 overflow-hidden">
+                            <span className="text-lg">📄</span>
+                            <p className="text-[10px] font-black text-slate-700 uppercase italic truncate">{doc.name}</p>
+                          </div>
+                          <span className="text-[10px] font-black text-amber-600 opacity-0 group-hover:opacity-100 transition-opacity italic">VEZI</span>
+                        </a>
+                      ))}
                     </div>
-                  </div>
-                );
-              })()}
-
-              {/* Telefon & Email */}
-              <div className="grid grid-cols-2 gap-4">
-                <div className="bg-slate-50 p-5 rounded-[30px] border border-slate-100">
-                  <p className="text-[8px] font-black text-slate-400 uppercase italic mb-1">Telefon</p>
-                  <input type="text" className="w-full bg-transparent font-black text-sm text-slate-800 outline-none italic"
-                    value={editForm.telefon || ""} onChange={(e) => setEditForm({ ...editForm, telefon: e.target.value })} placeholder="07xx..." />
-                </div>
-                <div className="bg-slate-50 p-5 rounded-[30px] border border-slate-100">
-                  <p className="text-[8px] font-black text-slate-400 uppercase italic mb-1">Email</p>
-                  <input type="email" className="w-full bg-transparent font-black text-sm text-slate-800 outline-none italic"
-                    value={editForm.email || ""} onChange={(e) => setEditForm({ ...editForm, email: e.target.value })} placeholder="client@email.com" />
-                </div>
-              </div>
-
-              {/* Specialist & Serviciu */}
-              <div className="grid grid-cols-2 gap-4">
-                <div className="bg-slate-900 p-5 rounded-[30px] shadow-xl">
-                  <p className="text-[8px] font-black text-amber-500 uppercase italic mb-1">Specialist</p>
-                  <select className="w-full bg-transparent font-black text-xs text-white outline-none cursor-pointer uppercase italic"
-                    value={editForm.expertId || ""} onChange={(e) => setEditForm({ ...editForm, expertId: e.target.value })}>
-                    <option value="" className="text-orange-500 bg-slate-900">Alege...</option>
-                    {angajatiFiltratiInModal.map((a) => <option key={a.id} value={a.id} className="text-orange-500 bg-slate-900">{a.name}</option>)}
-                  </select>
-                </div>
-                <div className="bg-slate-900 p-5 rounded-[30px] shadow-xl">
-                  <p className="text-[8px] font-black text-amber-500 uppercase italic mb-1">Serviciu</p>
-                  <select className="w-full bg-transparent font-black text-xs text-white outline-none cursor-pointer uppercase italic"
-                    value={editForm.serviciuId || ""} onChange={(e) => setEditForm({ ...editForm, serviciuId: e.target.value })}>
-                    <option value="" className="text-orange-500 bg-slate-900">Alege...</option>
-                    {serviciiFiltrateInModal.map((s) => <option key={s.id} value={s.id} className="text-orange-500 bg-slate-900">{s.nume_serviciu?.toUpperCase()}</option>)}
-                  </select>
-                </div>
-              </div>
-
-              {/* Documente */}
-              <div className="bg-slate-50 p-6 rounded-[35px] border border-slate-100">
-                <p className="text-[8px] font-black text-slate-400 uppercase italic mb-3">Documente și Fișiere Atașate</p>
-                {editForm.documente.length > 0 ? (
-                  <div className="grid grid-cols-1 gap-2">
-                    {editForm.documente.map((doc) => (
-                      <a key={String(doc.id)} href={doc.url} target="_blank" rel="noopener noreferrer"
-                        className="flex items-center justify-between p-3 bg-white border border-slate-200 rounded-2xl hover:border-amber-500 transition-all group"
-                        title="Deschide Document">
-                        <div className="flex items-center gap-3 overflow-hidden">
-                          <span className="text-lg">📄</span>
-                          <p className="text-[10px] font-black text-slate-700 uppercase italic truncate">{doc.name}</p>
-                        </div>
-                        <span className="text-[10px] font-black text-amber-600 opacity-0 group-hover:opacity-100 transition-opacity italic">VEZI</span>
-                      </a>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-[9px] font-bold text-slate-400 italic">Niciun document încărcat pentru această programare.</p>
-                )}
-              </div>
-
-              {/* Notițe */}
-              <div className="bg-slate-50 p-6 rounded-[35px] border border-slate-100">
-                <p className="text-[8px] font-black text-slate-400 uppercase italic mb-2">Notițe Suplimentare</p>
-                <textarea className="w-full bg-transparent text-xs font-bold italic text-slate-700 outline-none resize-none" rows={2}
-                  value={editForm.motiv || ""} onChange={(e) => setEditForm({ ...editForm, motiv: e.target.value })} placeholder="Adaugă detalii..." />
-              </div>
-
-              {/* ─── WhatsApp — limitat la ELITE & TEAM ─────────────────────────── */}
-              <div className={`border p-6 rounded-[35px] space-y-3 transition-all duration-300 ${
-                hasWhatsAppAccess ? "bg-green-50 border-green-100" : "bg-slate-50 border-slate-200 opacity-60"
-              }`}>
-                {/* Header */}
-                <div className="flex justify-between items-center">
-                  <p className={`text-[10px] font-black uppercase italic tracking-widest ${
-                    hasWhatsAppAccess ? "text-green-700" : "text-slate-400"
-                  }`}>
-                    💬 Mesaj WhatsApp
-                  </p>
-                  {!hasWhatsAppAccess && (
-                    <span className="text-[7px] bg-amber-100 text-amber-700 px-2 py-1 rounded-full font-black uppercase tracking-widest border border-amber-200">
-                      🔒 ELITE &amp; TEAM
-                    </span>
+                  ) : (
+                    <p className="text-[9px] font-bold text-slate-400 italic">Niciun document încărcat pentru această programare.</p>
                   )}
                 </div>
 
-                {/* Textarea */}
-                <textarea
-                  className={`w-full rounded-2xl p-4 text-[11px] font-bold outline-none italic border resize-none transition-all ${
-                    hasWhatsAppAccess
-                      ? "bg-white/50 border-green-200 text-slate-700"
-                      : "bg-slate-100 border-slate-200 text-slate-400 cursor-not-allowed"
-                  }`}
-                  rows={2}
-                  value={hasWhatsAppAccess ? customMessage : "Disponibil doar în planurile ELITE și TEAM..."}
-                  onChange={(e) => { if (hasWhatsAppAccess) setCustomMessage(e.target.value); }}
-                  readOnly={!hasWhatsAppAccess}
-                />
-
-                {/* Buton sau placeholder lock */}
-                {hasWhatsAppAccess ? (
-                  <button
-                    onClick={sendWhatsAppReminder}
-                    className="w-full py-4 bg-green-600 text-white rounded-2xl text-[10px] font-black uppercase italic shadow-lg shadow-green-200 hover:bg-green-700 active:scale-95 transition-all"
-                  >
-                    Trimite Notificare WhatsApp
-                  </button>
-                ) : (
-                  <>
-                    <div className="w-full py-4 bg-slate-200 text-slate-400 rounded-2xl text-[10px] font-black uppercase italic text-center cursor-not-allowed select-none">
-                      🔒 Necesită Plan ELITE sau TEAM
-                    </div>
-                    <p className="text-center text-[8px] font-black text-slate-400 uppercase italic leading-relaxed">
-                      Upgrade la{" "}
-                      <span className="text-amber-600">ELITE</span>{" "}sau{" "}
-                      <span className="text-amber-600">TEAM</span>{" "}
-                      pentru a trimite notificări WhatsApp clienților tăi
-                    </p>
-                  </>
-                )}
-              </div>
-              {/* ─────────────────────────────────────────────────────────────────── */}
-
-              {/* Acțiuni finale */}
-              <div className="flex flex-col gap-3 pt-4 border-t border-slate-100">
-                <div className="flex gap-4">
-                  <button onClick={handleCloseModal} className="flex-1 py-5 bg-slate-100 text-slate-500 rounded-[25px] font-black uppercase text-[10px] italic hover:bg-slate-200 transition-all">Anulează</button>
-                  <button onClick={handleUpdate} className="flex-[2] py-5 bg-slate-900 text-white rounded-[25px] font-black shadow-2xl uppercase text-[10px] italic hover:bg-amber-600 transition-all active:scale-95">Salvează Modificările</button>
+                {/* Notițe */}
+                <div className="bg-slate-50 p-6 rounded-[35px] border border-slate-100">
+                  <p className="text-[8px] font-black text-slate-400 uppercase italic mb-2">Notițe Suplimentare</p>
+                  <textarea className="w-full bg-transparent text-xs font-bold italic text-slate-700 outline-none resize-none" rows={2}
+                    value={editForm.motiv || ""} onChange={(e) => setEditForm({ ...editForm, motiv: e.target.value })} placeholder="Adaugă detalii..." />
                 </div>
-                <button onClick={handleDelete} className="w-full py-5 text-red-500 font-black uppercase text-[9px] italic hover:bg-red-50 rounded-[25px] transition-all">Șterge Definitiv 🗑️</button>
+
+                {/* WhatsApp */}
+                <div className={`border p-6 rounded-[35px] space-y-3 transition-all duration-300 ${
+                  hasWhatsAppAccess ? "bg-green-50 border-green-100" : "bg-slate-50 border-slate-200 opacity-60"
+                }`}>
+                  <div className="flex justify-between items-center">
+                    <p className={`text-[10px] font-black uppercase italic tracking-widest ${
+                      hasWhatsAppAccess ? "text-green-700" : "text-slate-400"
+                    }`}>
+                      💬 Mesaj WhatsApp
+                    </p>
+                    {!hasWhatsAppAccess && (
+                      <span className="text-[7px] bg-amber-100 text-amber-700 px-2 py-1 rounded-full font-black uppercase tracking-widest border border-amber-200">
+                        🔒 ELITE &amp; TEAM
+                      </span>
+                    )}
+                  </div>
+                  <textarea
+                    className={`w-full rounded-2xl p-4 text-[11px] font-bold outline-none italic border resize-none transition-all ${
+                      hasWhatsAppAccess
+                        ? "bg-white/50 border-green-200 text-slate-700"
+                        : "bg-slate-100 border-slate-200 text-slate-400 cursor-not-allowed"
+                    }`}
+                    rows={2}
+                    value={hasWhatsAppAccess ? customMessage : "Disponibil doar în planurile ELITE și TEAM..."}
+                    onChange={(e) => { if (hasWhatsAppAccess) setCustomMessage(e.target.value); }}
+                    readOnly={!hasWhatsAppAccess}
+                  />
+                  {hasWhatsAppAccess ? (
+                    <button
+                      onClick={sendWhatsAppReminder}
+                      className="w-full py-4 bg-green-600 text-white rounded-2xl text-[10px] font-black uppercase italic shadow-lg shadow-green-200 hover:bg-green-700 active:scale-95 transition-all"
+                    >
+                      Trimite Notificare WhatsApp
+                    </button>
+                  ) : (
+                    <>
+                      <div className="w-full py-4 bg-slate-200 text-slate-400 rounded-2xl text-[10px] font-black uppercase italic text-center cursor-not-allowed select-none">
+                        🔒 Necesită Plan ELITE sau TEAM
+                      </div>
+                      <p className="text-center text-[8px] font-black text-slate-400 uppercase italic leading-relaxed">
+                        Upgrade la <span className="text-amber-600">ELITE</span> sau <span className="text-amber-600">TEAM</span> pentru a trimite notificări WhatsApp
+                      </p>
+                    </>
+                  )}
+                </div>
+
+                {/* Acțiuni finale */}
+                <div className="flex flex-col gap-3 pt-4 border-t border-slate-100">
+                  <div className="flex gap-4">
+                    <button onClick={handleCloseModal} className="flex-1 py-5 bg-slate-100 text-slate-500 rounded-[25px] font-black uppercase text-[10px] italic hover:bg-slate-200 transition-all">Anulează</button>
+                    <button onClick={handleUpdate} className="flex-[2] py-5 bg-slate-900 text-white rounded-[25px] font-black shadow-2xl uppercase text-[10px] italic hover:bg-amber-600 transition-all active:scale-95">Salvează Modificările</button>
+                  </div>
+                  <button onClick={handleDelete} className="w-full py-5 text-red-500 font-black uppercase text-[9px] italic hover:bg-red-50 rounded-[25px] transition-all">Șterge Definitiv 🗑️</button>
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        </>
       )}
 
-      {/* Header principal */}
+      {/* ─── HEADER ────────────────────────────────────────────────────────── */}
       <div className="w-full max-w-6xl flex flex-col items-center mb-6 px-6 py-6 mt-4 gap-6 bg-white rounded-[40px] shadow-sm border border-slate-100">
         <div className="w-full flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="flex items-center gap-4">
@@ -903,7 +849,7 @@ function CalendarContent() {
         </div>
       </div>
 
-      {/* Calendar principal */}
+      {/* ─── CALENDAR ──────────────────────────────────────────────────────── */}
       <div className="w-full max-w-6xl bg-white rounded-[40px] shadow-2xl border border-slate-200 overflow-hidden mb-20">
         <div className="p-4 md:p-8 border-b border-slate-100 flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-4">
