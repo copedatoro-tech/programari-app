@@ -6,7 +6,7 @@ import { supabase } from "../lib/supabaseClient";
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Calendar, Users, Zap, ShieldCheck, ArrowRight, Clock, Star, MousePointer2, Share2, CheckCircle2, MoreHorizontal, MessageSquare, Scissors, UserCheck } from "lucide-react";
+import { Calendar, Users, Zap, ShieldCheck, ArrowRight, Clock, Star, MousePointer2, Share2, CheckCircle2, MoreHorizontal, MessageSquare, Scissors, UserCheck, Phone } from "lucide-react";
 
 export default function LandingPage() {
   const router = useRouter();
@@ -99,7 +99,7 @@ export default function LandingPage() {
             transition={{ delay: 0.2 }}
             className="max-w-2xl mx-auto text-slate-500 text-[10px] md:text-xs font-bold uppercase italic tracking-wide mb-8 leading-relaxed"
           >
-            Tu doar tunzi, repari sau antrenezi. Chronos preia apelurile, verifică programul și confirmă locul. Fără stres, doar profit.
+            Tu doar tunzi, repari sau antrenezi. Chronos gestionează rezervările, verifică programul și confirmă locul. Fără telefoane, doar profit.
           </motion.p>
 
           <motion.div 
@@ -121,8 +121,8 @@ export default function LandingPage() {
               <span className="relative z-10 text-[9px] opacity-70">VREAU CONTROL TOTAL</span>
               <span className="relative z-10 text-xs flex items-center gap-2">10 Zile Gratuit <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" /></span>
             </Link>
-            <p className="text-[8px] font-black text-slate-400 uppercase italic tracking-widest">
-              * După 10 zile, ne dai un feedback pe email și tu decizi dacă rămâi.
+            <p className="text-[10px] font-black text-slate-900 uppercase italic tracking-widest bg-amber-100 px-4 py-1 rounded-full">
+              * După 10 zile, ne dai un feedback pe email și tu decizi dacă mergem mai departe.
             </p>
           </motion.div>
         </div>
@@ -134,69 +134,112 @@ export default function LandingPage() {
           transition={{ delay: 0.5, duration: 1 }}
           className="relative w-full max-w-5xl"
         >
-          {/* Mockup Frame */}
           <div className="bg-slate-800 rounded-t-[30px] p-2 shadow-2xl border-x-4 border-t-4 border-slate-700">
             <div className="flex items-center gap-1.5 mb-2 px-4 py-1">
               <div className="w-2 h-2 rounded-full bg-red-500"></div>
               <div className="w-2 h-2 rounded-full bg-amber-500"></div>
               <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
-              <div className="ml-4 bg-slate-700/50 px-3 py-0.5 rounded text-[8px] text-slate-400 font-mono">app.chronos.system/dashboard</div>
+              <div className="ml-4 bg-slate-700/50 px-3 py-0.5 rounded text-[8px] text-slate-400 font-mono italic uppercase">agenda.meu/calendar</div>
             </div>
             
-            {/* App Interface Sample */}
-            <div className="bg-white rounded-t-xl overflow-hidden min-h-[400px]">
-              <div className="p-6 border-b border-slate-100 flex justify-between items-center">
-                <h3 className="font-black italic text-lg uppercase tracking-tighter">Panou de Control</h3>
-                <div className="flex gap-2">
-                    <div className="w-8 h-8 rounded-lg bg-slate-100 animate-pulse"></div>
-                    <div className="w-8 h-8 rounded-lg bg-slate-100 animate-pulse"></div>
+            <div className="bg-white rounded-t-xl overflow-hidden min-h-[450px] relative">
+              {/* Header Interfață */}
+              <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+                <div>
+                    <h3 className="font-black italic text-lg uppercase tracking-tighter leading-none">Agenda Ta</h3>
+                    <p className="text-[9px] font-bold text-slate-400 uppercase italic mt-1">Luni, 13 Aprilie 2026</p>
+                </div>
+                <div className="flex items-center gap-3">
+                    <div className="px-4 py-2 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase italic tracking-widest">+ Adaugă Manual</div>
                 </div>
               </div>
               
               <div className="p-6">
-                <div className="grid grid-cols-4 gap-4 mb-8">
-                  {[
-                    { label: "Total Clienți", val: "124", color: "text-amber-600" },
-                    { label: "Azi", val: "8", color: "text-slate-900" },
-                    { label: "Venit Estimat", val: "1.450 RON", color: "text-emerald-600" },
-                    { label: "Locuri Libere", val: "2", color: "text-red-500" }
-                  ].map((stat, i) => (
-                    <div key={i} className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
-                      <p className="text-[8px] font-black uppercase text-slate-400 mb-1">{stat.label}</p>
-                      <p className={`text-sm font-black italic ${stat.color}`}>{stat.val}</p>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden shadow-sm">
+                <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden shadow-sm relative">
                   <table className="w-full text-left">
                     <thead className="bg-slate-50 border-b border-slate-100">
                       <tr>
-                        <th className="p-4 text-[9px] font-black uppercase italic text-slate-400 tracking-widest">Client</th>
-                        <th className="p-4 text-[9px] font-black uppercase italic text-slate-400 tracking-widest">Serviciu</th>
                         <th className="p-4 text-[9px] font-black uppercase italic text-slate-400 tracking-widest">Ora</th>
+                        <th className="p-4 text-[9px] font-black uppercase italic text-slate-400 tracking-widest">Client / Detalii</th>
+                        <th className="p-4 text-[9px] font-black uppercase italic text-slate-400 tracking-widest">Serviciu</th>
                         <th className="p-4 text-[9px] font-black uppercase italic text-slate-400 tracking-widest">Status</th>
                         <th className="p-4"></th>
                       </tr>
                     </thead>
                     <tbody className="text-[11px] font-bold italic">
-                      {[
-                        { name: "Andrei Ionescu", svc: "Tuns + Barbă", time: "14:30", status: "Confirmat", color: "bg-emerald-100 text-emerald-700" },
-                        { name: "Mihai Georgescu", svc: "Tuns Fade", time: "15:15", status: "În Așteptare", color: "bg-amber-100 text-amber-700" },
-                        { name: "Radu Popescu", svc: "Vopsit", time: "16:00", status: "Confirmat", color: "bg-emerald-100 text-emerald-700" }
-                      ].map((row, i) => (
-                        <tr key={i} className="border-b border-slate-50 last:border-0 hover:bg-slate-50/50 transition-colors">
-                          <td className="p-4 flex items-center gap-2"><div className="w-6 h-6 rounded-full bg-slate-200 uppercase flex items-center justify-center text-[8px]">{row.name[0]}</div> {row.name}</td>
-                          <td className="p-4 uppercase tracking-tighter text-slate-500">{row.svc}</td>
-                          <td className="p-4 text-slate-900 font-black">{row.time}</td>
-                          <td className="p-4">
-                            <span className={`px-2 py-1 rounded-lg text-[8px] font-black uppercase ${row.color}`}>{row.status}</span>
-                          </td>
-                          <td className="p-4"><MoreHorizontal className="w-4 h-4 text-slate-300" /></td>
-                        </tr>
-                      ))}
+                      {/* Rând cu POP-UP pentru WhatsApp */}
+                      <tr className="border-b border-slate-50 bg-slate-50/30 relative">
+                        <td className="p-4 text-amber-600 font-black">14:30</td>
+                        <td className="p-4">
+                          <div className="flex items-center gap-2">
+                            <div className="w-6 h-6 rounded-full bg-slate-900 text-white flex items-center justify-center text-[8px]">A</div>
+                            <span>Andrei Ionescu</span>
+                          </div>
+                          {/* --- WHATSAPP POPUP --- */}
+                          <motion.div 
+                            initial={{ opacity: 0, scale: 0.8, y: 10 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            className="absolute left-32 top-10 z-20 bg-white shadow-2xl rounded-2xl p-3 border border-slate-100 flex items-center gap-3"
+                          >
+                            <div className="w-8 h-8 bg-emerald-500 rounded-full flex items-center justify-center text-white">
+                                <MessageSquare className="w-4 h-4" />
+                            </div>
+                            <div className="pr-4">
+                                <p className="text-[8px] text-slate-400 uppercase font-black tracking-tighter">Opțiuni Rapide</p>
+                                <p className="text-[10px] font-black text-emerald-600 uppercase italic">Trimite Confirmare WhatsApp</p>
+                            </div>
+                          </motion.div>
+                        </td>
+                        <td className="p-4 uppercase tracking-tighter text-slate-500">Tuns + Barbă</td>
+                        <td className="p-4">
+                          <span className="px-2 py-1 rounded-lg text-[8px] font-black uppercase bg-emerald-100 text-emerald-700">Confirmat</span>
+                        </td>
+                        <td className="p-4"><MoreHorizontal className="w-4 h-4 text-slate-300" /></td>
+                      </tr>
+
+                      <tr className="border-b border-slate-50 opacity-60">
+                        <td className="p-4 text-slate-400 font-black">15:15</td>
+                        <td className="p-4">
+                          <div className="flex items-center gap-2">
+                            <div className="w-6 h-6 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center text-[8px]">M</div>
+                            <span>Mihai Georgescu</span>
+                          </div>
+                        </td>
+                        <td className="p-4 uppercase tracking-tighter text-slate-500">Tuns Fade</td>
+                        <td className="p-4">
+                          <span className="px-2 py-1 rounded-lg text-[8px] font-black uppercase bg-amber-100 text-amber-700">În Așteptare</span>
+                        </td>
+                        <td className="p-4"><MoreHorizontal className="w-4 h-4 text-slate-300" /></td>
+                      </tr>
+
+                      <tr className="border-b border-slate-50">
+                        <td className="p-4 text-amber-600 font-black">16:00</td>
+                        <td className="p-4">
+                          <div className="flex items-center gap-2">
+                            <div className="w-6 h-6 rounded-full bg-slate-900 text-white flex items-center justify-center text-[8px]">R</div>
+                            <span>Radu Popescu</span>
+                          </div>
+                        </td>
+                        <td className="p-4 uppercase tracking-tighter text-slate-500">Vopsit</td>
+                        <td className="p-4">
+                          <span className="px-2 py-1 rounded-lg text-[8px] font-black uppercase bg-emerald-100 text-emerald-700">Confirmat</span>
+                        </td>
+                        <td className="p-4"><MoreHorizontal className="w-4 h-4 text-slate-300" /></td>
+                      </tr>
                     </tbody>
                   </table>
+                </div>
+
+                {/* Info Bar Jos */}
+                <div className="mt-6 flex gap-4">
+                    <div className="flex-1 bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                        <p className="text-[8px] font-black uppercase text-slate-400 mb-1 italic">Total Azi</p>
+                        <p className="text-sm font-black italic">12 Programări</p>
+                    </div>
+                    <div className="flex-1 bg-amber-50 p-4 rounded-2xl border border-amber-100">
+                        <p className="text-[8px] font-black uppercase text-amber-600 mb-1 italic">Timp Ocupat</p>
+                        <p className="text-sm font-black italic">6h 30min</p>
+                    </div>
                 </div>
               </div>
             </div>
@@ -204,29 +247,15 @@ export default function LandingPage() {
 
           {/* Decorative Floating Badges */}
           <motion.div 
-            animate={{ x: [-10, 10, -10] }} 
-            transition={{ repeat: Infinity, duration: 4 }}
-            className="absolute -left-10 top-20 bg-white p-4 rounded-2xl shadow-xl border border-slate-100 hidden lg:block"
+            animate={{ y: [-5, 5, -5] }} 
+            transition={{ repeat: Infinity, duration: 3 }}
+            className="absolute -left-12 top-1/2 bg-white p-5 rounded-[25px] shadow-2xl border-4 border-slate-100 hidden lg:block z-30"
           >
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-amber-100 rounded-xl text-amber-600"><Scissors className="w-5 h-5" /></div>
+              <div className="p-3 bg-emerald-500 text-white rounded-2xl shadow-lg shadow-emerald-500/20"><UserCheck className="w-6 h-6" /></div>
               <div>
-                <p className="text-[9px] font-black uppercase italic text-slate-400">Ultima Programare</p>
-                <p className="text-xs font-black italic">Tuns Fade la 14:30</p>
-              </div>
-            </div>
-          </motion.div>
-
-          <motion.div 
-            animate={{ x: [10, -10, 10] }} 
-            transition={{ repeat: Infinity, duration: 5 }}
-            className="absolute -right-10 bottom-40 bg-slate-900 text-white p-4 rounded-2xl shadow-xl hidden lg:block"
-          >
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-emerald-500/20 rounded-xl text-emerald-500"><UserCheck className="w-5 h-5" /></div>
-              <div>
-                <p className="text-[9px] font-black uppercase italic opacity-60">Feedback Clienți</p>
-                <p className="text-xs font-black italic text-emerald-400">"Super ușor de folosit!"</p>
+                <p className="text-[9px] font-black uppercase italic text-slate-400 leading-none mb-1">Automatizare</p>
+                <p className="text-xs font-black italic">SINCRO CU CALENDAR</p>
               </div>
             </div>
           </motion.div>
@@ -246,17 +275,17 @@ export default function LandingPage() {
               { 
                 step: "01",
                 title: "Te înscrii în 2 minute", 
-                desc: "Nu-ți cerem cardul, nu-ți cerem sufletul. Doar numele și serviciile tale. Primești 10 zile acces total." 
+                desc: "Nu-ți cerem cardul la început. Doar numele și serviciile tale. Primești 10 zile acces total pentru a vedea cum crește profitul." 
               },
               { 
                 step: "02",
-                title: "Link-ul e asistentul tău", 
-                desc: "Pui link-ul în Bio la Instagram sau status pe WhatsApp. Clienții se bat pe locurile libere fără să te sune." 
+                title: "Link-ul face treaba", 
+                desc: "Clienții primesc link-ul tău. Ei își aleg ora, Chronos le confirmă rezervarea și tu îi vezi direct în agenda ta." 
               },
               { 
                 step: "03",
-                title: "Feedback & Decizie", 
-                desc: "După trial, ne dai un mail scurt: 'Dan, e super!' sau 'Nu e de mine'. Simplu, între bărbați de afaceri." 
+                title: "Feedback & Evoluție", 
+                desc: "După trial, discutăm pe email despre experiența ta. Ne dorim să construim cel mai bun asistent digital pentru afacerea ta." 
               }
             ].map((s, i) => (
               <motion.div 
