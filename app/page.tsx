@@ -6,7 +6,7 @@ import { supabase } from "../lib/supabaseClient";
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Calendar, Users, Zap, ShieldCheck, ArrowRight, Clock, Star, MousePointer2, Share2, CheckCircle2, MoreHorizontal, MessageSquare, Scissors, UserCheck, Phone } from "lucide-react";
+import { Calendar, Users, Zap, ShieldCheck, ArrowRight, Clock, Star, MousePointer2, Share2, CheckCircle2, MoreHorizontal, MessageSquare, Scissors, UserCheck, Phone, BellRing } from "lucide-react";
 
 export default function LandingPage() {
   const router = useRouter();
@@ -90,7 +90,7 @@ export default function LandingPage() {
             transition={{ delay: 0.1 }}
             className="text-4xl md:text-6xl font-black italic uppercase tracking-tighter leading-[0.9] mb-6"
           >
-            TU FACI CE ȘTII <span className="text-amber-600">CEL MAI BINE</span>
+            TU FACI CE ȘTII <span className="text-amber-600">CEL MAI BINE!</span>
           </motion.h1>
           
           <motion.p 
@@ -110,26 +110,21 @@ export default function LandingPage() {
           >
             <Link 
               href="/register"
-              className="w-full max-w-md h-[90px] bg-amber-500 text-white rounded-[30px] font-black italic uppercase tracking-widest hover:bg-slate-900 shadow-2xl shadow-amber-500/40 transition-all flex flex-col items-center justify-center gap-1 active:scale-95 group overflow-hidden relative border-b-8 border-amber-700"
+              className="w-full max-w-lg h-[100px] bg-amber-500 text-slate-950 rounded-[30px] font-black italic uppercase tracking-widest hover:bg-amber-400 shadow-2xl shadow-amber-500/40 transition-all flex flex-col items-center justify-center active:scale-95 group overflow-hidden relative border-b-8 border-amber-700"
             >
-              <motion.div 
-                className="absolute inset-0 bg-slate-900"
-                initial={{ y: "100%" }}
-                whileHover={{ y: 0 }}
-                transition={{ duration: 0.3 }}
-              />
-              <span className="relative z-10 text-[10px] opacity-90 tracking-[0.2em]">VREAU CONTROL TOTAL</span>
-              <span className="relative z-10 text-lg md:text-xl flex items-center gap-3">
+              <span className="relative z-10 text-xl md:text-2xl flex items-center gap-3">
                 DORESC OFERTA: 10 ZILE GRATUIT 
                 <motion.div
                   animate={{ x: [0, 5, 0] }}
                   transition={{ repeat: Infinity, duration: 1.5 }}
                 >
-                  <ArrowRight className="w-6 h-6" />
+                  <ArrowRight className="w-7 h-7" />
                 </motion.div>
               </span>
+              <span className="relative z-10 text-[11px] font-black tracking-[0.3em] mt-1">CREEAZĂ-ȚI CONT</span>
             </Link>
-            <p className="text-[10px] font-black text-slate-900 uppercase italic tracking-widest bg-amber-100 px-4 py-1 rounded-full">
+
+            <p className="text-[10px] font-black text-slate-900 uppercase italic tracking-widest bg-amber-100 px-4 py-1 rounded-full mt-2">
               * După 10 zile, ne dai un feedback pe email și tu decizi dacă mergem mai departe.
             </p>
           </motion.div>
@@ -181,17 +176,19 @@ export default function LandingPage() {
                             <div className="w-6 h-6 rounded-full bg-slate-900 text-white flex items-center justify-center text-[8px]">A</div>
                             <span>Andrei Ionescu</span>
                           </div>
+                          
+                          {/* --- POP-UP REZERVARE --- */}
                           <motion.div 
                             initial={{ opacity: 0, scale: 0.8, y: 10 }}
                             animate={{ opacity: 1, scale: 1, y: 0 }}
                             className="absolute left-32 top-10 z-20 bg-white shadow-2xl rounded-2xl p-3 border border-slate-100 flex items-center gap-3"
                           >
-                            <div className="w-8 h-8 bg-emerald-500 rounded-full flex items-center justify-center text-white">
-                                <MessageSquare className="w-4 h-4" />
+                            <div className="w-8 h-8 bg-amber-500 rounded-full flex items-center justify-center text-slate-950 shadow-lg shadow-amber-500/20">
+                                <BellRing className="w-4 h-4" />
                             </div>
                             <div className="pr-4">
-                                <p className="text-[8px] text-slate-400 uppercase font-black tracking-tighter">Opțiuni Rapide</p>
-                                <p className="text-[10px] font-black text-emerald-600 uppercase italic">Confirmare WhatsApp Trimisă</p>
+                                <p className="text-[10px] font-black text-slate-900 uppercase italic leading-none">Rezervare #9 primită</p>
+                                <p className="text-[8px] text-slate-400 uppercase font-black tracking-tighter mt-1">Verifică detaliile în agendă</p>
                             </div>
                           </motion.div>
                         </td>
