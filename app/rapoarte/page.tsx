@@ -76,6 +76,8 @@ function RapoarteContent() {
   }
 
   useEffect(() => {
+    let activeChannel: any = null;
+
     const initApp = async () => {
       setLoading(true);
       await fetchRealData();
@@ -83,16 +85,33 @@ function RapoarteContent() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      const activeChannel = supabase
+      // Corecție Realtime: Ne asigurăm că lanțul de metode este curat
+      activeChannel = supabase
         .channel(`realtime_rapoarte_${user.id}`)
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'appointments', filter: `user_id=eq.${user.id}` }, 
-        () => fetchRealData())
+        .on(
+          'postgres_changes', 
+          { 
+            event: '*', 
+            schema: 'public', 
+            table: 'appointments', 
+            filter: `user_id=eq.${user.id}` 
+          }, 
+          () => {
+            fetchRealData();
+          }
+        )
         .subscribe();
 
       channelRef.current = activeChannel;
     };
+
     initApp();
-    return () => { if (channelRef.current) supabase.removeChannel(channelRef.current); };
+
+    return () => { 
+      if (channelRef.current) {
+        supabase.removeChannel(channelRef.current);
+      } 
+    };
   }, [supabase]);
 
   const stats = useMemo(() => {
@@ -224,6 +243,7 @@ function RapoarteContent() {
             background-color: #0f172a !important; 
             color: white !important; 
             -webkit-print-color-adjust: exact !important; 
+            print-color-adjust: exact !important; 
           }
           .bg-emerald-500 { background-color: #10b981 !important; -webkit-print-color-adjust: exact !important; }
           .bg-blue-500 { background-color: #3b82f6 !important; -webkit-print-color-adjust: exact !important; }
@@ -233,6 +253,7 @@ function RapoarteContent() {
             display: block !important;
             background-color: #0f172a !important; 
             -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
           }
         }
       `}</style>
