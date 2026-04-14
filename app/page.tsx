@@ -6,7 +6,7 @@ import { supabase } from "../lib/supabaseClient";
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Calendar, Users, Zap, ShieldCheck, ArrowRight, Clock, Star, MousePointer2, Share2, CheckCircle2, MoreHorizontal, MessageSquare, Scissors, UserCheck, Phone, BellRing } from "lucide-react";
+import { Calendar, Users, Zap, ShieldCheck, ArrowRight, Clock, Star, MousePointer2, Share2, CheckCircle2, MoreHorizontal, MessageSquare, Scissors, UserCheck, Phone, BellRing, Mail, ShieldAlert } from "lucide-react";
 
 export default function LandingPage() {
   const router = useRouter();
@@ -304,20 +304,71 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* --- FOOTER --- */}
-      <footer className="py-16 px-6 max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
-        <div className="flex items-center gap-2">
-          <Image src="/logo-chronos.png" alt="Chronos Logo" width={25} height={25} />
-          <span className="font-black text-sm tracking-tighter italic uppercase text-slate-400">
-            CHRONOS<span className="text-amber-500">.SYSTEM</span>
-          </span>
-        </div>
-        <p className="text-[9px] font-black text-slate-300 uppercase tracking-[0.3em] italic">
-          &copy; 2026 - Eficiență Absolută • Creat pentru Profesioniști
-        </p>
-        <div className="flex gap-6">
-          <Link href="/terms" className="text-[9px] font-black text-slate-400 uppercase italic hover:text-amber-600 transition-colors">Termeni</Link>
-          <Link href="/privacy" className="text-[9px] font-black text-slate-400 uppercase italic hover:text-amber-600 transition-colors">Confidențialitate</Link>
+      {/* --- FOOTER MODIFICAT --- */}
+      <footer className="bg-slate-900 text-white pt-20 pb-10 px-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
+            {/* Coloana 1: Logo */}
+            <div className="flex flex-col gap-4">
+              <div className="flex items-center gap-2">
+                <Image src="/logo-chronos.png" alt="Chronos Logo" width={30} height={30} className="brightness-200" />
+                <span className="font-black text-lg tracking-tighter italic uppercase text-white">
+                  CHRONOS<span className="text-amber-500">.SYSTEM</span>
+                </span>
+              </div>
+              <p className="text-slate-400 text-[10px] font-bold uppercase italic leading-relaxed">
+                Eficiență absolută pentru afacerea ta. Automatizează-ți programările și recapătă-ți timpul.
+              </p>
+            </div>
+
+            {/* Coloana 2: Legal */}
+            <div className="flex flex-col gap-4">
+              <h4 className="text-amber-500 font-black italic uppercase text-xs tracking-widest">Informații Legale</h4>
+              <nav className="flex flex-col gap-2">
+                <Link href="/terms" className="text-slate-400 text-[10px] font-black uppercase italic hover:text-white transition-colors flex items-center gap-2">
+                   Termeni și Condiții
+                </Link>
+                <Link href="/privacy" className="text-slate-400 text-[10px] font-black uppercase italic hover:text-white transition-colors flex items-center gap-2">
+                   Politica de Confidențialitate
+                </Link>
+                <Link href="/cookies" className="text-slate-400 text-[10px] font-black uppercase italic hover:text-white transition-colors flex items-center gap-2">
+                   Politica Cookies
+                </Link>
+              </nav>
+            </div>
+
+            {/* Coloana 3: Suport */}
+            <div className="flex flex-col gap-4">
+              <h4 className="text-amber-500 font-black italic uppercase text-xs tracking-widest">Suport Clienți</h4>
+              <div className="flex flex-col gap-2">
+                <a href="mailto:copedatoro@gmail.com" className="text-slate-400 text-[10px] font-black uppercase italic hover:text-white transition-colors flex items-center gap-2">
+                  <Mail className="w-3 h-3 text-amber-500" />
+                  copedatoro@gmail.com
+                </a>
+                <p className="text-slate-500 text-[9px] font-bold uppercase italic mt-1">
+                  Răspundem în maxim 24 de ore.
+                </p>
+              </div>
+            </div>
+
+            {/* Coloana 4: Quick Links */}
+            <div className="flex flex-col gap-4">
+              <h4 className="text-amber-500 font-black italic uppercase text-xs tracking-widest">Acces Rapid</h4>
+              <Link href="/login" className="bg-white/5 border border-white/10 px-4 py-2 rounded-xl text-[10px] font-black uppercase italic text-center hover:bg-amber-500 hover:text-slate-900 transition-all">
+                Contul Meu
+              </Link>
+            </div>
+          </div>
+
+          <div className="border-t border-white/5 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+            <p className="text-[9px] font-black text-slate-500 uppercase tracking-[0.3em] italic">
+              &copy; 2026 CHRONOS. Toate drepturile rezervate.
+            </p>
+            <div className="flex items-center gap-2">
+                <ShieldCheck className="w-4 h-4 text-emerald-500" />
+                <span className="text-[8px] font-black text-slate-500 uppercase italic tracking-widest">Securizat prin Supabase & Stripe</span>
+            </div>
+          </div>
         </div>
       </footer>
     </div>
