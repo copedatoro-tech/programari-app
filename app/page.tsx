@@ -90,16 +90,16 @@ export default function LandingPage() {
             transition={{ delay: 0.1 }}
             className="text-4xl md:text-6xl font-black italic uppercase tracking-tighter leading-[0.9] mb-6"
           >
-            CLIENTUL SE <span className="text-amber-600">PROGRAMEAZĂ SINGUR</span>
+            TU FACI CE ȘTII <span className="text-amber-600">CEL MAI BINE</span>
           </motion.h1>
           
           <motion.p 
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="max-w-2xl mx-auto text-slate-500 text-[10px] md:text-xs font-bold uppercase italic tracking-wide mb-8 leading-relaxed"
+            className="max-w-3xl mx-auto text-slate-800 text-[11px] md:text-sm font-bold uppercase italic tracking-wide mb-8 leading-relaxed"
           >
-            Tu doar tunzi, repari sau antrenezi. Chronos gestionează rezervările, verifică programul și confirmă locul. Fără telefoane, doar profit.
+            Iar Chronos se ocupă de rezervări fără ca tu să îți mai faci probleme. Odată ce ai setat orarul și timpul de execuție al serviciilor, Chronos va ști exact să îți organizeze clienții și programările în funcție de necesitățile tale.
           </motion.p>
 
           <motion.div 
@@ -110,7 +110,7 @@ export default function LandingPage() {
           >
             <Link 
               href="/register"
-              className="w-full max-w-xs h-[70px] bg-amber-600 text-white rounded-[25px] font-black italic uppercase tracking-widest hover:bg-slate-900 shadow-xl shadow-amber-600/20 transition-all flex flex-col items-center justify-center gap-0.5 active:scale-95 group overflow-hidden relative"
+              className="w-full max-w-md h-[90px] bg-amber-500 text-white rounded-[30px] font-black italic uppercase tracking-widest hover:bg-slate-900 shadow-2xl shadow-amber-500/40 transition-all flex flex-col items-center justify-center gap-1 active:scale-95 group overflow-hidden relative border-b-8 border-amber-700"
             >
               <motion.div 
                 className="absolute inset-0 bg-slate-900"
@@ -118,8 +118,16 @@ export default function LandingPage() {
                 whileHover={{ y: 0 }}
                 transition={{ duration: 0.3 }}
               />
-              <span className="relative z-10 text-[9px] opacity-70">VREAU CONTROL TOTAL</span>
-              <span className="relative z-10 text-xs flex items-center gap-2">10 Zile Gratuit <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" /></span>
+              <span className="relative z-10 text-[10px] opacity-90 tracking-[0.2em]">VREAU CONTROL TOTAL</span>
+              <span className="relative z-10 text-lg md:text-xl flex items-center gap-3">
+                DORESC OFERTA: 10 ZILE GRATUIT 
+                <motion.div
+                  animate={{ x: [0, 5, 0] }}
+                  transition={{ repeat: Infinity, duration: 1.5 }}
+                >
+                  <ArrowRight className="w-6 h-6" />
+                </motion.div>
+              </span>
             </Link>
             <p className="text-[10px] font-black text-slate-900 uppercase italic tracking-widest bg-amber-100 px-4 py-1 rounded-full">
               * După 10 zile, ne dai un feedback pe email și tu decizi dacă mergem mai departe.
@@ -127,7 +135,7 @@ export default function LandingPage() {
           </motion.div>
         </div>
 
-        {/* --- APP SHOWCASE (THE MACBOOK/TABLET MOCKUP) --- */}
+        {/* --- APP SHOWCASE --- */}
         <motion.div 
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
@@ -139,11 +147,10 @@ export default function LandingPage() {
               <div className="w-2 h-2 rounded-full bg-red-500"></div>
               <div className="w-2 h-2 rounded-full bg-amber-500"></div>
               <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
-              <div className="ml-4 bg-slate-700/50 px-3 py-0.5 rounded text-[8px] text-slate-400 font-mono italic uppercase">agenda.meu/calendar</div>
+              <div className="ml-4 bg-slate-700/50 px-3 py-0.5 rounded text-[8px] text-slate-400 font-mono italic uppercase">agenda.chronos/dashboard</div>
             </div>
             
             <div className="bg-white rounded-t-xl overflow-hidden min-h-[450px] relative">
-              {/* Header Interfață */}
               <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50">
                 <div>
                     <h3 className="font-black italic text-lg uppercase tracking-tighter leading-none">Agenda Ta</h3>
@@ -167,7 +174,6 @@ export default function LandingPage() {
                       </tr>
                     </thead>
                     <tbody className="text-[11px] font-bold italic">
-                      {/* Rând cu POP-UP pentru WhatsApp */}
                       <tr className="border-b border-slate-50 bg-slate-50/30 relative">
                         <td className="p-4 text-amber-600 font-black">14:30</td>
                         <td className="p-4">
@@ -175,7 +181,6 @@ export default function LandingPage() {
                             <div className="w-6 h-6 rounded-full bg-slate-900 text-white flex items-center justify-center text-[8px]">A</div>
                             <span>Andrei Ionescu</span>
                           </div>
-                          {/* --- WHATSAPP POPUP --- */}
                           <motion.div 
                             initial={{ opacity: 0, scale: 0.8, y: 10 }}
                             animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -186,7 +191,7 @@ export default function LandingPage() {
                             </div>
                             <div className="pr-4">
                                 <p className="text-[8px] text-slate-400 uppercase font-black tracking-tighter">Opțiuni Rapide</p>
-                                <p className="text-[10px] font-black text-emerald-600 uppercase italic">Trimite Confirmare WhatsApp</p>
+                                <p className="text-[10px] font-black text-emerald-600 uppercase italic">Confirmare WhatsApp Trimisă</p>
                             </div>
                           </motion.div>
                         </td>
@@ -230,7 +235,6 @@ export default function LandingPage() {
                   </table>
                 </div>
 
-                {/* Info Bar Jos */}
                 <div className="mt-6 flex gap-4">
                     <div className="flex-1 bg-slate-50 p-4 rounded-2xl border border-slate-100">
                         <p className="text-[8px] font-black uppercase text-slate-400 mb-1 italic">Total Azi</p>
@@ -245,7 +249,6 @@ export default function LandingPage() {
             </div>
           </div>
 
-          {/* Decorative Floating Badges */}
           <motion.div 
             animate={{ y: [-5, 5, -5] }} 
             transition={{ repeat: Infinity, duration: 3 }}
@@ -255,7 +258,7 @@ export default function LandingPage() {
               <div className="p-3 bg-emerald-500 text-white rounded-2xl shadow-lg shadow-emerald-500/20"><UserCheck className="w-6 h-6" /></div>
               <div>
                 <p className="text-[9px] font-black uppercase italic text-slate-400 leading-none mb-1">Automatizare</p>
-                <p className="text-xs font-black italic">SINCRO CU CALENDAR</p>
+                <p className="text-xs font-black italic">SINCRO TOTALĂ</p>
               </div>
             </div>
           </motion.div>
@@ -309,7 +312,7 @@ export default function LandingPage() {
         <div className="flex items-center gap-2">
           <Image src="/logo-chronos.png" alt="Chronos Logo" width={25} height={25} />
           <span className="font-black text-sm tracking-tighter italic uppercase text-slate-400">
-            CHRONOS<span className="text-amber-500">.</span>SYSTEM
+            CHRONOS<span className="text-amber-500">.SYSTEM</span>
           </span>
         </div>
         <p className="text-[9px] font-black text-slate-300 uppercase tracking-[0.3em] italic">
