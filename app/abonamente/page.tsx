@@ -76,6 +76,25 @@ const plans = [
   }
 ];
 
+// --- FUNCȚIE UTILITARĂ PENTRU A FI FOLOSITĂ ÎN ALTĂ PARTE A APLICAȚIEI ---
+export const getActivePlan = async (supabase: any, userId: string) => {
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("plan_type, trial_started_at")
+    .eq("id", userId)
+    .single();
+
+  if (!profile) return "CHRONOS FREE";
+
+  if (profile.trial_started_at) {
+    const start = new Date(profile.trial_started_at);
+    const end = new Date(start.getTime() + 10 * 24 * 60 * 60 * 1000);
+    if (new Date() < end) return "CHRONOS TEAM (PERIOADĂ PROBĂ)";
+  }
+  
+  return profile.plan_type || "CHRONOS FREE";
+};
+
 // Modal elegant de schimbare plan
 function ElegantModal({ title, message, onConfirm, onCancel }: {
   title: string;

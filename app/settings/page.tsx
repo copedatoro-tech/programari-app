@@ -318,9 +318,6 @@ export default function AdminSettingsHub() {
             <h1 className="text-2xl md:text-3xl font-black italic uppercase tracking-tighter border-l-4 border-amber-500 pl-4 text-slate-900">
               Configurare <span className="text-amber-500">Disponibilitate</span>
             </h1>
-            <div className="mt-1 ml-5 flex gap-2">
-              <span className="text-[7px] font-black px-1.5 py-0.5 bg-slate-900 text-white rounded-md uppercase italic">{userPlan}</span>
-            </div>
           </div>
           <div className="flex gap-2">
             {isDirty && (
@@ -396,14 +393,21 @@ export default function AdminSettingsHub() {
         {/* CALENDAR - DISPONIBIL TUTUROR */}
         <div className="bg-white p-5 md:p-8 rounded-[40px] shadow-2xl border border-slate-100 mb-10">
           <div className="flex flex-col md:flex-row items-center justify-between mb-6 gap-4">
-            <div>
-              <h2 className="text-2xl font-black uppercase italic text-slate-900 tracking-tighter">
+            <div className="flex flex-col">
+              <h2 className="text-2xl md:text-3xl font-black uppercase italic text-slate-900 tracking-tighter leading-none">
                 {currentMonth.toLocaleString('ro-RO', { month: 'long' })} <span className="text-amber-500">{currentMonth.getFullYear()}</span>
               </h2>
             </div>
+
+            <div className="flex-1 flex justify-center">
+              <h2 className="text-xl md:text-2xl font-black uppercase italic text-slate-900 tracking-tighter">
+                Setare <span className="text-amber-500">orar de lucru</span>
+              </h2>
+            </div>
+
             <div className="flex gap-2">
-              <button type="button" onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1))} className="w-10 h-10 flex items-center justify-center bg-slate-50 border-2 border-slate-100 rounded-lg">←</button>
-              <button type="button" onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1))} className="w-10 h-10 flex items-center justify-center bg-slate-50 border-2 border-slate-100 rounded-lg">→</button>
+              <button type="button" onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1))} className="w-10 h-10 flex items-center justify-center bg-slate-50 border-2 border-slate-100 rounded-lg hover:bg-amber-500 hover:text-white transition-all">←</button>
+              <button type="button" onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1))} className="w-10 h-10 flex items-center justify-center bg-slate-50 border-2 border-slate-100 rounded-lg hover:bg-amber-500 hover:text-white transition-all">→</button>
             </div>
           </div>
           <div className="grid grid-cols-7 gap-2 md:gap-3">

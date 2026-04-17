@@ -35,6 +35,7 @@
            uppercase italic tracking-widest border-b-4 border-slate-700 
            hover:bg-slate-800 hover:border-amber-500 active:translate-y-1 active:border-b-0 
            transition-all shadow-lg inline-flex items-center justify-center cursor-pointer;
+    outline: none !important;
   }
 
   /* Buton Accent Portocaliu (Atenție/Demo) */
@@ -43,6 +44,7 @@
            uppercase italic tracking-widest border-b-4 border-amber-700 
            hover:bg-amber-600 active:translate-y-1 active:border-b-0 
            transition-all shadow-lg inline-flex items-center justify-center cursor-pointer;
+    outline: none !important;
   }
 
   /* Buton Ștergere/Ieșire (Roșu) */
@@ -51,6 +53,7 @@
            uppercase italic tracking-widest border-b-4 border-red-700 
            hover:bg-red-600 active:translate-y-1 active:border-b-0 
            transition-all shadow-lg inline-flex items-center justify-center cursor-pointer;
+    outline: none !important;
   }
 
   /* Card-uri Unitare */
@@ -62,8 +65,14 @@
   /* Input-uri Unitare */
   .input-chronos {
     @apply w-full bg-slate-50 border-2 border-slate-100 rounded-[15px] px-4 py-3
-           font-bold text-sm text-slate-900 focus:outline-none focus:border-amber-500
-           focus:bg-white transition-all placeholder:text-slate-400;
+           font-bold text-sm text-slate-900 transition-all placeholder:text-slate-400;
+    outline: none !important;
+    box-shadow: none !important;
+  }
+  
+  .input-chronos:focus {
+    @apply border-amber-500 bg-white;
+    outline: none !important;
   }
 
   /* Stil pentru Pop-up-uri / Modale */
@@ -85,20 +94,19 @@ body {
   color: var(--foreground);
   background: var(--background);
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
-  /* Eliminare focus outline global pentru a evita artefactele vizuale la navigare */
   -webkit-tap-highlight-color: transparent;
 }
 
-/* Elimină chenarul negru/albastru de focus de pe toate elementele */
-*:focus {
-  outline: none !important;
-  box-shadow: none !important;
+/* ELIMINARE AGRESIVĂ CHENAR (FOCUS OUTLINE) */
+:focus, :active, :focus-visible, :focus-within {
+    outline: none !important;
+    outline-style: none !important;
+    box-shadow: none !important;
 }
 
-/* Asigură-te că input-urile și butoanele nu păstrează conturul browserului */
-input:focus, button:focus, a:focus, select:focus, textarea:focus {
-  outline: none !important;
-  border-color: #f59e0b; /* Folosim culoarea Amber pentru un focus vizual discret și unitar */
+/* Resetare specifică pentru elementele ce pot primi focus */
+a, button, input, textarea, select, div[tabindex] {
+    outline: none !important;
 }
 
 /* Scrollbar personalizat */
