@@ -8,6 +8,7 @@ import { useEffect, useState, useRef, useCallback } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import Image from "next/image";
 import { ShieldCheck } from "lucide-react";
+import Script from "next/script"; // Import pentru Meta Pixel
 
 import GDPRModal from "@/components/GDPRModal";
 import TermeniModal from "@/components/TermeniModal";
@@ -118,6 +119,23 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   if (!isMounted) {
     return (
       <html lang="ro">
+        <head>
+          {/* Meta Pixel Code Placeholder pentru SSR */}
+          <script dangerouslySetInnerHTML={{
+            __html: `
+              !function(f,b,e,v,n,t,s)
+              {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+              n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+              if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+              n.queue=[];t=b.createElement(e);t.async=!0;
+              t.src=v;s=b.getElementsByTagName(e)[0];
+              s.parentNode.insertBefore(t,s)}(window, document,'script',
+              'https://connect.facebook.net/en_US/fbevents.js');
+              fbq('init', '1181507873348855');
+              fbq('track', 'PageView');
+            `
+          }} />
+        </head>
         <body className="bg-slate-50 min-h-screen" />
       </html>
     );
@@ -125,6 +143,31 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
   return (
     <html lang="ro">
+      <head>
+        {/* Meta Pixel Implementation */}
+        <Script id="fb-pixel" strategy="afterInteractive">
+          {`
+            !function(f,b,e,v,n,t,s)
+            {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+            n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+            if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+            n.queue=[];t=b.createElement(e);t.async=!0;
+            t.src=v;s=b.getElementsByTagName(e)[0];
+            s.parentNode.insertBefore(t,s)}(window, document,'script',
+            'https://connect.facebook.net/en_US/fbevents.js');
+            fbq('init', '1181507873348855');
+            fbq('track', 'PageView');
+          `}
+        </Script>
+        <noscript>
+          <img 
+            height="1" 
+            width="1" 
+            style={{ display: 'none' }}
+            src="https://www.facebook.com/tr?id=1181507873348855&ev=PageView&noscript=1" 
+          />
+        </noscript>
+      </head>
       <body className="antialiased bg-slate-50 min-h-screen flex flex-col font-sans text-slate-900">
         {authLoaded ? (
           <>
