@@ -85,6 +85,20 @@ body {
   color: var(--foreground);
   background: var(--background);
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+  /* Eliminare focus outline global pentru a evita artefactele vizuale la navigare */
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Elimină chenarul negru/albastru de focus de pe toate elementele */
+*:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* Asigură-te că input-urile și butoanele nu păstrează conturul browserului */
+input:focus, button:focus, a:focus, select:focus, textarea:focus {
+  outline: none !important;
+  border-color: #f59e0b; /* Folosim culoarea Amber pentru un focus vizual discret și unitar */
 }
 
 /* Scrollbar personalizat */
