@@ -4,12 +4,15 @@ import Link from "next/link";
 import { supabase } from "@/lib/supabaseClient";
 
 export default function PareriClienti() {
+  // State-uri principale
   const [feedbacks, setFeedbacks] = useState<any[]>([]);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [currentAdminId, setCurrentAdminId] = useState<string | null>(null);
   const [userPlan, setUserPlan] = useState<string | null>(null);
   const [loadingPlan, setLoadingPlan] = useState(true);
+  const [isMounted, setIsMounted] = useState(false); // REPARAȚIE: Previne erorile de hidratare
 
+  // State-uri Formular
   const [rating, setRating] = useState(0);
   const [hover, setHover] = useState(0);
   const [nume, setNume] = useState("");
@@ -17,12 +20,18 @@ export default function PareriClienti() {
   const [seIncarca, setSeIncarca] = useState(false);
   const [trimis, setTrimis] = useState(false);
 
+  // State-uri Editare
   const [editId, setEditId] = useState<string | null>(null);
   const [textEditat, setTextEditat] = useState("");
   const [raspunsAdmin, setRaspunsAdmin] = useState("");
 
   const successPopupRef = useRef<HTMLDivElement>(null);
   const channelRef = useRef<any>(null);
+
+  // 1. Asigurăm montarea corectă pe client pentru a evita refresh-ul cauzat de hidratare
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const preiaFeedback = useCallback(async (adminId: string) => {
     if (!adminId) return;
@@ -40,74 +49,76 @@ export default function PareriClienti() {
   }, []);
 
   useEffect(() => {
+    if (!isMounted) return;
+
     const initApp = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      const isLocal =
-        typeof window !== "undefined" &&
-        window.location.hostname === "localhost";
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        const isLocal = typeof window !== "undefined" && window.location.hostname === "localhost";
 
-      let adminIdToUse: string | null = null;
-      if (session) {
-        adminIdToUse = session.user.id;
-      } else if (isLocal) {
-        adminIdToUse = "ed9cd915-6684-422c-a214-4ac5c25e98f3";
-      }
-
-      if (!adminIdToUse) {
-        setLoadingPlan(false);
-        return;
-      }
-
-      // Verificăm planul utilizatorului din tabela profiles
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("plan_type")
-        .eq("id", adminIdToUse)
-        .single();
-
-      const currentPlan = profile?.plan_type || "START (GRATUIT)";
-      setUserPlan(currentPlan);
-      setLoadingPlan(false);
-      setIsLoggedIn(true);
-      setCurrentAdminId(adminIdToUse);
-      
-      // Accesul la datele de feedback este permis DOAR pentru ELITE și TEAM
-      const areAcces = currentPlan === "CHRONOS ELITE" || currentPlan === "CHRONOS TEAM";
-
-      if (areAcces) {
-        preiaFeedback(adminIdToUse);
-
-        if (channelRef.current) {
-          supabase.removeChannel(channelRef.current);
+        let adminIdToUse: string | null = null;
+        if (session) {
+          adminIdToUse = session.user.id;
+        } else if (isLocal) {
+          adminIdToUse = "ed9cd915-6684-422c-a214-4ac5c25e98f3";
         }
 
-        const channel = supabase
-          .channel(`feedbacks-admin-${adminIdToUse}`)
-          .on(
-            "postgres_changes",
-            {
-              event: "*",
-              schema: "public",
-              table: "feedbacks",
-              filter: `admin_id=eq.${adminIdToUse}`,
-            },
-            () => {
-              preiaFeedback(adminIdToUse!);
-            }
-          );
+        if (!adminIdToUse) {
+          setLoadingPlan(false);
+          return;
+        }
+
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("plan_type")
+          .eq("id", adminIdToUse)
+          .single();
+
+        const currentPlan = profile?.plan_type || "START (GRATUIT)";
+        setUserPlan(currentPlan);
+        setCurrentAdminId(adminIdToUse);
+        setIsLoggedIn(true);
+        setLoadingPlan(false);
         
-        channelRef.current = channel;
-        channel.subscribe();
+        const areAcces = currentPlan === "CHRONOS ELITE" || currentPlan === "CHRONOS TEAM";
+
+        if (areAcces) {
+          preiaFeedback(adminIdToUse);
+
+          // REPARAȚIE REALTIME: Curățăm canalul pentru a nu bloca pagina
+          if (channelRef.current) {
+            supabase.removeChannel(channelRef.current);
+          }
+
+          const channel = supabase
+            .channel(`feedbacks-admin-${adminIdToUse}`)
+            .on(
+              "postgres_changes",
+              {
+                event: "*",
+                schema: "public",
+                table: "feedbacks",
+                filter: `admin_id=eq.${adminIdToUse}`,
+              },
+              () => {
+                preiaFeedback(adminIdToUse!);
+              }
+            )
+            .subscribe();
+          
+          channelRef.current = channel;
+        }
+      } catch (err) {
+        console.error("Eroare la inițializare:", err);
+        setLoadingPlan(false);
       }
     };
 
     initApp();
 
     const handleClickOutside = (event: MouseEvent) => {
-      if (
-        successPopupRef.current &&
-        !successPopupRef.current.contains(event.target as Node)
-      ) {
+      // Regula: Pop-up se închide la click afară
+      if (successPopupRef.current && !successPopupRef.current.contains(event.target as Node)) {
         setTrimis(false);
         setEditId(null);
       }
@@ -122,7 +133,7 @@ export default function PareriClienti() {
         channelRef.current = null;
       }
     };
-  }, [preiaFeedback]);
+  }, [preiaFeedback, isMounted]);
 
   const trimiteFeedback = async () => {
     if (rating === 0 || !nume.trim() || !mesaj.trim() || !currentAdminId) {
@@ -228,6 +239,9 @@ export default function PareriClienti() {
     }
   };
 
+  // Prevenim randarea până la montare
+  if (!isMounted) return null;
+
   if (loadingPlan) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50 font-black uppercase italic text-slate-400">
@@ -236,7 +250,6 @@ export default function PareriClienti() {
     );
   }
 
-  // LIMITARE: Acces doar pentru ELITE și TEAM. (START și PRO sunt blocate)
   const isPlanRestricted = userPlan === "START (GRATUIT)" || userPlan === "CHRONOS PRO";
 
   if (isPlanRestricted) {
@@ -275,15 +288,14 @@ export default function PareriClienti() {
   return (
     <main className="min-h-screen bg-slate-50 p-4 md:p-8 font-sans text-slate-900">
       <div className="max-w-6xl mx-auto">
-
-        {/* Header */}
+        
+        {/* Header Unitar - Uniform pe toate paginile */}
         <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-10 bg-white p-6 rounded-[35px] shadow-sm border border-slate-100">
           <div className="flex items-center gap-6">
             <img 
               src="/logo-chronos.png" 
               alt="Logo" 
               className="w-[120px] h-auto" 
-              style={{ height: "auto" }} 
             />
             <h1 className="text-2xl md:text-4xl font-black uppercase italic tracking-tighter">
               Gestiune <span className="text-amber-600">Recenzii</span>
@@ -323,7 +335,7 @@ export default function PareriClienti() {
           ))}
         </div>
 
-        {/* Formular adăugare manuală */}
+        {/* Formular Adăugare */}
         <div className="max-w-xl mx-auto mb-16 bg-white p-10 rounded-[50px] shadow-2xl relative border border-slate-100">
           {trimis && (
             <div className="absolute inset-0 bg-white/95 z-50 flex flex-col items-center justify-center text-center p-8 rounded-[50px]">
@@ -334,7 +346,7 @@ export default function PareriClienti() {
                 <h2 className="text-2xl font-black uppercase italic">Adăugat cu succes!</h2>
                 <button
                   onClick={() => setTrimis(false)}
-                  title="Închide fereastra de succes"
+                  title="Închide acest pop-up"
                   className="mt-8 text-[9px] font-black uppercase underline text-slate-400"
                 >
                   Închide
@@ -382,7 +394,7 @@ export default function PareriClienti() {
             <button
               onClick={trimiteFeedback}
               disabled={seIncarca}
-              title="Salvează recenzia în baza de date"
+              title="Salvează recenzia și public-o"
               className="w-full py-6 rounded-[25px] bg-slate-900 text-white font-black uppercase italic text-[11px] border-b-8 border-slate-700 active:translate-y-1 active:border-b-0 hover:bg-amber-500 hover:text-black transition-all disabled:opacity-50"
             >
               {seIncarca ? "SE SALVEAZĂ..." : "ADĂUGĂ RECENZIE MANUAL"}
@@ -390,7 +402,7 @@ export default function PareriClienti() {
           </div>
         </div>
 
-        {/* Lista feedbacks */}
+        {/* Lista Feedbacks */}
         <div className="columns-1 md:columns-2 lg:columns-3 gap-8 space-y-8">
           {!isLoggedIn ? (
             <div className="col-span-full text-center py-20 bg-white rounded-[45px] border-2 border-slate-100">
@@ -414,21 +426,21 @@ export default function PareriClienti() {
                     : "bg-amber-50 border-dashed border-amber-300 shadow-amber-100"
                 }`}
               >
-                {/* Controale admin */}
+                {/* Admin Actions */}
                 <div className="absolute top-6 right-6 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-all z-20">
                   {!f.aprobat ? (
                     <button
                       onClick={() => aprobaRapid(f.id)}
-                      title="Aprobă rapid această recenzie pentru a fi vizibilă public"
-                      className="bg-emerald-500 text-white p-3 rounded-2xl text-[9px] font-black uppercase shadow-lg hover:scale-105 active:scale-95 transition-transform"
+                      title="Aprobă recenzia"
+                      className="bg-emerald-500 text-white p-3 rounded-2xl text-[9px] font-black uppercase shadow-lg hover:scale-105 transition-transform"
                     >
                       Aprobă
                     </button>
                   ) : (
                     <button
                       onClick={() => dezaprobaRapid(f.id)}
-                      title="Dezaprobă această recenzie pentru a o ascunde de public"
-                      className="bg-slate-400 text-white p-3 rounded-2xl text-[9px] font-black uppercase shadow-lg hover:scale-105 active:scale-95 transition-transform"
+                      title="Ascunde recenzia de public"
+                      className="bg-slate-400 text-white p-3 rounded-2xl text-[9px] font-black uppercase shadow-lg hover:scale-105 transition-transform"
                     >
                       Dezaprobă
                     </button>
@@ -439,21 +451,20 @@ export default function PareriClienti() {
                       setTextEditat(f.comentariu);
                       setRaspunsAdmin(f.raspuns_admin || "");
                     }}
-                    title="Modifică textul sau adaugă un răspuns oficial"
-                    className="bg-slate-900 text-white p-3 rounded-2xl text-[9px] font-black uppercase shadow-lg hover:scale-105 active:scale-95 transition-transform"
+                    title="Modifică textul sau răspunde"
+                    className="bg-slate-900 text-white p-3 rounded-2xl text-[9px] font-black uppercase shadow-lg hover:scale-105 transition-transform"
                   >
                     Edit / Răspunde
                   </button>
                   <button
                     onClick={() => stergeFeedback(f.id)}
-                    title="Șterge definitiv această recenzie din sistem"
-                    className="bg-red-500 text-white p-3 rounded-2xl text-[9px] font-black uppercase shadow-lg hover:scale-105 active:scale-95 transition-transform"
+                    title="Șterge definitiv"
+                    className="bg-red-500 text-white p-3 rounded-2xl text-[9px] font-black uppercase shadow-lg hover:scale-105 transition-transform"
                   >
                     Șterge
                   </button>
                 </div>
 
-                {/* Stele + badge */}
                 <div className="flex gap-1 mb-6 flex-wrap">
                   {Array.from({ length: 5 }).map((_, idx) => (
                     <span key={idx} className={`text-sm ${idx < f.stele ? "" : "grayscale opacity-20"}`}>
@@ -471,37 +482,31 @@ export default function PareriClienti() {
                   </span>
                 </div>
 
-                {/* Conținut */}
                 {editId === f.id ? (
                   <div className="space-y-4 bg-slate-50 p-6 rounded-3xl border-4 border-amber-500">
-                    <label className="text-[9px] font-black uppercase opacity-50">
-                      Comentariu Client:
-                    </label>
+                    <label className="text-[9px] font-black uppercase opacity-50">Comentariu:</label>
                     <textarea
-                      className="w-full p-4 text-xs font-bold rounded-xl border-2 outline-none focus:border-slate-900"
+                      className="w-full p-4 text-xs font-bold rounded-xl border-2 outline-none"
                       value={textEditat}
                       onChange={(e) => setTextEditat(e.target.value)}
                     />
-                    <label className="text-[9px] font-black uppercase opacity-50">
-                      Răspunsul tău:
-                    </label>
+                    <label className="text-[9px] font-black uppercase opacity-50">Răspunsul tău:</label>
                     <textarea
-                      className="w-full p-4 text-xs font-bold rounded-xl border-2 border-amber-200 bg-amber-50 outline-none focus:border-amber-500"
-                      placeholder="Scrie un răspuns..."
+                      className="w-full p-4 text-xs font-bold rounded-xl border-2 border-amber-200 bg-amber-50 outline-none"
                       value={raspunsAdmin}
                       onChange={(e) => setRaspunsAdmin(e.target.value)}
                     />
                     <div className="flex gap-2">
                       <button
                         onClick={() => salveazaModificariAdmin(f.id)}
-                        title="Salvează modificările și aprobă automat recenzia"
+                        title="Salvează și închide"
                         className="flex-1 bg-slate-900 text-white py-4 rounded-xl font-black text-[9px] uppercase hover:bg-emerald-500 transition-colors"
                       >
-                        Salvează și Aprobă
+                        Salvează
                       </button>
                       <button
                         onClick={() => setEditId(null)}
-                        title="Anulează editarea fără a salva"
+                        title="Anulează modificările"
                         className="px-5 bg-white py-4 rounded-xl font-black text-[9px] border-2"
                       >
                         Anulează
@@ -515,28 +520,21 @@ export default function PareriClienti() {
                     </p>
                     {f.raspuns_admin && (
                       <div className="mb-8 p-6 bg-slate-900 rounded-[30px] border-b-4 border-amber-600">
-                        <p className="text-amber-500 font-black uppercase text-[8px] mb-2 italic tracking-widest">
-                          Răspunsul tău:
-                        </p>
+                        <p className="text-amber-500 font-black uppercase text-[8px] mb-2 italic">Răspunsul tău:</p>
                         <p className="text-white text-xs italic">"{f.raspuns_admin}"</p>
                       </div>
                     )}
                   </>
                 )}
 
-                {/* Footer */}
                 <div className="flex items-center gap-4 border-t border-slate-100 pt-6 mt-auto">
                   <div className="w-12 h-12 bg-slate-900 text-amber-500 flex items-center justify-center rounded-2xl font-black italic text-lg shadow-md">
                     {f.nume_client?.charAt(0).toUpperCase()}
                   </div>
                   <div className="flex flex-col">
-                    <span className="font-black uppercase text-[11px] italic text-slate-900">
-                      {f.nume_client}
-                    </span>
+                    <span className="font-black uppercase text-[11px] italic text-slate-900">{f.nume_client}</span>
                     <span className="text-[8px] font-black text-slate-300 uppercase tracking-widest">
-                      {f.created_at
-                        ? new Date(f.created_at).toLocaleDateString("ro-RO")
-                        : "Recent"}
+                      {f.created_at ? new Date(f.created_at).toLocaleDateString("ro-RO") : "Recent"}
                     </span>
                   </div>
                 </div>

@@ -76,6 +76,7 @@ function RapoarteContent() {
   }
 
   useEffect(() => {
+    let isMounted = true;
     let activeChannel: any = null;
 
     const initApp = async () => {
@@ -83,11 +84,14 @@ function RapoarteContent() {
       await fetchRealData();
       
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+      if (!user || !isMounted) return;
 
-      // Corecție Realtime: Ne asigurăm că lanțul de metode este curat
+      // Generăm un ID unic pentru canal ca să evităm eroarea de coliziune în Strict Mode
+      const channelName = `rapoarte_realtime_${user.id}_${Math.random().toString(36).substring(2, 7)}`;
+
+      // Pasul 1: Configurăm canalul și atașăm callback-urile (ÎNAINTE de subscribe)
       activeChannel = supabase
-        .channel(`realtime_rapoarte_${user.id}`)
+        .channel(channelName)
         .on(
           'postgres_changes', 
           { 
@@ -97,20 +101,29 @@ function RapoarteContent() {
             filter: `user_id=eq.${user.id}` 
           }, 
           () => {
-            fetchRealData();
+            if (isMounted) fetchRealData();
           }
-        )
-        .subscribe();
+        );
 
-      channelRef.current = activeChannel;
+      // Pasul 2: Apelăm subscribe DOAR după ce toate callback-urile au fost înregistrate
+      activeChannel.subscribe((status: string) => {
+        if (status === 'SUBSCRIBED') {
+          channelRef.current = activeChannel;
+        }
+      });
     };
 
     initApp();
 
     return () => { 
+      isMounted = false;
+      if (activeChannel) {
+        supabase.removeChannel(activeChannel);
+      }
       if (channelRef.current) {
         supabase.removeChannel(channelRef.current);
-      } 
+        channelRef.current = null;
+      }
     };
   }, [supabase]);
 
@@ -217,7 +230,6 @@ function RapoarteContent() {
     );
   }
 
-  // Definirea cardurilor cu restricții de abonament
   const dashboardStats = [
     { label: "Total Programări", val: stats.totalCount, color: "text-slate-900", access: isPro || isElite || isTeam },
     { label: "Venit Estimat", val: `${stats.totalRevenue} RON`, color: "text-emerald-600", access: isPro || isElite || isTeam },
@@ -262,7 +274,7 @@ function RapoarteContent() {
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col md:flex-row justify-between items-start mb-12 gap-6 border-b pb-8 border-slate-100">
             <div className="flex items-center gap-6">
-              <Image src="/logo-chronos.png" alt="Logo" width={60} height={60} priority className="rounded-xl" />
+              <Image src="/logo-chronos.png" alt="Logo" width={60} height={60} priority className="rounded-xl" style={{ height: 'auto' }} />
               <div>
                 <h1 className="text-4xl md:text-5xl font-black italic uppercase tracking-tighter leading-none">
                   Raport <span className="text-amber-600">{isTeam ? "Echipă" : isElite ? "Detaliat" : "Sumar"}</span>
