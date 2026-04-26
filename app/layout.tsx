@@ -8,7 +8,7 @@ import { useEffect, useState, useRef, useCallback } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import Image from "next/image";
 import { ShieldCheck } from "lucide-react";
-import Script from "next/script"; // Import pentru Meta Pixel
+import Script from "next/script";
 
 import GDPRModal from "@/components/GDPRModal";
 import TermeniModal from "@/components/TermeniModal";
@@ -200,7 +200,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                     </span>
                   </Link>
 
-                  {/* CENTRU: Indicator Pagina Activă (Contur pronunțat) */}
+                  {/* CENTRU: Indicator Pagina Activă */}
                   <div className="flex-1 flex justify-center min-w-0">
                     <div className="px-4 md:px-6 py-2 rounded-xl bg-amber-50 border-[3px] border-amber-500 shadow-sm">
                       <h2 className="text-[10px] md:text-sm font-black uppercase italic tracking-widest text-slate-900 truncate">
@@ -211,13 +211,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
                   {/* DREAPTA: Abonament & Meniu */}
                   <div className="flex items-center gap-3 shrink-0">
-                    {/* Badge Abonament */}
+                    {/* Badge Abonament Uniformizat */}
                     <Link 
                       href="/abonamente" 
-                      className="hidden md:flex flex-col items-end px-3 py-1 rounded-xl hover:bg-slate-50 transition-colors"
+                      className="hidden md:flex flex-col items-end px-4 py-1.5 rounded-[15px] bg-slate-50 border border-slate-100 hover:border-amber-500 transition-all group"
                     >
-                      <span className="text-[7px] font-black uppercase tracking-tighter text-slate-400">Status Plan</span>
-                      <span className="text-[9px] font-black italic uppercase text-amber-600">
+                      <span className="text-[7px] font-black uppercase tracking-tighter text-slate-400 group-hover:text-amber-600 transition-colors">Abonament Activ</span>
+                      <span className="text-[10px] font-black italic uppercase text-slate-900 group-hover:text-amber-500 transition-colors">
                         {activePlan}
                       </span>
                     </Link>
