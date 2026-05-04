@@ -47,59 +47,64 @@ function ProgramariContent() {
   const [popupProgramare, setPopupProgramare] = useState<any | null>(null);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [filteredClients, setFilteredClients] = useState<any[]>([]);
-  const [userId, setUserId] = useState("");
 
   const suggestionsRef = useRef<HTMLDivElement>(null);
   const popupRef = useRef<HTMLDivElement>(null);
 
-  const getSession = async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    return session;
-  };
+  // ── Session query (înlocuiește useState + useEffect pentru userId) ──────────
+  const { data: session } = useQuery({
+    queryKey: ["session"],
+    queryFn: async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      return session;
+    },
+  });
 
-  useEffect(() => {
-    getSession().then((s) => { if (s?.user?.id) setUserId(s.user.id); });
-  }, []);
+  const userId = session?.user?.id ?? "";
 
   // ── Queries ────────────────────────────────────────────────────────────────
   const { data: programari } = useQuery({
     queryKey: ["programari"],
     queryFn: async () => {
-      const s = await getSession(); if (!s) return [];
+      if (!userId) return [];
       const dl = new Date(); dl.setDate(dl.getDate() - 30);
       const { data } = await supabase.from("appointments")
         .select("id, title, date, time, details, phone, email, file_url, is_client_booking, angajat_id, serviciu_id, documente, nume_serviciu, duration")
-        .eq("user_id", s.user.id).gte("date", dl.toISOString().split("T")[0]).order("date", { ascending: false });
+        .eq("user_id", userId).gte("date", dl.toISOString().split("T")[0]).order("date", { ascending: false });
       return data || [];
     },
+    enabled: !!userId,
   });
 
   const { data: profileData } = useQuery({
     queryKey: ["profile"],
     queryFn: async () => {
-      const s = await getSession(); if (!s) return null;
+      if (!userId) return null;
       const { data } = await supabase.from("profiles")
-        .select("plan_type, trial_started_at, working_hours, manual_blocks").eq("id", s.user.id).single();
+        .select("plan_type, trial_started_at, working_hours, manual_blocks").eq("id", userId).single();
       return data;
     },
+    enabled: !!userId,
   });
 
   const { data: angajati } = useQuery({
     queryKey: ["angajati"],
     queryFn: async () => {
-      const s = await getSession(); if (!s) return [];
-      const { data } = await supabase.from("staff").select("id, name, services").eq("user_id", s.user.id);
+      if (!userId) return [];
+      const { data } = await supabase.from("staff").select("id, name, services").eq("user_id", userId);
       return data || [];
     },
+    enabled: !!userId,
   });
 
   const { data: servicii } = useQuery({
     queryKey: ["servicii"],
     queryFn: async () => {
-      const s = await getSession(); if (!s) return [];
-      const { data } = await supabase.from("services").select("id, nume_serviciu, price, duration").eq("user_id", s.user.id);
+      if (!userId) return [];
+      const { data } = await supabase.from("services").select("id, nume_serviciu, price, duration").eq("user_id", userId);
       return data || [];
     },
+    enabled: !!userId,
   });
 
   // ── Derived ────────────────────────────────────────────────────────────────
@@ -362,7 +367,7 @@ function ProgramariContent() {
           </div>
 
           {/* ── MULTI SERVICE BOOKING ──────────────────────────────────────── */}
-          {userId && (
+          {userId ? (
             <MultiServiceBooking
               adminId={userId}
               servicii={(servicii as ServiceRow[]) || []}
@@ -373,6 +378,10 @@ function ProgramariContent() {
               validateClientData={validateClientData}
               onSuccess={() => setMultiSuccess(true)}
             />
+          ) : (
+            <div className="flex items-center justify-center py-10">
+              <div className="w-6 h-6 border-4 border-amber-500 border-t-transparent rounded-full animate-spin" />
+            </div>
           )}
 
           {/* ── Fișiere ────────────────────────────────────────────────────── */}
