@@ -1,7 +1,7 @@
 "use client";
 
 import React, {
-  useState, useEffect, useMemo, Suspense, useCallback, useRef,
+  useState, useEffect, useMemo, Suspense, useCallback, useRef, memo,
 } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
@@ -64,13 +64,10 @@ function parseWH(whData: any): WorkingHour[] {
   return Array.isArray(whData) ? whData : [];
 }
 
-// ─── Toate textele românești ca constante JS (escape-urile funcționează aici) ──
 const TXT = {
   dayShort:  ["Lun", "Mar", "Mie", "Joi", "Vin", "S\u00e2m", "Dum"],
   dayLong:   ["Duminic\u0103", "Luni", "Mar\u021bi", "Miercuri", "Joi", "Vineri", "S\u00e2mb\u0103t\u0103"],
   months:    ["Ianuarie","Februarie","Martie","Aprilie","Mai","Iunie","Iulie","August","Septembrie","Octombrie","Noiembrie","Decembrie"],
-
-  // UI labels
   navTitle:        "Chronos Navigation",
   alegeData:       "Alege o dat\u0103",
   inchide:         " Închide",
@@ -121,8 +118,6 @@ const TXT = {
   autentNec:       "Autentificare necesar\u0103...",
   incaAlte:        "+ \u00eenc\u0103",
   ziOcupata:       "Zi complet ocupat\u0103",
-
-  // Toast messages
   nuPoziTrecut:    "Nu po\u021bi seta o programare \u00een trecut.",
   dataInvalida:    "Data invalid\u0103",
   oraExpirata:     "Ora aleas\u0103 a trecut deja. Alege o or\u0103 viitoare.",
@@ -135,8 +130,6 @@ const TXT = {
   stergeTitle:     "\u015etearger\u0103 Programare",
   stergeMsg:       "Sigur \u015ftergi programarea lui ",
   stergeBt:        "Da, \u015etearger\u0103",
-
-  // isDateBlocked reasons
   ziBlockata:      "Zi blocat\u0103 manual",
   inchisWeekend:   "\u00cenchis (Weekend/S\u0103rb\u0103toare)",
   afaraProg:       "\u00cen afara programului",
@@ -191,7 +184,7 @@ function mapRow(item: any): Programare {
   };
 }
 
-// ─── Date Picker Modal pentru navigare calendar ──────────────────────────────
+// ─── Date Picker Modal ───────────────────────────────────────────────────────
 function DatePickerModal({ currentDate, onSelectDate, onClose }: {
   currentDate: Date;
   onSelectDate: (date: Date) => void;
@@ -264,13 +257,34 @@ function DatePickerModal({ currentDate, onSelectDate, onClose }: {
   );
 }
 
+// ─── AppointmentChip extras din componentă — nu se mai recreează la fiecare render ──
+const AppointmentChip = memo(function AppointmentChip({
+  p,
+  service,
+  onEdit,
+}: {
+  p: Programare;
+  service?: ServiceRow;
+  onEdit: (p: Programare) => void;
+}) {
+  const endTime = service?.duration ? addMinutesToTime(p.ora, service.duration) : null;
+  return (
+    <button
+      onClick={(e) => { e.stopPropagation(); onEdit(p); }}
+      className="w-full text-left bg-slate-900 text-white rounded-xl truncate font-black uppercase italic border border-slate-700 hover:bg-amber-600 transition-all text-[9px] px-2 py-1.5"
+      title={`${p.ora}${endTime ? ` - ${endTime}` : ""} | ${p.nume} | ${service?.nume_serviciu || "Expert"}`}>
+      {p.ora}{endTime ? ` \u2192 ${endTime}` : ""} {p.nume}
+    </button>
+  );
+});
+
 function CalendarContent() {
   const searchParams = useSearchParams();
   const isDemo = searchParams.get("demo") === "true";
   const modalRef = useRef<HTMLDivElement>(null);
   const qClient = useQueryClient();
 
-  const today = new Date().toISOString().split("T")[0];
+  const today = useMemo(() => new Date().toISOString().split("T")[0], []);
   const [viewMode, setViewMode] = useState<ViewMode>("month");
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [searchTerm, setSearchTerm] = useState("");
@@ -282,6 +296,7 @@ function CalendarContent() {
   const [showEditDatePicker, setShowEditDatePicker] = useState(false);
   const [showEditTimePicker, setShowEditTimePicker] = useState(false);
 
+  // ── FIX 1: session prin useQuery (consistent cu pagina de programări) ──────
   const { data: session } = useQuery({
     queryKey: ["session"],
     queryFn: async () => {
@@ -327,12 +342,15 @@ function CalendarContent() {
     },
   });
 
+  // ── FIX 2: dateRange stabil — depinde de valori primitive, nu de new Date() ──
   const dateRange = useMemo(() => {
     const year = selectedDate.getFullYear();
     const month = selectedDate.getMonth();
-    const start = new Date(year, month - 2, 1).toISOString().split("T")[0];
-    const end = new Date(year, month + 3, 0).toISOString().split("T")[0];
-    return { start, end };
+    return {
+      start: new Date(year, month - 2, 1).toISOString().split("T")[0],
+      end:   new Date(year, month + 3, 0).toISOString().split("T")[0],
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedDate.getFullYear(), selectedDate.getMonth()]);
 
   const { data: programari = [], isLoading: loadingAppts, refetch: refetchAppts } = useQuery<Programare[]>({
@@ -351,21 +369,25 @@ function CalendarContent() {
     },
   });
 
+  // ── FIX 3: Realtime — dependențe stabile (userId string, nu funcții) ───────
   useEffect(() => {
     if (!userId) return;
     const profileChannel = supabase
       .channel(`calendar-profile-${userId}`)
-      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "profiles", filter: `id=eq.${userId}` }, () => { refetchProfile(); })
+      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "profiles", filter: `id=eq.${userId}` },
+        () => { refetchProfile(); })
       .subscribe();
     const appointmentsChannel = supabase
       .channel(`calendar-appointments-${userId}`)
-      .on("postgres_changes", { event: "*", schema: "public", table: "appointments", filter: `user_id=eq.${userId}` }, () => { refetchAppts(); })
+      .on("postgres_changes", { event: "*", schema: "public", table: "appointments", filter: `user_id=eq.${userId}` },
+        () => { refetchAppts(); })
       .subscribe();
     return () => {
       supabase.removeChannel(profileChannel);
       supabase.removeChannel(appointmentsChannel);
     };
-  }, [userId, refetchProfile, refetchAppts]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userId]); // doar userId — refetchProfile/refetchAppts sunt stabile din React Query
 
   const adminWorkingHours = useMemo<WorkingHour[]>(() => parseWH(profile?.working_hours), [profile?.working_hours]);
 
@@ -441,6 +463,28 @@ function CalendarContent() {
     return occupiedMinutes >= totalWorkMinutes;
   }, [adminWorkingHours, programari, adminManualBlocks]);
 
+  // ── FIX 4: Pre-calculează statusul per dată — nu mai apelăm isDateBlocked în render ──
+  const dateStatusCache = useMemo(() => {
+    const cache: Record<string, { blocked: boolean; reason?: string; fullyOccupied: boolean }> = {};
+    const allDates = new Set<string>();
+    programari.forEach((p) => allDates.add(p.data));
+    // adaugă și zilele din grid curent
+    const year = selectedDate.getFullYear();
+    const month = selectedDate.getMonth();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    for (let d = 1; d <= daysInMonth; d++) {
+      allDates.add(`${year}-${String(month + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`);
+    }
+    allDates.forEach((dateStr) => {
+      const blockStatus = isDateBlocked(dateStr);
+      cache[dateStr] = {
+        ...blockStatus,
+        fullyOccupied: isDayFullyOccupied(dateStr),
+      };
+    });
+    return cache;
+  }, [isDateBlocked, isDayFullyOccupied, programari, selectedDate]);
+
   const editExistingAppointments = useMemo(() => {
     if (!editForm) return [];
     return programari
@@ -453,14 +497,15 @@ function CalendarContent() {
     return rawServices.find((s) => s.id === editForm.serviciuId)?.duration || 0;
   }, [editForm?.serviciuId, rawServices]);
 
+  // ── FIX 5: customMessage — o singură dependință (editForm.id) și buildMessage explicit ──
   useEffect(() => {
-    if (editForm) {
-      const srvName = rawServices.find((s) => s.id === editForm.serviciuId)?.nume_serviciu;
-      // Template string în JS — escape-urile funcționează corect
-      const msg = `Bun\u0103, ${editForm.nume}! Te a\u015ftept\u0103m la programarea din ${editForm.data}, ora ${editForm.ora}${srvName ? ` pentru ${srvName}` : ""}. O zi bun\u0103!`;
-      setCustomMessage(msg);
-    }
-  }, [editForm?.id, editForm?.data, editForm?.ora, editForm?.serviciuId, rawServices]);
+    if (!editForm) return;
+    const srvName = rawServices.find((s) => s.id === editForm.serviciuId)?.nume_serviciu;
+    const msg = `Bun\u0103, ${editForm.nume}! Te a\u015ftept\u0103m la programarea din ${editForm.data}, ora ${editForm.ora}${srvName ? ` pentru ${srvName}` : ""}. O zi bun\u0103!`;
+    setCustomMessage(msg);
+  // Rulează doar când se deschide un alt editForm (schimbare de id)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [editForm?.id]);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -473,17 +518,17 @@ function CalendarContent() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [editForm, showEditDatePicker, showEditTimePicker]);
 
-  const handleOpenEdit = (p: Programare) => {
+  const handleOpenEdit = useCallback((p: Programare) => {
     setEditForm({ ...p });
     setShowEditDatePicker(false);
     setShowEditTimePicker(false);
-  };
+  }, []);
 
-  const handleCloseModal = () => {
+  const handleCloseModal = useCallback(() => {
     setEditForm(null);
     setShowEditDatePicker(false);
     setShowEditTimePicker(false);
-  };
+  }, []);
 
   const angajatiFiltratiInModal = useMemo(() => {
     if (!editForm?.serviciuId) return rawStaff;
@@ -498,26 +543,22 @@ function CalendarContent() {
   }, [editForm?.expertId, rawStaff, rawServices]);
 
   const handleExpertChange = useCallback((expertId: string) => {
-    if (!editForm) return;
-    const angajat = rawStaff.find((a) => a.id === expertId);
-    const currentServiceStillValid = editForm.serviciuId && angajat?.services?.includes(editForm.serviciuId);
-    setEditForm((prev) => prev ? {
-      ...prev,
-      expertId,
-      serviciuId: currentServiceStillValid ? prev.serviciuId : "",
-    } : null);
-  }, [editForm, rawStaff]);
+    setEditForm((prev) => {
+      if (!prev) return null;
+      const angajat = rawStaff.find((a) => a.id === expertId);
+      const currentServiceStillValid = prev.serviciuId && angajat?.services?.includes(prev.serviciuId);
+      return { ...prev, expertId, serviciuId: currentServiceStillValid ? prev.serviciuId : "" };
+    });
+  }, [rawStaff]);
 
   const handleServiciuChange = useCallback((serviciuId: string) => {
-    if (!editForm) return;
-    const angajat = rawStaff.find((a) => a.id === editForm.expertId);
-    const currentExpertStillValid = editForm.expertId && angajat?.services?.includes(serviciuId);
-    setEditForm((prev) => prev ? {
-      ...prev,
-      serviciuId,
-      expertId: currentExpertStillValid ? prev.expertId : "",
-    } : null);
-  }, [editForm, rawStaff]);
+    setEditForm((prev) => {
+      if (!prev) return null;
+      const angajat = rawStaff.find((a) => a.id === prev.expertId);
+      const currentExpertStillValid = prev.expertId && angajat?.services?.includes(serviciuId);
+      return { ...prev, serviciuId, expertId: currentExpertStillValid ? prev.expertId : "" };
+    });
+  }, [rawStaff]);
 
   const handleUpdate = async () => {
     if (!editForm) return;
@@ -596,39 +637,66 @@ function CalendarContent() {
     handleCloseModal();
   };
 
-  const sendWhatsAppReminder = async () => {
+  const sendWhatsAppReminder = useCallback(async () => {
     const clean = editForm?.telefon?.replace(/\D/g, "");
     window.open(`https://wa.me/${clean?.startsWith("0") ? "4" + clean : clean}?text=${encodeURIComponent(customMessage)}`, "_blank");
-  };
+  }, [editForm?.telefon, customMessage]);
+
+  // ── FIX 6: search debounced — nu re-filtrăm la fiecare keystroke ────────────
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedSearch(searchTerm), 250);
+    return () => clearTimeout(t);
+  }, [searchTerm]);
 
   const filteredProgramari = useMemo(() =>
     programari.filter((p) => {
-      const matchSearch = !searchTerm || p.nume.toLowerCase().includes(searchTerm.toLowerCase()) || p.telefon?.includes(searchTerm);
+      const matchSearch = !debouncedSearch || p.nume.toLowerCase().includes(debouncedSearch.toLowerCase()) || p.telefon?.includes(debouncedSearch);
       const matchExpert = !selectedExpert || p.expertId === selectedExpert;
       const matchServiciu = !selectedServiciu || p.serviciuId === selectedServiciu;
       return matchSearch && matchExpert && matchServiciu;
     }).sort((a, b) => a.ora.localeCompare(b.ora)),
-    [programari, searchTerm, selectedExpert, selectedServiciu]
+    [programari, debouncedSearch, selectedExpert, selectedServiciu]
   );
 
   const programariByDate = useMemo(() => {
     const map: Record<string, Programare[]> = {};
     filteredProgramari.forEach((p) => {
-      const key = p.data;
-      if (key) { if (!map[key]) map[key] = []; map[key].push(p); }
+      if (!p.data) return;
+      if (!map[p.data]) map[p.data] = [];
+      map[p.data].push(p);
     });
     return map;
   }, [filteredProgramari]);
 
-  const nav = (dir: number) => {
-    const d = new Date(selectedDate);
-    if (viewMode === "month") d.setMonth(d.getMonth() + dir);
-    else if (viewMode === "week") d.setDate(d.getDate() + dir * 7);
-    else d.setDate(d.getDate() + dir);
-    setSelectedDate(d);
-  };
+  // ── Lookup map pentru servicii (evită .find() în fiecare render) ────────────
+  const serviceById = useMemo(() => {
+    const m: Record<string, ServiceRow> = {};
+    rawServices.forEach((s) => { m[s.id] = s; });
+    return m;
+  }, [rawServices]);
 
-  const goToDay = (day: Date) => { setSelectedDate(day); setViewMode("day"); setShowDatePickerModal(false); };
+  const staffById = useMemo(() => {
+    const m: Record<string, StaffRow> = {};
+    rawStaff.forEach((s) => { m[s.id] = s; });
+    return m;
+  }, [rawStaff]);
+
+  const nav = useCallback((dir: number) => {
+    setSelectedDate((prev) => {
+      const d = new Date(prev);
+      if (viewMode === "month") d.setMonth(d.getMonth() + dir);
+      else if (viewMode === "week") d.setDate(d.getDate() + dir * 7);
+      else d.setDate(d.getDate() + dir);
+      return d;
+    });
+  }, [viewMode]);
+
+  const goToDay = useCallback((day: Date) => {
+    setSelectedDate(day);
+    setViewMode("day");
+    setShowDatePickerModal(false);
+  }, []);
 
   const monthGrid = useMemo(() => {
     const year = selectedDate.getFullYear(), month = selectedDate.getMonth();
@@ -649,18 +717,7 @@ function CalendarContent() {
 
   const hasWhatsAppAccess = userSubscription?.plan.includes("ELITE") || userSubscription?.plan.includes("TEAM");
 
-  const AppointmentChip = ({ p }: { p: Programare }) => {
-    const svc = rawServices.find((s) => s.id === p.serviciuId);
-    const endTime = svc?.duration ? addMinutesToTime(p.ora, svc.duration) : null;
-    return (
-      <button
-        onClick={(e) => { e.stopPropagation(); handleOpenEdit(p); }}
-        className="w-full text-left bg-slate-900 text-white rounded-xl truncate font-black uppercase italic border border-slate-700 hover:bg-amber-600 transition-all text-[9px] px-2 py-1.5"
-        title={`${p.ora}${endTime ? ` - ${endTime}` : ""} | ${p.nume} | ${svc?.nume_serviciu || "Expert"}`}>
-        {p.ora}{endTime ? ` \u2192 ${endTime}` : ""} {p.nume}
-      </button>
-    );
-  };
+  const todayDate = useMemo(() => new Date(), []);
 
   if (!userId && !isDemo) {
     return (
@@ -743,14 +800,12 @@ function CalendarContent() {
 
               <div className="p-10 space-y-6 max-h-[65vh] overflow-y-auto bg-white">
 
-                {/* Nume */}
                 <div className="bg-slate-50 p-6 rounded-[35px] border border-slate-100 focus-within:border-amber-500 transition-all">
                   <p className="text-[9px] font-black text-slate-400 uppercase italic mb-2 ml-1">{TXT.numeClient}</p>
                   <input type="text" className="w-full bg-transparent text-xl font-black uppercase italic tracking-tight text-slate-900 outline-none"
                     value={editForm.nume} onChange={(e) => setEditForm((prev) => prev ? { ...prev, nume: e.target.value } : null)} />
                 </div>
 
-                {/* Data + Ora */}
                 <div className="grid grid-cols-2 gap-4">
                   <button type="button" onClick={() => { setShowEditDatePicker(true); setShowEditTimePicker(false); }}
                     className="w-full h-[80px] bg-slate-900 text-white rounded-[25px] font-black uppercase italic hover:text-amber-500 transition-all flex flex-col items-center justify-center gap-1">
@@ -764,9 +819,8 @@ function CalendarContent() {
                   </button>
                 </div>
 
-                {/* Interval ocupat */}
                 {editForm.serviciuId && (() => {
-                  const svc = rawServices.find((s) => s.id === editForm.serviciuId);
+                  const svc = serviceById[editForm.serviciuId];
                   if (!svc?.duration || !editForm.ora) return null;
                   const endTime = addMinutesToTime(editForm.ora, svc.duration);
                   return (
@@ -786,7 +840,6 @@ function CalendarContent() {
                   );
                 })()}
 
-                {/* Telefon + Email */}
                 <div className="grid grid-cols-2 gap-4">
                   <div className="bg-slate-50 p-5 rounded-[30px] border border-slate-100">
                     <p className="text-[8px] font-black text-slate-400 uppercase italic mb-1">{TXT.telefon}</p>
@@ -800,7 +853,6 @@ function CalendarContent() {
                   </div>
                 </div>
 
-                {/* Specialist + Serviciu */}
                 <div className="grid grid-cols-2 gap-4">
                   <div className="bg-slate-900 p-5 rounded-[30px] shadow-xl">
                     <p className="text-[8px] font-black text-amber-500 uppercase italic mb-1">{TXT.specialist}</p>
@@ -824,14 +876,13 @@ function CalendarContent() {
                   </div>
                 </div>
 
-                {/* Documente */}
                 <div className="bg-slate-50 p-6 rounded-[35px] border border-slate-100">
                   <p className="text-[8px] font-black text-slate-400 uppercase italic mb-3">{TXT.documente}</p>
                   {editForm.documente.length > 0 ? (
                     <div className="grid grid-cols-1 gap-2">
                       {editForm.documente.map((doc) => (
                         <a key={String(doc.id)} href={doc.url} target="_blank" rel="noopener noreferrer"
-                          className="flex items-center justify-between p-3 bg-white border border-slate-200 rounded-2xl hover:border-amber-500 transition-all group" title="Deschide Document">
+                          className="flex items-center justify-between p-3 bg-white border border-slate-200 rounded-2xl hover:border-amber-500 transition-all group">
                           <div className="flex items-center gap-3 overflow-hidden">
                             <span className="text-lg">&#128196;</span>
                             <p className="text-[10px] font-black text-slate-700 uppercase italic truncate">{doc.name}</p>
@@ -845,14 +896,12 @@ function CalendarContent() {
                   )}
                 </div>
 
-                {/* Notițe */}
                 <div className="bg-slate-50 p-6 rounded-[35px] border border-slate-100">
                   <p className="text-[8px] font-black text-slate-400 uppercase italic mb-2">{TXT.notite}</p>
                   <textarea className="w-full bg-transparent text-xs font-bold italic text-slate-700 outline-none resize-none" rows={2}
                     value={editForm.motiv || ""} onChange={(e) => setEditForm((prev) => prev ? { ...prev, motiv: e.target.value } : null)} placeholder={TXT.adaugaDetalii} />
                 </div>
 
-                {/* WhatsApp */}
                 <div className={`border p-6 rounded-[35px] space-y-3 transition-all duration-300 ${hasWhatsAppAccess ? "bg-green-50 border-green-100" : "bg-slate-50 border-slate-200 opacity-60"}`}>
                   <div className="flex justify-between items-center">
                     <p className={`text-[10px] font-black uppercase italic tracking-widest ${hasWhatsAppAccess ? "text-green-700" : "text-slate-400"}`}>
@@ -889,7 +938,6 @@ function CalendarContent() {
                   )}
                 </div>
 
-                {/* Acțiuni */}
                 <div className="flex flex-col gap-3 pt-4 border-t border-slate-100">
                   <div className="flex gap-4">
                     <button onClick={handleCloseModal} className="flex-1 py-5 bg-slate-100 text-slate-500 rounded-[25px] font-black uppercase text-[10px] italic hover:bg-slate-200 transition-all">
@@ -1007,25 +1055,26 @@ function CalendarContent() {
               {monthGrid.map((day, idx) => {
                 const key = formatDateKey(day);
                 const list = programariByDate[key] || [];
-                const blockStatus = isDateBlocked(key);
-                const fullyOccupied = isDayFullyOccupied(key);
+                const status = dateStatusCache[key] || { blocked: false, fullyOccupied: false };
                 const isCurrentMonth = day.getMonth() === selectedDate.getMonth();
                 return (
-                  <div key={idx} onClick={() => !blockStatus.blocked && goToDay(day)}
+                  <div key={idx} onClick={() => !status.blocked && goToDay(day)}
                     className={`min-h-[140px] p-3 flex flex-col items-start border-r border-b border-slate-100 transition-colors relative
                       ${!isCurrentMonth ? "bg-slate-50 opacity-40" : "bg-white"}
-                      ${blockStatus.blocked ? "bg-red-50/30 cursor-not-allowed" : "hover:bg-amber-50/30 cursor-pointer"}`}>
-                    <span className={`text-[11px] font-black mb-3 px-3 py-1.5 rounded-[12px] ${sameDay(day, new Date()) ? "text-white bg-amber-600" : "text-slate-400"}`}>{day.getDate()}</span>
-                    {blockStatus.blocked && (
+                      ${status.blocked ? "bg-red-50/30 cursor-not-allowed" : "hover:bg-amber-50/30 cursor-pointer"}`}>
+                    <span className={`text-[11px] font-black mb-3 px-3 py-1.5 rounded-[12px] ${sameDay(day, todayDate) ? "text-white bg-amber-600" : "text-slate-400"}`}>{day.getDate()}</span>
+                    {status.blocked && (
                       <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-20">
                         <span className="text-[10px] font-black uppercase italic rotate-45 border-2 border-red-500 text-red-600 px-2 rounded-lg">{TXT.inchisLabel}</span>
                       </div>
                     )}
-                    {!blockStatus.blocked && fullyOccupied && list.length > 0 && (
+                    {!status.blocked && status.fullyOccupied && list.length > 0 && (
                       <div className="absolute top-2 right-2 w-2 h-2 bg-red-400 rounded-full" title={TXT.ziOcupata} />
                     )}
                     <div className="w-full space-y-1.5 z-10">
-                      {list.slice(0, 3).map((p) => <AppointmentChip key={p.id} p={p} />)}
+                      {list.slice(0, 3).map((p) => (
+                        <AppointmentChip key={p.id} p={p} service={serviceById[p.serviciuId || ""]} onEdit={handleOpenEdit} />
+                      ))}
                       {list.length > 3 && <p className="text-[8px] font-black text-amber-600 italic pl-1">{TXT.incaAlte} {list.length - 3}</p>}
                     </div>
                   </div>
@@ -1039,20 +1088,20 @@ function CalendarContent() {
               {weekDays.map((day, i) => {
                 const key = formatDateKey(day);
                 const list = programariByDate[key] || [];
-                const blockStatus = isDateBlocked(key);
+                const status = dateStatusCache[key] || { blocked: false };
                 return (
-                  <div key={i} className={`min-h-[600px] flex flex-col border-r border-slate-100 ${blockStatus.blocked ? "bg-slate-50" : "bg-white"}`}>
-                    <div className={`p-4 text-center border-b-2 ${sameDay(day, new Date()) ? "border-amber-500 bg-amber-50/50" : "border-slate-50"}`}>
+                  <div key={i} className={`min-h-[600px] flex flex-col border-r border-slate-100 ${status.blocked ? "bg-slate-50" : "bg-white"}`}>
+                    <div className={`p-4 text-center border-b-2 ${sameDay(day, todayDate) ? "border-amber-500 bg-amber-50/50" : "border-slate-50"}`}>
                       <p className="text-[10px] font-black text-slate-400 uppercase italic">{TXT.dayShort[i]}</p>
-                      <p className={`text-xl font-black italic ${sameDay(day, new Date()) ? "text-amber-600" : "text-slate-900"}`}>{day.getDate()}</p>
+                      <p className={`text-xl font-black italic ${sameDay(day, todayDate) ? "text-amber-600" : "text-slate-900"}`}>{day.getDate()}</p>
                     </div>
                     <div className="p-2 space-y-2 overflow-y-auto">
-                      {blockStatus.blocked ? (
-                        <div className="mt-10 text-center px-4"><p className="text-[8px] font-black text-red-400 uppercase italic">{blockStatus.reason}</p></div>
+                      {status.blocked ? (
+                        <div className="mt-10 text-center px-4"><p className="text-[8px] font-black text-red-400 uppercase italic">{status.reason}</p></div>
                       ) : list.length > 0 ? (
                         list.sort((a, b) => a.ora.localeCompare(b.ora)).map((p) => {
-                          const expName = rawStaff.find((a) => a.id === p.expertId)?.name || TXT.general;
-                          const svc = rawServices.find((s) => s.id === p.serviciuId);
+                          const expName = staffById[p.expertId || ""]?.name || TXT.general;
+                          const svc = serviceById[p.serviciuId || ""];
                           const endTime = svc?.duration ? addMinutesToTime(p.ora, svc.duration) : null;
                           return (
                             <button key={p.id} onClick={() => handleOpenEdit(p)}
@@ -1076,14 +1125,14 @@ function CalendarContent() {
           {viewMode === "day" && (
             <div className="bg-white min-h-[500px] py-12 px-6">
               <div className="max-w-3xl mx-auto space-y-4">
-                {isDateBlocked(formatDateKey(selectedDate)).blocked ? (
+                {(dateStatusCache[formatDateKey(selectedDate)]?.blocked) ? (
                   <div className="text-center py-20 bg-red-50 rounded-[40px] border-2 border-dashed border-red-200">
                     <p className="text-xl font-black text-red-500 uppercase italic mb-2">{TXT.locatieInchisa}</p>
-                    <p className="text-xs font-bold text-red-400 uppercase italic">{isDateBlocked(formatDateKey(selectedDate)).reason}</p>
+                    <p className="text-xs font-bold text-red-400 uppercase italic">{dateStatusCache[formatDateKey(selectedDate)]?.reason}</p>
                   </div>
                 ) : (programariByDate[formatDateKey(selectedDate)] || []).length > 0 ? (
                   (programariByDate[formatDateKey(selectedDate)] || []).sort((a, b) => a.ora.localeCompare(b.ora)).map((p) => {
-                    const svc = rawServices.find((s) => s.id === p.serviciuId);
+                    const svc = serviceById[p.serviciuId || ""];
                     const endTime = svc?.duration ? addMinutesToTime(p.ora, svc.duration) : null;
                     return (
                       <div key={p.id} onClick={() => handleOpenEdit(p)}
@@ -1097,7 +1146,7 @@ function CalendarContent() {
                           <p className="text-[10px] font-bold text-slate-400 uppercase italic tracking-widest">{svc?.nume_serviciu || TXT.serviciiNesetat}</p>
                         </div>
                         <div className="text-right">
-                          <p className="text-[10px] font-black text-slate-400 group-hover:text-amber-500 uppercase italic">{rawStaff.find((a) => a.id === p.expertId)?.name || TXT.nesetat}</p>
+                          <p className="text-[10px] font-black text-slate-400 group-hover:text-amber-500 uppercase italic">{staffById[p.expertId || ""]?.name || TXT.nesetat}</p>
                         </div>
                       </div>
                     );
