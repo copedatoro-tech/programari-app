@@ -157,7 +157,6 @@ function WeekStrip({ selectedDate, onSelectDate, programariByDate, adminWorkingH
   return (
     <div className="flex-shrink-0 bg-white border-b border-slate-200 select-none">
       <div className="flex items-stretch" style={{ height: 56 }}>
-        {/* Luna + an + navigare săptămână */}
         <div className="flex items-center gap-1 px-3 border-r border-slate-200 flex-shrink-0" style={{ minWidth: 160 }}>
           <button
             onClick={() => onSelectDate(addDays(weekStart, -7))}
@@ -178,7 +177,6 @@ function WeekStrip({ selectedDate, onSelectDate, programariByDate, adminWorkingH
           >▶</button>
         </div>
 
-        {/* Zilele săptămânii */}
         <div className="flex flex-1 divide-x divide-slate-100">
           {weekDays.map((day, i) => {
             const key = formatDateKey(day);
@@ -297,7 +295,6 @@ function FilterBar({
 
   return (
     <div className="flex-shrink-0 bg-white border-b border-slate-200">
-      {/* Rând 1 — Specialiști */}
       {rawStaff.length > 0 && (
         <div className="flex items-center gap-1.5 px-3 py-2 border-b border-slate-100 overflow-x-auto" style={{ scrollbarWidth: "none" }}>
           <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wide flex-shrink-0 w-16">Specialiști</span>
@@ -338,7 +335,6 @@ function FilterBar({
         </div>
       )}
 
-      {/* Rând 2 — Servicii */}
       {rawServices.length > 0 && (
         <div className="flex items-center gap-1.5 px-3 py-2 overflow-x-auto" style={{ scrollbarWidth: "none" }}>
           <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wide flex-shrink-0 w-16">Servicii</span>
@@ -431,7 +427,6 @@ function ServiceSummaryBar({
 }
 
 // ─── DayView ──────────────────────────────────────────────────────────────────
-// FIX: eliminat header-ul cu specialiști duplicat (cel din interiorul grilei)
 function DayView({
   selectedDate, programari, rawStaff, rawServices, serviceById,
   onEdit, adminWorkingHours, selectedExpert, selectedServiciu,
@@ -451,8 +446,6 @@ function DayView({
   const whEnd = daySchedule?.end || "";
 
   const bodyRef = useRef<HTMLDivElement>(null);
-  const headerScrollRef = useRef<HTMLDivElement>(null);
-  const isSyncing = useRef(false);
 
   const visibleSlots = useMemo(() => {
     if (isClosed || !whStart || !whEnd) return ALL_DAY_SLOTS;
@@ -466,16 +459,6 @@ function DayView({
 
   const gridHeight = visibleSlots.length * SLOT_H;
   const firstSlotMin = visibleSlots.length > 0 ? timeToMinutes(visibleSlots[0]) : 0;
-
-  const syncScroll = useCallback((source: "body" | "header") => {
-    if (isSyncing.current) return;
-    isSyncing.current = true;
-    requestAnimationFrame(() => {
-      if (source === "body" && bodyRef.current && headerScrollRef.current)
-        headerScrollRef.current.scrollLeft = bodyRef.current.scrollLeft;
-      isSyncing.current = false;
-    });
-  }, []);
 
   const dateAppts = programari.filter(p => p.data === dateKey);
 
@@ -503,12 +486,12 @@ function DayView({
     }));
   }, [allStaffColumns, selectedExpert, selectedServiciu]);
 
-  // Scroll la ora de start a programului
   useEffect(() => {
     const targetTime = whStart || `${new Date().getHours().toString().padStart(2, "0")}:00`;
     const targetMin = timeToMinutes(targetTime);
     const offset = Math.max(0, ((targetMin - firstSlotMin) / 15) * SLOT_H - 60);
     setTimeout(() => { bodyRef.current?.scrollTo({ top: offset }); }, 50);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const colWidth = visibleColumns.length === 1
@@ -517,8 +500,6 @@ function DayView({
 
   return (
     <div className="flex flex-col h-full overflow-hidden">
-      {/* FIX: eliminat header-ul duplicat cu specialiști — acesta era al doilea rând cu specialiști */}
-
       {isClosed && (
         <div className="flex-shrink-0 bg-red-50 border-b border-red-200 px-4 py-1.5 flex items-center gap-2">
           <span className="text-red-500 text-xs">🚫</span>
@@ -526,16 +507,11 @@ function DayView({
         </div>
       )}
 
-      <div
-        ref={bodyRef}
-        onScroll={() => syncScroll("body")}
-        className="flex flex-1 overflow-auto"
-      >
+      <div ref={bodyRef} className="flex flex-1 overflow-auto">
         <div
           className="flex"
           style={{ minWidth: visibleColumns.length * colWidth + TIME_COL_W, height: gridHeight, position: "relative" }}
         >
-          {/* Coloana de ore */}
           <div
             className="flex-shrink-0 border-r border-slate-200 bg-white/90 sticky left-0 z-20"
             style={{ width: TIME_COL_W }}
@@ -570,12 +546,10 @@ function DayView({
             })}
           </div>
 
-          {/* Coloane specialiști */}
           {visibleColumns.map(col => {
             const color = SPECIALIST_COLORS[col.colorIdx];
             return (
               <div key={col.id} className="relative flex-shrink-0" style={{ width: colWidth }}>
-                {/* Fundaluri sloturi */}
                 {visibleSlots.map((slot, i) => {
                   const isHour = slot.endsWith(":00");
                   const isHalfHour = slot.endsWith(":30");
@@ -599,7 +573,6 @@ function DayView({
                   );
                 })}
 
-                {/* Linii delimitare orar de lucru */}
                 {!isClosed && whStart && whEnd && (() => {
                   const startOffset = ((timeToMinutes(whStart) - firstSlotMin) / 15) * SLOT_H;
                   const endOffset = ((timeToMinutes(whEnd === "00:00" ? "24:00" : whEnd) - firstSlotMin) / 15) * SLOT_H;
@@ -611,10 +584,8 @@ function DayView({
                   );
                 })()}
 
-                {/* Bordură dreapta */}
                 <div className="absolute top-0 right-0 bottom-0 w-px" style={{ backgroundColor: color.colBorder, opacity: 0.3 }} />
 
-                {/* Programări */}
                 {col.appts.sort((a, b) => a.ora.localeCompare(b.ora)).map(p => {
                   const svc = serviceById[p.serviciuId || ""];
                   const endTime = svc?.duration ? addMinutesToTime(p.ora, svc.duration) : null;
@@ -644,7 +615,6 @@ function DayView({
                   );
                 })}
 
-                {/* Sloturi goale clicabile */}
                 {visibleSlots.map((slot, i) => {
                   const slotMin = timeToMinutes(slot);
                   const isOccupied = col.appts.some(p => {
@@ -746,6 +716,7 @@ function WeekView({
     const nowMin = now.getHours() * 60 + now.getMinutes();
     const offset = Math.max(0, ((nowMin - firstSlotMin) / 15) * SLOT_H - 120);
     setTimeout(() => { bodyRef.current?.scrollTo({ top: offset }); }, 50);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const staffColorMap = useMemo(() => {
@@ -773,7 +744,6 @@ function WeekView({
   return (
     <div className="flex flex-col h-full overflow-hidden">
       <div className="flex flex-1 flex-col overflow-hidden">
-        {/* Header zile */}
         <div
           ref={headerRef}
           onScroll={() => syncScroll("header")}
@@ -828,10 +798,8 @@ function WeekView({
           </div>
         </div>
 
-        {/* Grid body */}
         <div ref={bodyRef} onScroll={() => syncScroll("body")} className="flex-1 overflow-auto">
           <div className="relative flex" style={{ minWidth: totalBodyW, height: gridHeight }}>
-            {/* Coloana de ore sticky */}
             <div className="sticky left-0 z-20 bg-white/90 border-r border-slate-200 flex-shrink-0" style={{ width: TIME_COL_W }}>
               {visibleSlots.map((slot, i) => {
                 const isHour = slot.endsWith(":00");
@@ -849,7 +817,6 @@ function WeekView({
               })}
             </div>
 
-            {/* Coloane zile */}
             {weekDays.map((day, di) => {
               const dayName = TXT.dayLong[day.getDay()];
               const wh = whByDay[dayName];
@@ -936,8 +903,8 @@ function WeekView({
 
 // ─── MonthView ────────────────────────────────────────────────────────────────
 function MonthView({
-  selectedDate, programariByDate, rawStaff, serviceById,
-  onEdit, onDayClick, selectedExpert, selectedServiciu, programari, adminWorkingHours,
+  selectedDate, programariByDate, rawStaff,
+  onEdit, onDayClick, selectedExpert, selectedServiciu, adminWorkingHours,
 }: {
   selectedDate: Date; programariByDate: Record<string, Programare[]>; rawStaff: StaffRow[];
   serviceById: Record<string, ServiceRow>; onEdit: (p: Programare) => void;
@@ -1064,7 +1031,6 @@ function MonthView({
 }
 
 // ─── PeriodLabel ──────────────────────────────────────────────────────────────
-// FIX: afișează perioada corectă în funcție de modul de vizualizare
 function PeriodLabel({ viewMode, selectedDate }: { viewMode: ViewMode; selectedDate: Date }) {
   const label = useMemo(() => {
     if (viewMode === "day") {
@@ -1087,7 +1053,6 @@ function PeriodLabel({ viewMode, selectedDate }: { viewMode: ViewMode; selectedD
       }
       return `${sDay} ${sMonth} – ${eDay} ${eMonth} ${year}`;
     }
-    // month
     return `${TXT.months[selectedDate.getMonth()]} ${selectedDate.getFullYear()}`;
   }, [viewMode, selectedDate]);
 
@@ -1103,7 +1068,7 @@ function CalendarContent() {
   const searchParams = useSearchParams();
   const isDemo = searchParams.get("demo") === "true";
   const modalRef = useRef<HTMLDivElement>(null);
-  const searchRef = useRef<HTMLDivElement>(null);       // FIX: ref pentru search dropdown
+  const searchRef = useRef<HTMLDivElement>(null);
   const qClient = useQueryClient();
 
   const today = useMemo(() => new Date().toISOString().split("T")[0], []);
@@ -1113,6 +1078,7 @@ function CalendarContent() {
   const [selectedExpert, setSelectedExpert] = useState("");
   const [selectedServiciu, setSelectedServiciu] = useState("");
   const [editForm, setEditForm] = useState<Programare | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
   const [newAppointmentForm, setNewAppointmentForm] = useState<{
     date: string; time: string; nume: string; telefon: string;
     email: string; serviciuId: string; expertId: string; motiv: string;
@@ -1124,29 +1090,35 @@ function CalendarContent() {
   const [showSearchDropdown, setShowSearchDropdown] = useState(false);
   const [debouncedSearch, setDebouncedSearch] = useState("");
 
-  // FIX: închide search dropdown la click în afara lui
+  // ───── FIX ÎNCĂRCARE LENTĂ: sesiune cu auth state change listener ────────────
+  // În loc de useQuery cu staleTime mare (care lasă userId undefined la primul render
+  // dacă sesiunea încă se hidratează), folosim state + onAuthStateChange.
+  const [userId, setUserId] = useState<string | null>(null);
+  const [sessionLoading, setSessionLoading] = useState(true);
+
   useEffect(() => {
-    function handleClickOutsideSearch(event: MouseEvent) {
-      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
-        setShowSearchDropdown(false);
-      }
-    }
-    document.addEventListener("mousedown", handleClickOutsideSearch);
-    return () => document.removeEventListener("mousedown", handleClickOutsideSearch);
+    let mounted = true;
+
+    // 1) Citim sesiunea curentă (rapid, fără round-trip de rețea)
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!mounted) return;
+      setUserId(session?.user?.id ?? null);
+      setSessionLoading(false);
+    });
+
+    // 2) Ascultăm orice schimbare ulterioară (TOKEN_REFRESH, SIGNED_IN, etc.)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUserId(session?.user?.id ?? null);
+      setSessionLoading(false);
+    });
+
+    return () => { mounted = false; subscription.unsubscribe(); };
   }, []);
 
-  const { data: session, isLoading: sessionLoading } = useQuery({
-    queryKey: ["session"],
-    queryFn: async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      return session;
-    },
-    staleTime: 1000 * 60 * 5,
-  });
-  const userId = session?.user?.id;
-
   const { data: profile, refetch: refetchProfile } = useQuery({
-    queryKey: ["profile", userId], enabled: !!userId, staleTime: 1000 * 60 * 10,
+    queryKey: ["profile", userId],
+    enabled: !!userId,
+    staleTime: 1000 * 60, // ↓ redus de la 10 min → 1 min ca să prindă schimbările din settings
     queryFn: async () => {
       const { data } = await supabase.from("profiles")
         .select("plan_type, trial_started_at, manual_blocks, working_hours")
@@ -1156,7 +1128,7 @@ function CalendarContent() {
   });
 
   const { data: rawStaff = [] } = useQuery<StaffRow[]>({
-    queryKey: ["staff", userId], enabled: !!userId, staleTime: 1000 * 60 * 10,
+    queryKey: ["staff", userId], enabled: !!userId, staleTime: 1000 * 60 * 5,
     queryFn: async () => {
       const { data } = await supabase.from("staff").select("id, name, services").eq("user_id", userId!);
       return data ?? [];
@@ -1164,7 +1136,7 @@ function CalendarContent() {
   });
 
   const { data: rawServices = [] } = useQuery<ServiceRow[]>({
-    queryKey: ["services", userId], enabled: !!userId, staleTime: 1000 * 60 * 10,
+    queryKey: ["services", userId], enabled: !!userId, staleTime: 1000 * 60 * 5,
     queryFn: async () => {
       const { data } = await supabase.from("services").select("id, nume_serviciu, price, duration").eq("user_id", userId!);
       return data ?? [];
@@ -1178,7 +1150,7 @@ function CalendarContent() {
       start: new Date(year, month - 2, 1).toISOString().split("T")[0],
       end: new Date(year, month + 3, 0).toISOString().split("T")[0],
     };
-  }, [selectedDate.getFullYear(), selectedDate.getMonth()]);
+  }, [selectedDate]);
 
   const { data: programari = [], isLoading, refetch: refetchAppts } = useQuery<Programare[]>({
     queryKey: ["appointments", userId, dateRange.start, dateRange.end], enabled: !!userId,
@@ -1194,7 +1166,7 @@ function CalendarContent() {
     },
   });
 
-  // FIX: working_hours se sincronizează în timp real din Supabase (settings)
+  // ───── Realtime subscriptions ────────────────────────────────────────────────
   useEffect(() => {
     if (!userId) return;
     const ch1 = supabase.channel(`cal-profile-${userId}`)
@@ -1204,9 +1176,8 @@ function CalendarContent() {
       .on("postgres_changes", { event: "*", schema: "public", table: "appointments", filter: `user_id=eq.${userId}` }, () => refetchAppts())
       .subscribe();
     return () => { supabase.removeChannel(ch1); supabase.removeChannel(ch2); };
-  }, [userId]);
+  }, [userId, refetchProfile, refetchAppts]);
 
-  // FIX: staleTime 0 pentru profile — astfel la orice refetch se actualizează imediat
   const adminWorkingHours = useMemo<WorkingHour[]>(() => parseWH(profile?.working_hours), [profile?.working_hours]);
   const adminManualBlocks = useMemo<ManualBlocksMap>(() => {
     const raw = profile?.manual_blocks;
@@ -1231,22 +1202,25 @@ function CalendarContent() {
     if (!editForm) return;
     const srvName = rawServices.find(s => s.id === editForm.serviciuId)?.nume_serviciu;
     setCustomMessage(`Bună, ${editForm.nume}! Te așteptăm la programarea din ${editForm.data}, ora ${editForm.ora}${srvName ? ` pentru ${srvName}` : ""}. O zi bună!`);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editForm?.id]);
 
-  // FIX: modal se închide la click în afară, dar nu când sunt deschise picker-ele
+  // ───── FIX: search dropdown se închide la click în afară ─────────────────────
   useEffect(() => {
-    function handleClickOutsideModal(event: MouseEvent) {
-      if (showEditDatePicker || showEditTimePicker) return; // picker-ele au overlay propriu
-      if (
-        modalRef.current &&
-        !modalRef.current.contains(event.target as Node)
-      ) {
-        handleCloseModal();
+    function handleClickOutsideSearch(event: MouseEvent) {
+      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+        setShowSearchDropdown(false);
       }
     }
-    if (editForm) document.addEventListener("mousedown", handleClickOutsideModal);
-    return () => document.removeEventListener("mousedown", handleClickOutsideModal);
-  }, [editForm, showEditDatePicker, showEditTimePicker]);
+    document.addEventListener("mousedown", handleClickOutsideSearch);
+    return () => document.removeEventListener("mousedown", handleClickOutsideSearch);
+  }, []);
+
+  // ───── FIX MAJOR: ELIMINAT useEffect-ul cu document.addEventListener pentru modal
+  // Acest listener intra în conflict cu onMouseDown pe overlay, iar pentru click-uri
+  // pe <select> sau pe DatePicker (care se montează în portal) închidea modalul
+  // ÎNAINTE de mouseup, deci butonul "Salvează modificările" nu mai apuca click-ul.
+  // Acum closing-ul se face EXCLUSIV prin onMouseDown pe overlay (vezi modal jos).
 
   const handleSearch = useCallback((query: string) => {
     if (!query.trim()) { setSearchResults([]); setShowSearchDropdown(false); return; }
@@ -1263,8 +1237,8 @@ function CalendarContent() {
     setEditForm({ ...p });
     setShowEditDatePicker(false);
     setShowEditTimePicker(false);
-    setShowSearchDropdown(false);   // FIX: închide dropdown-ul la selectare
-    setSearchTerm("");               // FIX: curăță search-ul după selectare
+    setShowSearchDropdown(false);
+    setSearchTerm("");
     setSearchResults([]);
   }, []);
 
@@ -1274,22 +1248,34 @@ function CalendarContent() {
     setShowEditDatePicker(false);
     setShowEditTimePicker(false);
     setShowSearchDropdown(false);
+    setIsSaving(false);
   }, []);
 
+  // ───── FIX: salvare cu protecție anti-dublu-click + try/catch ────────────────
   const handleUpdate = async () => {
-    if (!editForm) return;
-    const service = rawServices.find(s => s.id === editForm.serviciuId);
-    const duration = service?.duration || editForm.duration || 0;
-    const { error } = await supabase.from("appointments").update({
-      title: editForm.nume, prenume: editForm.nume, nume: editForm.nume,
-      email: editForm.email || null, date: editForm.data, time: editForm.ora, duration,
-      phone: editForm.telefon || null, details: editForm.motiv || null,
-      angajat_id: editForm.expertId || null, serviciu_id: editForm.serviciuId || null,
-    }).eq("id", editForm.id);
-    if (error) { await showToast({ message: error.message, type: "error" }); return; }
-    qClient.invalidateQueries({ queryKey: ["appointments", userId] });
-    await showToast({ message: "Programare actualizată cu succes!", type: "success" });
-    handleCloseModal();
+    if (!editForm || isSaving) return;
+    setIsSaving(true);
+    try {
+      const service = rawServices.find(s => s.id === editForm.serviciuId);
+      const duration = service?.duration || editForm.duration || 0;
+      const { error } = await supabase.from("appointments").update({
+        title: editForm.nume, prenume: editForm.nume, nume: editForm.nume,
+        email: editForm.email || null, date: editForm.data, time: editForm.ora, duration,
+        phone: editForm.telefon || null, details: editForm.motiv || null,
+        angajat_id: editForm.expertId || null, serviciu_id: editForm.serviciuId || null,
+      }).eq("id", editForm.id);
+      if (error) {
+        await showToast({ message: error.message, type: "error" });
+        setIsSaving(false);
+        return;
+      }
+      qClient.invalidateQueries({ queryKey: ["appointments", userId] });
+      await showToast({ message: "Programare actualizată cu succes!", type: "success" });
+      handleCloseModal();
+    } catch (err: any) {
+      await showToast({ message: err?.message || "Eroare la salvare", type: "error" });
+      setIsSaving(false);
+    }
   };
 
   const handleDelete = async () => {
@@ -1446,17 +1432,14 @@ function CalendarContent() {
             </div>
           )}
 
-          {/* FIX: overlay modal — stopPropagation pe modalRef, restul închide */}
+          {/* FIX: overlay click — folosim onClick (nu onMouseDown) și verificăm currentTarget */}
           <div
             className="fixed inset-0 bg-slate-900/70 backdrop-blur-md z-[500] flex items-center justify-center p-4"
-            onMouseDown={e => {
-              // Dacă click-ul e direct pe overlay (nu pe modal), închidem
-              if (e.target === e.currentTarget) handleCloseModal();
-            }}
+            onClick={e => { if (e.target === e.currentTarget) handleCloseModal(); }}
           >
             <div
               ref={modalRef}
-              onMouseDown={e => e.stopPropagation()}
+              onClick={e => e.stopPropagation()}
               className="bg-white w-full max-w-lg rounded-3xl overflow-hidden shadow-2xl border border-slate-100 relative"
             >
               <button
@@ -1464,7 +1447,6 @@ function CalendarContent() {
                 className="absolute top-4 right-4 w-8 h-8 bg-slate-100 rounded-xl flex items-center justify-center text-slate-400 hover:bg-red-500 hover:text-white transition-all z-30 text-sm font-bold"
               >✕</button>
 
-              {/* Header modal */}
               <div className="bg-slate-900 px-6 py-5 flex items-center gap-4">
                 <div className="w-12 h-12 rounded-2xl bg-slate-800 overflow-hidden flex items-center justify-center text-2xl flex-shrink-0">
                   {editForm.poza
@@ -1480,7 +1462,6 @@ function CalendarContent() {
               </div>
 
               <div className="p-5 space-y-3 max-h-[70vh] overflow-y-auto">
-                {/* Nume */}
                 <div className="bg-slate-50 px-4 py-3 rounded-2xl border border-slate-100">
                   <p className="text-[8px] font-bold text-slate-400 uppercase mb-1">Nume complet</p>
                   <input
@@ -1490,7 +1471,6 @@ function CalendarContent() {
                   />
                 </div>
 
-                {/* Dată + Oră */}
                 <div className="grid grid-cols-2 gap-2">
                   <button
                     onClick={() => { setShowEditDatePicker(true); setShowEditTimePicker(false); }}
@@ -1508,7 +1488,6 @@ function CalendarContent() {
                   </button>
                 </div>
 
-                {/* Telefon + Email */}
                 <div className="grid grid-cols-2 gap-2">
                   <div className="bg-slate-50 px-4 py-3 rounded-2xl border border-slate-100">
                     <p className="text-[8px] font-bold text-slate-400 uppercase mb-1">Telefon</p>
@@ -1528,7 +1507,6 @@ function CalendarContent() {
                   </div>
                 </div>
 
-                {/* Specialist + Serviciu */}
                 <div className="grid grid-cols-2 gap-2">
                   <div className="bg-slate-900 px-4 py-3 rounded-2xl">
                     <p className="text-[8px] font-bold text-amber-500 uppercase mb-1">Specialist</p>
@@ -1558,7 +1536,6 @@ function CalendarContent() {
                   </div>
                 </div>
 
-                {/* Notițe */}
                 <div className="bg-slate-50 px-4 py-3 rounded-2xl border border-slate-100">
                   <p className="text-[8px] font-bold text-slate-400 uppercase mb-1">Notițe</p>
                   <textarea
@@ -1569,7 +1546,6 @@ function CalendarContent() {
                   />
                 </div>
 
-                {/* Documente atașate */}
                 {editForm.documente && editForm.documente.length > 0 && (
                   <div className="bg-slate-50 px-4 py-3 rounded-2xl border border-slate-100">
                     <p className="text-[8px] font-bold text-slate-400 uppercase mb-2">
@@ -1603,7 +1579,6 @@ function CalendarContent() {
                   </div>
                 )}
 
-                {/* WhatsApp */}
                 <div className={`border px-4 py-3 rounded-2xl space-y-2 ${hasWhatsAppAccess ? "bg-green-50 border-green-100" : "bg-slate-50 border-slate-100 opacity-60"}`}>
                   <p className={`text-[8px] font-bold uppercase ${hasWhatsAppAccess ? "text-green-700" : "text-slate-400"}`}>
                     💬 Mesaj WhatsApp
@@ -1636,24 +1611,32 @@ function CalendarContent() {
                   )}
                 </div>
 
-                {/* Acțiuni */}
                 <div className="flex flex-col gap-2 pt-1 border-t border-slate-100">
                   <div className="flex gap-2">
                     <button
                       onClick={handleCloseModal}
                       className="flex-1 py-3 bg-slate-100 text-slate-500 rounded-2xl font-bold text-xs hover:bg-slate-200 transition-all"
+                      disabled={isSaving}
                     >
                       Anulează
                     </button>
+                    {/* FIX: buton Save acum este de tip="button" explicit, are loading state, este disabled în timpul save-ului */}
                     <button
+                      type="button"
                       onClick={handleUpdate}
-                      className="flex-[2] py-3 bg-slate-900 text-white rounded-2xl font-bold text-xs hover:bg-amber-600 transition-all"
+                      disabled={isSaving}
+                      className={`flex-[2] py-3 rounded-2xl font-bold text-xs transition-all ${
+                        isSaving
+                          ? "bg-slate-400 text-white cursor-not-allowed"
+                          : "bg-slate-900 text-white hover:bg-amber-600"
+                      }`}
                     >
-                      Salvează modificările
+                      {isSaving ? "Se salvează..." : "Salvează modificările"}
                     </button>
                   </div>
                   <button
                     onClick={handleDelete}
+                    disabled={isSaving}
                     className="w-full py-3 text-red-400 font-bold text-xs hover:bg-red-50 rounded-2xl transition-all"
                   >
                     Șterge definitiv 🗑️
@@ -1669,11 +1652,11 @@ function CalendarContent() {
       {newAppointmentForm && (
         <div
           className="fixed inset-0 bg-slate-900/70 backdrop-blur-md z-[500] flex items-center justify-center p-4"
-          onMouseDown={e => { if (e.target === e.currentTarget) setNewAppointmentForm(null); }}
+          onClick={e => { if (e.target === e.currentTarget) setNewAppointmentForm(null); }}
         >
           <div
             className="bg-white w-full max-w-lg rounded-3xl overflow-hidden shadow-2xl border border-slate-100 p-5"
-            onMouseDown={e => e.stopPropagation()}
+            onClick={e => e.stopPropagation()}
           >
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-bold text-slate-900">Programare nouă</h2>
@@ -1762,6 +1745,7 @@ function CalendarContent() {
                   Anulează
                 </button>
                 <button
+                  type="button"
                   onClick={async () => {
                     if (!newAppointmentForm) return;
                     const { error } = await supabase.from("appointments").insert({
@@ -1811,7 +1795,6 @@ function CalendarContent() {
           </div>
         </div>
 
-        {/* Search — FIX: wrapat în ref pentru click outside */}
         <div ref={searchRef} className="flex-1 max-w-xs relative">
           <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300 text-xs">🔍</span>
           <input
@@ -1828,14 +1811,13 @@ function CalendarContent() {
           >
             Caută
           </button>
-          {/* FIX: dropdown se închide la click pe orice item sau la click în afară (via searchRef) */}
           {showSearchDropdown && searchResults.length > 0 && (
             <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-slate-200 rounded-xl shadow-xl z-50 max-h-64 overflow-y-auto">
               {searchResults.map(p => (
                 <button
                   key={p.id}
                   onMouseDown={e => {
-                    e.preventDefault(); // previne blur înainte de click
+                    e.preventDefault();
                     setSearchTerm(p.nume);
                     setShowSearchDropdown(false);
                     handleOpenEdit(p);
@@ -1851,7 +1833,6 @@ function CalendarContent() {
           )}
         </div>
 
-        {/* View mode selector */}
         <div className="flex bg-slate-100 p-0.5 rounded-xl gap-0.5 ml-auto flex-shrink-0">
           {(["day", "week", "month"] as ViewMode[]).map(opt => (
             <button
@@ -1866,10 +1847,8 @@ function CalendarContent() {
           ))}
         </div>
 
-        {/* FIX: PeriodLabel — afișează perioada curentă în funcție de view mode */}
         <PeriodLabel viewMode={viewMode} selectedDate={selectedDate} />
 
-        {/* Navigare dată */}
         <div className="flex items-center gap-1 flex-shrink-0">
           <button
             onClick={() => nav(-1)}
@@ -1894,7 +1873,6 @@ function CalendarContent() {
         )}
       </div>
 
-      {/* ── WeekStrip navigator ───────────────────────────────────────────────── */}
       <WeekStrip
         selectedDate={selectedDate}
         onSelectDate={d => { setSelectedDate(d); if (viewMode !== "day") setViewMode("day"); }}
@@ -1902,7 +1880,6 @@ function CalendarContent() {
         adminWorkingHours={adminWorkingHours}
       />
 
-      {/* ── Filter bar — specialiști + servicii ──────────────────────────────── */}
       <FilterBar
         rawStaff={rawStaff}
         rawServices={rawServices}
@@ -1914,7 +1891,6 @@ function CalendarContent() {
         selectedDate={selectedDate}
       />
 
-      {/* ── Body principal ───────────────────────────────────────────────────── */}
       <div className="flex-1 overflow-hidden flex flex-col">
         {isLoading && (
           <div className="w-full h-0.5 bg-amber-100 overflow-hidden flex-shrink-0">
@@ -1992,7 +1968,13 @@ function CalendarContent() {
 // ─── Root ─────────────────────────────────────────────────────────────────────
 export default function CalendarPage() {
   const [queryClient] = useState(() => new QueryClient({
-    defaultOptions: { queries: { staleTime: 1000 * 60 * 5, refetchOnWindowFocus: false, retry: 1 } },
+    defaultOptions: {
+      queries: {
+        staleTime: 1000 * 60 * 2,
+        refetchOnWindowFocus: false,
+        retry: 1,
+      },
+    },
   }));
 
   return (
