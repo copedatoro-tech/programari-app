@@ -187,6 +187,8 @@ function ProgramariContent() {
       if (!error) {
         const { data: u } = supabase.storage.from("documente-programari").getPublicUrl(name);
         docs.push({ id: Date.now() + Math.random(), name: file.name, url: u.publicUrl });
+      } else {
+        console.error("Eroare la incarcare fisier:", error.message);
       }
     }
     setDocumente(docs);
@@ -377,6 +379,7 @@ function ProgramariContent() {
               clientData={clientData}
               validateClientData={validateClientData}
               onSuccess={() => setMultiSuccess(true)}
+              documente={documente}
             />
           ) : (
             <div className="flex items-center justify-center py-10">
@@ -391,7 +394,7 @@ function ProgramariContent() {
                 <span className="text-[9px] font-black uppercase text-slate-500 italic">
                   Fișiere atașate ({documente.length})
                 </span>
-                <input type="file" id="doc-upload" className="hidden" multiple onChange={handleFileUpload} />
+                <input type="file" id="doc-upload" className="hidden" multiple accept="*" onChange={handleFileUpload} />
                 <label htmlFor="doc-upload"
                   className="bg-slate-900 text-white px-5 py-2.5 rounded-xl font-black text-[10px] uppercase italic cursor-pointer hover:bg-amber-600 transition-colors shadow-sm active:scale-95">
                   Adaugă Fișier +
@@ -482,8 +485,8 @@ function ProgramariContent() {
               </div>
               <div className="grid grid-cols-2 gap-4 mb-8">
                 {[
-                  { label: "Telefon",    value: popupProgramare.phone || "N/A" },
-                  { label: "Email",      value: popupProgramare.email || "-" },
+                  { label: "Telefon",     value: popupProgramare.phone || "N/A" },
+                  { label: "Email",       value: popupProgramare.email || "-" },
                   { label: "Specialist", value: (angajati as StaffRow[] | undefined)?.find((a) => a.id === popupProgramare.angajat_id)?.name || "General" },
                   { label: "Serviciu",   value: popupProgramare.nume_serviciu || "Procedură" },
                 ].map((item) => (
