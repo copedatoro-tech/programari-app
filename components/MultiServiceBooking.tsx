@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import { ChronosTimePicker, ChronosDatePicker } from "@/components/ChronosDateTimePickers";
 
@@ -11,25 +11,26 @@ interface WorkingHour  { day: string; start: string; end: string; closed: boolea
 interface ExistingAppt { time: string; duration: number }
 
 interface ServiceSlot {
-  slotId:         string;
-  serviciu_id:    string;
-  specialist_id:  string;
-  data:           string;
-  ora:            string;
+  slotId:        string;
+  serviciu_id:   string;
+  specialist_id: string;
+  data:          string;
+  ora:           string;
 }
 
 export interface MultiServiceBookingProps {
-  adminId:             string;
-  servicii:            ServiceRow[];
-  specialisti:         StaffRow[];
-  adminWorkingHours:    WorkingHour[];
-  adminManualBlocks:    Record<string, string[]>;
-  clientData:           { nume: string; telefon: string; email: string; detalii?: string };
-  pozaProfil?:          string | null;
-  documenteAtasate?:    any[];
+  adminId:           string;
+  servicii:          ServiceRow[];
+  specialisti:       StaffRow[];
+  adminWorkingHours: WorkingHour[];
+  adminManualBlocks: Record<string, string[]>;
+  clientData:        { nume: string; telefon: string; email: string; detalii?: string };
+  pozaProfil?:       string | null;
+  documenteAtasate?: any[];
+  documente?:        any[];
   validateClientData: () => boolean;
-  onSuccess?:          () => void;
-  onCancel?:           () => void;
+  onSuccess?:        () => void;
+  onCancel?:         () => void;
 }
 
 // ─── Utils ────────────────────────────────────────────────────────────────────
@@ -52,14 +53,20 @@ function fmtDateShort(d: string) {
   });
 }
 
+// ─── Cheia cache: "data|specialist_id" ───────────────────────────────────────
+function mkKey(date: string, specialistId: string) {
+  return `${date}|${specialistId || ""}`;
+}
+
 // ─── Un slot (rând) ───────────────────────────────────────────────────────────
 function SlotRow({
   slot, index, servicii, specialisti, workingHours, manualBlocks,
-  apptForDate, today, onChange, onRemove, canRemove,
+  apptForSlot, today, onChange, onRemove, canRemove,
 }: {
   slot: ServiceSlot; index: number; servicii: ServiceRow[]; specialisti: StaffRow[];
   workingHours: WorkingHour[]; manualBlocks: Record<string, string[]>;
-  apptForDate: ExistingAppt[]; today: string;
+  apptForSlot: ExistingAppt[];
+  today: string;
   onChange: (u: Partial<ServiceSlot>) => void;
   onRemove: () => void; canRemove: boolean;
 }) {
@@ -68,43 +75,37 @@ function SlotRow({
 
   const svc = servicii.find((s) => s.id === slot.serviciu_id);
 
-  // ─── FIX: Specialiștii filtrați după serviciul ales (dacă există) ──────────
+  // Specialiștii care oferă serviciul ales
   const filteredSpec = useMemo(() =>
     slot.serviciu_id
       ? specialisti.filter((sp) => sp.services?.includes(slot.serviciu_id))
       : specialisti,
   [slot.serviciu_id, specialisti]);
 
-  // ─── FIX: Serviciile filtrate după specialistul ales (dacă există) ─────────
+  // Serviciile pe care le oferă specialistul ales
   const filteredSvc = useMemo(() => {
     if (!slot.specialist_id) return servicii;
     const sp = specialisti.find((s) => s.id === slot.specialist_id);
     return sp?.services?.length ? servicii.filter((s) => sp.services.includes(s.id)) : servicii;
   }, [slot.specialist_id, servicii, specialisti]);
 
-  // ─── FIX: Schimbare specialist — păstrăm serviciul dacă e compatibil ────────
   const handleSpecialistChange = useCallback((specialistId: string) => {
     const sp = specialisti.find((s) => s.id === specialistId);
-    const currentServiceStillValid = slot.serviciu_id && sp?.services?.includes(slot.serviciu_id);
+    const serviceStillValid = slot.serviciu_id && sp?.services?.includes(slot.serviciu_id);
     onChange({
       specialist_id: specialistId,
-      // Păstrăm serviciul dacă specialistul îl oferă, altfel îl golim
-      serviciu_id: currentServiceStillValid ? slot.serviciu_id : "",
-      // Resetăm ora dacă serviciul s-a schimbat (durata diferită)
-      ora: currentServiceStillValid ? slot.ora : "00:00",
+      serviciu_id:   serviceStillValid ? slot.serviciu_id : "",
+      ora:           serviceStillValid ? slot.ora : "00:00",
     });
   }, [slot.serviciu_id, slot.ora, specialisti, onChange]);
 
-  // ─── FIX: Schimbare serviciu — păstrăm specialistul dacă e compatibil ───────
   const handleServiciuChange = useCallback((serviciuId: string) => {
     const sp = specialisti.find((s) => s.id === slot.specialist_id);
-    const currentExpertStillValid = slot.specialist_id && sp?.services?.includes(serviciuId);
+    const specialistStillValid = slot.specialist_id && sp?.services?.includes(serviciuId);
     onChange({
-      serviciu_id: serviciuId,
-      // Păstrăm specialistul dacă oferă noul serviciu, altfel îl golim
-      specialist_id: currentExpertStillValid ? slot.specialist_id : "",
-      // Resetăm mereu ora la schimbarea serviciului (durata se schimbă)
-      ora: "00:00",
+      serviciu_id:   serviciuId,
+      specialist_id: specialistStillValid ? slot.specialist_id : "",
+      ora:           "00:00",
     });
   }, [slot.specialist_id, specialisti, onChange]);
 
@@ -116,7 +117,7 @@ function SlotRow({
   return (
     <>
       {showDate && (
-        <div className="fixed inset-0 z-[900] bg-slate-950/50 backdrop-blur-md flex items-center justify-center p-4 transition-all"
+        <div className="fixed inset-0 z-[900] bg-slate-950/50 backdrop-blur-md flex items-center justify-center p-4"
           onClick={() => setShowDate(false)}>
           <div onClick={(e) => e.stopPropagation()} className="relative animate-in fade-in zoom-in duration-200">
             <ChronosDatePicker
@@ -130,15 +131,19 @@ function SlotRow({
       )}
 
       {showTime && (
-        <div className="fixed inset-0 z-[900] bg-slate-950/50 backdrop-blur-md flex items-center justify-center p-4 transition-all"
+        <div className="fixed inset-0 z-[900] bg-slate-950/50 backdrop-blur-md flex items-center justify-center p-4"
           onClick={() => setShowTime(false)}>
           <div onClick={(e) => e.stopPropagation()} className="relative animate-in fade-in zoom-in duration-200">
             <ChronosTimePicker
               value={slot.ora && slot.ora !== "00:00" ? slot.ora : "09:00"}
               onChange={(v) => { onChange({ ora: v }); setShowTime(false); }}
               onClose={() => setShowTime(false)}
-              workingHours={workingHours} existingAppointments={apptForDate}
-              selectedDate={slot.data} serviceDuration={svc?.duration || 30}
+              workingHours={workingHours}
+              // ✅ Programările filtrate deja după specialist — time picker-ul nu știe de specialist,
+              //    doar primește lista de intervale ocupate pentru combinația data+specialist
+              existingAppointments={apptForSlot}
+              selectedDate={slot.data}
+              serviceDuration={svc?.duration || 30}
               manualBlocks={manualBlocks}
             />
           </div>
@@ -148,7 +153,6 @@ function SlotRow({
       <div className={`relative bg-white rounded-[35px] border-2 p-6 md:p-8 shadow-md transition-all duration-300 ${
         isComplete ? "border-amber-400 shadow-amber-50" : "border-slate-100 hover:border-slate-200"
       }`}>
-
         <div className="flex items-center gap-3 mb-6">
           <div className={`w-9 h-9 rounded-xl flex items-center justify-center font-black text-sm italic shadow-sm ${
             isComplete ? "bg-amber-500 text-white" : "bg-slate-100 text-slate-400"
@@ -157,14 +161,10 @@ function SlotRow({
           </div>
           <span className="text-[10px] font-black uppercase italic text-slate-400 tracking-widest">
             Serviciu #{index + 1}
-            {isComplete && svc && (
-              <span className="ml-2 text-amber-600">— {svc.nume_serviciu}</span>
-            )}
+            {isComplete && svc && <span className="ml-2 text-amber-600">— {svc.nume_serviciu}</span>}
           </span>
-
           {canRemove && (
-            <button
-              onClick={onRemove}
+            <button onClick={onRemove}
               className="ml-auto w-8 h-8 bg-red-50 text-red-400 rounded-xl flex items-center justify-center font-black text-xs hover:bg-red-500 hover:text-white transition-all active:scale-90">
               ✕
             </button>
@@ -172,33 +172,24 @@ function SlotRow({
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-          {/* ─── Specialist ────────────────────────────────────────────────── */}
           <div className="flex flex-col gap-2">
-            <label className="text-[10px] font-black uppercase ml-4 text-slate-400 italic">
-              Alege Specialist
-            </label>
+            <label className="text-[10px] font-black uppercase ml-4 text-slate-400 italic">Alege Specialist</label>
             <select
               className="p-5 bg-slate-50 rounded-[25px] border-2 border-transparent focus:border-amber-500 font-bold text-lg outline-none shadow-inner cursor-pointer transition-all"
               value={slot.specialist_id}
-              onChange={(e) => handleSpecialistChange(e.target.value)}
-            >
+              onChange={(e) => handleSpecialistChange(e.target.value)}>
               <option value="">Alege Specialist...</option>
               {filteredSpec.map((sp) => (
                 <option key={sp.id} value={sp.id}>{sp.name}</option>
               ))}
             </select>
           </div>
-
-          {/* ─── Serviciu ──────────────────────────────────────────────────── */}
           <div className="flex flex-col gap-2">
-            <label className="text-[10px] font-black uppercase ml-4 text-slate-400 italic">
-              Alege Serviciu
-            </label>
+            <label className="text-[10px] font-black uppercase ml-4 text-slate-400 italic">Alege Serviciu</label>
             <select
               className="p-5 bg-slate-50 rounded-[25px] border-2 border-transparent focus:border-amber-500 font-bold text-lg outline-none shadow-inner cursor-pointer transition-all"
               value={slot.serviciu_id}
-              onChange={(e) => handleServiciuChange(e.target.value)}
-            >
+              onChange={(e) => handleServiciuChange(e.target.value)}>
               <option value="">Alege Serviciu...</option>
               {filteredSvc.map((s) => (
                 <option key={s.id} value={s.id}>
@@ -212,19 +203,15 @@ function SlotRow({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="flex flex-col gap-2">
             <label className="text-[10px] font-black uppercase ml-4 text-slate-400 italic">Data</label>
-            <button
-              type="button"
-              onClick={() => setShowDate(true)}
+            <button type="button" onClick={() => setShowDate(true)}
               className="w-full h-[72px] bg-slate-900 text-white rounded-[25px] font-black text-[18px] uppercase italic hover:text-amber-500 transition-all flex items-center justify-center gap-3 shadow-inner">
               <span>📅</span>
               <span>{slot.data ? fmtDateShort(slot.data) : "ALEGE DATA"}</span>
             </button>
           </div>
-
           <div className="flex flex-col gap-2">
             <label className="text-[10px] font-black uppercase ml-4 text-slate-400 italic">Ora</label>
-            <button
-              type="button"
+            <button type="button"
               onClick={() => {
                 if (!slot.serviciu_id) { alert("Alege mai întâi serviciul."); return; }
                 setShowTime(true);
@@ -263,24 +250,64 @@ function SlotRow({
 // ─── Componenta principală ────────────────────────────────────────────────────
 export default function MultiServiceBooking({
   adminId, servicii, specialisti, adminWorkingHours, adminManualBlocks,
-  clientData, validateClientData, onSuccess, onCancel,
+  clientData, validateClientData, onSuccess, onCancel, documente,
 }: MultiServiceBookingProps) {
   const today = new Date().toISOString().split("T")[0];
 
   const [slots, setSlots] = useState<ServiceSlot[]>([
     { slotId: uid(), serviciu_id: "", specialist_id: "", data: today, ora: "00:00" },
   ]);
-  const [loading, setLoading] = useState(false);
-  const [errors, setErrors]   = useState<string[]>([]);
+  const [loading, setLoading]   = useState(false);
+  const [errors,  setErrors]    = useState<string[]>([]);
+  // Cache indexat după "data|specialist_id"
   const [apptCache, setApptCache] = useState<Record<string, ExistingAppt[]>>({});
 
-  const fetchAppt = async (date: string) => {
-    if (apptCache[date] !== undefined) return;
-    const { data } = await supabase
-      .from("appointments").select("time, duration")
-      .eq("user_id", adminId).eq("date", date).neq("status", "cancelled");
-    setApptCache((p) => ({ ...p, [date]: data || [] }));
-  };
+  // ─── Fetch programări pentru o combinație data + specialist ───────────────
+  // useCallback fără apptCache în deps — folosim functional updater ca să nu
+  // re-creăm funcția la fiecare schimbare de cache (ar cauza loop-uri)
+  const fetchAppt = useCallback(async (date: string, specialistId: string) => {
+    const key = mkKey(date, specialistId);
+
+    // Verificăm cache-ul ÎNAINTE de query — dar fără apptCache în deps
+    // prin trick-ul cu setter funcțional
+    setApptCache((prev) => {
+      if (prev[key] !== undefined) return prev; // deja în cache, nu facem nimic
+      // Declanșăm fetch asincron și actualizăm cache după
+      supabase
+        .from("appointments")
+        .select("time, duration")
+        .eq("user_id", adminId)
+        .eq("date", date)
+        .neq("status", "cancelled")
+        // ✅ Filtrăm după specialist dacă există unul ales
+        // Dacă nu e ales specialist, aducem toate din zi (comportament conservator)
+        .then(({ data }) => {
+          setApptCache((p) => ({ ...p, [key]: data || [] }));
+        });
+
+      // Punem placeholder gol ca să nu mai lansăm același fetch de două ori
+      return { ...prev, [key]: [] };
+    });
+  }, [adminId]);
+
+  // La schimbarea unui slot: apelăm fetch imediat cu valorile noi
+  const updateSlot = useCallback((id: string, u: Partial<ServiceSlot>) => {
+    setSlots((prev) => {
+      const updated = prev.map((s) => (s.slotId === id ? { ...s, ...u } : s));
+      const slot = updated.find((s) => s.slotId === id);
+      if (slot?.data) {
+        // ✅ Fetch cu specialist_id-ul nou (sau gol dacă nu e ales)
+        fetchAppt(slot.data, slot.specialist_id);
+      }
+      return updated;
+    });
+  }, [fetchAppt]);
+
+  // Pre-încărcăm programările pentru slotul inițial
+  useEffect(() => {
+    slots.forEach((s) => fetchAppt(s.data, s.specialist_id));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // doar la mount
 
   const completedSlots = slots.filter((s) => s.serviciu_id && s.data && s.ora && s.ora !== "00:00");
 
@@ -300,11 +327,6 @@ export default function MultiServiceBooking({
 
   const removeSlot = (id: string) => setSlots((p) => p.filter((s) => s.slotId !== id));
 
-  const updateSlot = (id: string, u: Partial<ServiceSlot>) => {
-    setSlots((p) => p.map((s) => s.slotId === id ? { ...s, ...u } : s));
-    if (u.data) fetchAppt(u.data);
-  };
-
   const submit = async () => {
     setErrors([]);
 
@@ -320,97 +342,94 @@ export default function MultiServiceBooking({
     const currentTotalMin = now.getHours() * 60 + now.getMinutes();
 
     slots.forEach((s, i) => {
-      if (!s.serviciu_id) erori.push(`Serviciul #${i + 1}: alege un serviciu.`);
-      if (!s.data)        erori.push(`Serviciul #${i + 1}: alege data.`);
+      if (!s.serviciu_id)            erori.push(`Serviciul #${i + 1}: alege un serviciu.`);
+      if (!s.data)                   erori.push(`Serviciul #${i + 1}: alege data.`);
       if (!s.ora || s.ora === "00:00") {
         erori.push(`Serviciul #${i + 1}: alege ora.`);
-      } else if (s.data === today) {
-        if (toMin(s.ora) < currentTotalMin) {
-          erori.push(`Serviciul #${i + 1}: Ora ${s.ora} a trecut deja.`);
-        }
+      } else if (s.data === today && toMin(s.ora) < currentTotalMin) {
+        erori.push(`Serviciul #${i + 1}: Ora ${s.ora} a trecut deja.`);
       }
     });
 
-    if (erori.length > 0) {
-      setErrors(erori);
-      return;
-    }
+    if (erori.length > 0) { setErrors(erori); return; }
 
-    // Verificăm suprapuneri între sloturile din același formular
+    // Suprapuneri între sloturile din același formular — doar același specialist
     for (let i = 0; i < slots.length; i++) {
       for (let j = i + 1; j < slots.length; j++) {
         const a = slots[i], b = slots[j];
         if (a.data !== b.data) continue;
+        if (a.specialist_id !== b.specialist_id) continue; // ✅ specialiști diferiți = OK
         const sa = servicii.find((x) => x.id === a.serviciu_id);
         const sb = servicii.find((x) => x.id === b.serviciu_id);
         if (!sa || !sb) continue;
         const as_ = toMin(a.ora), ae = as_ + sa.duration;
         const bs  = toMin(b.ora), be = bs  + sb.duration;
         if (as_ < be && ae > bs)
-          erori.push(`Serviciile #${i + 1} și #${j + 1} se suprapun.`);
+          erori.push(`Serviciile #${i + 1} și #${j + 1} se suprapun (același specialist).`);
       }
     }
 
-    if (erori.length > 0) {
-      setErrors(erori);
-      return;
-    }
+    if (erori.length > 0) { setErrors(erori); return; }
 
     setLoading(true);
-
     try {
-      const dates = [...new Set(slots.map((s) => s.data))];
-      const dbByDate: Record<string, ExistingAppt[]> = {};
+      // ✅ Query final per combinație unică data + specialist
+      const keys = [...new Set(slots.map((s) => mkKey(s.data, s.specialist_id)))];
+      const dbByKey: Record<string, ExistingAppt[]> = {};
 
-      await Promise.all(dates.map(async (d) => {
-        const { data } = await supabase.from("appointments").select("time, duration")
-          .eq("user_id", adminId).eq("date", d).neq("status", "cancelled");
-        dbByDate[d] = data || [];
+      await Promise.all(keys.map(async (key) => {
+        const [date, specialistId] = key.split("|");
+        let q = supabase
+          .from("appointments").select("time, duration")
+          .eq("user_id", adminId).eq("date", date).neq("status", "cancelled");
+        if (specialistId) q = q.eq("angajat_id", specialistId);
+        const { data } = await q;
+        dbByKey[key] = data || [];
       }));
 
+      // Verificăm suprapunerea față de DB — tot per specialist
       for (const s of slots) {
         const svc = servicii.find((x) => x.id === s.serviciu_id);
         if (!svc || !s.ora || s.ora === "00:00") continue;
+        const key = mkKey(s.data, s.specialist_id);
         const ns = toMin(s.ora), ne = ns + svc.duration;
-        const overlap = (dbByDate[s.data] || []).some((a) => {
+        const overlap = (dbByKey[key] || []).some((a) => {
           const as_ = toMin(a.time), ae = as_ + (a.duration || 30);
           return ns < ae && ne > as_;
         });
-        if (overlap)
-          erori.push(`"${svc.nume_serviciu}" la ${s.ora} se suprapune cu o programare existentă.`);
+        if (overlap) {
+          const specName = specialisti.find((x) => x.id === s.specialist_id)?.name || "specialistul ales";
+          erori.push(`"${svc.nume_serviciu}" la ora ${s.ora} — ${specName} are deja o programare în acest interval.`);
+        }
       }
 
-      if (erori.length > 0) {
-        setErrors(erori);
-        setLoading(false);
-        return;
-      }
+      if (erori.length > 0) { setErrors(erori); setLoading(false); return; }
 
       const rows = slots.map((s) => {
         const svc  = servicii.find((x) => x.id === s.serviciu_id);
         const spec = specialisti.find((x) => x.id === s.specialist_id);
         return {
-          user_id:     adminId,
-          title:       clientData.nume.trim(),
-          prenume:     clientData.nume.trim(),
-          nume:        clientData.nume.trim(),
-          phone:       clientData.telefon,
-          email:       clientData.email.trim(),
-          date:        s.data,
-          time:        s.ora,
-          duration:    svc?.duration || 0,
-          details:     `Serviciu: ${svc?.nume_serviciu || "N/A"}${clientData.detalii ? ` | Notă: ${clientData.detalii}` : ""} | Rezervare multiplă`,
-          specialist:  spec?.name || "Prima Disponibilitate",
-          angajat_id:  s.specialist_id || null,
+          user_id:    adminId,
+          title:      clientData.nume.trim(),
+          prenume:    clientData.nume.trim(),
+          nume:       clientData.nume.trim(),
+          phone:      clientData.telefon,
+          email:      clientData.email.trim(),
+          date:       s.data,
+          time:       s.ora,
+          duration:   svc?.duration || 0,
+          details:    `Serviciu: ${svc?.nume_serviciu || "N/A"}${clientData.detalii ? ` | Notă: ${clientData.detalii}` : ""} | Rezervare multiplă`,
+          specialist: spec?.name || "Prima Disponibilitate",
+          angajat_id: s.specialist_id || null,
           serviciu_id: s.serviciu_id || null,
-          status:      "pending",
+          status:     "pending",
           is_client_booking: false,
+          ...(documente?.length ? { documente } : {}),
         };
       });
 
       const { error } = await supabase.from("appointments").insert(rows);
       if (error) throw error;
-
       onSuccess?.();
     } catch (e: any) {
       setErrors([`Eroare: ${e?.message || "Nu s-a putut salva."}`]);
@@ -421,10 +440,7 @@ export default function MultiServiceBooking({
 
   const byDate = useMemo(() => {
     const m: Record<string, ServiceSlot[]> = {};
-    completedSlots.forEach((s) => {
-      if (!m[s.data]) m[s.data] = [];
-      m[s.data].push(s);
-    });
+    completedSlots.forEach((s) => { if (!m[s.data]) m[s.data] = []; m[s.data].push(s); });
     return m;
   }, [completedSlots]);
 
@@ -436,7 +452,9 @@ export default function MultiServiceBooking({
             key={slot.slotId} slot={slot} index={i}
             servicii={servicii} specialisti={specialisti}
             workingHours={adminWorkingHours} manualBlocks={adminManualBlocks}
-            apptForDate={apptCache[slot.data] || []} today={today}
+            // ✅ Programările filtrate după data + specialist-ul exact al acestui slot
+            apptForSlot={apptCache[mkKey(slot.data, slot.specialist_id)] || []}
+            today={today}
             onChange={(u) => updateSlot(slot.slotId, u)}
             onRemove={() => removeSlot(slot.slotId)}
             canRemove={slots.length > 1}
@@ -444,9 +462,7 @@ export default function MultiServiceBooking({
         ))}
       </div>
 
-      <button
-        onClick={addSlot}
-        disabled={slots.length >= 8}
+      <button onClick={addSlot} disabled={slots.length >= 8}
         className="w-full py-5 border-2 border-dashed border-amber-400 rounded-[30px] font-black uppercase italic text-[12px] text-amber-600 hover:bg-amber-50 hover:border-amber-500 transition-all active:scale-95 disabled:opacity-40 flex items-center justify-center gap-3">
         <span className="w-7 h-7 bg-amber-500 text-white rounded-xl flex items-center justify-center text-lg font-black leading-none">+</span>
         ADAUGĂ SERVICIU NOU
@@ -490,7 +506,7 @@ export default function MultiServiceBooking({
             </div>
           ))}
           <div className="flex justify-between pt-3 border-t-2 border-slate-200">
-            <div><p className="text-sm font-black text-slate-900 uppercase italic">TOTAL</p></div>
+            <p className="text-sm font-black text-slate-900 uppercase italic">TOTAL</p>
             <div className="text-right">
               <p className="text-xl font-black text-amber-600">{totals.price} RON</p>
               <p className="text-[10px] font-bold text-slate-400 italic">{totals.dur} minute</p>
@@ -506,9 +522,7 @@ export default function MultiServiceBooking({
         </div>
       )}
 
-      <button
-        onClick={submit}
-        disabled={loading || completedSlots.length === 0}
+      <button onClick={submit} disabled={loading || completedSlots.length === 0}
         className="w-full py-6 bg-amber-600 text-white rounded-[30px] font-black uppercase italic text-[13px] shadow-2xl hover:bg-slate-900 transition-all active:scale-95 disabled:opacity-50 border-b-4 border-amber-700 hover:border-slate-800">
         {loading ? "SE PROCESEAZĂ..." : `✓ SALVEAZĂ ${completedSlots.length} PROGRAMĂRI`}
       </button>
