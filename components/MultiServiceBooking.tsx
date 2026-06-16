@@ -139,8 +139,6 @@ function SlotRow({
               onChange={(v) => { onChange({ ora: v }); setShowTime(false); }}
               onClose={() => setShowTime(false)}
               workingHours={workingHours}
-              // ✅ Programările filtrate deja după specialist — time picker-ul nu știe de specialist,
-              //    doar primește lista de intervale ocupate pentru combinația data+specialist
               existingAppointments={apptForSlot}
               selectedDate={slot.data}
               serviceDuration={svc?.duration || 30}
@@ -257,57 +255,56 @@ export default function MultiServiceBooking({
   const [slots, setSlots] = useState<ServiceSlot[]>([
     { slotId: uid(), serviciu_id: "", specialist_id: "", data: today, ora: "00:00" },
   ]);
-  const [loading, setLoading]   = useState(false);
-  const [errors,  setErrors]    = useState<string[]>([]);
-  // Cache indexat după "data|specialist_id"
+  const [loading, setLoading] = useState(false);
+  const [errors,  setErrors]  = useState<string[]>([]);
   const [apptCache, setApptCache] = useState<Record<string, ExistingAppt[]>>({});
 
-  // ─── Fetch programări pentru o combinație data + specialist ───────────────
-  // useCallback fără apptCache în deps — folosim functional updater ca să nu
-  // re-creăm funcția la fiecare schimbare de cache (ar cauza loop-uri)
+  // ✅ FIX: fetchAppt adaugă ÎNTOTDEAUNA filtrul angajat_id când specialistul e ales
+  // Dacă nu e ales specialist, NU aducem nimic (0 ore blocate) — e corect,
+  // pentru că fără specialist ales nu putem ști care e ocupat
   const fetchAppt = useCallback(async (date: string, specialistId: string) => {
+    // Dacă nu e specialist ales, nu are sens să blocăm ore — returnăm gol
+    if (!specialistId) {
+      const key = mkKey(date, "");
+      setApptCache((p) => ({ ...p, [key]: [] }));
+      return;
+    }
+
     const key = mkKey(date, specialistId);
 
-    // Verificăm cache-ul ÎNAINTE de query — dar fără apptCache în deps
-    // prin trick-ul cu setter funcțional
     setApptCache((prev) => {
-      if (prev[key] !== undefined) return prev; // deja în cache, nu facem nimic
-      // Declanșăm fetch asincron și actualizăm cache după
+      if (prev[key] !== undefined) return prev;
+
       supabase
         .from("appointments")
         .select("time, duration")
         .eq("user_id", adminId)
         .eq("date", date)
+        .eq("angajat_id", specialistId) // ✅ ÎNTOTDEAUNA filtru pe specialist
         .neq("status", "cancelled")
-        // ✅ Filtrăm după specialist dacă există unul ales
-        // Dacă nu e ales specialist, aducem toate din zi (comportament conservator)
         .then(({ data }) => {
           setApptCache((p) => ({ ...p, [key]: data || [] }));
         });
 
-      // Punem placeholder gol ca să nu mai lansăm același fetch de două ori
       return { ...prev, [key]: [] };
     });
   }, [adminId]);
 
-  // La schimbarea unui slot: apelăm fetch imediat cu valorile noi
   const updateSlot = useCallback((id: string, u: Partial<ServiceSlot>) => {
     setSlots((prev) => {
       const updated = prev.map((s) => (s.slotId === id ? { ...s, ...u } : s));
       const slot = updated.find((s) => s.slotId === id);
       if (slot?.data) {
-        // ✅ Fetch cu specialist_id-ul nou (sau gol dacă nu e ales)
         fetchAppt(slot.data, slot.specialist_id);
       }
       return updated;
     });
   }, [fetchAppt]);
 
-  // Pre-încărcăm programările pentru slotul inițial
   useEffect(() => {
     slots.forEach((s) => fetchAppt(s.data, s.specialist_id));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // doar la mount
+  }, []);
 
   const completedSlots = slots.filter((s) => s.serviciu_id && s.data && s.ora && s.ora !== "00:00");
 
@@ -342,18 +339,16 @@ export default function MultiServiceBooking({
     const currentTotalMin = now.getHours() * 60 + now.getMinutes();
 
     slots.forEach((s, i) => {
-      if (!s.serviciu_id)            erori.push(`Serviciul #${i + 1}: alege un serviciu.`);
-      if (!s.data)                   erori.push(`Serviciul #${i + 1}: alege data.`);
-      if (!s.ora || s.ora === "00:00") {
-        erori.push(`Serviciul #${i + 1}: alege ora.`);
-      } else if (s.data === today && toMin(s.ora) < currentTotalMin) {
+      if (!s.serviciu_id)              erori.push(`Serviciul #${i + 1}: alege un serviciu.`);
+      if (!s.data)                     erori.push(`Serviciul #${i + 1}: alege data.`);
+      if (!s.ora || s.ora === "00:00") erori.push(`Serviciul #${i + 1}: alege ora.`);
+      else if (s.data === today && toMin(s.ora) < currentTotalMin)
         erori.push(`Serviciul #${i + 1}: Ora ${s.ora} a trecut deja.`);
-      }
     });
 
     if (erori.length > 0) { setErrors(erori); return; }
 
-    // Suprapuneri între sloturile din același formular — doar același specialist
+    // Suprapuneri în formular — doar dacă același specialist
     for (let i = 0; i < slots.length; i++) {
       for (let j = i + 1; j < slots.length; j++) {
         const a = slots[i], b = slots[j];
@@ -373,24 +368,27 @@ export default function MultiServiceBooking({
 
     setLoading(true);
     try {
-      // ✅ Query final per combinație unică data + specialist
+      // ✅ Query per combinație data + specialist
       const keys = [...new Set(slots.map((s) => mkKey(s.data, s.specialist_id)))];
       const dbByKey: Record<string, ExistingAppt[]> = {};
 
       await Promise.all(keys.map(async (key) => {
         const [date, specialistId] = key.split("|");
-        let q = supabase
+        // ✅ Dacă nu e specialist — lista goală, nu blocăm nimic
+        if (!specialistId) { dbByKey[key] = []; return; }
+        const { data } = await supabase
           .from("appointments").select("time, duration")
-          .eq("user_id", adminId).eq("date", date).neq("status", "cancelled");
-        if (specialistId) q = q.eq("angajat_id", specialistId);
-        const { data } = await q;
+          .eq("user_id", adminId).eq("date", date)
+          .eq("angajat_id", specialistId) // ✅ filtru strict pe specialist
+          .neq("status", "cancelled");
         dbByKey[key] = data || [];
       }));
 
-      // Verificăm suprapunerea față de DB — tot per specialist
       for (const s of slots) {
         const svc = servicii.find((x) => x.id === s.serviciu_id);
         if (!svc || !s.ora || s.ora === "00:00") continue;
+        // ✅ Dacă nu e specialist ales, nu verificăm suprapunere
+        if (!s.specialist_id) continue;
         const key = mkKey(s.data, s.specialist_id);
         const ns = toMin(s.ora), ne = ns + svc.duration;
         const overlap = (dbByKey[key] || []).some((a) => {
@@ -409,20 +407,20 @@ export default function MultiServiceBooking({
         const svc  = servicii.find((x) => x.id === s.serviciu_id);
         const spec = specialisti.find((x) => x.id === s.specialist_id);
         return {
-          user_id:    adminId,
-          title:      clientData.nume.trim(),
-          prenume:    clientData.nume.trim(),
-          nume:       clientData.nume.trim(),
-          phone:      clientData.telefon,
-          email:      clientData.email.trim(),
-          date:       s.data,
-          time:       s.ora,
-          duration:   svc?.duration || 0,
-          details:    `Serviciu: ${svc?.nume_serviciu || "N/A"}${clientData.detalii ? ` | Notă: ${clientData.detalii}` : ""} | Rezervare multiplă`,
-          specialist: spec?.name || "Prima Disponibilitate",
-          angajat_id: s.specialist_id || null,
+          user_id:     adminId,
+          title:       clientData.nume.trim(),
+          prenume:     clientData.nume.trim(),
+          nume:        clientData.nume.trim(),
+          phone:       clientData.telefon,
+          email:       clientData.email.trim(),
+          date:        s.data,
+          time:        s.ora,
+          duration:    svc?.duration || 0,
+          details:     `Serviciu: ${svc?.nume_serviciu || "N/A"}${clientData.detalii ? ` | Notă: ${clientData.detalii}` : ""} | Rezervare multiplă`,
+          specialist:  spec?.name || "Prima Disponibilitate",
+          angajat_id:  s.specialist_id || null,
           serviciu_id: s.serviciu_id || null,
-          status:     "pending",
+          status:      "pending",
           is_client_booking: false,
           ...(documente?.length ? { documente } : {}),
         };
@@ -452,7 +450,6 @@ export default function MultiServiceBooking({
             key={slot.slotId} slot={slot} index={i}
             servicii={servicii} specialisti={specialisti}
             workingHours={adminWorkingHours} manualBlocks={adminManualBlocks}
-            // ✅ Programările filtrate după data + specialist-ul exact al acestui slot
             apptForSlot={apptCache[mkKey(slot.data, slot.specialist_id)] || []}
             today={today}
             onChange={(u) => updateSlot(slot.slotId, u)}
