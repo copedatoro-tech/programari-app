@@ -72,6 +72,16 @@ export default function AdminSettingsHub() {
     return slots;
   }, []);
 
+  const formatSlug = useCallback((text: string) => {
+    return text
+      .toLowerCase()
+      .trim()
+      .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^\w\s-]/g, "")
+      .replace(/[\s_-]+/g, "-")
+      .replace(/^-+|-+$/g, "");
+  }, []);
+
   const dynamicTimeSlots = useMemo(() => generateSlots(bookingInterval), [bookingInterval, generateSlots]);
 
   const fetchMonthlyAppointments = useCallback(async (uid: string, date: Date) => {
@@ -98,7 +108,18 @@ export default function AdminSettingsHub() {
       if (profile) {
         setUserPlan(profile.plan_type?.toUpperCase() || "CHRONOS FREE");
         setBookingInterval(profile.booking_interval || 60);
-        setSlug(profile.slug || "");
+        const savedSlug = profile.slug || "";
+        if (savedSlug) {
+          setSlug(savedSlug);
+        } else {
+          const base = formatSlug(profile.full_name || session.user.email?.split("@")[0] || "chronos");
+          const autoSlug = `${base || "chronos"}-${currentUid.slice(0, 6)}`;
+          setSlug(autoSlug);
+          await supabase.from('profiles').update({
+            slug: autoSlug,
+            updated_at: new Date().toISOString()
+          }).eq('id', currentUid);
+        }
         const rawBlocks = profile.manual_blocks;
         if (rawBlocks && typeof rawBlocks === 'object' && !Array.isArray(rawBlocks)) {
           setManualBlocks(rawBlocks as ManualBlocksMap);
@@ -110,7 +131,7 @@ export default function AdminSettingsHub() {
       setLoading(false);
     }
     initAdmin();
-  }, [supabase, router, currentMonth, fetchMonthlyAppointments]);
+  }, [supabase, router, currentMonth, fetchMonthlyAppointments, formatSlug]);
 
   const saveSettings = async (blocksToSave: ManualBlocksMap = manualBlocks) => {
     if (!userId) return;

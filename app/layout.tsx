@@ -370,7 +370,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {authLoaded ? (
           <>
             {/* ── Onboarding modal per pagină ─────────────────────────────── */}
-            {showOnboarding && isLoggedIn && (
+            {false && showOnboarding && isLoggedIn && (
               <OnboardingModal path={path} onClose={closeOnboarding} />
             )}
 

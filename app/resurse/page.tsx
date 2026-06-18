@@ -49,7 +49,7 @@ export default function ResursePage() {
 
   // State-uri separate pentru cele două formulare
   const [newService, setNewService] = useState({ name: '', price: '', hour: '0', minute: '30' });
-  const [newStaff, setNewStaff]     = useState({ name: '' });
+  const [newStaff, setNewStaff]     = useState({ name: '', phone: '', email: '' });
 
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editForm, setEditForm]   = useState<any>(null);
@@ -116,7 +116,7 @@ export default function ResursePage() {
           { id: 'd1', nume_serviciu: 'Tuns (Exemplu)', price: '50', duration: '30' },
           { id: 'd2', nume_serviciu: 'Barba (Exemplu)', price: '30', duration: '15' }
         ]);
-        setStaff([{ id: 's1', name: 'ECHIPĂ EXPERȚI CHRONOS', services: [] }]);
+        setStaff([{ id: 's1', name: 'ECHIPĂ EXPERȚI CHRONOS', phone: '0700000000', email: 'expert@chronos.ro', services: [] }]);
         setLoading(false);
         return;
       }
@@ -176,11 +176,13 @@ export default function ResursePage() {
     }
     const { error } = await supabase.from('staff').insert([{
       name: newStaff.name.trim(),
+      phone: newStaff.phone.trim() || null,
+      email: newStaff.email.trim() || null,
       services: [],
       user_id: userId
     }]);
     if (error) { alert(`Eroare: ${error.message}`); return; }
-    setNewStaff({ name: '' });
+    setNewStaff({ name: '', phone: '', email: '' });
     await fetchResurse(userId);
   }
 
@@ -206,6 +208,8 @@ export default function ResursePage() {
       editData.minute = (d % 60).toString();
     } else {
       editData.services = Array.isArray(item.services) ? item.services : [];
+      editData.phone = item.phone || "";
+      editData.email = item.email || "";
     }
     setEditForm(editData);
     setEditingId(item.id);
@@ -221,6 +225,8 @@ export default function ResursePage() {
       payload.duration = (parseInt(editForm.hour) * 60) + parseInt(editForm.minute);
     } else {
       payload.name = editForm.name;
+      payload.phone = editForm.phone || null;
+      payload.email = editForm.email || null;
       payload.services = editForm.services ?? [];
     }
     const { error } = await supabase.from(tabela).update(payload).eq('id', editingId);
@@ -344,7 +350,26 @@ export default function ResursePage() {
                 />
               </div>
               {/* Spacer pentru a menține alinierea butonului cu formularul de deasupra */}
-              <div className="hidden lg:block lg:w-[280px]"></div>
+              <div className="min-w-[180px] flex-1 flex flex-col gap-1">
+                <span className="text-[8px] font-black text-slate-400 ml-3 uppercase">Telefon</span>
+                <input
+                  type="tel"
+                  className="bg-slate-50 p-5 rounded-2xl font-black uppercase italic text-[11px] outline-none border-2 border-transparent focus:border-amber-500 transition-all shadow-inner"
+                  placeholder="EX: 07..."
+                  value={newStaff.phone}
+                  onChange={e => setNewStaff({ ...newStaff, phone: e.target.value.replace(/[^0-9+]/g, "") })}
+                />
+              </div>
+              <div className="min-w-[220px] flex-1 flex flex-col gap-1">
+                <span className="text-[8px] font-black text-slate-400 ml-3 uppercase">Email</span>
+                <input
+                  type="email"
+                  className="bg-slate-50 p-5 rounded-2xl font-black uppercase italic text-[11px] outline-none border-2 border-transparent focus:border-amber-500 transition-all shadow-inner"
+                  placeholder="expert@email.com"
+                  value={newStaff.email}
+                  onChange={e => setNewStaff({ ...newStaff, email: e.target.value })}
+                />
+              </div>
               <button
                 onClick={handleAddStaff}
                 disabled={staff.length >= getLimitaStaff()}
@@ -420,6 +445,16 @@ export default function ResursePage() {
                     <div ref={editStaffRef} className="p-8 space-y-6 bg-slate-800 animate-in slide-in-from-bottom-2 duration-200">
                       <input className="w-full p-4 rounded-xl border-2 border-slate-700 bg-slate-900 text-white font-black uppercase italic text-[11px]"
                         value={editForm?.name || ""} onChange={e => setEditForm({ ...editForm, name: e.target.value })} />
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                        <input className="w-full p-4 rounded-xl border-2 border-slate-700 bg-slate-900 text-white font-black uppercase italic text-[11px]"
+                          placeholder="TELEFON"
+                          value={editForm?.phone || ""}
+                          onChange={e => setEditForm({ ...editForm, phone: e.target.value.replace(/[^0-9+]/g, "") })} />
+                        <input className="w-full p-4 rounded-xl border-2 border-slate-700 bg-slate-900 text-white font-black uppercase italic text-[11px]"
+                          placeholder="EMAIL"
+                          value={editForm?.email || ""}
+                          onChange={e => setEditForm({ ...editForm, email: e.target.value })} />
+                      </div>
                       <div className="grid grid-cols-2 gap-2 max-h-40 overflow-y-auto pr-2">
                         {services.map(s => (
                           <button key={s.id} onClick={() => toggleServiciuStaff(s.id)}
@@ -437,6 +472,12 @@ export default function ResursePage() {
                     <div className="p-6 flex justify-between items-center cursor-pointer" onClick={() => activeazaEditare(p, 'staff')}>
                       <div className="flex-1">
                         <p className="font-black uppercase italic text-[13px] text-white group-hover:text-amber-500 transition-colors">{p.name}</p>
+                        {(p.phone || p.email) && (
+                          <div className="flex flex-wrap gap-1.5 mt-2">
+                            {p.phone && <span className="text-[8px] bg-slate-800 text-slate-300 px-3 py-1 rounded-full border border-slate-700 uppercase font-black">{p.phone}</span>}
+                            {p.email && <span className="text-[8px] bg-slate-800 text-slate-300 px-3 py-1 rounded-full border border-slate-700 uppercase font-black">{p.email}</span>}
+                          </div>
+                        )}
                         <div className="flex flex-wrap gap-1.5 mt-3">
                           {(p.services || []).map((servId: string, idx: number) => {
                             const service = services.find(s => s.id === servId);
