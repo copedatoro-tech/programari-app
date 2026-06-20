@@ -69,9 +69,9 @@ export default function LandingPage() {
         </motion.div>
 
         <motion.h1 initial={{ opacity:0, y:10 }} animate={{ opacity:1, y:0 }} transition={{ delay:0.1 }}
-          className="text-4xl md:text-6xl font-black italic uppercase tracking-tighter leading-[0.9] mb-6 max-w-4xl">
-          TU FACI CE ȘTII <span className="text-amber-600">CEL MAI BINE.</span><br/>
-          <span className="text-slate-400">CHRONOS SE OCUPĂ DE REST.</span>
+          className="text-4xl md:text-6xl font-black italic uppercase tracking-tighter leading-none mb-6 max-w-4xl">
+          <span className="block mb-3">TU FACI CE ȘTII <span className="text-amber-600">CEL MAI BINE!</span></span>
+          <span className="block text-slate-400">CHRONOS SE OCUPĂ DE RESTUL.</span>
         </motion.h1>
 
         <motion.p initial={{ opacity:0, y:10 }} animate={{ opacity:1, y:0 }} transition={{ delay:0.2 }}
