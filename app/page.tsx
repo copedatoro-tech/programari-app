@@ -96,96 +96,229 @@ export default function LandingPage() {
           </p>
         </motion.div>
 
-        {/* App mockup */}
+        {/* ── App Mockup — fidel interfeței reale ── */}
         <motion.div initial={{ opacity:0, y:40 }} animate={{ opacity:1, y:0 }} transition={{ delay:0.5, duration:0.8 }}
           className="relative w-full max-w-5xl">
+
+          {/* Cadru browser */}
           <div className="bg-slate-800 rounded-t-[28px] p-2 shadow-2xl border-x-4 border-t-4 border-slate-700">
             <div className="flex items-center gap-1.5 mb-2 px-4 py-1">
-              <div className="w-2 h-2 rounded-full bg-red-500"/>
-              <div className="w-2 h-2 rounded-full bg-amber-500"/>
-              <div className="w-2 h-2 rounded-full bg-emerald-500"/>
-              <div className="ml-4 bg-slate-700/50 px-3 py-0.5 rounded text-[8px] text-slate-400 font-mono italic">chronos.app/programari</div>
+              <div className="w-2.5 h-2.5 rounded-full bg-red-500"/>
+              <div className="w-2.5 h-2.5 rounded-full bg-amber-500"/>
+              <div className="w-2.5 h-2.5 rounded-full bg-emerald-500"/>
+              <div className="ml-4 bg-slate-700/60 px-4 py-0.5 rounded-lg text-[8px] text-slate-400 font-mono">chronos.app/programari</div>
             </div>
-            <div className="bg-white rounded-t-xl overflow-hidden min-h-[420px]">
-              {/* Header mock */}
-              <div className="p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50">
-                <div>
-                  <h3 className="font-black italic text-base uppercase tracking-tighter leading-none">Gestiune <span className="text-amber-600">Programări</span></h3>
-                  <p className="text-[9px] font-bold text-slate-400 uppercase italic mt-1">Joi, 18 Iunie 2026 · 3 programări azi</p>
+
+            <div className="bg-slate-50 rounded-t-xl overflow-hidden">
+
+              {/* ── Header aplicație — identic cu cel real ── */}
+              <div className="bg-white border-b-2 border-slate-100 h-12 flex items-center px-5 gap-4 shadow-sm">
+                <div className="w-7 h-7 bg-slate-900 rounded-lg flex items-center justify-center">
+                  <span className="text-amber-500 font-black text-[11px]">C</span>
                 </div>
-                <div className="flex items-center gap-3">
-                  <div className="px-3 py-1.5 bg-amber-50 border border-amber-200 rounded-xl text-[9px] font-black uppercase italic text-amber-700">📅 Calendar</div>
-                  <div className="px-3 py-1.5 bg-slate-900 text-white rounded-xl text-[9px] font-black uppercase italic">+ Programare Nouă</div>
+                <div className="flex-1 flex justify-center">
+                  <div className="px-4 py-1 rounded-lg bg-amber-50 border-2 border-amber-500">
+                    <span className="text-[9px] font-black uppercase italic tracking-widest text-slate-900">Programări</span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="hidden md:flex flex-col items-end px-3 py-1 rounded-xl bg-slate-50 border border-slate-100">
+                    <span className="text-[6px] font-black uppercase text-slate-400">Abonament Activ</span>
+                    <span className="text-[8px] font-black italic uppercase text-slate-900">CHRONOS TEAM</span>
+                  </div>
+                  <div className="px-3 py-1.5 bg-slate-900 rounded-lg text-[8px] font-black uppercase italic text-white">MENIU ☰</div>
                 </div>
               </div>
-              {/* Table mock */}
+
+              {/* ── Conținut pagină programări ── */}
               <div className="p-5">
-                <div className="rounded-2xl border border-slate-100 overflow-hidden shadow-sm">
-                  <table className="w-full text-left">
-                    <thead className="bg-slate-50 border-b border-slate-100">
-                      <tr>
-                        {["Ora","Client","Specialist","Serviciu","Status",""].map(h=>(
-                          <th key={h} className="p-3 text-[8px] font-black uppercase italic text-slate-400 tracking-widest">{h}</th>
-                        ))}
-                      </tr>
-                    </thead>
-                    <tbody className="text-[10px] font-bold italic">
-                      {[
-                        { ora:"09:00", client:"Maria Ionescu", spec:"Alexandra", svc:"Masaj Facial 90min", status:"Confirmat", color:"emerald", online:true },
-                        { ora:"10:30", client:"Dan Popescu", spec:"Andrei", svc:"Tuns + Barbă 60min", status:"Confirmat", color:"emerald", online:false },
-                        { ora:"12:00", client:"Ioana Stan", spec:"Ramona", svc:"Vopsit 120min", status:"În așteptare", color:"amber", online:true },
-                      ].map((row,i)=>(
-                        <tr key={i} className="border-b border-slate-50 hover:bg-slate-50/50 relative">
-                          <td className="p-3 text-amber-600 font-black">{row.ora}</td>
-                          <td className="p-3">
-                            <div className="flex items-center gap-2">
-                              <div className="w-6 h-6 rounded-full bg-slate-900 text-white flex items-center justify-center text-[8px]">{row.client[0]}</div>
-                              <span>{row.client}</span>
-                              {row.online && <span className="text-[7px] bg-blue-100 text-blue-600 px-1.5 py-0.5 rounded-md font-black">🌐 Online</span>}
-                            </div>
-                          </td>
-                          <td className="p-3 text-slate-500">{row.spec}</td>
-                          <td className="p-3 text-slate-500">{row.svc}</td>
-                          <td className="p-3">
-                            <span className={`px-2 py-0.5 rounded-lg text-[8px] font-black uppercase bg-${row.color}-100 text-${row.color}-700`}>{row.status}</span>
-                          </td>
-                          <td className="p-3"><MoreHorizontal className="w-4 h-4 text-slate-300"/></td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+
+                {/* Titlu pagină + stats */}
+                <div className="flex items-end justify-between mb-5">
+                  <div>
+                    <h1 className="text-xl font-black italic uppercase tracking-tighter leading-none">
+                      Gestiune <span className="text-amber-600">Programări</span>
+                    </h1>
+                    <p className="text-[8px] font-black uppercase italic text-slate-400 mt-1">
+                      Plan: <span className="text-amber-600">CHRONOS TEAM</span> · 8 / ∞ luna aceasta
+                    </p>
+                  </div>
+                  <div className="flex flex-col gap-1.5 items-end">
+                    <div className="bg-white px-4 py-1.5 rounded-xl shadow-sm border border-amber-100 flex items-center gap-2">
+                      <span className="w-2 h-2 bg-amber-500 rounded-full animate-pulse"/>
+                      <span className="text-[8px] font-black uppercase italic text-slate-600">
+                        Azi: <span className="text-amber-600">4 Total</span> · <span className="text-blue-500">2 Online</span>
+                      </span>
+                    </div>
+                    <div className="bg-white px-4 py-1.5 rounded-xl shadow-sm border border-slate-200 flex items-center gap-2">
+                      <span className="text-[9px]">📅</span>
+                      <span className="text-[8px] font-black uppercase italic text-slate-600">Calendar</span>
+                    </div>
+                  </div>
                 </div>
-                {/* Stats row */}
-                <div className="mt-4 grid grid-cols-3 gap-3">
+
+                {/* ── Formular client (simplificat) ── */}
+                <div className="bg-white rounded-[28px] p-5 shadow-xl border border-slate-100 mb-4">
+                  {/* Câmpuri client */}
+                  <div className="grid grid-cols-3 gap-3 mb-4">
+                    <div className="col-span-3 bg-slate-50 rounded-[18px] px-4 py-2.5 border-2 border-transparent">
+                      <p className="text-[7px] font-black uppercase italic text-slate-400 mb-0.5">Nume Client</p>
+                      <p className="text-[11px] font-black text-slate-700 italic">Ion Vasile</p>
+                    </div>
+                    <div className="bg-slate-50 rounded-[18px] px-4 py-2.5 border-2 border-transparent">
+                      <p className="text-[7px] font-black uppercase italic text-slate-400 mb-0.5">E-mail</p>
+                      <p className="text-[9px] font-black text-slate-500 italic truncate">ion@email.com</p>
+                    </div>
+                    <div className="bg-slate-50 rounded-[18px] px-4 py-2.5 border-2 border-transparent">
+                      <p className="text-[7px] font-black uppercase italic text-slate-400 mb-0.5">Telefon</p>
+                      <p className="text-[9px] font-black text-slate-500 italic">0770 123 456</p>
+                    </div>
+                    <div className="bg-slate-50 rounded-[18px] px-4 py-2.5 border-2 border-transparent">
+                      <p className="text-[7px] font-black uppercase italic text-slate-400 mb-0.5">Observații</p>
+                      <p className="text-[9px] font-black text-slate-300 italic">Detalii...</p>
+                    </div>
+                  </div>
+
+                  {/* Separator */}
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="h-px flex-1 bg-slate-100"/>
+                    <span className="text-[7px] font-black text-slate-400 uppercase italic tracking-widest bg-slate-50 px-3 py-1 rounded-full border border-slate-200">Servicii & Programare</span>
+                    <div className="h-px flex-1 bg-slate-100"/>
+                  </div>
+
+                  {/* Slot serviciu — card complet */}
+                  <div className="bg-white rounded-[22px] border-2 border-amber-400 shadow-md p-4 mb-3">
+                    <div className="flex items-center gap-2 mb-3">
+                      <div className="w-7 h-7 rounded-xl bg-amber-500 text-white flex items-center justify-center font-black text-[10px] italic">✓</div>
+                      <span className="text-[8px] font-black uppercase italic text-slate-400 tracking-widest">Serviciu #1 — <span className="text-amber-600">Masaj Facial</span></span>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3 mb-3">
+                      <div className="bg-slate-50 rounded-[16px] px-3 py-2.5">
+                        <p className="text-[7px] font-black uppercase italic text-slate-400 mb-0.5">Specialist</p>
+                        <p className="text-[10px] font-black italic text-slate-800">Alexandra</p>
+                      </div>
+                      <div className="bg-slate-50 rounded-[16px] px-3 py-2.5">
+                        <p className="text-[7px] font-black uppercase italic text-slate-400 mb-0.5">Serviciu</p>
+                        <p className="text-[10px] font-black italic text-slate-800">Masaj Facial — 150 RON</p>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="h-9 bg-slate-900 text-white rounded-[16px] flex items-center justify-center gap-2 text-[9px] font-black italic uppercase">
+                        <span>📅</span> 25.06.2026
+                      </div>
+                      <div className="h-9 bg-amber-500 text-white rounded-[16px] flex items-center justify-center gap-2 text-[9px] font-black italic uppercase">
+                        <span>🕒</span> 10:30
+                      </div>
+                    </div>
+                    {/* Interval rezervat */}
+                    <div className="mt-3 bg-gradient-to-r from-slate-900 to-slate-800 rounded-[14px] px-4 py-2.5 flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="text-amber-400 text-sm">⏱️</span>
+                        <div>
+                          <p className="text-[6px] font-black text-amber-400 uppercase italic tracking-widest">Interval rezervat</p>
+                          <p className="text-[9px] font-black text-white italic">10:30 → 11:30 · 25.06.2026</p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-[10px] font-black text-amber-400">150 RON</p>
+                        <p className="text-[7px] font-bold text-slate-400 italic">60 min</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Buton adaugă serviciu */}
+                  <div className="w-full py-3 border-2 border-dashed border-amber-400 rounded-[22px] flex items-center justify-center gap-2 mb-4">
+                    <span className="w-5 h-5 bg-amber-500 text-white rounded-lg flex items-center justify-center text-sm font-black leading-none">+</span>
+                    <span className="text-[8px] font-black uppercase italic text-amber-600">Adaugă Serviciu Nou</span>
+                  </div>
+
+                  {/* Sumar */}
+                  <div className="bg-slate-50 rounded-[22px] border-2 border-slate-100 p-4">
+                    <p className="text-[7px] font-black text-slate-400 uppercase italic tracking-widest mb-3">📋 Sumar Rezervare</p>
+                    <div className="flex items-center justify-between py-2 border-b border-slate-100">
+                      <div className="flex items-center gap-2">
+                        <span className="w-5 h-5 bg-amber-500 rounded-lg flex items-center justify-center text-white text-[7px] font-black">1</span>
+                        <div>
+                          <p className="text-[9px] font-black text-slate-800 uppercase italic">Masaj Facial</p>
+                          <p className="text-[7px] font-bold text-slate-400 italic">Alexandra · 10:30 → 11:30</p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-[10px] font-black text-slate-800">150 RON</p>
+                        <p className="text-[7px] font-bold text-slate-400 italic">60 min</p>
+                      </div>
+                    </div>
+                    <div className="flex justify-between pt-2">
+                      <p className="text-[10px] font-black text-slate-900 uppercase italic">TOTAL</p>
+                      <div className="text-right">
+                        <p className="text-base font-black text-amber-600">150 RON</p>
+                        <p className="text-[7px] font-bold text-slate-400 italic">60 minute</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Buton salvează */}
+                  <div className="mt-4 w-full py-4 bg-amber-600 text-white rounded-[22px] font-black uppercase italic text-[11px] flex items-center justify-center shadow-xl border-b-4 border-amber-700">
+                    ✓ SALVEAZĂ 1 PROGRAMARE
+                  </div>
+                </div>
+
+                {/* ── Programări azi — carduri reale ── */}
+                <p className="text-[9px] font-black uppercase italic tracking-tighter text-slate-400 mb-3">Programări Azi</p>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                   {[
-                    { label:"Programări Azi", val:"3 Total · 2 Online", bg:"bg-slate-50", border:"border-slate-100", text:"text-slate-700" },
-                    { label:"Timp Ocupat", val:"4h 30min", bg:"bg-amber-50", border:"border-amber-100", text:"text-amber-700" },
-                    { label:"Specialiști Activi", val:"3 din 3", bg:"bg-emerald-50", border:"border-emerald-100", text:"text-emerald-700" },
-                  ].map((s,i)=>(
-                    <div key={i} className={`${s.bg} border ${s.border} p-3 rounded-2xl`}>
-                      <p className="text-[8px] font-black uppercase text-slate-400 mb-1 italic">{s.label}</p>
-                      <p className={`text-sm font-black italic ${s.text}`}>{s.val}</p>
+                    { ora:"09:00", nume:"Maria I.", spec:"Alexandra", svc:"Masaj Facial", color:"#3b82f6", online:true },
+                    { ora:"10:30", nume:"Dan P.", spec:"Andrei", svc:"Tuns + Barbă", color:"#10b981", online:false },
+                    { ora:"12:00", nume:"Ioana S.", spec:"Ramona", svc:"Vopsit", color:"#8b5cf6", online:true },
+                    { ora:"14:15", nume:"Vasile M.", spec:"Alexandra", svc:"Coafor", color:"#3b82f6", online:false },
+                  ].map((p,i)=>(
+                    <div key={i} className="bg-white p-3.5 rounded-[22px] shadow-sm border-2 border-amber-100 ring-1 ring-amber-50 cursor-pointer hover:shadow-md transition-all">
+                      <div className="flex gap-2 items-center mb-2.5 pr-2">
+                        <div className="w-8 h-8 rounded-[12px] bg-slate-50 overflow-hidden border-2 border-white shadow-inner flex items-center justify-center relative shrink-0"
+                          style={{ background: p.color + "22" }}>
+                          <span className="text-[11px] font-black" style={{ color: p.color }}>{p.nume[0]}</span>
+                        </div>
+                        <div className="overflow-hidden flex-1">
+                          <h4 className="font-black text-slate-800 uppercase text-[9px] truncate italic leading-tight">{p.nume}</h4>
+                          <p className="text-[7px] font-black uppercase italic" style={{ color: p.color }}>
+                            {p.ora} · {p.spec}
+                          </p>
+                          <p className="text-[7px] font-bold text-slate-400 italic uppercase truncate">{p.svc}</p>
+                        </div>
+                      </div>
+                      <div className="bg-slate-50 px-2 py-1 rounded-lg flex items-center justify-between">
+                        <p className="text-[7px] font-black text-slate-400 uppercase italic truncate">{p.svc}</p>
+                        {p.online && <span className="text-[6px] font-black text-blue-500 bg-blue-50 px-1.5 py-0.5 rounded-md">🌐</span>}
+                      </div>
                     </div>
                   ))}
                 </div>
               </div>
             </div>
           </div>
-          {/* Floating badge */}
+
+          {/* Floating badges */}
           <motion.div animate={{ y:[-5,5,-5] }} transition={{ repeat:Infinity, duration:3 }}
-            className="absolute -left-6 top-1/3 bg-white p-4 rounded-[22px] shadow-2xl border-2 border-slate-100 hidden lg:flex items-center gap-3 z-30">
-            <div className="w-10 h-10 bg-amber-500 rounded-xl flex items-center justify-center"><BellRing className="w-5 h-5 text-white"/></div>
+            className="absolute -left-8 top-1/4 bg-white p-4 rounded-[22px] shadow-2xl border-2 border-slate-100 hidden lg:flex items-center gap-3 z-30">
+            <div className="w-10 h-10 bg-amber-500 rounded-xl flex items-center justify-center flex-shrink-0">
+              <BellRing className="w-5 h-5 text-white"/>
+            </div>
             <div>
-              <p className="text-[9px] font-black uppercase italic text-slate-400 leading-none mb-1">Rezervare Nouă</p>
-              <p className="text-xs font-black italic text-slate-900">Maria Ionescu · 14:30</p>
+              <p className="text-[8px] font-black uppercase italic text-slate-400 leading-none mb-1">Rezervare Online</p>
+              <p className="text-[11px] font-black italic text-slate-900">Maria I. · 10:30</p>
+              <p className="text-[7px] font-bold text-blue-500 uppercase italic">🌐 Prin link personal</p>
             </div>
           </motion.div>
+
           <motion.div animate={{ y:[5,-5,5] }} transition={{ repeat:Infinity, duration:3.5 }}
-            className="absolute -right-6 top-1/2 bg-slate-900 p-4 rounded-[22px] shadow-2xl hidden lg:flex items-center gap-3 z-30">
-            <div className="w-10 h-10 bg-emerald-500 rounded-xl flex items-center justify-center"><CheckCircle2 className="w-5 h-5 text-white"/></div>
+            className="absolute -right-8 top-1/3 bg-slate-900 p-4 rounded-[22px] shadow-2xl hidden lg:flex items-center gap-3 z-30">
+            <div className="w-10 h-10 bg-emerald-500 rounded-xl flex items-center justify-center flex-shrink-0">
+              <CheckCircle2 className="w-5 h-5 text-white"/>
+            </div>
             <div>
-              <p className="text-[9px] font-black uppercase italic text-slate-400 leading-none mb-1">Confirmat automat</p>
-              <p className="text-xs font-black italic text-white">0 mesaje de trimis</p>
+              <p className="text-[8px] font-black uppercase italic text-slate-400 leading-none mb-1">Confirmat automat</p>
+              <p className="text-[11px] font-black italic text-white">Alexandra liberă ✓</p>
+              <p className="text-[7px] font-bold text-emerald-400 uppercase italic">Slot blocat în calendar</p>
             </div>
           </motion.div>
         </motion.div>
