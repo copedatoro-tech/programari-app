@@ -19,7 +19,10 @@ export default function LandingPage() {
   useEffect(() => {
     const checkUser = async () => {
       try {
-        const { data: { session } } = await supabase.auth.getSession();
+        // ✅ Timeout de 1.5s — dacă Supabase nu răspunde rapid, afișăm landing page-ul oricum
+        const timeout = new Promise<null>(resolve => setTimeout(() => resolve(null), 1500));
+        const sessionPromise = supabase.auth.getSession().then(r => r.data.session);
+        const session = await Promise.race([sessionPromise, timeout]);
         const isDemo = localStorage.getItem("chronos_demo") === "true";
         if (session || isDemo) router.replace("/programari");
         else setIsChecking(false);
