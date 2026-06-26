@@ -137,6 +137,23 @@ function RezervareContent() {
     }
   }, [adminId]); // FIX: eliminat bookings din dependențe
 
+  // FIX NOU: fetchFeedbacks extrasă într-o funcție proprie, reutilizabilă
+  // — folosită la încărcarea inițială ȘI la fiecare eveniment realtime pe tabela feedbacks
+  const fetchFeedbacks = useCallback(async (id: string) => {
+    if (!id) return;
+    const { data, error } = await supabase
+      .from("feedbacks")
+      .select("*")
+      .eq("admin_id", id)
+      .eq("aprobat", true)
+      .order("created_at", { ascending: false });
+    if (!error) {
+      setFeedbacks(data || []);
+    } else {
+      console.error("Eroare fetch feedbacks:", error.message);
+    }
+  }, []);
+
   const isDateAvailable = useCallback((dateStr: string): boolean => {
     if (!dateStr) return false;
     const [y, mo, d] = dateStr.split("-").map(Number);
@@ -159,30 +176,32 @@ function RezervareContent() {
     } catch { return null; }
   }, []);
 
+  // FIX: fetchAdminConfig nu mai încarcă feedback-urile direct —
+  // delegăm către fetchFeedbacks, ca să existe o singură sursă de adevăr
+  // refolosibilă și de către listener-ul realtime
   const fetchAdminConfig = useCallback(async () => {
     if (!adminIdReady || !adminId) { setFetchingConfig(false); return; }
     try {
-      const [staffRes, servicesRes, feedbacksRes, profileRes] = await Promise.all([
+      const [staffRes, servicesRes, profileRes] = await Promise.all([
         supabase.from("staff").select("*").eq("user_id", adminId).order("created_at", { ascending: false }),
         supabase.from("services").select("*").eq("user_id", adminId).order("created_at", { ascending: false }),
-        supabase.from("feedbacks").select("*").eq("admin_id", adminId).eq("aprobat", true).order("created_at", { ascending: false }),
         supabase.from("profiles").select("working_hours, manual_blocks").eq("id", adminId).single(),
       ]);
       if (staffRes.data) setSpecialisti(staffRes.data);
       if (servicesRes.data) setServicii(servicesRes.data);
-      if (feedbacksRes.data) setFeedbacks(feedbacksRes.data);
       if (profileRes.data) {
         setAdminWorkingHours(parseWH(profileRes.data.working_hours));
         if (profileRes.data.manual_blocks && typeof profileRes.data.manual_blocks === "object") {
           setAdminManualBlocks(profileRes.data.manual_blocks as Record<string, string[]>);
         }
       }
+      await fetchFeedbacks(adminId);
     } catch (e: any) {
       console.error("Eroare fetch config:", e?.message);
     } finally {
       setFetchingConfig(false);
     }
-  }, [adminId, adminIdReady]);
+  }, [adminId, adminIdReady, fetchFeedbacks]);
 
   useEffect(() => {
     async function init() {
@@ -211,7 +230,11 @@ function RezervareContent() {
     if (adminId) fetchAppointmentsForDate(today);
   }, [adminId, today, fetchAppointmentsForDate]);
 
-  // FIX: Realtime — la modificări în appointments, reîncarcă toate datele unice din carduri
+  // FIX PRINCIPAL: am adăugat al treilea listener realtime, pe tabela "feedbacks".
+  // Înainte, canalul asculta doar "profiles" și "appointments" — de asta aprobările,
+  // dezaprobările și răspunsurile admin date din pagina PareriClienti nu se reflectau
+  // niciodată în pagina publică de rezervare (fetch-ul de feedback se făcea o singură
+  // dată, la montare, și apoi rămânea "îngheța" în state local).
   useEffect(() => {
     if (!adminId) return;
     configChannelRef.current = supabase
@@ -235,9 +258,20 @@ function RezervareContent() {
           });
         }
       )
+      // FIX NOU: ascultăm orice INSERT / UPDATE / DELETE pe feedbacks pentru acest admin
+      // și reîncărcăm lista publică de recenzii. Astfel:
+      //  - o recenzie nou-aprobată apare imediat aici
+      //  - o recenzie dezaprobată dispare imediat de aici
+      //  - un răspuns admin (raspuns_admin) salvat în PareriClienti apare imediat aici
+      .on("postgres_changes",
+        { event: "*", schema: "public", table: "feedbacks", filter: `admin_id=eq.${adminId}` },
+        () => {
+          fetchFeedbacks(adminId);
+        }
+      )
       .subscribe();
     return () => { if (configChannelRef.current) supabase.removeChannel(configChannelRef.current); };
-  }, [adminId, fetchAppointmentsForDate]);
+  }, [adminId, fetchAppointmentsForDate, fetchFeedbacks]);
 
   const updateBooking = (id: string, fields: Partial<typeof bookings[0]>) => {
     setBookings(prev => prev.map(b => b.id === id ? { ...b, ...fields } : b));
