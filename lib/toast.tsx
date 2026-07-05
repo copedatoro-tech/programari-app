@@ -6,6 +6,30 @@
 import { createRoot } from "react-dom/client";
 import React from "react";
 
+// ℹ️ Acest fișier randează în afara arborelui React normal (createRoot separat),
+// deci nu are acces la contextul de traduceri (useTranslations). Citim limba
+// direct din cookie-ul NEXT_LOCALE, cu un mic dicționar intern, doar pentru
+// cele 3 texte fixe de aici (restul — title/message — vin deja traduse din
+// paginile care apelează showToast/showConfirm).
+function getLocale(): string {
+  if (typeof document === "undefined") return "ro";
+  const match = document.cookie.match(/NEXT_LOCALE=([^;]+)/);
+  return match?.[1] || "ro";
+}
+
+const UNDERSTOOD_TEXT: Record<string, string> = {
+  ro: "AM ÎNȚELES", en: "GOT IT", fr: "COMPRIS", de: "VERSTANDEN",
+  es: "ENTENDIDO", it: "HO CAPITO", hu: "ÉRTETTEM", pt: "ENTENDI", pl: "ROZUMIEM",
+};
+const CONFIRM_TEXT: Record<string, string> = {
+  ro: "Confirmă", en: "Confirm", fr: "Confirmer", de: "Bestätigen",
+  es: "Confirmar", it: "Conferma", hu: "Megerősítés", pt: "Confirmar", pl: "Potwierdź",
+};
+const CANCEL_TEXT: Record<string, string> = {
+  ro: "Anulează", en: "Cancel", fr: "Annuler", de: "Abbrechen",
+  es: "Cancelar", it: "Annulla", hu: "Mégse", pt: "Cancelar", pl: "Anuluj",
+};
+
 type ToastType = "success" | "error" | "warning" | "info";
 
 interface ToastOptions {
@@ -31,6 +55,7 @@ function ToastComponent({ title, message, type = "info", onClose }: ToastOptions
   };
 
   const c = colors[type];
+  const locale = getLocale();
 
   return (
     <div
@@ -58,7 +83,7 @@ function ToastComponent({ title, message, type = "info", onClose }: ToastOptions
             onClick={onClose}
             className={`w-full py-4 rounded-[20px] font-black uppercase italic text-[10px] tracking-widest text-white transition-all active:scale-95 ${c.btn} border-b-4 border-black/10`}
           >
-            AM ÎNȚELES
+            {UNDERSTOOD_TEXT[locale] ?? UNDERSTOOD_TEXT.ro}
           </button>
         </div>
       </div>
@@ -111,7 +136,11 @@ interface ConfirmOptions {
   type?: "danger" | "warning" | "info";
 }
 
-function ConfirmComponent({ title, message, confirmText = "Confirmă", cancelText = "Anulează", type = "warning", onConfirm, onCancel }: ConfirmOptions & { onConfirm: () => void; onCancel: () => void }) {
+function ConfirmComponent({ title, message, confirmText, cancelText, type = "warning", onConfirm, onCancel }: ConfirmOptions & { onConfirm: () => void; onCancel: () => void }) {
+  const locale = getLocale();
+  const resolvedConfirmText = confirmText ?? (CONFIRM_TEXT[locale] ?? CONFIRM_TEXT.ro);
+  const resolvedCancelText = cancelText ?? (CANCEL_TEXT[locale] ?? CANCEL_TEXT.ro);
+
   const configs = {
     danger: { icon: "🗑️", confirmClass: "bg-red-500 border-red-700 hover:bg-red-600 text-white" },
     warning: { icon: "⚠️", confirmClass: "bg-slate-900 border-slate-700 hover:bg-amber-500 hover:text-black text-white" },
@@ -144,13 +173,13 @@ function ConfirmComponent({ title, message, confirmText = "Confirmă", cancelTex
               onClick={onConfirm}
               className={`w-full py-4 rounded-[20px] font-black uppercase italic text-[10px] tracking-widest transition-all active:scale-95 border-b-4 ${cfg.confirmClass}`}
             >
-              {confirmText}
+              {resolvedConfirmText}
             </button>
             <button
               onClick={onCancel}
               className="w-full py-3 bg-slate-100 text-slate-500 rounded-[20px] font-black uppercase italic text-[9px] hover:bg-slate-200 transition-all active:scale-95"
             >
-              {cancelText}
+              {resolvedCancelText}
             </button>
           </div>
         </div>

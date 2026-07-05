@@ -1,10 +1,11 @@
 import type { NextConfig } from "next";
+import createNextIntlPlugin from "next-intl/plugin";
+
+const withNextIntl = createNextIntlPlugin("./i18n/request.ts");
 
 const nextConfig: NextConfig = {
-  // Am comentat linia de mai jos pentru a permite rutele dinamice de auth pe Vercel
-  // output: 'export', 
   images: {
-    unoptimized: true, 
+    unoptimized: true,
     remotePatterns: [
       {
         protocol: 'https',
@@ -15,11 +16,9 @@ const nextConfig: NextConfig = {
     ],
   },
   reactStrictMode: true,
-  // Dezactivăm verificarea de ESLint la build pentru a trece mai repede peste erori minore
-  // Notă: Cheia 'eslint' a fost eliminată deoarece nu mai este suportată în next.config.ts în Next.js 16+
   typescript: {
     ignoreBuildErrors: true,
   }
 };
 
-export default nextConfig;
+export default withNextIntl(nextConfig);

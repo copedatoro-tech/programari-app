@@ -1,0 +1,1436 @@
+{
+  "common": {
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "confirm": "Confirmar",
+    "close": "Fechar",
+    "loading": "A carregar...",
+    "search": "Pesquisar",
+    "back": "Voltar"
+  },
+  "nav": {
+    "calendar": "Calendário",
+    "contacts": "Contactos úteis",
+    "clients": "Clientes",
+    "settings": "Definições",
+    "logout": "Terminar sessão"
+  },
+  "calendar": {
+    "day": "Dia",
+    "week": "Semana",
+    "month": "Mês",
+    "year": "Ano",
+    "today": "Hoje",
+    "newAppointment": "Nova marcação",
+    "noAppointments": "Sem marcações",
+    "specialist": "Especialista"
+  },
+  "appointments": {
+    "title": "Marcações",
+    "client": "Cliente",
+    "service": "Serviço",
+    "date": "Data",
+    "time": "Hora",
+    "status": {
+      "confirmed": "Confirmada",
+      "pending": "Pendente",
+      "cancelled": "Cancelada",
+      "completed": "Concluída"
+    }
+  },
+  "auth": {
+    "login": "Iniciar sessão",
+    "register": "Registar",
+    "email": "Email",
+    "password": "Palavra-passe",
+    "forgotPassword": "Esqueceu-se da palavra-passe?",
+    "loginButton": "Entrar"
+  },
+  "subscription": {
+    "free": "Gratuito",
+    "pro": "Pro",
+    "elite": "Elite",
+    "team": "Equipa",
+    "monthly": "Mensal",
+    "annual": "Anual",
+    "upgrade": "Atualizar plano"
+  },
+  "layout": {
+    "nav": {
+      "programari": "Marcações",
+      "calendar": "Calendário",
+      "clienti": "Clientes",
+      "servicii": "Gestão de Serviços",
+      "abonamente": "Subscrições",
+      "rapoarte": "Análises & Relatórios",
+      "recenzii": "Avaliações",
+      "contacteUtile": "Contactos úteis",
+      "setari": "Definições",
+      "profil": "Perfil"
+    },
+    "pageTitles": {
+      "programari": "Marcações",
+      "calendar": "Calendário de marcações",
+      "clienti": "Clientes",
+      "resurse": "Serviços & Especialistas",
+      "abonamente": "Subscrições",
+      "rapoarte": "Análises & Relatórios",
+      "sugestii": "Avaliações de clientes",
+      "settings": "Definições do sistema",
+      "profil": "Perfil de utilizador",
+      "contacteUtile": "Contactos úteis",
+      "dashboard": "Painel Chronos"
+    },
+    "header": {
+      "abonamentActiv": "Plano ativo",
+      "menuOpen": "MENU ☰",
+      "menuClose": "FECHAR ✕"
+    },
+    "logout": "TERMINAR SESSÃO",
+    "footer": {
+      "contact": "Contacto Chronos",
+      "termeni": "Termos",
+      "confidentialitate": "Privacidade",
+      "cookies": "Cookies",
+      "premium": "CHRONOS PREMIUM",
+      "management": "GESTÃO",
+      "secured": "SEGURO"
+    },
+    "loading": "A sincronizar Chronos...",
+    "onboarding": {
+      "badge": "Guia Chronos",
+      "understood": "Entendido — vamos começar! 🚀",
+      "profil": {
+        "titlu": "Perfil de utilizador",
+        "subtitlu": "O primeiro passo importante — preenche todos os dados do teu negócio.",
+        "pasi": [
+          "📝 Adiciona o nome do teu negócio — aparece na página pública de marcações",
+          "🔗 Define o teu identificador único (ex: salon-maria) — gera o teu link pessoal e o código QR para marcações online",
+          "📞 Adiciona o telefone e o email de contacto — são os dados da pessoa responsável pela aplicação",
+          "🖼️ Carrega o logótipo do teu negócio — aparece na página de marcações e na aplicação",
+          "📍 Adiciona a morada — os clientes poderão vê-la na página de marcações para saber onde se dirigir"
+        ],
+        "tip": "O identificador é essencial — sem ele não é possível gerar o link de marcações nem o código QR! Os dados de contacto pertencem à pessoa responsável e podem ser usados em caso de emergência."
+      },
+      "settings": {
+        "titlu": "Definições do sistema",
+        "subtitlu": "Configura o horário de trabalho e a disponibilidade.",
+        "pasi": [
+          "🕐 Define o horário de trabalho para cada dia da semana — ex: Seg–Sex 09:00–18:00",
+          "🚫 Marca os dias de encerramento (ex: domingo) — aparecem com fundo avermelhado no calendário",
+          "🔗 Gera o link público de marcações e o código QR a partir desta página",
+          "⛔ Podes bloquear manualmente certas horas quando não estás disponível pontualmente",
+          "📱 Testa o link de marcações no telemóvel para verificar que tudo funciona corretamente"
+        ],
+        "tip": "Sem o horário de trabalho definido, todas as horas aparecem disponíveis! Os dias marcados como encerrados aparecem com fundo avermelhado no calendário (vistas Dia, Semana e Mês) e não podem ser marcados online."
+      },
+      "resurse": {
+        "titlu": "Gestão de Serviços & Especialistas",
+        "subtitlu": "Adiciona a tua equipa e os serviços oferecidos por cada um.",
+        "pasi": [
+          "👨‍💼 Adiciona cada especialista com o nome completo (e opcionalmente telefone/email para notificações)",
+          "✂️ Cria os serviços oferecidos — preenche o preço e a duração de cada um",
+          "🔗 Associa cada especialista aos serviços que oferece — isto filtra automaticamente as opções na marcação",
+          "⏱️ A duração do serviço bloqueia automaticamente o horário no calendário e evita sobreposições",
+          "💰 O preço e a duração geram relatórios detalhados de produtividade e lucro por especialista"
+        ],
+        "tip": "A associação especialista–serviço é essencial! Ao criar uma marcação, o sistema mostra apenas os especialistas que oferecem o serviço escolhido, e vice-versa. A duração e o preço são usados para relatórios de produtividade."
+      },
+      "programari": {
+        "titlu": "Gestão de Marcações",
+        "subtitlu": "Aqui crias novas marcações e geres as existentes.",
+        "pasi": [
+          "➕ Preenche os dados do cliente (nome, telefone, email) — são guardados automaticamente no dossiê do cliente",
+          "👨‍💼 Escolhe o especialista e o serviço que oferece — a lista filtra-se automaticamente conforme as associações definidas",
+          "📅 Seleciona a data e a hora — o sistema bloqueia automaticamente as horas ocupadas do especialista escolhido",
+          "📎 Podes anexar documentos, imagens, áudio ou vídeo relevantes para a marcação",
+          "✅ As marcações criadas aparecem automaticamente no calendário e no dossiê do cliente na página Clientes"
+        ],
+        "tip": "Podes adicionar vários serviços para o mesmo cliente na mesma sessão — cada um com o seu especialista e hora! Se dois especialistas diferentes estiverem disponíveis à mesma hora, ambas as marcações são permitidas."
+      },
+      "calendar": {
+        "titlu": "Calendário de marcações",
+        "subtitlu": "Visualiza, edita e organiza todas as marcações.",
+        "pasi": [
+          "📆 Alterna entre Dia, Semana, Mês ou Ano — cada vista tem as suas vantagens",
+          "🕐 Na vista Dia: as horas dentro do horário de trabalho têm fundo branco, as de fora fundo às riscas cinzentas — fáceis de distinguir",
+          "🚫 Os dias de encerramento (definidos em Definições) aparecem com fundo avermelhado em Semana e Mês",
+          "👨‍💼 Filtra por especialista ou serviço para ver a agenda de cada um separadamente",
+          "✏️ Clica em qualquer marcação para a editar, mover ou adicionar documentos"
+        ],
+        "tip": "Vários especialistas podem ter marcações à mesma hora — cada um tem a sua própria agenda separada! As horas ocupadas são bloqueadas por especialista, não por dia."
+      },
+      "clienti": {
+        "titlu": "Base de dados de clientes",
+        "subtitlu": "O arquivo completo e o dossiê de cada cliente.",
+        "pasi": [
+          "🔄 Os clientes são guardados automaticamente a partir das marcações pelo número de telefone — não é preciso adicioná-los manualmente",
+          "📁 Cada cliente tem um dossiê completo: histórico de marcações, trabalhos realizados e ficheiros anexados",
+          "📎 Podes anexar ficheiros, imagens, áudio ou vídeo ao dossiê de cada cliente (ex: fotos antes/depois, receitas, especificações)",
+          "🔧 A secção Trabalhos calcula automaticamente o custo dos materiais, o lucro e a margem por cliente",
+          "🔍 Pesquisa rapidamente por nome, telefone ou email"
+        ],
+        "tip": "O dossiê do cliente é atualizado automaticamente a cada nova marcação! Os documentos anexados às marcações também aparecem no dossiê do cliente."
+      },
+      "abonamente": {
+        "titlu": "Subscrições Chronos",
+        "subtitlu": "Escolhe o plano certo — e quando ativar o período de teste.",
+        "pasi": [
+          "⚠️ Ativa o teste de 10 dias APENAS depois de teres configurado completamente: Perfil, Definições, Serviços e Especialistas",
+          "🎁 O teste dá-te acesso ao plano Equipa (ilimitado) durante 10 dias — não o desperdices na configuração",
+          "📊 Free: 30 marcações/mês · Pro: 150 · Elite: 500 · Equipa: ilimitado",
+          "💬 Os planos Elite e Equipa incluem envio automático de mensagens WhatsApp a clientes e especialistas",
+          "🔓 O link de marcações, o código QR e os relatórios avançados estão disponíveis a partir do plano Pro"
+        ],
+        "tip": "Não ativa o teste antes de configurar a aplicação — caso contrário perdes dias preciosos dos 10 disponíveis! Configura tudo primeiro e só depois ativa."
+      },
+      "rapoarte": {
+        "titlu": "Análises & Relatórios",
+        "subtitlu": "Monitoriza o desempenho do teu negócio em tempo real.",
+        "pasi": [
+          "📈 Vê o número de marcações por dia, semana ou mês",
+          "💰 Analisa a receita e o lucro por serviço e por especialista",
+          "⭐ Acompanha a taxa de marcações online vs. presenciais",
+          "📉 Identifica os dias e horas com maior atividade para otimizar o horário",
+          "🔧 Os relatórios são mais detalhados se tiveres definido o preço e a duração de cada serviço em Gestão de Serviços"
+        ],
+        "tip": "Quanto mais rigorosos forem o preço e a duração dos serviços, mais relevantes serão os relatórios de produtividade e lucro!"
+      },
+      "sugestii": {
+        "titlu": "Avaliações de clientes",
+        "subtitlu": "Gere a reputação online do teu negócio.",
+        "pasi": [
+          "⭐ Vê todas as avaliações deixadas pelos clientes através da página pública de marcações",
+          "➕ Podes adicionar manualmente avaliações de clientes fiéis que não deixaram feedback online",
+          "📈 Quantas mais avaliações positivas tiveres, mais novos clientes a tua página de marcações atrai",
+          "💬 As avaliações são visíveis na página pública de marcações do teu negócio",
+          "🌟 A pontuação média das avaliações influencia a confiança de novos clientes no teu negócio"
+        ],
+        "tip": "Pede aos clientes satisfeitos que deixem uma avaliação após cada visita — cada estrela conta para atrair novos clientes!"
+      },
+      "contacteUtile": {
+        "titlu": "Contactos úteis",
+        "subtitlu": "O teu diretório de contactos profissionais e de emergência.",
+        "pasi": [
+          "🏭 Guarda os números dos teus fornecedores de produtos e materiais para encomendas rápidas",
+          "🔧 Adiciona os contactos de técnicos, instaladores, parceiros ou colaboradores",
+          "⚡ Acesso rápido em emergências — avarias, falhas, abastecimentos urgentes",
+          "📋 Esta página é separada dos clientes — os clientes encontram-se automaticamente na página Clientes",
+          "👤 Podes também guardar aqui os dados da pessoa responsável pela aplicação para contacto rápido em caso de emergência"
+        ],
+        "tip": "Os contactos úteis são para os teus fornecedores e parceiros profissionais — não para clientes! Os clientes são guardados automaticamente a partir das marcações na sua página dedicada."
+      }
+    },
+    "trialSuffix": " (TESTE)"
+  },
+  "landing": {
+    "nav": {
+      "login": "Iniciar sessão",
+      "registerCta": "Registo gratuito →"
+    },
+    "hero": {
+      "badge": "🔥 10 DIAS DE TESTE GRÁTIS — SEM CARTÃO",
+      "titleLine1": "TU FAZES O QUE SABES",
+      "titleHighlight1": "FAZER MELHOR!",
+      "titleLine2": "O CHRONOS TRATA DO RESTO.",
+      "subtitle": "A plataforma completa de gestão para salões, clínicas, oficinas e qualquer negócio baseado em marcações. Calendário, clientes, documentos, relatórios e marcações online — tudo num só lugar.",
+      "ctaMain": "QUERO 10 DIAS GRÁTIS",
+      "ctaSub": "CRIA A TUA CONTA AGORA",
+      "disclaimer": "* Sem cartão. Sem compromisso. Só resultados."
+    },
+    "mockup": {
+      "pageTitle": "Marcações",
+      "planActive": "Plano ativo",
+      "menuBtn": "MENU ☰",
+      "heading": "Gestão de",
+      "headingHighlight": "Marcações",
+      "planLine": "Plano: CHRONOS TEAM · 8 / ∞ este mês",
+      "todayStats": "Hoje: 4 Total · 2 Online",
+      "calendarLabel": "Calendário",
+      "clientNameLabel": "Nome do cliente",
+      "emailLabel": "Email",
+      "phoneLabel": "Telefone",
+      "notesLabel": "Observações",
+      "notesPlaceholder": "Detalhes...",
+      "servicesDivider": "Serviços & marcação",
+      "serviceNumberLabel": "Serviço #1 —",
+      "serviceDemo": "Massagem facial",
+      "specialistLabel": "Especialista",
+      "serviceLabel": "Serviço",
+      "serviceWithPrice": "Massagem facial — 150 RON",
+      "intervalReserved": "Intervalo reservado",
+      "addServiceBtn": "Adicionar novo serviço",
+      "summaryTitle": "📋 Resumo da marcação",
+      "totalLabel": "TOTAL",
+      "durationMinutes": "60 minutos",
+      "saveBtn": "✓ GUARDAR 1 MARCAÇÃO",
+      "todayAppointments": "Marcações de hoje",
+      "onlineBadge": "Marcação online",
+      "onlineSource": "🌐 Via link pessoal",
+      "autoConfirmed": "Confirmado automaticamente",
+      "autoConfirmedName": "Alexandra disponível ✓",
+      "autoConfirmedNote": "Horário bloqueado no calendário",
+      "demoServices": {
+        "masajFacial": "Massagem facial",
+        "tunsBarba": "Corte + Barba",
+        "vopsit": "Coloração",
+        "coafor": "Penteado"
+      }
+    },
+    "features": {
+      "heading1": "TUDO O QUE PRECISAS.",
+      "heading2": "NADA A MAIS.",
+      "subtitle": "Cada módulo foi pensado para negócios reais",
+      "items": [
+        {
+          "titlu": "Calendário inteligente",
+          "desc": "Vista por Dia, Semana, Mês e Ano. As horas do horário de trabalho são visualmente distintas das horas fora do horário. Os dias de encerramento aparecem com um fundo diferente. Filtragem por especialista ou serviço."
+        },
+        {
+          "titlu": "Marcações online",
+          "desc": "Link pessoal e código QR únicos para o teu negócio. Os clientes escolhem eles próprios o horário disponível. O sistema bloqueia automaticamente as horas ocupadas por especialista. Sem sobreposições, sem confusão."
+        },
+        {
+          "titlu": "Base de dados de clientes",
+          "desc": "O dossiê completo de cada cliente: histórico de marcações, trabalhos realizados, calculadora de lucro por trabalho, ficheiros anexados (imagens, vídeo, áudio, documentos PDF). Atualiza-se automaticamente."
+        },
+        {
+          "titlu": "Gestão de serviços e especialistas",
+          "desc": "Define os serviços com preço e duração. Associa cada especialista aos serviços que oferece. Ao marcar, o sistema filtra automaticamente as opções e bloqueia o horário correto no calendário."
+        },
+        {
+          "titlu": "Relatórios e análise",
+          "desc": "Monitoriza o número de marcações, a receita e o lucro por especialista e serviço. Identifica as horas e dias com maior atividade. Quanto mais completos forem os dados, mais precisos são os relatórios."
+        },
+        {
+          "titlu": "Documentos por marcação",
+          "desc": "Anexa qualquer tipo de ficheiro a cada marcação: PDF, imagens, áudio, vídeo. Os documentos sincronizam-se automaticamente com o dossiê do cliente. Útil para receitas, especificações técnicas, notas ou referências visuais."
+        },
+        {
+          "titlu": "Avaliações de clientes",
+          "desc": "Os clientes podem deixar avaliações através da página pública de marcações. Podes adicionar manualmente avaliações de clientes fiéis. A pontuação média é visível na tua página pública e reforça a confiança de novos clientes."
+        },
+        {
+          "titlu": "Contactos úteis",
+          "desc": "Diretório separado para fornecedores, parceiros e colaboradores. Acesso rápido a números importantes em emergências. Completamente separado da base de dados de clientes."
+        },
+        {
+          "titlu": "Notificações WhatsApp",
+          "desc": "Disponível nos planos Elite e Equipa. Envia confirmações e lembretes automáticos aos clientes via WhatsApp. Diretamente da aplicação, com um clique, personalizado com o nome do cliente e os detalhes da marcação."
+        }
+      ]
+    },
+    "steps": {
+      "heading": "COMEÇA EM",
+      "headingHighlight": "4 PASSOS SIMPLES",
+      "subtitle": "Do zero a um negócio organizado em menos de uma hora",
+      "items": [
+        {
+          "titlu": "Completa o teu perfil",
+          "desc": "Adiciona o nome do teu negócio, identificador único, telefone, morada e logótipo. O identificador gera o teu link pessoal e o código QR para marcações online."
+        },
+        {
+          "titlu": "Define o teu horário",
+          "desc": "Define o horário de trabalho para cada dia, marca os dias de encerramento e adiciona os serviços com o seu preço e duração. Associa cada especialista aos seus serviços."
+        },
+        {
+          "titlu": "Partilha o link",
+          "desc": "Envia o link ou o código QR aos teus clientes. Eles marcam sozinhos, o sistema confirma automaticamente e a marcação aparece instantaneamente no teu calendário."
+        },
+        {
+          "titlu": "Monitoriza e cresce",
+          "desc": "Acompanha os relatórios de atividade, gere os dossiês de clientes e otimiza o teu horário com base nos dados reais da aplicação."
+        }
+      ]
+    },
+    "pricing": {
+      "heading": "PREÇOS",
+      "headingHighlight": "TRANSPARENTES",
+      "subtitle": "Ativa o teste depois de configurares completamente a aplicação — não perdes nenhum dia",
+      "popularBadge": "⭐ POPULAR",
+      "planBadge": "PLANO",
+      "plans": [
+        {
+          "plan": "Free",
+          "price": "Grátis",
+          "prog": "30 marcações/mês",
+          "features": [
+            "Calendário completo",
+            "Base de dados de clientes",
+            "Gestão de serviços",
+            "Documentos anexados"
+          ]
+        },
+        {
+          "plan": "Pro",
+          "price": "—",
+          "prog": "150 marcações/mês",
+          "features": [
+            "Tudo do Free",
+            "Link de marcações online",
+            "Código QR pessoal",
+            "Relatórios avançados"
+          ]
+        },
+        {
+          "plan": "Elite",
+          "price": "—",
+          "prog": "500 marcações/mês",
+          "features": [
+            "Tudo do Pro",
+            "WhatsApp automático a clientes",
+            "Notificações a especialistas",
+            "Suporte prioritário"
+          ]
+        },
+        {
+          "plan": "Team",
+          "price": "—",
+          "prog": "Ilimitado",
+          "features": [
+            "Tudo do Elite",
+            "Marcações ilimitadas",
+            "Suporte multi-especialista completo",
+            "10 dias de teste grátis"
+          ]
+        }
+      ],
+      "cta": "COMEÇA COM 10 DIAS GRÁTIS",
+      "ctaNote": "Sem cartão. Sem compromisso. Ativa assim que tudo estiver configurado."
+    },
+    "audience": {
+      "heading": "PARA QUALQUER PESSOA QUE",
+      "headingHighlight": "TRABALHE COM MARCAÇÕES",
+      "items": [
+        {
+          "icon": "💇",
+          "label": "Cabeleireiros"
+        },
+        {
+          "icon": "💅",
+          "label": "Salões de unhas"
+        },
+        {
+          "icon": "🧴",
+          "label": "Clínicas estéticas"
+        },
+        {
+          "icon": "💪",
+          "label": "Personal trainers"
+        },
+        {
+          "icon": "🔧",
+          "label": "Oficinas auto"
+        },
+        {
+          "icon": "🏥",
+          "label": "Consultórios médicos"
+        },
+        {
+          "icon": "🎸",
+          "label": "Professores de música"
+        },
+        {
+          "icon": "🏠",
+          "label": "Serviços ao domicílio"
+        }
+      ]
+    },
+    "finalCta": {
+      "heading1": "PRONTO PARA EXPERIMENTAR?",
+      "heading2": "10 DIAS. GRÁTIS. SEM RISCO.",
+      "paragraph": "Completa o teu perfil, define o teu horário, adiciona serviços e especialistas — e estás pronto para receber marcações online. Ativa o teste assim que terminares as configurações para não perderes nenhum dia.",
+      "button": "CRIAR CONTA GRÁTIS",
+      "note": "Sem cartão. Sem compromisso. Sem mensagens às 23h."
+    },
+    "footer": {
+      "description": "A plataforma completa de gestão para negócios baseados em marcações. Calendário, clientes, documentos, relatórios e marcações online.",
+      "legalHeading": "Legal",
+      "legalLinks": [
+        {
+          "label": "Termos e Condições",
+          "href": "/terms"
+        },
+        {
+          "label": "Política de Privacidade",
+          "href": "/privacy"
+        },
+        {
+          "label": "Política de Cookies",
+          "href": "/cookies"
+        }
+      ],
+      "contactHeading": "Contacto Chronos",
+      "contactNote": "Respondemos no máximo em 24 horas.",
+      "quickAccessHeading": "Acesso rápido",
+      "newAccountBtn": "Nova conta grátis →",
+      "loginBtn": "Entrar na minha conta",
+      "copyright": "© 2026 CHRONOS. Todos os direitos reservados.",
+      "secured": "Protegido com Supabase"
+    }
+  },
+  "clienti": {
+    "title": "Base de Dados de",
+    "titleHighlight": "Clientes",
+    "profilesFound": "{count} Perfis Identificados",
+    "searchPlaceholder": "PESQUISAR POR NOME, TELEFONE OU EMAIL...",
+    "syncing": "A sincronizar base de dados...",
+    "noneFound": "Nenhum cliente encontrado",
+    "noPhone": "SEM TELEFONE",
+    "confirmDelete": "Eliminar este cliente definitivamente?"
+  },
+  "contacteUtile": {
+    "folderOptional": "Pasta (opcional)",
+    "noFolder": "Sem pasta",
+    "editFolder": "Editar",
+    "newFolder": "Nova",
+    "folderNamePlaceholder": "NOME DA PASTA...",
+    "color": "Cor",
+    "cancel": "Cancelar",
+    "update": "Atualizar",
+    "create": "Criar",
+    "deleteFolder": "Eliminar pasta ✕",
+    "title": "Contactos",
+    "titleHighlight": "Úteis",
+    "managementLine": "Gestão de Parceiros • {plan}",
+    "capacity": "{count} / {limit} Capacidade",
+    "namePlaceholder": "NOME COMPLETO *",
+    "rolePlaceholder": "FUNÇÃO / CATEGORIA",
+    "phonePlaceholder": "TELEFONE *",
+    "emailPlaceholder": "EMAIL (OPCIONAL)",
+    "notesPlaceholder": "NOTAS OU DETALHES ESPECIAIS...",
+    "save": "+ Guardar",
+    "all": "Todos ({count})",
+    "folders": "Pastas ({count})",
+    "allContacts": "Todos os contactos",
+    "newFolderBtn": "+ Nova pasta",
+    "editShort": "✎ Editar",
+    "syncing": "A sincronizar base de dados...",
+    "noneInFolder": "Nenhum contacto nesta pasta",
+    "noneYet": "Ainda não foi adicionado nenhum contacto",
+    "clickToEdit": "CLICA PARA EDITAR: {name}",
+    "partner": "PARCEIRO",
+    "call": "Ligar",
+    "whatsapp": "Wapp",
+    "mail": "Mail",
+    "editTitle": "Edição de",
+    "editTitleHighlight": "Contacto",
+    "deleteContact": "Eliminar contacto ✕",
+    "nameRequired": "O NOME É OBRIGATÓRIO!",
+    "phoneRequired": "O TELEFONE É OBRIGATÓRIO!",
+    "invalidEmail": "EMAIL INVÁLIDO!",
+    "planLimitReached": "LIMITE DO PLANO {plan} ATINGIDO!",
+    "sessionExpired": "SESSÃO EXPIRADA.",
+    "errorPrefix": "ERRO: ",
+    "contactSaved": "CONTACTO GUARDADO!",
+    "confirmDeleteContact": "ELIMINAR DEFINITIVAMENTE?",
+    "confirmDeleteFolder": "Eliminar a pasta? Os contactos permanecem, mas deixam de estar atribuídos."
+  },
+  "loginPage": {
+    "title": "AUTENTICAÇÃO",
+    "titleHighlight": "CONTA",
+    "subtitle": "Sistema de Gestão Premium",
+    "emailPlaceholder": "ENDEREÇO DE EMAIL",
+    "passwordPlaceholder": "PALAVRA-PASSE",
+    "forgotPassword": "Esqueceste-te da palavra-passe?",
+    "checking": "A VERIFICAR...",
+    "loginBtn": "ENTRAR",
+    "noAccount": "Ainda não tens conta?",
+    "createAccount": "CRIAR NOVA CONTA",
+    "sessionExpired": "A sessão expirou. Tenta novamente.",
+    "errorPrefix": "Erro: ",
+    "sessionNotCreated": "Não foi possível criar a sessão.",
+    "connectionError": "Erro de ligação."
+  },
+  "registerPage": {
+    "title": "CRIAR",
+    "titleHighlight": "CONTA",
+    "subtitle": "Acesso Premium CHRONOS",
+    "fullName": "Nome completo",
+    "fullNamePlaceholder": "EX: JOÃO SILVA",
+    "phone": "Telefone",
+    "phonePlaceholder": "9XX XXX XXX",
+    "email": "Endereço de email",
+    "emailPlaceholder": "EMAIL@EXEMPLO.PT",
+    "password": "Palavra-passe",
+    "confirmPassword": "Confirmar palavra-passe",
+    "passwordMismatch": "❌ As palavras-passe não coincidem!",
+    "passwordTooShort": "❌ A palavra-passe deve ter pelo menos 6 caracteres!",
+    "unexpectedError": "❌ Erro inesperado do servidor.",
+    "accountCreated": "✅ Conta criada com sucesso! Já podes iniciar sessão.",
+    "processing": "A PROCESSAR...",
+    "registerBtn": "REGISTAR NOVA CONTA",
+    "haveAccount": "JÁ TENS CONTA?",
+    "loginLink": "INICIA SESSÃO"
+  },
+  "forgotPasswordPage": {
+    "title": "RECUPERAÇÃO",
+    "titleHighlight": "DE PALAVRA-PASSE",
+    "email": "Endereço de email",
+    "emailPlaceholder": "email@exemplo.pt",
+    "emailSent": "✅ Email enviado! Verifica a tua caixa de entrada.",
+    "sending": "A enviar...",
+    "sendBtn": "Enviar email de recuperação"
+  },
+  "profil": {
+    "loading": "A sincronizar perfil...",
+    "demoMode": "MODO DE PRÉ-VISUALIZAÇÃO",
+    "idPrefix": "ID: ",
+    "defaultUser": "Utilizador Chronos",
+    "save": "Guardar",
+    "saving": "Aguarda...",
+    "logout": "Terminar sessão",
+    "demoLogout": "Saída da Demo",
+    "activeSubscription": "Plano ativo",
+    "trialSuffix": "(TESTE)",
+    "changeSubscriptionBtn": "Alterar plano",
+    "fullNameLabel": "👤 Nome completo",
+    "emailLabel": "✉️ Email",
+    "phoneLabel": "📱 Telefone",
+    "roleLabel": "💼 Função / Cargo",
+    "publicLinkBadge": "Configuração do link público",
+    "slugLabel": "🔗 ENDEREÇO ÚNICO DE MARCAÇÃO (SLUG)",
+    "slugPrefix": "/marcacao/",
+    "slugPlaceholder": "nome-negocio",
+    "reserveLinkBtn": "Reservar link único",
+    "checking": "A verificar...",
+    "warningTitle": "⚠️ MUITO IMPORTANTE (OBRIGATÓRIO):",
+    "warningText": "Este endereço (Slug) é a tua identidade digital. Qualquer alteração a este link invalidará automaticamente os Códigos QR gerados anteriormente e os links já enviados aos clientes. Escolhe um nome representativo (ex: salon-art-nails) que não vás alterar depois, para manter a ligação ativa com os scans dos clientes.",
+    "changePasswordBtn": "🔒 Alterar palavra-passe de acesso",
+    "passwordModalTitle": "Segurança",
+    "newPasswordPlaceholder": "NOVA PALAVRA-PASSE",
+    "confirmPasswordPlaceholder": "CONFIRMAR PALAVRA-PASSE",
+    "profileUpdated": "✅ Perfil atualizado!",
+    "saveErrorPrefix": "Erro ao guardar: ",
+    "slugMinLength": "⚠️ O endereço único (slug) deve ter pelo menos 3 caracteres.",
+    "slugTaken": "❌ Erro: O nome \"{slug}\" já está reservado por outra pessoa. Escolhe outra opção.",
+    "slugSuccess": "✅ Parabéns! O teu endereço único foi reservado com sucesso.",
+    "errorPrefix": "Erro: ",
+    "passwordMismatch": "As palavras-passe não coincidem!",
+    "passwordUpdated": "✅ Palavra-passe atualizada!",
+    "avatarErrorPrefix": "Erro de avatar: ",
+    "demoDisabled": "🔒 Desativado na demo.",
+    "changeAvatar": "Alterar",
+    "plans": {
+      "free": {
+        "nume": "CHRONOS FREE",
+        "limita": "30 marcações / mês"
+      },
+      "pro": {
+        "nume": "CHRONOS PRO",
+        "limita": "150 marcações / mês"
+      },
+      "elite": {
+        "nume": "CHRONOS ELITE",
+        "limita": "500 marcações / mês"
+      },
+      "team": {
+        "nume": "CHRONOS TEAM",
+        "limita": "Marcações ilimitadas"
+      }
+    }
+  },
+  "resurse": {
+    "headingLine1": "Gestão de",
+    "headingHighlight": "Serviços",
+    "headingLine2": "e",
+    "headingHighlight2": "Especialistas",
+    "demoMode": "MODO DE PRÉ-VISUALIZAÇÃO (DEMO)",
+    "activePlanPrefix": "PLANO ATIVO: ",
+    "backBtn": "← PAINEL PRINCIPAL",
+    "dbErrorPrefix": "⚠️ ",
+    "addServiceTitle": "Adicionar novo serviço",
+    "serviceNameLabel": "Nome do serviço",
+    "serviceNamePlaceholder": "EX: CORTE MODERNO, TINTURA...",
+    "durationLabel": "Duração",
+    "hourUnit": "H",
+    "minuteUnit": "MIN",
+    "priceLabel": "Preço (RON)",
+    "pricePlaceholder": "RON",
+    "addServiceBtn": "+ ADICIONAR SERVIÇO",
+    "addStaffTitle": "Adicionar novo especialista",
+    "staffNameLabel": "Nome do especialista",
+    "staffNamePlaceholder": "EX: JOÃO SILVA...",
+    "phoneLabel": "Telefone",
+    "phonePlaceholder": "EX: 9...",
+    "emailLabel": "Email",
+    "emailPlaceholder": "especialista@email.com",
+    "addStaffBtn": "+ ADICIONAR ESPECIALISTA",
+    "activeServicesTitle": "SERVIÇOS ATIVOS",
+    "teamTitle": "EQUIPA DE ESPECIALISTAS",
+    "save": "GUARDAR",
+    "cancel": "CANCELAR",
+    "update": "ATUALIZAR",
+    "close": "FECHAR",
+    "deletedService": "Serviço eliminado",
+    "serviceLimitReached": "⚠️ Limite atingido! O teu plano permite apenas {limit} serviços.",
+    "staffLimitReached": "⚠️ Limite atingido! O teu plano permite apenas {limit} especialistas.",
+    "errorPrefix": "Erro: ",
+    "confirmDeleteResource": "Tens a certeza que queres eliminar este recurso?",
+    "loading": "A sincronizar Chronos..."
+  },
+  "sugestii": {
+    "checkingAccess": "A verificar o acesso...",
+    "premiumTitle": "Função Premium",
+    "premiumTextBefore": "A gestão de avaliações é uma função avançada ligada à página de marcações online, disponível apenas para os planos ",
+    "premiumHighlight": "CHRONOS ELITE e TEAM",
+    "premiumTextAfter": ".",
+    "upgradeBtn": "Atualizar para ELITE",
+    "headingLine1": "Gestão de",
+    "headingHighlight": "Avaliações",
+    "planPrefix": "Plano: ",
+    "viewBookingsBtn": "Ver página de marcações →",
+    "statTotal": "Total",
+    "statApproved": "Aprovadas",
+    "statPending": "Pendentes",
+    "statAvgStars": "Média estrelas",
+    "formTitle": "Adicionar avaliação manualmente",
+    "starAriaLabel": "Dar {n} estrelas",
+    "namePlaceholder": "NOME DO CLIENTE",
+    "commentPlaceholder": "COMENTÁRIO...",
+    "submitBtn": "ADICIONAR AVALIAÇÃO MANUALMENTE",
+    "submitting": "A GUARDAR...",
+    "successTitle": "Adicionada com sucesso!",
+    "closeBtn": "Fechar",
+    "missingFieldsAlert": "Preenche todos os campos!",
+    "sendErrorPrefix": "Erro ao enviar: ",
+    "saveErrorPrefix": "Não foi possível guardar: ",
+    "approveErrorPrefix": "Erro ao aprovar: ",
+    "disapproveErrorPrefix": "Erro ao remover aprovação: ",
+    "deleteErrorPrefix": "Erro ao eliminar: ",
+    "confirmDelete": "Eliminar definitivamente esta avaliação?",
+    "noneYet": "Ainda não tens nenhuma avaliação.",
+    "approveBtn": "Aprovar",
+    "disapproveBtn": "Remover aprovação",
+    "editBtn": "Editar / Responder",
+    "deleteBtn": "Eliminar",
+    "approvedBadge": "Aprovada ✓",
+    "newBadge": "Nova / Não aprovada",
+    "commentLabel": "Comentário:",
+    "yourResponseLabel": "A tua resposta:",
+    "saveBtn": "Guardar",
+    "cancelBtn": "Cancelar",
+    "recentDateFallback": "Recente"
+  },
+  "settings": {
+    "localeCode": "pt-PT",
+    "loading": "A sincronizar...",
+    "toastSavedTitle": "Sucesso",
+    "toastSavedMsg": "As definições foram guardadas!",
+    "toastSaveErrorTitle": "Erro ao guardar",
+    "headingLine1": "Configurar",
+    "headingHighlight": "Disponibilidade",
+    "saveBtn": "Guardar ✨",
+    "backBtn": "← Voltar",
+    "premiumBadge": "Função Premium",
+    "premiumTitle": "Marcações online e código QR",
+    "premiumTextBefore": "Ativa o plano ",
+    "premiumElite": "ELITE",
+    "premiumOr": " ou ",
+    "premiumTeam": "TEAM",
+    "premiumTextAfter": " para receberes o teu link personalizado e o código QR para os clientes.",
+    "upgradeBtn": "Ver planos superiores",
+    "linkSectionTitle": "O teu link Chronos",
+    "slugUnset": "não definido",
+    "copyBtn": "Copiar",
+    "whatsappBtn": "WhatsApp",
+    "printBtn": "🖨️ IMPRIMIR",
+    "printWindowTitle": "Impressão do código QR Chronos",
+    "whatsappMessage": "Olá! Podes marcar diretamente aqui: {url}",
+    "toastCopiedTitle": "Copiado!",
+    "toastCopiedMsg": "O link foi copiado!",
+    "toastCopyErrorTitle": "Erro",
+    "toastCopyErrorMsg": "Erro ao copiar",
+    "noSlugWarningTitle": "Atenção: o link não está ativo!",
+    "noSlugWarningText": "Vai à página A minha conta no menu para ativar o link.",
+    "calendarHeadingLine1": "Definir",
+    "calendarHeadingHighlight": "horário de trabalho",
+    "weekdaysShort": [
+      "Seg",
+      "Ter",
+      "Qua",
+      "Qui",
+      "Sex",
+      "Sáb",
+      "Dom"
+    ],
+    "dayBookingLabel": "Marcação",
+    "dayPartialLabel": "Parcialmente bloqueado",
+    "modalBadge": "Gestão do calendário",
+    "unblockAllBtn": "✅ Desbloquear tudo",
+    "blockAllBtn": "🚫 Bloquear tudo",
+    "presetScheduleBtn": "📋 Definir horário predefinido",
+    "bookingStepLabel": "Intervalo de marcação",
+    "oneHourOption": "1 HORA (Fixo)",
+    "minutesOption": "{v} MINUTOS",
+    "confirmAvailabilityBtn": "Confirmar disponibilidade",
+    "successTitle": "Operação bem-sucedida!",
+    "successText": "O horário foi replicado com sucesso.",
+    "applyScheduleTitle": "Aplicar horário",
+    "applyScheduleText": "Escolhe os dias para os quais queres replicar o horário de hoje:",
+    "weekdayLetters": [
+      "Do",
+      "Se",
+      "Te",
+      "Qu",
+      "Qu",
+      "Se",
+      "Sá"
+    ],
+    "applying": "A aplicar...",
+    "applyNowBtn": "Aplicar agora 🚀",
+    "cancelBtn": "Cancelar"
+  },
+  "calendarPage": {
+    "dayShort": [
+      "Seg",
+      "Ter",
+      "Qua",
+      "Qui",
+      "Sex",
+      "Sáb",
+      "Dom"
+    ],
+    "dayLong": [
+      "Domingo",
+      "Segunda-feira",
+      "Terça-feira",
+      "Quarta-feira",
+      "Quinta-feira",
+      "Sexta-feira",
+      "Sábado"
+    ],
+    "months": [
+      "Janeiro",
+      "Fevereiro",
+      "Março",
+      "Abril",
+      "Maio",
+      "Junho",
+      "Julho",
+      "Agosto",
+      "Setembro",
+      "Outubro",
+      "Novembro",
+      "Dezembro"
+    ],
+    "monthsShort": [
+      "Jan",
+      "Fev",
+      "Mar",
+      "Abr",
+      "Mai",
+      "Jun",
+      "Jul",
+      "Ago",
+      "Set",
+      "Out",
+      "Nov",
+      "Dez"
+    ],
+    "localeCode": "pt-PT",
+    "loadingSession": "A carregar...",
+    "authRequired": "Autenticação necessária",
+    "syncing": "A sincronizar...",
+    "synced": "Sincronizado",
+    "headerTitle": "Calendário",
+    "headerHighlight": "Chronos",
+    "searchPlaceholder": "Pesquisar cliente...",
+    "searchBtn": "Pesquisar",
+    "todayBtn": "Hoje",
+    "viewDay": "Dia",
+    "viewWeek": "Sem.",
+    "viewMonth": "Mês",
+    "viewYear": "Ano",
+    "onlineLabel": "Online",
+    "progSuffix": "marc.",
+    "onlineSuffix": "online",
+    "weekGoToday": "→ Hoje",
+    "closedBadge": "Encerrado",
+    "closedBadgeFull": "🚫 Encerrado",
+    "closedBadgeCaps": "🚫 ENCERRADO",
+    "moreCount": "+{n} mais",
+    "filterSpecialists": "Especialistas",
+    "filterAll": "Todos",
+    "filterServices": "Serviços",
+    "filterAllServices": "Todos",
+    "dayClosedBanner": "🚫 Dia encerrado — ainda podes adicionar marcações manualmente",
+    "programStart": "Início do horário",
+    "programEnd": "Fim do horário",
+    "weekDayClosedLabel": "Dia encerrado",
+    "hoverHint": "Clica numa marcação para editar · Clica em qualquer lugar para fechar",
+    "docsTitle": "📎 Documentos",
+    "docsAddBtn": "+ Adicionar",
+    "docsUploading": "⏳ A carregar...",
+    "docsEmpty": "Sem documentos — PDF, imagem, áudio, vídeo, qualquer ficheiro",
+    "docsUploadingFiles": "A carregar os ficheiros...",
+    "editModal": {
+      "nameLabel": "Nome",
+      "dateLabel": "Data",
+      "timeLabel": "Hora",
+      "phoneLabel": "Telefone",
+      "emailLabel": "Email",
+      "specialistLabel": "Especialista",
+      "serviceLabel": "Serviço",
+      "chooseOpt": "Escolher...",
+      "notesLabel": "Notas",
+      "whatsappLabel": "💬 WhatsApp",
+      "whatsappUnavailable": "Disponível no plano ELITE ou TEAM",
+      "whatsappSendBtn": "Enviar ↗",
+      "cancelBtn": "Cancelar",
+      "saveBtn": "✓ Guardar",
+      "deleteTooltip": "Eliminar",
+      "deleteConfirmTitle": "Eliminar",
+      "deleteConfirmMsg": "Eliminar a marcação de {nume}?",
+      "deleteConfirmBtn": "Eliminar",
+      "updatedToast": "Marcação atualizada!"
+    },
+    "newModal": {
+      "title": "Nova marcação",
+      "nameLabel": "Nome completo",
+      "namePlaceholder": "Nome do cliente...",
+      "phoneLabel": "Telefone",
+      "emailLabel": "Email",
+      "specialistLabel": "Especialista",
+      "serviceLabel": "Serviço",
+      "chooseOpt": "Escolher...",
+      "notesLabel": "Notas",
+      "cancelBtn": "Cancelar",
+      "saveBtn": "Guardar",
+      "addedToast": "Marcação adicionada!"
+    }
+  },
+  "rapoarte": {
+    "localeCode": "pt-PT",
+    "loading": "A GERAR ANÁLISES...",
+    "lockedTitle": "Relatórios bloqueados",
+    "lockedTextBefore": "O plano ",
+    "lockedPlanFree": "FREE",
+    "lockedTextAfter": " não inclui acesso a relatórios. Escolhe um plano superior para veres o desempenho do teu negócio.",
+    "seePlansBtn": "Ver planos",
+    "headingPrefix": "Relatório",
+    "headingTeam": "Equipa",
+    "headingElite": "Detalhado",
+    "headingSummary": "Resumo",
+    "adminLabel": "Admin: ",
+    "planLabel": " | Plano: ",
+    "backBtn": "Voltar",
+    "exportBtn": "Exportar PDF",
+    "statTotalAppts": "Total de marcações",
+    "statRevenue": "Receita estimada",
+    "statAvgPerDay": "Média diária",
+    "statAvgValue": "Valor médio",
+    "statUniqueClients": "Clientes únicos",
+    "statRetention": "Taxa de retenção",
+    "lockedStat": "BLOQUEADO",
+    "weeklyChartTitle": "Distribuição semanal",
+    "topServicesTitle": "Serviços principais",
+    "topServicesLocked": "Disponível nos planos ELITE e TEAM",
+    "teamPerfTitle": "Desempenho dos membros da equipa",
+    "tableStaff": "Membro da equipa",
+    "tableAppts": "Marcações",
+    "tableRevenue": "Receita gerada",
+    "tableEfficiency": "Eficiência de volume",
+    "aiInsightsTitle": "Chronos AI Insights",
+    "insightGood": "O negócio tem um excelente momentum. Com uma taxa de retenção de {rata}%, a base de clientes é estável.",
+    "insightNeutral": "A análise sugere que estás na fase de recolha de dados. Continua a processar para obter previsões financeiras.",
+    "unknownClient": "Cliente desconhecido",
+    "weekdaysSun0": [
+      "Domingo",
+      "Segunda-feira",
+      "Terça-feira",
+      "Quarta-feira",
+      "Quinta-feira",
+      "Sexta-feira",
+      "Sábado"
+    ],
+    "insights": {
+      "peakDayTitle": "Dia de pico",
+      "peakDayText": "{zi} é o teu dia mais ocupado, com {n} marcações. Certifica-te de que tens pessoal e disponibilidade suficientes nesse dia.",
+      "slowDayTitle": "Dia de baixa atividade",
+      "slowDayText": "{zi} tem o menor número de marcações ({n}). Uma promoção ou um horário mais flexível nesse dia poderia otimizar os recursos.",
+      "concentrationTitle": "Concentração num serviço",
+      "concentrationText": "O serviço \"{nume}\" gera {pct}% da receita total. Diversificar a oferta pode reduzir o risco e atrair novos clientes.",
+      "retentionLowTitle": "Retenção a acompanhar",
+      "retentionLowText": "Apenas {rata}% dos clientes voltam. Um programa de fidelização (descontos, pacotes) poderia aumentar esta percentagem.",
+      "retentionGoodTitle": "Retenção sólida",
+      "retentionGoodText": "{rata}% dos clientes voltam — uma base sólida. Continua a oferecer uma experiência consistente.",
+      "avgValueLowTitle": "Valor médio a melhorar",
+      "avgValueLowText": "O valor médio por marcação é de {val} RON. Pacotes de serviços combinados (upsell) na recepção podem aumentar este indicador.",
+      "teamLoadTitle": "Carga de trabalho da equipa",
+      "teamLoadText": "Em média, cada membro da equipa gere {avg} marcações.",
+      "teamLoadHighSuggestion": "Uma carga elevada — pode valer a pena verificar se a equipa precisa de reforço.",
+      "teamLoadLowSuggestion": "Há espaço para mais marcações — podes investir em promoção para atrair novos clientes.",
+      "gettingStartedTitle": "A recolher dados",
+      "gettingStartedText": "Ainda tens poucas marcações registadas. À medida que adicionas mais, as recomendações tornam-se mais precisas."
+    }
+  },
+  "chronosPickers": {
+    "localeCode": "pt-PT",
+    "dayNamesShort": [
+      "Seg",
+      "Ter",
+      "Qua",
+      "Qui",
+      "Sex",
+      "Sáb",
+      "Dom"
+    ],
+    "monthNames": [
+      "Janeiro",
+      "Fevereiro",
+      "Março",
+      "Abril",
+      "Maio",
+      "Junho",
+      "Julho",
+      "Agosto",
+      "Setembro",
+      "Outubro",
+      "Novembro",
+      "Dezembro"
+    ],
+    "timePickerTitle": "Chronos Time Picker",
+    "closedMessage": "O estabelecimento está fechado neste dia.",
+    "selectHourLabel": "Escolhe a hora",
+    "minutesLabel": "Minutos",
+    "cancelBtn": "Cancelar",
+    "closeBtn": "Fechar",
+    "statusBooked": "Ocupado",
+    "statusClosed": "Fechado",
+    "statusExpired": "Expirado",
+    "statusExceeded": "Excedido",
+    "statusUnavailable": "Indisponível",
+    "datePickerTitle": "Chronos Date Picker"
+  },
+  "rezervare": {
+    "localeCode": "pt-PT",
+    "understoodBtn": "ENTENDI",
+    "thanksTitle": "OBRIGADO!",
+    "thanksText": "A tua opinião foi enviada para aprovação.",
+    "invalidLink": "Link inválido",
+    "syncing": "A sincronizar em tempo real...",
+    "brandLine1": "CHRONOS",
+    "brandLine2": "BOOKING",
+    "contactSectionTitle": "Os teus dados de contacto",
+    "namePlaceholder": "NOME COMPLETO",
+    "phonePlaceholder": "TELEFONE",
+    "emailPlaceholder": "EMAIL",
+    "suggestionPrefix": "⚡ ",
+    "serviceCardLabel": "Serviço {n}",
+    "serviceLabel": "Serviço",
+    "chooseServiceOpt": "ESCOLHER SERVIÇO",
+    "expertLabel": "Especialista",
+    "firstAvailOpt": "PRIMEIRA DISPONIBILIDADE",
+    "dateLabel": "Data",
+    "timeLabel": "Hora",
+    "chooseTimeOpt": "ESCOLHER HORA",
+    "reservedIntervalLabel": "Intervalo reservado",
+    "addServiceBtn": "ADICIONAR NOVO SERVIÇO",
+    "notesLabel": "NOTAS ESPECIAIS (OPCIONAL)",
+    "notesPlaceholder": "Tens alguma preferência?",
+    "processingBtn": "A PROCESSAR...",
+    "confirmAllBtn": "CONFIRMAR TODAS AS MARCAÇÕES",
+    "successTitle": "Marcações enviadas!",
+    "successText": "Todas as tuas marcações foram registadas.",
+    "retryBtn": "TENTAR DE NOVO",
+    "leaveReviewTitle": "DEIXA UMA AVALIAÇÃO",
+    "yourNamePlaceholder": "O TEU NOME",
+    "commentPlaceholder": "COMENTÁRIO",
+    "sendingBtn": "A ENVIAR...",
+    "sendReviewBtn": "ENVIAR AVALIAÇÃO",
+    "recentReviewsTitle": "AVALIAÇÕES RECENTES",
+    "salonReplyLabel": "Resposta:",
+    "noReviewsYet": "Sê o primeiro a deixar uma avaliação!",
+    "footerText": "Powered by Chronos Resource Management",
+    "popupHourBlockedTitle": "Hora indisponível",
+    "popupHourBlockedMsg": "Esta hora não está disponível.",
+    "popupDayClosedTitle": "Dia encerrado",
+    "popupDayClosedMsg": "O estabelecimento está fechado neste dia.",
+    "popupOutsideHoursTitle": "Fora do horário",
+    "popupOutsideHoursMsg": "A hora escolhida está fora do horário de funcionamento.",
+    "popupOverlapTitle": "Duração excedida",
+    "popupOverlapMsg": "O serviço excede a hora de encerramento.",
+    "popupPlanLimitTitle": "Capacidade máxima",
+    "popupPlanLimitMsg": "Foi atingido o limite de marcações para este mês.",
+    "popupAlreadyBookedTitle": "Intervalo indisponível",
+    "popupAlreadyBookedMsg": "Já existe uma marcação ativa neste período.",
+    "popupDefaultTitle": "Limite atingido",
+    "popupDefaultMsg": "O intervalo escolhido não pode ser reservado.",
+    "incompleteTitle": "Incompleto",
+    "incompleteMsg": "Certifica-te de que escolheste o serviço e a hora para todas as marcações.",
+    "attentionTitle": "Atenção",
+    "attentionMsg": "Escolhe primeiro o serviço para este cartão.",
+    "incompleteFieldsTitle": "Campos incompletos",
+    "incompleteFieldsMsg": "Preenche todos os campos para a avaliação.",
+    "errorTitle": "Erro",
+    "errorDefaultMsg": "Erro inesperado.",
+    "reviewsCountSuffix": " avaliações",
+    "noRatingYet": "Sê o primeiro a avaliar"
+  },
+  "programariPage": {
+    "successTitle": "Marcações guardadas!",
+    "successText": "Todas as marcações foram registadas com sucesso.",
+    "continueBtn": "CONTINUAR",
+    "confirmDelete": "Eliminar esta marcação?",
+    "trialTitle": "Teste Premium ativo",
+    "trialSubtitle": "Acesso Chronos Team — {n} dias restantes",
+    "trialDaysLeft": "dias restantes",
+    "headingPrefix": "Gestão de",
+    "headingHighlight": "Marcações",
+    "planLabel": "Plano: ",
+    "monthCountSuffix": " este mês",
+    "todayLabel": "Hoje: ",
+    "totalSuffix": " Total",
+    "onlineSuffix": " Online",
+    "calendarLink": "Calendário",
+    "clientPhotoLabel": "Foto de perfil do cliente",
+    "nameLabel": "Nome do cliente",
+    "namePlaceholder": "Nome...",
+    "emailLabel": "Email",
+    "emailPlaceholder": "cliente@email.com",
+    "phoneLabel": "Telefone",
+    "phonePlaceholder": "9xxxxxxxx",
+    "notesLabel": "Observações",
+    "notesPlaceholder": "Detalhes adicionais...",
+    "separatorLabel": "Serviços & Marcação",
+    "filesAttachedLabel": "Ficheiros anexados",
+    "addFileBtn": "Adicionar ficheiro +",
+    "noFilesAdded": "Nenhum ficheiro adicionado",
+    "todayApptsTitle": "Marcações de hoje",
+    "noApptsToday": "Sem marcações para hoje.",
+    "generalFallback": "Geral",
+    "procedureFallback": "Procedimento",
+    "noDetailsFallback": "Sem detalhes",
+    "atHourLabel": " às ",
+    "phoneFieldLabel": "Telefone",
+    "emailFieldLabel": "Email",
+    "specialistFieldLabel": "Especialista",
+    "serviceFieldLabel": "Serviço",
+    "naFallback": "N/D",
+    "dashFallback": "-",
+    "visitReasonLabel": "Motivo da visita",
+    "noNotesFallback": "Sem observações.",
+    "attachedFilesPopupLabel": "Ficheiros anexados",
+    "documentFallback": "Documento",
+    "viewBtn": "VER"
+  },
+  "multiServiceBooking": {
+    "localeCode": "pt-PT",
+    "serviceLabel": "Serviço #{n}",
+    "chooseSpecialistLabel": "Escolher especialista",
+    "chooseSpecialistOpt": "Escolher especialista...",
+    "chooseServiceLabel": "Escolher serviço",
+    "chooseServiceOpt": "Escolher serviço...",
+    "dateLabel": "Data",
+    "chooseDateBtn": "ESCOLHER DATA",
+    "timeLabel": "Hora",
+    "chooseTimeBtn": "HORA",
+    "chooseServiceFirstAlert": "Escolhe primeiro o serviço.",
+    "reservedIntervalLabel": "Intervalo reservado",
+    "addServiceBtn": "ADICIONAR NOVO SERVIÇO",
+    "summaryTitle": "📋 Resumo da marcação",
+    "firstAvailFallback": "Primeira disponibilidade",
+    "totalLabel": "TOTAL",
+    "minutesSuffix": " minutos",
+    "attentionTitle": "⚠️ Atenção",
+    "processingBtn": "A PROCESSAR...",
+    "saveBtn": "✓ GUARDAR {n} MARCAÇÕES",
+    "errClientData": "Por favor preenche o Nome, Telefone e Email do cliente.",
+    "errChooseService": "Serviço #{n}: escolhe um serviço.",
+    "errChooseDate": "Serviço #{n}: escolhe a data.",
+    "errChooseTime": "Serviço #{n}: escolhe a hora.",
+    "errTimePassed": "Serviço #{n}: a hora {ora} já passou.",
+    "errOverlapForm": "Os serviços #{i} e #{j} sobrepõem-se (mesmo especialista).",
+    "errOverlapDb": "\"{svc}\" às {ora} — {specName} já tem uma marcação neste período.",
+    "chosenSpecialistFallback": "o especialista escolhido",
+    "saveErrorPrefix": "Erro: ",
+    "saveErrorDefault": "Não foi possível guardar.",
+    "naFallback": "N/D"
+  },
+  "abonamente": {
+    "header": {
+      "title": "Escolhe",
+      "titleHighlight": "o plano certo",
+      "subtitle": "Cada plano oferece exatamente o que precisas, de acordo com o tamanho do teu negócio."
+    },
+    "status": {
+      "trialActive": "TESTE ATIVO",
+      "planActive": "PLANO ATIVO",
+      "trialPlanName": "CHRONOS TEAM (TESTE)"
+    },
+    "countdown": {
+      "days": "DIAS",
+      "hours": "HRS",
+      "min": "MIN",
+      "sec": "SEG"
+    },
+    "activateTrialBtn": "ATIVAR TESTE GRATUITO",
+    "perMonth": "/ MÊS",
+    "badges": {
+      "popular": "MAIS POPULAR",
+      "active": "O TEU PLANO"
+    },
+    "alreadyActiveBtn": "PLANO ATIVO",
+    "modal": {
+      "title": "Confirma a alteração",
+      "message": "Estás no teste do Chronos Team. Mudar para {plan} termina o teste imediatamente. Continuar?",
+      "confirmBtn": "SIM, CONTINUAR",
+      "cancelBtn": "CANCELAR"
+    },
+    "errors": {
+      "trialActivate": "Erro ao ativar o teste.",
+      "errorTitle": "Erro",
+      "alreadyFree": "Já tens o plano gratuito.",
+      "infoTitle": "Informação"
+    },
+    "plans": [
+      {
+        "name": "CHRONOS FREE",
+        "price": 0,
+        "description": "Para testar a aplicação e ver como funciona.",
+        "buttonText": "ESCOLHER PLANO",
+        "features": [
+          {
+            "text": "30 marcações / mês",
+            "available": true,
+            "highlight": "30"
+          },
+          {
+            "text": "1 especialista",
+            "available": true,
+            "highlight": "1"
+          },
+          {
+            "text": "5 serviços",
+            "available": true,
+            "highlight": "5"
+          },
+          {
+            "text": "Relatórios básicos",
+            "available": false
+          },
+          {
+            "text": "Avaliações de clientes",
+            "available": false
+          },
+          {
+            "text": "Notificações WhatsApp",
+            "available": false
+          }
+        ]
+      },
+      {
+        "name": "CHRONOS PRO",
+        "price": 49,
+        "description": "Para pequenos negócios que precisam de mais capacidade.",
+        "buttonText": "ESCOLHER PLANO",
+        "features": [
+          {
+            "text": "150 marcações / mês",
+            "available": true,
+            "highlight": "150"
+          },
+          {
+            "text": "1 especialista",
+            "available": true,
+            "highlight": "1"
+          },
+          {
+            "text": "15 serviços",
+            "available": true,
+            "highlight": "15"
+          },
+          {
+            "text": "Relatórios básicos",
+            "available": true
+          },
+          {
+            "text": "Avaliações de clientes",
+            "available": false
+          },
+          {
+            "text": "Notificações WhatsApp",
+            "available": false
+          }
+        ]
+      },
+      {
+        "name": "CHRONOS ELITE",
+        "price": 99,
+        "description": "Para negócios com equipa e alto volume de clientes.",
+        "buttonText": "ESCOLHER PLANO",
+        "features": [
+          {
+            "text": "500 marcações / mês",
+            "available": true,
+            "highlight": "500"
+          },
+          {
+            "text": "5 especialistas",
+            "available": true,
+            "highlight": "5"
+          },
+          {
+            "text": "Serviços ilimitados",
+            "available": true,
+            "highlight": "ilimitados"
+          },
+          {
+            "text": "Relatórios avançados & AI Insights",
+            "available": true,
+            "highlight": "AI Insights"
+          },
+          {
+            "text": "Avaliações de clientes & página pública",
+            "available": true
+          },
+          {
+            "text": "Notificações WhatsApp",
+            "available": true
+          }
+        ]
+      },
+      {
+        "name": "CHRONOS TEAM",
+        "price": 299,
+        "description": "Para grandes equipas com controlo total sobre o negócio.",
+        "buttonText": "ESCOLHER PLANO",
+        "features": [
+          {
+            "text": "Marcações ilimitadas",
+            "available": true,
+            "highlight": "ilimitadas"
+          },
+          {
+            "text": "50 especialistas",
+            "available": true,
+            "highlight": "50"
+          },
+          {
+            "text": "Serviços ilimitados",
+            "available": true,
+            "highlight": "ilimitados"
+          },
+          {
+            "text": "Relatórios & desempenho da equipa",
+            "available": true,
+            "highlight": "desempenho da equipa"
+          },
+          {
+            "text": "Avaliações de clientes & página pública",
+            "available": true
+          },
+          {
+            "text": "Notificações WhatsApp",
+            "available": true
+          }
+        ]
+      }
+    ]
+  },
+  "cookiesModal": {
+    "title": "Política de",
+    "titleHighlight": "Cookies",
+    "text1": "Utilizamos apenas cookies técnicos, necessários para te manter ligado à tua conta.",
+    "text2": "Não utilizamos cookies para publicidade ou rastreamento comercial.",
+    "text3": "Estes cookies são essenciais para o funcionamento da aplicação e expiram automaticamente ao terminares sessão.",
+    "contactLabel": "Dúvidas sobre cookies? Escreve-nos para ",
+    "closeBtn": "FECHAR"
+  },
+  "termeniModal": {
+    "title": "Termos e ",
+    "titleHighlight": "Condições",
+    "text1": "Ao utilizares a plataforma Chronos, concordas com as nossas regras de funcionamento.",
+    "text2": "O sistema destina-se à gestão eficiente do tempo e dos recursos profissionais.",
+    "text3": "O utilizador é responsável pela exatidão das informações inseridas no calendário.",
+    "text4": "Reservamo-nos o direito de atualizar estes termos; a utilização continuada da plataforma após alterações representa a sua aceitação.",
+    "contactLabel": "Dúvidas sobre os termos? Escreve-nos para ",
+    "acceptBtn": "ACEITAR"
+  },
+  "gdprModal": {
+    "title": "Política de",
+    "titleHighlight": "Privacidade",
+    "text1": "A proteção dos teus dados é uma prioridade no sistema Chronos.",
+    "text2": "Recolhemos os dados mínimos necessários para o funcionamento do serviço de marcações e a segurança da tua conta.",
+    "text3": "Não vendemos os teus dados e utilizamos infraestrutura segura para armazenamento.",
+    "text4": "Tens o direito de solicitar o acesso, a correção ou a eliminação dos teus dados pessoais a qualquer momento.",
+    "contactLabel": "Para pedidos relacionados com dados pessoais, escreve-nos para ",
+    "understoodBtn": "ENTENDI"
+  },
+  "resetPasswordPage": {
+    "checkingSecurity": "A verificar segurança...",
+    "titleLine1": "DEFINIR",
+    "titleHighlight": "PALAVRA-PASSE",
+    "validSession": "Sessão válida",
+    "newPasswordLabel": "Nova palavra-passe",
+    "confirmPasswordLabel": "Confirmar palavra-passe",
+    "errMismatch": "❌ As palavras-passe não coincidem!",
+    "errMinLength": "❌ A palavra-passe deve ter pelo menos 6 caracteres!",
+    "successMsg": "✅ Palavra-passe atualizada! A redirecionar...",
+    "errConnection": "❌ Erro de ligação.",
+    "savingBtn": "A guardar...",
+    "saveBtn": "Guardar nova palavra-passe",
+    "footer": "Chronos Security Module • v2.0"
+  },
+  "dosarClient": {
+    "workNamePlaceholder": "NOME DO TRABALHO (ex: Coloração)",
+    "deleteBtn": "✕ Eliminar",
+    "serviceePriceLabel": "Preço do serviço (RON)",
+    "durationLabel": "Duração (minutos)",
+    "materialsUsedLabel": "📦 Materiais utilizados",
+    "addMaterialBtn": "+ Adicionar material",
+    "noMaterials": "Nenhum material adicionado",
+    "materialNamePlaceholder": "ex: Tinta Loreal",
+    "unitGram": "g",
+    "unitMl": "ml",
+    "unitPiece": "un",
+    "unitLiter": "l",
+    "unitKg": "kg",
+    "ronPerUnit": "RON/u",
+    "colProduct": "Produto",
+    "colQuantity": "Quantidade",
+    "colUnit": "Unidade",
+    "colPricePerUnit": "Preço/Unidade",
+    "materialsCostLabel": "Custo de materiais",
+    "netProfitLabel": "✅ Lucro líquido",
+    "lossLabel": "❌ Prejuízo",
+    "profitMarginLabel": "Margem de lucro",
+    "profitGood": "🟢 Boa rentabilidade",
+    "profitMedium": "🟡 Rentabilidade média",
+    "profitLow": "🔴 Baixa rentabilidade",
+    "profitBelow": "⛔ Abaixo do custo de materiais",
+    "filesAttachedLabel": "📎 Ficheiros anexados",
+    "uploading": "A carregar...",
+    "addFilesBtn": "+ Adicionar ficheiros",
+    "uploadErrorPrefix": "Erro no carregamento: ",
+    "noFilesAttached": "Nenhum ficheiro anexado",
+    "supportsTypes": "Suporta imagens, vídeo, áudio, documentos",
+    "openLink": "Abrir",
+    "downloadFileBtn": "Descarregar ficheiro",
+    "tabProfile": "Perfil",
+    "tabWorks": "Trabalhos",
+    "tabFiles": "Ficheiros",
+    "headerTitle": "Processo do",
+    "headerHighlight": "Cliente",
+    "statTotalRevenue": "Receita total",
+    "statMaterialsCost": "Custo de materiais",
+    "statNetProfit": "Lucro líquido",
+    "fullNameLabel": "Nome completo",
+    "statusLabel": "Estado",
+    "statusActive": "🟢 Perfil ativo",
+    "statusArchived": "🔴 Perfil arquivado",
+    "emailLabel": "Email",
+    "phoneLabel": "Telefone",
+    "historyNotesLabel": "Histórico e notas",
+    "worksTabTitle": "Trabalhos realizados + Calculadora de lucro",
+    "newWorkBtn": "+ Novo trabalho",
+    "noWorksTitle": "Nenhum trabalho registado",
+    "noWorksSubtitle": "Adiciona o primeiro trabalho para calcular o lucro",
+    "removeClientBtn": "Remover cliente",
+    "finalizeBtn": "Finalizar",
+    "confirmDeleteWork": "Eliminar este trabalho?"
+  }
+}

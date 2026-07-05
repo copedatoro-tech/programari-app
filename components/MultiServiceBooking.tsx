@@ -2,6 +2,7 @@
 
 import { useState, useMemo, useCallback, useEffect } from "react";
 import { supabase } from "@/lib/supabaseClient";
+import { useTranslations } from "next-intl";
 import { ChronosTimePicker, ChronosDatePicker } from "@/components/ChronosDateTimePickers";
 
 // ─── Tipuri ────────────────────────────────────────────────────────────────────
@@ -46,9 +47,9 @@ function toMin(t: string): number {
   return h * 60 + (m || 0);
 }
 function uid() { return Math.random().toString(36).slice(2, 9); }
-function fmtDateShort(d: string) {
+function fmtDateShort(d: string, localeCode: string) {
   if (!d) return "—";
-  return new Date(d + "T00:00:00").toLocaleDateString("ro-RO", {
+  return new Date(d + "T00:00:00").toLocaleDateString(localeCode, {
     day: "2-digit", month: "2-digit", year: "numeric",
   });
 }
@@ -70,6 +71,8 @@ function SlotRow({
   onChange: (u: Partial<ServiceSlot>) => void;
   onRemove: () => void; canRemove: boolean;
 }) {
+  const t = useTranslations("multiServiceBooking");
+  const localeCode = t("localeCode");
   const [showDate, setShowDate] = useState(false);
   const [showTime, setShowTime] = useState(false);
 
@@ -158,7 +161,7 @@ function SlotRow({
             {isComplete ? "✓" : index + 1}
           </div>
           <span className="text-[10px] font-black uppercase italic text-slate-400 tracking-widest">
-            Serviciu #{index + 1}
+            {t("serviceLabel", { n: index + 1 })}
             {isComplete && svc && <span className="ml-2 text-amber-600">— {svc.nume_serviciu}</span>}
           </span>
           {canRemove && (
@@ -171,24 +174,24 @@ function SlotRow({
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
           <div className="flex flex-col gap-2">
-            <label className="text-[10px] font-black uppercase ml-4 text-slate-400 italic">Alege Specialist</label>
+            <label className="text-[10px] font-black uppercase ml-4 text-slate-400 italic">{t("chooseSpecialistLabel")}</label>
             <select
               className="p-5 bg-slate-50 rounded-[25px] border-2 border-transparent focus:border-amber-500 font-bold text-lg outline-none shadow-inner cursor-pointer transition-all"
               value={slot.specialist_id}
               onChange={(e) => handleSpecialistChange(e.target.value)}>
-              <option value="">Alege Specialist...</option>
+              <option value="">{t("chooseSpecialistOpt")}</option>
               {filteredSpec.map((sp) => (
                 <option key={sp.id} value={sp.id}>{sp.name}</option>
               ))}
             </select>
           </div>
           <div className="flex flex-col gap-2">
-            <label className="text-[10px] font-black uppercase ml-4 text-slate-400 italic">Alege Serviciu</label>
+            <label className="text-[10px] font-black uppercase ml-4 text-slate-400 italic">{t("chooseServiceLabel")}</label>
             <select
               className="p-5 bg-slate-50 rounded-[25px] border-2 border-transparent focus:border-amber-500 font-bold text-lg outline-none shadow-inner cursor-pointer transition-all"
               value={slot.serviciu_id}
               onChange={(e) => handleServiciuChange(e.target.value)}>
-              <option value="">Alege Serviciu...</option>
+              <option value="">{t("chooseServiceOpt")}</option>
               {filteredSvc.map((s) => (
                 <option key={s.id} value={s.id}>
                   {s.nume_serviciu}{s.price ? ` — ${s.price} RON` : ""}{s.duration ? ` (${s.duration} min)` : ""}
@@ -200,18 +203,18 @@ function SlotRow({
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="flex flex-col gap-2">
-            <label className="text-[10px] font-black uppercase ml-4 text-slate-400 italic">Data</label>
+            <label className="text-[10px] font-black uppercase ml-4 text-slate-400 italic">{t("dateLabel")}</label>
             <button type="button" onClick={() => setShowDate(true)}
               className="w-full h-[72px] bg-slate-900 text-white rounded-[25px] font-black text-[18px] uppercase italic hover:text-amber-500 transition-all flex items-center justify-center gap-3 shadow-inner">
               <span>📅</span>
-              <span>{slot.data ? fmtDateShort(slot.data) : "ALEGE DATA"}</span>
+              <span>{slot.data ? fmtDateShort(slot.data, localeCode) : t("chooseDateBtn")}</span>
             </button>
           </div>
           <div className="flex flex-col gap-2">
-            <label className="text-[10px] font-black uppercase ml-4 text-slate-400 italic">Ora</label>
+            <label className="text-[10px] font-black uppercase ml-4 text-slate-400 italic">{t("timeLabel")}</label>
             <button type="button"
               onClick={() => {
-                if (!slot.serviciu_id) { alert("Alege mai întâi serviciul."); return; }
+                if (!slot.serviciu_id) { alert(t("chooseServiceFirstAlert")); return; }
                 setShowTime(true);
               }}
               className={`w-full h-[72px] rounded-[25px] font-black text-[18px] uppercase italic flex items-center justify-center gap-3 shadow-inner transition-all ${
@@ -220,7 +223,7 @@ function SlotRow({
                   : "bg-slate-900 text-white hover:text-amber-500"
               }`}>
               <span>🕒</span>
-              <span>{slot.ora && slot.ora !== "00:00" ? slot.ora : "ORA"}</span>
+              <span>{slot.ora && slot.ora !== "00:00" ? slot.ora : t("chooseTimeBtn")}</span>
             </button>
           </div>
         </div>
@@ -230,8 +233,8 @@ function SlotRow({
             <div className="flex items-center gap-3">
               <span className="text-amber-400 text-xl">⏱️</span>
               <div>
-                <p className="text-[8px] font-black text-amber-400 uppercase italic tracking-widest">Interval rezervat</p>
-                <p className="text-sm font-black text-white italic">{slot.ora} → {endOra} • {fmtDateShort(slot.data)}</p>
+                <p className="text-[8px] font-black text-amber-400 uppercase italic tracking-widest">{t("reservedIntervalLabel")}</p>
+                <p className="text-sm font-black text-white italic">{slot.ora} → {endOra} • {fmtDateShort(slot.data, localeCode)}</p>
               </div>
             </div>
             <div className="text-right">
@@ -250,6 +253,8 @@ export default function MultiServiceBooking({
   adminId, servicii, specialisti, adminWorkingHours, adminManualBlocks,
   clientData, validateClientData, onSuccess, onCancel, documente,
 }: MultiServiceBookingProps) {
+  const t = useTranslations("multiServiceBooking");
+  const localeCode = t("localeCode");
   const today = new Date().toISOString().split("T")[0];
 
   const [slots, setSlots] = useState<ServiceSlot[]>([
@@ -329,7 +334,7 @@ export default function MultiServiceBooking({
 
     const isClientValid = validateClientData();
     if (!isClientValid) {
-      setErrors(["Te rugăm să completezi Numele, Telefonul și Email-ul clientului."]);
+      setErrors([t("errClientData")]);
       window.scrollTo({ top: 0, behavior: "smooth" });
       return;
     }
@@ -339,11 +344,11 @@ export default function MultiServiceBooking({
     const currentTotalMin = now.getHours() * 60 + now.getMinutes();
 
     slots.forEach((s, i) => {
-      if (!s.serviciu_id)              erori.push(`Serviciul #${i + 1}: alege un serviciu.`);
-      if (!s.data)                     erori.push(`Serviciul #${i + 1}: alege data.`);
-      if (!s.ora || s.ora === "00:00") erori.push(`Serviciul #${i + 1}: alege ora.`);
+      if (!s.serviciu_id)              erori.push(t("errChooseService", { n: i + 1 }));
+      if (!s.data)                     erori.push(t("errChooseDate", { n: i + 1 }));
+      if (!s.ora || s.ora === "00:00") erori.push(t("errChooseTime", { n: i + 1 }));
       else if (s.data === today && toMin(s.ora) < currentTotalMin)
-        erori.push(`Serviciul #${i + 1}: Ora ${s.ora} a trecut deja.`);
+        erori.push(t("errTimePassed", { n: i + 1, ora: s.ora }));
     });
 
     if (erori.length > 0) { setErrors(erori); return; }
@@ -360,7 +365,7 @@ export default function MultiServiceBooking({
         const as_ = toMin(a.ora), ae = as_ + sa.duration;
         const bs  = toMin(b.ora), be = bs  + sb.duration;
         if (as_ < be && ae > bs)
-          erori.push(`Serviciile #${i + 1} și #${j + 1} se suprapun (același specialist).`);
+          erori.push(t("errOverlapForm", { i: i + 1, j: j + 1 }));
       }
     }
 
@@ -396,8 +401,8 @@ export default function MultiServiceBooking({
           return ns < ae && ne > as_;
         });
         if (overlap) {
-          const specName = specialisti.find((x) => x.id === s.specialist_id)?.name || "specialistul ales";
-          erori.push(`"${svc.nume_serviciu}" la ora ${s.ora} — ${specName} are deja o programare în acest interval.`);
+          const specName = specialisti.find((x) => x.id === s.specialist_id)?.name || t("chosenSpecialistFallback");
+          erori.push(t("errOverlapDb", { svc: svc.nume_serviciu, ora: s.ora, specName }));
         }
       }
 
@@ -416,8 +421,8 @@ export default function MultiServiceBooking({
           date:        s.data,
           time:        s.ora,
           duration:    svc?.duration || 0,
-          details:     `Serviciu: ${svc?.nume_serviciu || "N/A"}${clientData.detalii ? ` | Notă: ${clientData.detalii}` : ""} | Rezervare multiplă`,
-          specialist:  spec?.name || "Prima Disponibilitate",
+          details:     `Serviciu: ${svc?.nume_serviciu || t("naFallback")}${clientData.detalii ? ` | Notă: ${clientData.detalii}` : ""} | Rezervare multiplă`,
+          specialist:  spec?.name || t("firstAvailFallback"),
           angajat_id:  s.specialist_id || null,
           serviciu_id: s.serviciu_id || null,
           status:      "pending",
@@ -430,7 +435,7 @@ export default function MultiServiceBooking({
       if (error) throw error;
       onSuccess?.();
     } catch (e: any) {
-      setErrors([`Eroare: ${e?.message || "Nu s-a putut salva."}`]);
+      setErrors([`${t("saveErrorPrefix")}${e?.message || t("saveErrorDefault")}`]);
     } finally {
       setLoading(false);
     }
@@ -462,18 +467,18 @@ export default function MultiServiceBooking({
       <button onClick={addSlot} disabled={slots.length >= 8}
         className="w-full py-5 border-2 border-dashed border-amber-400 rounded-[30px] font-black uppercase italic text-[12px] text-amber-600 hover:bg-amber-50 hover:border-amber-500 transition-all active:scale-95 disabled:opacity-40 flex items-center justify-center gap-3">
         <span className="w-7 h-7 bg-amber-500 text-white rounded-xl flex items-center justify-center text-lg font-black leading-none">+</span>
-        ADAUGĂ SERVICIU NOU
+        {t("addServiceBtn")}
       </button>
 
       {completedSlots.length > 0 && (
         <div className="bg-slate-50 rounded-[35px] border-2 border-slate-100 p-6 space-y-4 shadow-inner">
-          <p className="text-[10px] font-black text-slate-400 uppercase italic tracking-widest">📋 Sumar Rezervare</p>
+          <p className="text-[10px] font-black text-slate-400 uppercase italic tracking-widest">{t("summaryTitle")}</p>
           {Object.entries(byDate).sort(([a], [b]) => a.localeCompare(b)).map(([date, ds]) => (
             <div key={date}>
               <div className="flex items-center gap-3 mb-3">
                 <div className="h-px flex-1 bg-slate-200" />
                 <span className="text-[10px] font-black text-slate-500 uppercase italic bg-white px-3 py-1 rounded-full border border-slate-200">
-                  📅 {fmtDateShort(date)}
+                  📅 {fmtDateShort(date, localeCode)}
                 </span>
                 <div className="h-px flex-1 bg-slate-200" />
               </div>
@@ -489,7 +494,7 @@ export default function MultiServiceBooking({
                       <div>
                         <p className="text-[12px] font-black text-slate-800 uppercase italic">{svc.nume_serviciu}</p>
                         <p className="text-[9px] font-bold text-slate-400 italic">
-                          {spec?.name || "Prima disponibilitate"} • {s.ora} → {addMin(s.ora, svc.duration)}
+                          {spec?.name || t("firstAvailFallback")} • {s.ora} → {addMin(s.ora, svc.duration)}
                         </p>
                       </div>
                     </div>
@@ -503,10 +508,10 @@ export default function MultiServiceBooking({
             </div>
           ))}
           <div className="flex justify-between pt-3 border-t-2 border-slate-200">
-            <p className="text-sm font-black text-slate-900 uppercase italic">TOTAL</p>
+            <p className="text-sm font-black text-slate-900 uppercase italic">{t("totalLabel")}</p>
             <div className="text-right">
               <p className="text-xl font-black text-amber-600">{totals.price} RON</p>
-              <p className="text-[10px] font-bold text-slate-400 italic">{totals.dur} minute</p>
+              <p className="text-[10px] font-bold text-slate-400 italic">{totals.dur}{t("minutesSuffix")}</p>
             </div>
           </div>
         </div>
@@ -514,14 +519,14 @@ export default function MultiServiceBooking({
 
       {errors.length > 0 && (
         <div className="bg-red-50 border-2 border-red-200 rounded-[30px] p-6 space-y-2">
-          <p className="text-[10px] font-black text-red-600 uppercase italic tracking-widest">⚠️ Atenție</p>
+          <p className="text-[10px] font-black text-red-600 uppercase italic tracking-widest">{t("attentionTitle")}</p>
           {errors.map((e, i) => <p key={i} className="text-[12px] font-bold text-red-700 italic">• {e}</p>)}
         </div>
       )}
 
       <button onClick={submit} disabled={loading || completedSlots.length === 0}
         className="w-full py-6 bg-amber-600 text-white rounded-[30px] font-black uppercase italic text-[13px] shadow-2xl hover:bg-slate-900 transition-all active:scale-95 disabled:opacity-50 border-b-4 border-amber-700 hover:border-slate-800">
-        {loading ? "SE PROCESEAZĂ..." : `✓ SALVEAZĂ ${completedSlots.length} PROGRAMĂRI`}
+        {loading ? t("processingBtn") : t("saveBtn", { n: completedSlots.length })}
       </button>
     </div>
   );

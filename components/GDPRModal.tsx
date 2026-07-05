@@ -1,6 +1,6 @@
 "use client";
-
 import { useEffect, useRef } from "react";
+import { useTranslations } from "next-intl";
 
 interface GDPRModalProps {
   isOpen: boolean;
@@ -8,6 +8,7 @@ interface GDPRModalProps {
 }
 
 export default function GDPRModal({ isOpen, onClose }: GDPRModalProps) {
+  const t = useTranslations("gdprModal");
   const modalRef = useRef<HTMLDivElement>(null);
 
   // Închide modalul dacă se dă click în afara cutiei albe
@@ -30,17 +31,24 @@ export default function GDPRModal({ isOpen, onClose }: GDPRModalProps) {
       <div ref={modalRef} className="modal-content zoom-in">
         <div className="flex justify-between items-start mb-6">
           <h2 className="text-xl font-black uppercase italic tracking-tighter text-slate-900">
-            Politică <span className="text-amber-500">GDPR</span>
+            {t("title")} <span className="text-amber-500">{t("titleHighlight")}</span>
           </h2>
           <button onClick={onClose} className="text-slate-400 hover:text-slate-900 font-bold text-xl">✕</button>
         </div>
         <div className="space-y-4 text-sm text-slate-600 font-medium leading-relaxed max-h-[60vh] overflow-y-auto pr-2">
-          <p>Protecția datelor dumneavoastră este prioritară în sistemul Chronos.</p>
-          <p>Colectăm date minime necesare pentru funcționarea serviciului de programări și securitatea contului dumneavoastră.</p>
-          <p>Nu vindem datele dumneavoastră și folosim infrastructură securizată pentru stocare.</p>
+          <p>{t("text1")}</p>
+          <p>{t("text2")}</p>
+          <p>{t("text3")}</p>
+          <p>{t("text4")}</p>
+          <p className="text-slate-500 italic text-xs pt-2 border-t border-slate-100">
+            {t("contactLabel")}
+            <a href="mailto:copedatoro@gmail.com" className="text-amber-600 font-bold hover:underline">
+              copedatoro@gmail.com
+            </a>
+          </p>
         </div>
         <div className="mt-8">
-          <button onClick={onClose} className="btn-chronos w-full">AM ÎNȚELES</button>
+          <button onClick={onClose} className="btn-chronos w-full">{t("understoodBtn")}</button>
         </div>
       </div>
     </div>

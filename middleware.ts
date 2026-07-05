@@ -1,11 +1,24 @@
 import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
+import createIntlMiddleware from 'next-intl/middleware'
+import { routing } from './i18n/routing'
+
+const intlMiddleware = createIntlMiddleware(routing)
 
 export async function middleware(req: NextRequest) {
   const url = req.nextUrl.clone()
-  const pathname = url.pathname
+  const originalPathname = url.pathname
 
-  // 1. EXCEPTARE RUTE AUTH — trec fără nicio verificare
+  const firstSegment = originalPathname.split('/')[1]
+  const hasLocalePrefix = (routing.locales as readonly string[]).includes(firstSegment)
+  const locale = hasLocalePrefix ? firstSegment : routing.defaultLocale
+  const pathname = hasLocalePrefix
+    ? (originalPathname.slice(firstSegment.length + 1) || '/')
+    : originalPathname
+
+  const withLocale = (path: string) =>
+    locale === routing.defaultLocale ? path : `/${locale}${path}`
+
   if (
     pathname.startsWith('/auth/callback') ||
     pathname.startsWith('/auth/reset-password') ||
@@ -15,7 +28,8 @@ export async function middleware(req: NextRequest) {
     return NextResponse.next()
   }
 
-  // 2. RUTE PUBLICE — nu facem niciun request la Supabase, ieșim imediat
+  const intlResponse = intlMiddleware(req)
+
   const isPublicRoute =
     pathname === '/' ||
     pathname === '/login' ||
@@ -23,17 +37,11 @@ export async function middleware(req: NextRequest) {
     pathname === '/forgot-password' ||
     pathname.startsWith('/rezervare')
 
-  // ✅ FIX VITEZĂ: dacă ruta e publică, nu mai apelăm getUser() deloc
-  // Evităm round-trip-ul la serverul Supabase pentru pagini care nu au nevoie de auth
   if (isPublicRoute) {
-    return NextResponse.next()
+    return intlResponse
   }
 
-  // 3. CONFIGURARE SUPABASE CLIENT (SSR)
-  // ✅ FIX BUG: res creat o singură dată, nu recreat la fiecare cookie
-  const res = NextResponse.next({
-    request: { headers: req.headers },
-  })
+  const res = intlResponse ?? NextResponse.next({ request: { headers: req.headers } })
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -41,7 +49,6 @@ export async function middleware(req: NextRequest) {
     {
       cookies: {
         getAll: () => req.cookies.getAll(),
-        // ✅ FIX BUG: setăm toate cookie-urile pe același obiect res, nu recreăm res
         setAll: (cookiesToSet: { name: string; value: string; options: CookieOptions }[]) => {
           cookiesToSet.forEach(({ name, value, options }) => {
             req.cookies.set(name, value)
@@ -52,26 +59,21 @@ export async function middleware(req: NextRequest) {
     }
   )
 
-  // 4. VERIFICARE SESIUNE — ajungem aici DOAR pentru rute protejate
   const { data: { user } } = await supabase.auth.getUser()
 
-  // 5. LOGICĂ REDIRECȚIONARE
-  // Nu e logat și încearcă să acceseze rute protejate
   if (!user) {
-    url.pathname = '/login'
+    url.pathname = withLocale('/login')
     return NextResponse.redirect(url)
   }
 
-  // E logat și încearcă să acceseze login/register → redirect la programări
   if (pathname === '/login' || pathname === '/register' || pathname === '/forgot-password') {
-    url.pathname = '/programari'
+    url.pathname = withLocale('/programari')
     return NextResponse.redirect(url)
   }
 
   return res
 }
 
-// 6. MATCHER — excludem static, imagini, API
 export const config = {
   matcher: [
     '/((?!api|_next/static|_next/image|favicon.ico|.*\\..*$).*)',

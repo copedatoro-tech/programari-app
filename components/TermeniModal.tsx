@@ -1,6 +1,6 @@
 "use client";
-
 import { useEffect, useRef } from "react";
+import { useTranslations } from "next-intl";
 
 interface TermeniModalProps {
   isOpen: boolean;
@@ -8,6 +8,7 @@ interface TermeniModalProps {
 }
 
 export default function TermeniModal({ isOpen, onClose }: TermeniModalProps) {
+  const t = useTranslations("termeniModal");
   const modalRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -29,17 +30,24 @@ export default function TermeniModal({ isOpen, onClose }: TermeniModalProps) {
       <div ref={modalRef} className="modal-content zoom-in">
         <div className="flex justify-between items-start mb-6">
           <h2 className="text-xl font-black uppercase italic tracking-tighter text-slate-900">
-            Termeni & <span className="text-amber-500">Condiții</span>
+            {t("title")}<span className="text-amber-500">{t("titleHighlight")}</span>
           </h2>
           <button onClick={onClose} className="text-slate-400 hover:text-slate-900 font-bold text-xl">✕</button>
         </div>
         <div className="space-y-4 text-sm text-slate-600 font-medium leading-relaxed max-h-[60vh] overflow-y-auto pr-2">
-          <p>Prin utilizarea platformei Chronos, sunteți de acord cu regulile noastre de funcționare.</p>
-          <p>Sistemul este destinat gestiunii eficiente a timpului și a resurselor profesionale.</p>
-          <p>Utilizatorul este responsabil pentru acuratețea informațiilor introduse în calendar.</p>
+          <p>{t("text1")}</p>
+          <p>{t("text2")}</p>
+          <p>{t("text3")}</p>
+          <p>{t("text4")}</p>
+          <p className="text-slate-500 italic text-xs pt-2 border-t border-slate-100">
+            {t("contactLabel")}
+            <a href="mailto:copedatoro@gmail.com" className="text-amber-600 font-bold hover:underline">
+              copedatoro@gmail.com
+            </a>
+          </p>
         </div>
         <div className="mt-8">
-          <button onClick={onClose} className="btn-chronos w-full">ACCEPT</button>
+          <button onClick={onClose} className="btn-chronos w-full">{t("acceptBtn")}</button>
         </div>
       </div>
     </div>

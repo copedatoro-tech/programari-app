@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback, useMemo } from "react";
+import { useTranslations } from "next-intl";
 
 // ─── TYPES ──────────────────────────────────────────────────────────────────────
 export interface WorkingHourEntry {
@@ -15,13 +16,10 @@ export interface ExistingAppointment {
   duration: number;
 }
 
-// ─── CONSTANTS ───────────────────────────────────────────────────────────────────
-const dayNamesShort = ["Lun", "Mar", "Mie", "Joi", "Vin", "Sâm", "Dum"];
+// ⚠️ FIX (nu tradus): zilele stocate în baza de date (working_hours.day) sunt salvate
+// întotdeauna în română, indiferent de limba interfeței. Acest array e folosit DOAR
+// pentru a verifica programul din baza de date, deci trebuie să rămână fix.
 const DAY_NAMES_LONG = ["Duminică", "Luni", "Marți", "Miercuri", "Joi", "Vineri", "Sâmbătă"];
-const monthNames = [
-  "Ianuarie", "Februarie", "Martie", "Aprilie", "Mai", "Iunie",
-  "Iulie", "August", "Septembrie", "Octombrie", "Noiembrie", "Decembrie",
-];
 
 // ─── HELPERS ─────────────────────────────────────────────────────────────────────
 function sameDay(a: Date, b: Date) {
@@ -60,7 +58,7 @@ function getSlotStatus(
   existingAppointments: ExistingAppointment[],
   serviceDuration: number,
   manualBlocksForDay: string[],
-  isToday: boolean 
+  isToday: boolean
 ): SlotStatus {
   const slotMinutes = timeToMinutes(time);
 
@@ -72,7 +70,7 @@ function getSlotStatus(
 
   const startMinutes = timeToMinutes(workingStart);
   const endMinutes = timeToMinutes(workingEnd);
-  
+
   if (slotMinutes < startMinutes || slotMinutes >= endMinutes) return "outside";
 
   const serviceLen = serviceDuration > 0 ? serviceDuration : 15;
@@ -82,7 +80,7 @@ function getSlotStatus(
 
   const newStart = slotMinutes;
   const newEnd = slotMinutes + serviceLen;
-  
+
   for (const appt of existingAppointments) {
     if (!appt.time) continue;
     const apptStart = timeToMinutes(appt.time);
@@ -113,12 +111,14 @@ export function ChronosTimePicker({
   serviceDuration?: number;
   manualBlocks?: Record<string, string[]>;
 }) {
+  const t = useTranslations("chronosPickers");
+  const localeCode = t("localeCode");
   const containerRef = useRef<HTMLDivElement>(null);
   const todayStr = formatKey(new Date());
   const isToday = selectedDate === todayStr;
-  
-  const manualBlocksForDay: string[] = useMemo(() => 
-    selectedDate ? (manualBlocks[selectedDate] || []) : [], 
+
+  const manualBlocksForDay: string[] = useMemo(() =>
+    selectedDate ? (manualBlocks[selectedDate] || []) : [],
   [selectedDate, manualBlocks]);
 
   const daySchedule = useMemo(() => {
@@ -137,7 +137,7 @@ export function ChronosTimePicker({
   const checkStatus = useCallback(
     (h: string, m: string): SlotStatus => {
       if (isClosed) return "outside";
-      
+
       return getSlotStatus(
         `${h}:${m}`,
         workingStart,
@@ -155,7 +155,7 @@ export function ChronosTimePicker({
     if (isClosed) return [];
     const startH = parseInt(workingStart.split(":")[0]);
     const endH = parseInt(workingEnd.split(":")[0]);
-    
+
     return allHours.filter(h => {
       const hourNum = parseInt(h);
       return hourNum >= startH && hourNum <= endH;
@@ -214,20 +214,20 @@ export function ChronosTimePicker({
 
   const statusLabel: Record<SlotStatus, string> = {
     available: "",
-    blocked: "Ocupat",
-    outside: "Închis",
-    past: "Expirat",
-    overlap: "Depășit",
-    manual_block: "Indisponibil",
+    blocked: t("statusBooked"),
+    outside: t("statusClosed"),
+    past: t("statusExpired"),
+    overlap: t("statusExceeded"),
+    manual_block: t("statusUnavailable"),
   };
 
   return (
     <div ref={containerRef} className="bg-white w-[95vw] max-w-2xl rounded-[45px] border-4 border-slate-900 shadow-2xl overflow-hidden mx-auto">
       <div className="bg-slate-900 p-6 text-center border-b-4 border-amber-500">
-        <p className="text-[10px] font-black text-amber-500 uppercase italic tracking-[0.3em] mb-1">Chronos Time Picker</p>
+        <p className="text-[10px] font-black text-amber-500 uppercase italic tracking-[0.3em] mb-1">{t("timePickerTitle")}</p>
         {selectedDate && (
           <h3 className="text-3xl font-black text-white uppercase italic tracking-tighter">
-            {new Date(selectedDate + "T00:00:00").toLocaleDateString("ro-RO", { weekday: "long", day: "2-digit", month: "long" })}
+            {new Date(selectedDate + "T00:00:00").toLocaleDateString(localeCode, { weekday: "long", day: "2-digit", month: "long" })}
           </h3>
         )}
       </div>
@@ -236,13 +236,12 @@ export function ChronosTimePicker({
         {isClosed ? (
           <div className="text-center py-10">
             <div className="text-6xl mb-4">🚫</div>
-            <p className="font-black uppercase italic text-slate-500 text-base">Salonul este închis în această zi.</p>
+            <p className="font-black uppercase italic text-slate-500 text-base">{t("closedMessage")}</p>
           </div>
         ) : (
           <>
             <div>
-              <span className="text-[10px] font-black uppercase italic text-slate-400 mb-3 block px-2">Selectează Ora</span>
-              {/* 6 ORE PE ORIZONTALĂ (grid-cols-6) */}
+              <span className="text-[10px] font-black uppercase italic text-slate-400 mb-3 block px-2">{t("selectHourLabel")}</span>
               <div className="grid grid-cols-6 gap-2 p-3 bg-slate-50 rounded-[30px] border-2 border-slate-100">
                 {hoursToShow.map((h) => {
                   const hasAvail = hourHasAvailable(h);
@@ -268,7 +267,7 @@ export function ChronosTimePicker({
             </div>
 
             <div>
-              <span className="text-[10px] font-black uppercase italic text-slate-400 mb-3 block px-2">Minute</span>
+              <span className="text-[10px] font-black uppercase italic text-slate-400 mb-3 block px-2">{t("minutesLabel")}</span>
               <div className="grid grid-cols-4 gap-4 bg-slate-50 p-4 rounded-[30px] border-2 border-slate-100">
                 {minutes.map((m) => {
                   const status = checkStatus(selHour, m);
@@ -281,8 +280,8 @@ export function ChronosTimePicker({
                       onClick={() => handleSelectMinute(m)}
                       disabled={!isAvail}
                       className={`py-5 rounded-2xl font-black text-2xl transition-all border-2 flex flex-col items-center justify-center ${
-                        isSelected && isAvail 
-                          ? "bg-slate-900 text-amber-500 border-slate-900 shadow-lg scale-105" 
+                        isSelected && isAvail
+                          ? "bg-slate-900 text-amber-500 border-slate-900 shadow-lg scale-105"
                           : statusColors[status]
                       }`}
                     >
@@ -300,7 +299,7 @@ export function ChronosTimePicker({
           </>
         )}
         <button type="button" onClick={onClose} className="w-full py-5 bg-slate-900 text-white rounded-[25px] font-black uppercase italic text-[12px] hover:bg-amber-500 hover:text-black transition-all border-b-4 border-slate-800">
-          Anulează
+          {t("cancelBtn")}
         </button>
       </div>
     </div>
@@ -325,6 +324,10 @@ export function ChronosDatePicker({
   manualBlocks?: Record<string, string[]>;
   isDateAvailable?: (dateStr: string) => boolean;
 }) {
+  const t = useTranslations("chronosPickers");
+  const dayNamesShort = t.raw("dayNamesShort") as string[];
+  const monthNames = t.raw("monthNames") as string[];
+
   const [viewDate, setViewDate] = useState(() => {
     const d = value ? new Date(value + "T00:00:00") : new Date();
     return new Date(d.getFullYear(), d.getMonth(), 1);
@@ -374,7 +377,7 @@ export function ChronosDatePicker({
   return (
     <div ref={containerRef} className="bg-white w-[95vw] max-w-xl rounded-[45px] border-4 border-slate-900 shadow-2xl overflow-hidden mx-auto">
       <div className="bg-slate-900 p-10 text-center border-b-4 border-amber-500">
-        <p className="text-[12px] font-black text-amber-500 uppercase italic tracking-[0.3em] mb-3">Chronos Date Picker</p>
+        <p className="text-[12px] font-black text-amber-500 uppercase italic tracking-[0.3em] mb-3">{t("datePickerTitle")}</p>
         <div className="flex items-center justify-between">
           <button type="button" onClick={() => setViewDate(new Date(year, month - 1, 1))} className="text-white hover:text-amber-500 font-black text-2xl px-4 transition-all">◀</button>
           <h3 className="text-2xl font-black text-white uppercase italic">{monthNames[month]} {year}</h3>
@@ -418,7 +421,7 @@ export function ChronosDatePicker({
           })}
         </div>
         <button type="button" onClick={onClose} className="w-full mt-8 py-5 bg-slate-900 text-white rounded-[25px] font-black uppercase italic text-[12px] hover:bg-amber-500 hover:text-black transition-all border-b-4 border-slate-800">
-          Închide
+          {t("closeBtn")}
         </button>
       </div>
     </div>

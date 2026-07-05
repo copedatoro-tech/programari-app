@@ -1,0 +1,1436 @@
+{
+  "common": {
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "delete": "Löschen",
+    "edit": "Bearbeiten",
+    "confirm": "Bestätigen",
+    "close": "Schließen",
+    "loading": "Wird geladen...",
+    "search": "Suchen",
+    "back": "Zurück"
+  },
+  "nav": {
+    "calendar": "Kalender",
+    "contacts": "Nützliche Kontakte",
+    "clients": "Kunden",
+    "settings": "Einstellungen",
+    "logout": "Abmelden"
+  },
+  "calendar": {
+    "day": "Tag",
+    "week": "Woche",
+    "month": "Monat",
+    "year": "Jahr",
+    "today": "Heute",
+    "newAppointment": "Neuer Termin",
+    "noAppointments": "Keine Termine",
+    "specialist": "Spezialist"
+  },
+  "appointments": {
+    "title": "Termine",
+    "client": "Kunde",
+    "service": "Dienstleistung",
+    "date": "Datum",
+    "time": "Uhrzeit",
+    "status": {
+      "confirmed": "Bestätigt",
+      "pending": "Ausstehend",
+      "cancelled": "Storniert",
+      "completed": "Abgeschlossen"
+    }
+  },
+  "auth": {
+    "login": "Anmeldung",
+    "register": "Registrieren",
+    "email": "E-Mail",
+    "password": "Passwort",
+    "forgotPassword": "Passwort vergessen?",
+    "loginButton": "Anmelden"
+  },
+  "subscription": {
+    "free": "Kostenlos",
+    "pro": "Pro",
+    "elite": "Elite",
+    "team": "Team",
+    "monthly": "Monatlich",
+    "annual": "Jährlich",
+    "upgrade": "Upgrade durchführen"
+  },
+  "layout": {
+    "nav": {
+      "programari": "Termine",
+      "calendar": "Kalender",
+      "clienti": "Kunden",
+      "servicii": "Leistungsverwaltung",
+      "abonamente": "Abonnements",
+      "rapoarte": "Analysen & Berichte",
+      "recenzii": "Bewertungen",
+      "contacteUtile": "Nützliche Kontakte",
+      "setari": "Einstellungen",
+      "profil": "Profil"
+    },
+    "pageTitles": {
+      "programari": "Termine",
+      "calendar": "Terminkalender",
+      "clienti": "Kunden",
+      "resurse": "Leistungen & Fachkräfte",
+      "abonamente": "Abonnements",
+      "rapoarte": "Analysen & Berichte",
+      "sugestii": "Kundenbewertungen",
+      "settings": "Systemeinstellungen",
+      "profil": "Benutzerprofil",
+      "contacteUtile": "Nützliche Kontakte",
+      "dashboard": "Chronos-Dashboard"
+    },
+    "header": {
+      "abonamentActiv": "Aktives Abo",
+      "menuOpen": "MENÜ ☰",
+      "menuClose": "SCHLIESSEN ✕"
+    },
+    "logout": "ABMELDEN",
+    "footer": {
+      "contact": "Chronos-Kontakt",
+      "termeni": "AGB",
+      "confidentialitate": "Datenschutz",
+      "cookies": "Cookies",
+      "premium": "CHRONOS PREMIUM",
+      "management": "VERWALTUNG",
+      "secured": "GESICHERT"
+    },
+    "loading": "Chronos wird synchronisiert...",
+    "onboarding": {
+      "badge": "Chronos-Leitfaden",
+      "understood": "Verstanden — los geht's! 🚀",
+      "profil": {
+        "titlu": "Benutzerprofil",
+        "subtitlu": "Der erste wichtige Schritt — trage alle Daten deines Unternehmens ein.",
+        "pasi": [
+          "📝 Füge den Namen deines Unternehmens hinzu — erscheint auf der öffentlichen Buchungsseite",
+          "🔗 Lege deinen eindeutigen Slug fest (z. B. salon-maria) — daraus werden dein persönlicher Link und QR-Code für Online-Buchungen erzeugt",
+          "📞 Füge Telefon und E-Mail hinzu — dies sind die Daten der für die App verantwortlichen Person",
+          "🖼️ Lade das Logo deines Unternehmens hoch — erscheint auf der Buchungsseite und in der App",
+          "📍 Füge die Adresse hinzu — Kunden sehen sie auf der Buchungsseite, damit sie wissen, wohin sie kommen sollen"
+        ],
+        "tip": "Der Slug ist entscheidend — ohne ihn können der Buchungslink und der QR-Code nicht erzeugt werden! Die Kontaktdaten gehören der verantwortlichen Person und können im Notfall verwendet werden."
+      },
+      "settings": {
+        "titlu": "Systemeinstellungen",
+        "subtitlu": "Konfiguriere Arbeitszeiten und Verfügbarkeit.",
+        "pasi": [
+          "🕐 Lege die Arbeitszeiten für jeden Wochentag fest — z. B. Mo–Fr 09:00–18:00",
+          "🚫 Markiere geschlossene Tage (z. B. Sonntag) — diese erscheinen im Kalender mit rötlichem Hintergrund",
+          "🔗 Erzeuge den öffentlichen Buchungslink und den QR-Code auf dieser Seite",
+          "⛔ Du kannst bestimmte Stunden manuell sperren, wenn du punktuell nicht verfügbar bist",
+          "📱 Teste den Buchungslink auf deinem Handy, um sicherzustellen, dass alles korrekt funktioniert"
+        ],
+        "tip": "Ohne festgelegte Arbeitszeiten erscheinen alle Zeiten als verfügbar! Als geschlossen markierte Tage erscheinen im Kalender (Tages-, Wochen- und Monatsansicht) mit rötlichem Hintergrund und können nicht online gebucht werden."
+      },
+      "resurse": {
+        "titlu": "Verwaltung von Leistungen & Fachkräften",
+        "subtitlu": "Füge dein Team und die von jedem angebotenen Leistungen hinzu.",
+        "pasi": [
+          "👨‍💼 Füge jede Fachkraft mit vollständigem Namen hinzu (optional Telefon/E-Mail für Benachrichtigungen)",
+          "✂️ Erstelle die angebotenen Leistungen — trage Preis und Dauer für jede ein",
+          "🔗 Verknüpfe jede Fachkraft mit den von ihr angebotenen Leistungen — dies filtert automatisch die Optionen bei der Terminbuchung",
+          "⏱️ Die Dauer der Leistung blockiert automatisch den Kalenderslot und verhindert Überschneidungen",
+          "💰 Preis und Dauer erzeugen detaillierte Produktivitäts- und Gewinnberichte je Fachkraft"
+        ],
+        "tip": "Die Verknüpfung Fachkraft–Leistung ist entscheidend! Bei der Terminerstellung zeigt das System nur Fachkräfte an, die die gewählte Leistung anbieten, und umgekehrt. Dauer und Preis werden für Produktivitätsberichte verwendet."
+      },
+      "programari": {
+        "titlu": "Terminverwaltung",
+        "subtitlu": "Hier erstellst du neue Termine und verwaltest bestehende.",
+        "pasi": [
+          "➕ Trage die Kundendaten ein (Name, Telefon, E-Mail) — werden automatisch in der Kundenakte gespeichert",
+          "👨‍💼 Wähle die Fachkraft und die von ihr angebotene Leistung — die Liste filtert sich automatisch anhand der festgelegten Verknüpfungen",
+          "📅 Wähle Datum und Uhrzeit — das System blockiert automatisch die belegten Stunden der gewählten Fachkraft",
+          "📎 Du kannst Dokumente, Bilder, Audio oder Video zum Termin hinzufügen",
+          "✅ Erstellte Termine erscheinen automatisch im Kalender und in der Kundenakte auf der Kundenseite"
+        ],
+        "tip": "Du kannst mehrere Leistungen für denselben Kunden in derselben Sitzung hinzufügen — jede mit eigener Fachkraft und Uhrzeit! Sind zwei verschiedene Fachkräfte zur gleichen Zeit verfügbar, sind beide Termine erlaubt."
+      },
+      "calendar": {
+        "titlu": "Terminkalender",
+        "subtitlu": "Zeige, bearbeite und organisiere alle Termine.",
+        "pasi": [
+          "📆 Wechsle zwischen Tag, Woche, Monat oder Jahr — jede Ansicht hat ihre Vorteile",
+          "🕐 In der Tagesansicht: Stunden innerhalb der Arbeitszeit haben weißen Hintergrund, Stunden außerhalb einen grau gestreiften — leicht zu unterscheiden",
+          "🚫 Geschlossene Tage (in Einstellungen festgelegt) erscheinen in Wochen- und Monatsansicht mit rötlichem Hintergrund",
+          "👨‍💼 Filtere nach Fachkraft oder Leistung, um den Terminplan jeder Person separat zu sehen",
+          "✏️ Klicke auf einen Termin, um ihn zu bearbeiten, zu verschieben oder Dokumente hinzuzufügen"
+        ],
+        "tip": "Mehrere Fachkräfte können zur gleichen Zeit Termine haben — jede hat ihren eigenen, separaten Terminplan! Belegte Stunden werden pro Fachkraft blockiert, nicht pro Tag."
+      },
+      "clienti": {
+        "titlu": "Kundendatenbank",
+        "subtitlu": "Das vollständige Archiv und die Akte jedes Kunden.",
+        "pasi": [
+          "🔄 Kunden werden anhand der Telefonnummer automatisch aus Terminen gespeichert — kein manuelles Hinzufügen nötig",
+          "📁 Jeder Kunde hat eine vollständige Akte: Terminverlauf, durchgeführte Arbeiten und angehängte Dateien",
+          "📎 Du kannst Dateien, Bilder, Audio oder Video an die Akte jedes Kunden anhängen (z. B. Vorher/Nachher-Fotos, Rezepte, Spezifikationen)",
+          "🔧 Der Bereich Arbeiten berechnet automatisch Materialkosten, Gewinn und Marge je Kunde",
+          "🔍 Schnelle Suche nach Name, Telefon oder E-Mail"
+        ],
+        "tip": "Die Kundenakte aktualisiert sich automatisch bei jedem neuen Termin! Dokumente, die Terminen angehängt sind, erscheinen auch in der Kundenakte."
+      },
+      "abonamente": {
+        "titlu": "Chronos-Abonnements",
+        "subtitlu": "Wähle den passenden Plan — und wann du die Testphase aktivierst.",
+        "pasi": [
+          "⚠️ Aktiviere die 10-tägige Testphase ERST, wenn du vollständig konfiguriert hast: Profil, Einstellungen, Leistungen und Fachkräfte",
+          "🎁 Die Testphase gibt dir 10 Tage lang Zugriff auf den Team-Plan (unbegrenzt) — verschwende sie nicht mit der Einrichtung",
+          "📊 Free: 30 Termine/Monat · Pro: 150 · Elite: 500 · Team: unbegrenzt",
+          "💬 Die Pläne Elite und Team beinhalten automatischen WhatsApp-Versand an Kunden und Fachkräfte",
+          "🔓 Buchungslink, QR-Code und erweiterte Berichte sind ab dem Pro-Plan verfügbar"
+        ],
+        "tip": "Aktiviere die Testphase nicht, bevor du die App eingerichtet hast — sonst verlierst du wertvolle Tage der 10! Richte zuerst alles ein, dann aktiviere."
+      },
+      "rapoarte": {
+        "titlu": "Analysen & Berichte",
+        "subtitlu": "Überwache die Leistung deines Unternehmens in Echtzeit.",
+        "pasi": [
+          "📈 Sieh die Anzahl der Termine pro Tag, Woche oder Monat",
+          "💰 Analysiere Umsatz und Gewinn je Leistung und je Fachkraft",
+          "⭐ Verfolge das Verhältnis von Online- zu Vor-Ort-Buchungen",
+          "📉 Identifiziere die Tage und Stunden mit der höchsten Aktivität, um den Zeitplan zu optimieren",
+          "🔧 Die Berichte sind detaillierter, wenn Preis und Dauer für jede Leistung in der Leistungsverwaltung festgelegt sind"
+        ],
+        "tip": "Je genauer Preis und Dauer der Leistungen festgelegt sind, desto relevanter werden Produktivitäts- und Gewinnberichte!"
+      },
+      "sugestii": {
+        "titlu": "Kundenbewertungen",
+        "subtitlu": "Verwalte den Online-Ruf deines Unternehmens.",
+        "pasi": [
+          "⭐ Sieh alle Bewertungen, die Kunden über die öffentliche Buchungsseite hinterlassen haben",
+          "➕ Du kannst manuell Bewertungen treuer Kunden hinzufügen, die kein Online-Feedback hinterlassen haben",
+          "📈 Je mehr positive Bewertungen du hast, desto mehr neue Kunden zieht deine Buchungsseite an",
+          "💬 Bewertungen sind auf der öffentlichen Buchungsseite deines Unternehmens sichtbar",
+          "🌟 Die durchschnittliche Bewertung beeinflusst das Vertrauen neuer Kunden in dein Unternehmen"
+        ],
+        "tip": "Bitte zufriedene Kunden, nach jedem Besuch eine Bewertung zu hinterlassen — jeder Stern zählt, um neue Kunden zu gewinnen!"
+      },
+      "contacteUtile": {
+        "titlu": "Nützliche Kontakte",
+        "subtitlu": "Dein Verzeichnis für berufliche Kontakte und Notfälle.",
+        "pasi": [
+          "🏭 Speichere die Nummern deiner Produkt- und Materiallieferanten für schnelle Bestellungen",
+          "🔧 Füge Kontakte von Technikern, Installateuren, Partnern oder Mitarbeitern hinzu",
+          "⚡ Schneller Zugriff in Notfällen — Ausfälle, Störungen, dringende Lieferungen",
+          "📋 Diese Seite ist von den Kunden getrennt — Kunden findest du automatisch auf der Kundenseite",
+          "👤 Du kannst hier auch die Daten der für die App verantwortlichen Person für schnellen Notfallkontakt speichern"
+        ],
+        "tip": "Nützliche Kontakte sind für deine beruflichen Lieferanten und Partner gedacht — nicht für Kunden! Kunden werden automatisch aus Terminen auf ihrer eigenen Seite gespeichert."
+      }
+    },
+    "trialSuffix": " (TESTPHASE)"
+  },
+  "landing": {
+    "nav": {
+      "login": "Anmelden",
+      "registerCta": "Kostenlos registrieren →"
+    },
+    "hero": {
+      "badge": "🔥 10 TAGE KOSTENLOS TESTEN — OHNE KARTE",
+      "titleLine1": "DU MACHST, WAS DU AM",
+      "titleHighlight1": "BESTEN KANNST!",
+      "titleLine2": "CHRONOS ÜBERNIMMT DEN REST.",
+      "subtitle": "Die komplette Management-Plattform für Salons, Kliniken, Werkstätten und jedes terminbasierte Unternehmen. Kalender, Kunden, Dokumente, Berichte und Online-Buchungen — alles an einem Ort.",
+      "ctaMain": "ICH WILL 10 TAGE GRATIS",
+      "ctaSub": "JETZT KONTO ERSTELLEN",
+      "disclaimer": "* Ohne Karte. Ohne Verpflichtung. Nur Ergebnisse."
+    },
+    "mockup": {
+      "pageTitle": "Termine",
+      "planActive": "Aktives Abo",
+      "menuBtn": "MENÜ ☰",
+      "heading": "Verwaltung",
+      "headingHighlight": "Termine",
+      "planLine": "Plan: CHRONOS TEAM · 8 / ∞ diesen Monat",
+      "todayStats": "Heute: 4 Gesamt · 2 Online",
+      "calendarLabel": "Kalender",
+      "clientNameLabel": "Kundenname",
+      "emailLabel": "E-Mail",
+      "phoneLabel": "Telefon",
+      "notesLabel": "Anmerkungen",
+      "notesPlaceholder": "Details...",
+      "servicesDivider": "Leistungen & Termin",
+      "serviceNumberLabel": "Leistung #1 —",
+      "serviceDemo": "Gesichtsmassage",
+      "specialistLabel": "Fachkraft",
+      "serviceLabel": "Leistung",
+      "serviceWithPrice": "Gesichtsmassage — 150 RON",
+      "intervalReserved": "Gebuchter Zeitraum",
+      "addServiceBtn": "Neue Leistung hinzufügen",
+      "summaryTitle": "📋 Buchungsübersicht",
+      "totalLabel": "GESAMT",
+      "durationMinutes": "60 Minuten",
+      "saveBtn": "✓ 1 TERMIN SPEICHERN",
+      "todayAppointments": "Heutige Termine",
+      "onlineBadge": "Online-Buchung",
+      "onlineSource": "🌐 Über persönlichen Link",
+      "autoConfirmed": "Automatisch bestätigt",
+      "autoConfirmedName": "Alexandra verfügbar ✓",
+      "autoConfirmedNote": "Termin im Kalender blockiert",
+      "demoServices": {
+        "masajFacial": "Gesichtsmassage",
+        "tunsBarba": "Haarschnitt + Bart",
+        "vopsit": "Färben",
+        "coafor": "Frisur"
+      }
+    },
+    "features": {
+      "heading1": "ALLES, WAS DU BRAUCHST.",
+      "heading2": "NICHTS DARÜBER HINAUS.",
+      "subtitle": "Jedes Modul wurde für echte Unternehmen entwickelt",
+      "items": [
+        {
+          "titlu": "Intelligenter Kalender",
+          "desc": "Tages-, Wochen-, Monats- und Jahresansicht. Arbeitszeiten sind visuell von arbeitsfreien Zeiten unterscheidbar. Geschlossene Tage erscheinen mit anderem Hintergrund. Filterung nach Fachkraft oder Leistung."
+        },
+        {
+          "titlu": "Online-Buchungen",
+          "desc": "Einzigartiger persönlicher Link und QR-Code für dein Unternehmen. Kunden wählen selbst die verfügbare Zeit. Das System blockiert automatisch belegte Stunden je Fachkraft. Keine Überschneidungen, keine Verwirrung."
+        },
+        {
+          "titlu": "Kundendatenbank",
+          "desc": "Die vollständige Akte jedes Kunden: Terminverlauf, durchgeführte Arbeiten, Gewinnrechner je Auftrag, angehängte Dateien (Bilder, Video, Audio, PDF-Dokumente). Aktualisiert sich automatisch."
+        },
+        {
+          "titlu": "Verwaltung von Leistungen & Fachkräften",
+          "desc": "Definiere Leistungen mit Preis und Dauer. Verknüpfe jede Fachkraft mit den von ihr angebotenen Leistungen. Bei der Buchung filtert das System automatisch die Optionen und blockiert den richtigen Kalenderslot."
+        },
+        {
+          "titlu": "Berichte & Analysen",
+          "desc": "Verfolge die Anzahl der Termine, den Umsatz und den Gewinn je Fachkraft und Leistung. Identifiziere die Stunden und Tage mit der höchsten Aktivität. Je vollständiger die Daten, desto präziser die Berichte."
+        },
+        {
+          "titlu": "Dokumente pro Termin",
+          "desc": "Füge jedem Termin beliebige Dateitypen hinzu: PDF, Bilder, Audio, Video. Dokumente synchronisieren sich automatisch mit der Kundenakte. Nützlich für Rezepte, technische Spezifikationen, Notizen oder visuelle Referenzen."
+        },
+        {
+          "titlu": "Kundenbewertungen",
+          "desc": "Kunden können über die öffentliche Buchungsseite Bewertungen hinterlassen. Du kannst manuell Bewertungen treuer Kunden hinzufügen. Der Durchschnittswert ist auf deiner öffentlichen Seite sichtbar und stärkt das Vertrauen neuer Kunden."
+        },
+        {
+          "titlu": "Nützliche Kontakte",
+          "desc": "Separates Verzeichnis für Lieferanten, Partner und Mitarbeiter. Schneller Zugriff auf wichtige Nummern in Notfällen. Vollständig getrennt von der Kundendatenbank."
+        },
+        {
+          "titlu": "WhatsApp-Benachrichtigungen",
+          "desc": "Verfügbar in den Plänen Elite und Team. Sende automatische Bestätigungen und Erinnerungen an Kunden per WhatsApp. Direkt aus der App, mit einem Klick, personalisiert mit Kundenname und Termindetails."
+        }
+      ]
+    },
+    "steps": {
+      "heading": "STARTE IN",
+      "headingHighlight": "4 EINFACHEN SCHRITTEN",
+      "subtitle": "Von null zu einem organisierten Unternehmen in weniger als einer Stunde",
+      "items": [
+        {
+          "titlu": "Profil vervollständigen",
+          "desc": "Füge Unternehmensname, eindeutigen Slug, Telefon, Adresse und Logo hinzu. Der Slug generiert deinen persönlichen Link und den QR-Code für Online-Buchungen."
+        },
+        {
+          "titlu": "Zeitplan festlegen",
+          "desc": "Definiere Arbeitszeiten für jeden Tag, markiere geschlossene Tage und füge Leistungen mit Preis und Dauer hinzu. Verknüpfe jede Fachkraft mit ihren Leistungen."
+        },
+        {
+          "titlu": "Link teilen",
+          "desc": "Sende den Link oder QR-Code an deine Kunden. Sie buchen selbst, das System bestätigt automatisch und der Termin erscheint sofort in deinem Kalender."
+        },
+        {
+          "titlu": "Verfolgen & wachsen",
+          "desc": "Verfolge Aktivitätsberichte, verwalte Kundenakten und optimiere deinen Zeitplan basierend auf echten Daten aus der App."
+        }
+      ]
+    },
+    "pricing": {
+      "heading": "TRANSPARENTE",
+      "headingHighlight": "PREISE",
+      "subtitle": "Aktiviere die Testphase, nachdem du die App vollständig eingerichtet hast — du verlierst keinen Tag",
+      "popularBadge": "⭐ BELIEBT",
+      "planBadge": "PLAN",
+      "plans": [
+        {
+          "plan": "Free",
+          "price": "Kostenlos",
+          "prog": "30 Termine/Monat",
+          "features": [
+            "Vollständiger Kalender",
+            "Kundendatenbank",
+            "Leistungsverwaltung",
+            "Angehängte Dokumente"
+          ]
+        },
+        {
+          "plan": "Pro",
+          "price": "—",
+          "prog": "150 Termine/Monat",
+          "features": [
+            "Alles aus Free",
+            "Online-Buchungslink",
+            "Persönlicher QR-Code",
+            "Erweiterte Berichte"
+          ]
+        },
+        {
+          "plan": "Elite",
+          "price": "—",
+          "prog": "500 Termine/Monat",
+          "features": [
+            "Alles aus Pro",
+            "Automatisches WhatsApp an Kunden",
+            "Fachkraft-Benachrichtigungen",
+            "Priorität-Support"
+          ]
+        },
+        {
+          "plan": "Team",
+          "price": "—",
+          "prog": "Unbegrenzt",
+          "features": [
+            "Alles aus Elite",
+            "Unbegrenzte Termine",
+            "Vollständige Multi-Fachkraft-Unterstützung",
+            "10 Tage kostenlose Testphase"
+          ]
+        }
+      ],
+      "cta": "STARTE MIT 10 TAGEN GRATIS",
+      "ctaNote": "Ohne Karte. Ohne Verpflichtung. Aktiviere, sobald alles eingerichtet ist."
+    },
+    "audience": {
+      "heading": "FÜR ALLE, DIE",
+      "headingHighlight": "MIT TERMINEN ARBEITEN",
+      "items": [
+        {
+          "icon": "💇",
+          "label": "Friseursalons"
+        },
+        {
+          "icon": "💅",
+          "label": "Nagelstudios"
+        },
+        {
+          "icon": "🧴",
+          "label": "Ästhetikkliniken"
+        },
+        {
+          "icon": "💪",
+          "label": "Personal Trainer"
+        },
+        {
+          "icon": "🔧",
+          "label": "Autowerkstätten"
+        },
+        {
+          "icon": "🏥",
+          "label": "Arztpraxen"
+        },
+        {
+          "icon": "🎸",
+          "label": "Musiklehrer"
+        },
+        {
+          "icon": "🏠",
+          "label": "Hausdienste"
+        }
+      ]
+    },
+    "finalCta": {
+      "heading1": "BEREIT ES ZU VERSUCHEN?",
+      "heading2": "10 TAGE. KOSTENLOS. OHNE RISIKO.",
+      "paragraph": "Vervollständige dein Profil, lege deinen Zeitplan fest, füge Leistungen und Fachkräfte hinzu — und du bist bereit, Online-Buchungen zu erhalten. Aktiviere die Testphase, sobald die Einrichtung abgeschlossen ist, damit du keinen Tag verlierst.",
+      "button": "KOSTENLOSES KONTO ERSTELLEN",
+      "note": "Ohne Karte. Ohne Verpflichtung. Keine Nachrichten um 23 Uhr."
+    },
+    "footer": {
+      "description": "Die komplette Management-Plattform für terminbasierte Unternehmen. Kalender, Kunden, Dokumente, Berichte und Online-Buchungen.",
+      "legalHeading": "Rechtliches",
+      "legalLinks": [
+        {
+          "label": "AGB",
+          "href": "/terms"
+        },
+        {
+          "label": "Datenschutzrichtlinie",
+          "href": "/privacy"
+        },
+        {
+          "label": "Cookie-Richtlinie",
+          "href": "/cookies"
+        }
+      ],
+      "contactHeading": "Chronos-Kontakt",
+      "contactNote": "Wir antworten innerhalb von maximal 24 Stunden.",
+      "quickAccessHeading": "Schnellzugriff",
+      "newAccountBtn": "Neues kostenloses Konto →",
+      "loginBtn": "In mein Konto einloggen",
+      "copyright": "© 2026 CHRONOS. Alle Rechte vorbehalten.",
+      "secured": "Gesichert mit Supabase"
+    }
+  },
+  "clienti": {
+    "title": "Kunden-",
+    "titleHighlight": "datenbank",
+    "profilesFound": "{count} Profile identifiziert",
+    "searchPlaceholder": "SUCHE NACH NAME, TELEFON ODER E-MAIL...",
+    "syncing": "Datenbank wird synchronisiert...",
+    "noneFound": "Kein Kunde gefunden",
+    "noPhone": "KEIN TELEFON",
+    "confirmDelete": "Diesen Kunden endgültig löschen?"
+  },
+  "contacteUtile": {
+    "folderOptional": "Ordner (optional)",
+    "noFolder": "Kein Ordner",
+    "editFolder": "Bearbeiten",
+    "newFolder": "Neu",
+    "folderNamePlaceholder": "ORDNERNAME...",
+    "color": "Farbe",
+    "cancel": "Abbrechen",
+    "update": "Aktualisieren",
+    "create": "Erstellen",
+    "deleteFolder": "Ordner löschen ✕",
+    "title": "Nützliche",
+    "titleHighlight": "Kontakte",
+    "managementLine": "Partnerverwaltung • {plan}",
+    "capacity": "{count} / {limit} Kapazität",
+    "namePlaceholder": "VOLLSTÄNDIGER NAME *",
+    "rolePlaceholder": "ROLLE / KATEGORIE",
+    "phonePlaceholder": "TELEFON *",
+    "emailPlaceholder": "E-MAIL (OPTIONAL)",
+    "notesPlaceholder": "NOTIZEN ODER BESONDERE DETAILS...",
+    "save": "+ Speichern",
+    "all": "Alle ({count})",
+    "folders": "Ordner ({count})",
+    "allContacts": "Alle Kontakte",
+    "newFolderBtn": "+ Neuer Ordner",
+    "editShort": "✎ Bearbeiten",
+    "syncing": "Datenbank wird synchronisiert...",
+    "noneInFolder": "Keine Kontakte in diesem Ordner",
+    "noneYet": "Noch kein Kontakt hinzugefügt",
+    "clickToEdit": "KLICKEN ZUM BEARBEITEN: {name}",
+    "partner": "PARTNER",
+    "call": "Anruf",
+    "whatsapp": "Wapp",
+    "mail": "Mail",
+    "editTitle": "Bearbeitung",
+    "editTitleHighlight": "Kontakt",
+    "deleteContact": "Kontakt löschen ✕",
+    "nameRequired": "NAME IST PFLICHT!",
+    "phoneRequired": "TELEFON IST PFLICHT!",
+    "invalidEmail": "UNGÜLTIGE E-MAIL!",
+    "planLimitReached": "LIMIT DES PLANS {plan} ERREICHT!",
+    "sessionExpired": "SITZUNG ABGELAUFEN.",
+    "errorPrefix": "FEHLER: ",
+    "contactSaved": "KONTAKT GESPEICHERT!",
+    "confirmDeleteContact": "ENDGÜLTIG LÖSCHEN?",
+    "confirmDeleteFolder": "Ordner löschen? Kontakte bleiben erhalten, werden aber nicht mehr zugeordnet."
+  },
+  "loginPage": {
+    "title": "ANMELDUNG",
+    "titleHighlight": "KONTO",
+    "subtitle": "Premium-Verwaltungssystem",
+    "emailPlaceholder": "E-MAIL-ADRESSE",
+    "passwordPlaceholder": "PASSWORT",
+    "forgotPassword": "Passwort vergessen?",
+    "checking": "WIRD ÜBERPRÜFT...",
+    "loginBtn": "ANMELDEN",
+    "noAccount": "Noch kein Konto?",
+    "createAccount": "NEUES KONTO ERSTELLEN",
+    "sessionExpired": "Sitzung abgelaufen. Bitte versuche es erneut.",
+    "errorPrefix": "Fehler: ",
+    "sessionNotCreated": "Sitzung konnte nicht erstellt werden.",
+    "connectionError": "Verbindungsfehler."
+  },
+  "registerPage": {
+    "title": "KONTO",
+    "titleHighlight": "ERSTELLEN",
+    "subtitle": "Premium CHRONOS-Zugang",
+    "fullName": "Vollständiger Name",
+    "fullNamePlaceholder": "Z. B. MAX MUSTERMANN",
+    "phone": "Telefon",
+    "phonePlaceholder": "0170 XXX XXXX",
+    "email": "E-Mail-Adresse",
+    "emailPlaceholder": "EMAIL@BEISPIEL.DE",
+    "password": "Passwort",
+    "confirmPassword": "Passwort bestätigen",
+    "passwordMismatch": "❌ Passwörter stimmen nicht überein!",
+    "passwordTooShort": "❌ Das Passwort muss mindestens 6 Zeichen haben!",
+    "unexpectedError": "❌ Unerwarteter Serverfehler.",
+    "accountCreated": "✅ Konto erfolgreich erstellt! Du kannst dich jetzt anmelden.",
+    "processing": "WIRD VERARBEITET...",
+    "registerBtn": "NEUES KONTO REGISTRIEREN",
+    "haveAccount": "BEREITS EIN KONTO?",
+    "loginLink": "ANMELDEN"
+  },
+  "forgotPasswordPage": {
+    "title": "PASSWORT-",
+    "titleHighlight": "WIEDERHERSTELLUNG",
+    "email": "E-Mail-Adresse",
+    "emailPlaceholder": "email@beispiel.de",
+    "emailSent": "✅ E-Mail gesendet! Überprüfe dein Postfach.",
+    "sending": "Wird gesendet...",
+    "sendBtn": "Wiederherstellungs-E-Mail senden"
+  },
+  "profil": {
+    "loading": "Profil wird synchronisiert...",
+    "demoMode": "VORSCHAUMODUS",
+    "idPrefix": "ID: ",
+    "defaultUser": "Chronos-Benutzer",
+    "save": "Speichern",
+    "saving": "Bitte warten...",
+    "logout": "Abmelden",
+    "demoLogout": "Demo beenden",
+    "activeSubscription": "Aktives Abo",
+    "trialSuffix": "(TESTPHASE)",
+    "changeSubscriptionBtn": "Abo ändern",
+    "fullNameLabel": "👤 Vollständiger Name",
+    "emailLabel": "✉️ E-Mail",
+    "phoneLabel": "📱 Telefon",
+    "roleLabel": "💼 Rolle / Funktion",
+    "publicLinkBadge": "Öffentlichen Link einrichten",
+    "slugLabel": "🔗 EINDEUTIGE BUCHUNGSADRESSE (SLUG)",
+    "slugPrefix": "/buchung/",
+    "slugPlaceholder": "unternehmensname",
+    "reserveLinkBtn": "Eindeutigen Link reservieren",
+    "checking": "Wird überprüft...",
+    "warningTitle": "⚠️ SEHR WICHTIG (PFLICHT):",
+    "warningText": "Diese Adresse (Slug) ist deine digitale Identität. Jede Änderung dieses Links macht automatisch bereits generierte QR-Codes und bereits an Kunden gesendete Links ungültig. Bitte wähle einen aussagekräftigen Namen (z. B. salon-art-nails), den du später nicht mehr änderst, um die Verbindung mit Kundenscans aktiv zu halten.",
+    "changePasswordBtn": "🔒 Zugangspasswort ändern",
+    "passwordModalTitle": "Sicherheit",
+    "newPasswordPlaceholder": "NEUES PASSWORT",
+    "confirmPasswordPlaceholder": "PASSWORT BESTÄTIGEN",
+    "profileUpdated": "✅ Profil aktualisiert!",
+    "saveErrorPrefix": "Fehler beim Speichern: ",
+    "slugMinLength": "⚠️ Die eindeutige Adresse (Slug) muss mindestens 3 Zeichen haben.",
+    "slugTaken": "❌ Fehler: Der Name „{slug}“ ist bereits von jemand anderem reserviert. Bitte wähle eine andere Option.",
+    "slugSuccess": "✅ Glückwunsch! Deine eindeutige Adresse wurde erfolgreich reserviert.",
+    "errorPrefix": "Fehler: ",
+    "passwordMismatch": "Passwörter stimmen nicht überein!",
+    "passwordUpdated": "✅ Passwort aktualisiert!",
+    "avatarErrorPrefix": "Avatar-Fehler: ",
+    "demoDisabled": "🔒 In der Demo deaktiviert.",
+    "changeAvatar": "Ändern",
+    "plans": {
+      "free": {
+        "nume": "CHRONOS FREE",
+        "limita": "30 Buchungen / Monat"
+      },
+      "pro": {
+        "nume": "CHRONOS PRO",
+        "limita": "150 Buchungen / Monat"
+      },
+      "elite": {
+        "nume": "CHRONOS ELITE",
+        "limita": "500 Buchungen / Monat"
+      },
+      "team": {
+        "nume": "CHRONOS TEAM",
+        "limita": "Unbegrenzte Buchungen"
+      }
+    }
+  },
+  "resurse": {
+    "headingLine1": "Verwaltung",
+    "headingHighlight": "Leistungen",
+    "headingLine2": "und",
+    "headingHighlight2": "Fachkräfte",
+    "demoMode": "VORSCHAUMODUS (DEMO)",
+    "activePlanPrefix": "AKTIVES ABO: ",
+    "backBtn": "← HAUPTBEREICH",
+    "dbErrorPrefix": "⚠️ ",
+    "addServiceTitle": "Neue Leistung hinzufügen",
+    "serviceNameLabel": "Leistungsname",
+    "serviceNamePlaceholder": "Z. B. MODERNER SCHNITT, FÄRBEN...",
+    "durationLabel": "Dauer",
+    "hourUnit": "STD",
+    "minuteUnit": "MIN",
+    "priceLabel": "Preis (RON)",
+    "pricePlaceholder": "RON",
+    "addServiceBtn": "+ LEISTUNG HINZUFÜGEN",
+    "addStaffTitle": "Neue Fachkraft hinzufügen",
+    "staffNameLabel": "Name der Fachkraft",
+    "staffNamePlaceholder": "Z. B. MAX MUSTERMANN...",
+    "phoneLabel": "Telefon",
+    "phonePlaceholder": "Z. B. 0170...",
+    "emailLabel": "E-Mail",
+    "emailPlaceholder": "fachkraft@email.de",
+    "addStaffBtn": "+ FACHKRAFT HINZUFÜGEN",
+    "activeServicesTitle": "AKTIVE LEISTUNGEN",
+    "teamTitle": "FACHKRÄFTE-TEAM",
+    "save": "SPEICHERN",
+    "cancel": "ABBRECHEN",
+    "update": "AKTUALISIEREN",
+    "close": "SCHLIESSEN",
+    "deletedService": "Leistung gelöscht",
+    "serviceLimitReached": "⚠️ Limit erreicht! Dein Plan erlaubt nur {limit} Leistungen.",
+    "staffLimitReached": "⚠️ Limit erreicht! Dein Plan erlaubt nur {limit} Fachkräfte.",
+    "errorPrefix": "Fehler: ",
+    "confirmDeleteResource": "Möchtest du diese Ressource wirklich löschen?",
+    "loading": "Chronos wird synchronisiert..."
+  },
+  "sugestii": {
+    "checkingAccess": "Zugriff wird überprüft...",
+    "premiumTitle": "Premium-Funktion",
+    "premiumTextBefore": "Die Verwaltung von Bewertungen ist eine erweiterte Funktion, die mit der Online-Buchungsseite verknüpft ist und nur für die Pläne ",
+    "premiumHighlight": "CHRONOS ELITE und TEAM",
+    "premiumTextAfter": " verfügbar ist.",
+    "upgradeBtn": "Auf ELITE upgraden",
+    "headingLine1": "Verwaltung",
+    "headingHighlight": "Bewertungen",
+    "planPrefix": "Plan: ",
+    "viewBookingsBtn": "Buchungsseite ansehen →",
+    "statTotal": "Gesamt",
+    "statApproved": "Genehmigt",
+    "statPending": "Ausstehend",
+    "statAvgStars": "Ø Sterne",
+    "formTitle": "Bewertung manuell hinzufügen",
+    "starAriaLabel": "{n} Sterne geben",
+    "namePlaceholder": "KUNDENNAME",
+    "commentPlaceholder": "KOMMENTAR...",
+    "submitBtn": "BEWERTUNG MANUELL HINZUFÜGEN",
+    "submitting": "WIRD GESPEICHERT...",
+    "successTitle": "Erfolgreich hinzugefügt!",
+    "closeBtn": "Schließen",
+    "missingFieldsAlert": "Fülle alle Felder aus!",
+    "sendErrorPrefix": "Fehler beim Senden: ",
+    "saveErrorPrefix": "Konnte nicht gespeichert werden: ",
+    "approveErrorPrefix": "Fehler bei der Genehmigung: ",
+    "disapproveErrorPrefix": "Fehler beim Widerruf: ",
+    "deleteErrorPrefix": "Fehler beim Löschen: ",
+    "confirmDelete": "Diese Bewertung endgültig löschen?",
+    "noneYet": "Du hast noch keine Bewertungen.",
+    "approveBtn": "Genehmigen",
+    "disapproveBtn": "Widerrufen",
+    "editBtn": "Bearbeiten / Antworten",
+    "deleteBtn": "Löschen",
+    "approvedBadge": "Genehmigt ✓",
+    "newBadge": "Neu / Nicht genehmigt",
+    "commentLabel": "Kommentar:",
+    "yourResponseLabel": "Deine Antwort:",
+    "saveBtn": "Speichern",
+    "cancelBtn": "Abbrechen",
+    "recentDateFallback": "Kürzlich"
+  },
+  "settings": {
+    "localeCode": "de-DE",
+    "loading": "Synchronisierung...",
+    "toastSavedTitle": "Erfolg",
+    "toastSavedMsg": "Die Einstellungen wurden gespeichert!",
+    "toastSaveErrorTitle": "Fehler beim Speichern",
+    "headingLine1": "Verfügbarkeit",
+    "headingHighlight": "einrichten",
+    "saveBtn": "Speichern ✨",
+    "backBtn": "← Zurück",
+    "premiumBadge": "Premium-Funktion",
+    "premiumTitle": "Online-Buchungen & QR-Code",
+    "premiumTextBefore": "Aktiviere den Plan ",
+    "premiumElite": "ELITE",
+    "premiumOr": " oder ",
+    "premiumTeam": "TEAM",
+    "premiumTextAfter": ", um deinen personalisierten Link und QR-Code für Kunden zu erhalten.",
+    "upgradeBtn": "Upgrade-Pläne ansehen",
+    "linkSectionTitle": "Dein Chronos-Link",
+    "slugUnset": "nicht gesetzt",
+    "copyBtn": "Kopieren",
+    "whatsappBtn": "WhatsApp",
+    "printBtn": "🖨️ DRUCKEN",
+    "printWindowTitle": "Chronos QR-Code-Ausdruck",
+    "whatsappMessage": "Hallo! Du kannst direkt hier einen Termin buchen: {url}",
+    "toastCopiedTitle": "Kopiert!",
+    "toastCopiedMsg": "Der Link wurde kopiert!",
+    "toastCopyErrorTitle": "Fehler",
+    "toastCopyErrorMsg": "Fehler beim Kopieren",
+    "noSlugWarningTitle": "Achtung: Der Link ist nicht aktiv!",
+    "noSlugWarningText": "Bitte gehe im Menü zur Seite Mein Konto, um den Link zu aktivieren.",
+    "calendarHeadingLine1": "Arbeitszeiten",
+    "calendarHeadingHighlight": "festlegen",
+    "weekdaysShort": [
+      "Mo",
+      "Di",
+      "Mi",
+      "Do",
+      "Fr",
+      "Sa",
+      "So"
+    ],
+    "dayBookingLabel": "Buchung",
+    "dayPartialLabel": "Teilweise blockiert",
+    "modalBadge": "Kalenderverwaltung",
+    "unblockAllBtn": "✅ Alles entsperren",
+    "blockAllBtn": "🚫 Alles blockieren",
+    "presetScheduleBtn": "📋 Vordefinierten Zeitplan festlegen",
+    "bookingStepLabel": "Buchungsintervall",
+    "oneHourOption": "1 STUNDE (Fest)",
+    "minutesOption": "{v} MINUTEN",
+    "confirmAvailabilityBtn": "Verfügbarkeit bestätigen",
+    "successTitle": "Vorgang erfolgreich!",
+    "successText": "Der Zeitplan wurde erfolgreich übertragen.",
+    "applyScheduleTitle": "Zeitplan anwenden",
+    "applyScheduleText": "Wähle die Tage, auf die der heutige Zeitplan übertragen werden soll:",
+    "weekdayLetters": [
+      "So",
+      "Mo",
+      "Di",
+      "Mi",
+      "Do",
+      "Fr",
+      "Sa"
+    ],
+    "applying": "Wird angewendet...",
+    "applyNowBtn": "Jetzt anwenden 🚀",
+    "cancelBtn": "Abbrechen"
+  },
+  "calendarPage": {
+    "dayShort": [
+      "Mo",
+      "Di",
+      "Mi",
+      "Do",
+      "Fr",
+      "Sa",
+      "So"
+    ],
+    "dayLong": [
+      "Sonntag",
+      "Montag",
+      "Dienstag",
+      "Mittwoch",
+      "Donnerstag",
+      "Freitag",
+      "Samstag"
+    ],
+    "months": [
+      "Januar",
+      "Februar",
+      "März",
+      "April",
+      "Mai",
+      "Juni",
+      "Juli",
+      "August",
+      "September",
+      "Oktober",
+      "November",
+      "Dezember"
+    ],
+    "monthsShort": [
+      "Jan",
+      "Feb",
+      "Mär",
+      "Apr",
+      "Mai",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Okt",
+      "Nov",
+      "Dez"
+    ],
+    "localeCode": "de-DE",
+    "loadingSession": "Wird geladen...",
+    "authRequired": "Anmeldung erforderlich",
+    "syncing": "Wird synchronisiert...",
+    "synced": "Synchronisiert",
+    "headerTitle": "Kalender",
+    "headerHighlight": "Chronos",
+    "searchPlaceholder": "Kunde suchen...",
+    "searchBtn": "Suchen",
+    "todayBtn": "Heute",
+    "viewDay": "Tag",
+    "viewWeek": "Woche",
+    "viewMonth": "Monat",
+    "viewYear": "Jahr",
+    "onlineLabel": "Online",
+    "progSuffix": "Term.",
+    "onlineSuffix": "online",
+    "weekGoToday": "→ Heute",
+    "closedBadge": "Geschlossen",
+    "closedBadgeFull": "🚫 Geschlossen",
+    "closedBadgeCaps": "🚫 GESCHLOSSEN",
+    "moreCount": "+{n} weitere",
+    "filterSpecialists": "Fachkräfte",
+    "filterAll": "Alle",
+    "filterServices": "Leistungen",
+    "filterAllServices": "Alle",
+    "dayClosedBanner": "🚫 Geschlossener Tag — du kannst trotzdem manuell Termine hinzufügen",
+    "programStart": "Beginn der Arbeitszeit",
+    "programEnd": "Ende der Arbeitszeit",
+    "weekDayClosedLabel": "Geschlossener Tag",
+    "hoverHint": "Klicke auf einen Termin, um ihn zu bearbeiten · Klicke irgendwo, um zu schließen",
+    "docsTitle": "📎 Dokumente",
+    "docsAddBtn": "+ Hinzufügen",
+    "docsUploading": "⏳ Wird hochgeladen...",
+    "docsEmpty": "Kein Dokument — PDF, Bild, Audio, Video, jede Datei",
+    "docsUploadingFiles": "Dateien werden hochgeladen...",
+    "editModal": {
+      "nameLabel": "Name",
+      "dateLabel": "Datum",
+      "timeLabel": "Uhrzeit",
+      "phoneLabel": "Telefon",
+      "emailLabel": "E-Mail",
+      "specialistLabel": "Fachkraft",
+      "serviceLabel": "Leistung",
+      "chooseOpt": "Wählen...",
+      "notesLabel": "Notizen",
+      "whatsappLabel": "💬 WhatsApp",
+      "whatsappUnavailable": "Verfügbar mit dem Plan ELITE oder TEAM",
+      "whatsappSendBtn": "Senden ↗",
+      "cancelBtn": "Abbrechen",
+      "saveBtn": "✓ Speichern",
+      "deleteTooltip": "Löschen",
+      "deleteConfirmTitle": "Löschen",
+      "deleteConfirmMsg": "Termin von {nume} löschen?",
+      "deleteConfirmBtn": "Löschen",
+      "updatedToast": "Termin aktualisiert!"
+    },
+    "newModal": {
+      "title": "Neuer Termin",
+      "nameLabel": "Vollständiger Name",
+      "namePlaceholder": "Name des Kunden...",
+      "phoneLabel": "Telefon",
+      "emailLabel": "E-Mail",
+      "specialistLabel": "Fachkraft",
+      "serviceLabel": "Leistung",
+      "chooseOpt": "Wählen...",
+      "notesLabel": "Notizen",
+      "cancelBtn": "Abbrechen",
+      "saveBtn": "Speichern",
+      "addedToast": "Termin hinzugefügt!"
+    }
+  },
+  "rapoarte": {
+    "localeCode": "de-DE",
+    "loading": "ANALYSEN WERDEN ERSTELLT...",
+    "lockedTitle": "Berichte gesperrt",
+    "lockedTextBefore": "Der Plan ",
+    "lockedPlanFree": "FREE",
+    "lockedTextAfter": " beinhaltet keinen Zugriff auf Berichte. Wähle einen höheren Plan, um die Leistung deines Unternehmens zu sehen.",
+    "seePlansBtn": "Pläne ansehen",
+    "headingPrefix": "Bericht",
+    "headingTeam": "Team",
+    "headingElite": "Detailliert",
+    "headingSummary": "Zusammenfassung",
+    "adminLabel": "Admin: ",
+    "planLabel": " | Plan: ",
+    "backBtn": "Zurück",
+    "exportBtn": "Als PDF exportieren",
+    "statTotalAppts": "Termine gesamt",
+    "statRevenue": "Geschätzter Umsatz",
+    "statAvgPerDay": "Durchschnitt pro Tag",
+    "statAvgValue": "Durchschnittswert",
+    "statUniqueClients": "Einzigartige Kunden",
+    "statRetention": "Bindungsrate",
+    "lockedStat": "GESPERRT",
+    "weeklyChartTitle": "Wöchentliche Verteilung",
+    "topServicesTitle": "Top-Leistungen",
+    "topServicesLocked": "Verfügbar mit den Plänen ELITE und TEAM",
+    "teamPerfTitle": "Leistung der Teammitglieder",
+    "tableStaff": "Teammitglied",
+    "tableAppts": "Termine",
+    "tableRevenue": "Erzielter Umsatz",
+    "tableEfficiency": "Volumeneffizienz",
+    "aiInsightsTitle": "Chronos AI Insights",
+    "insightGood": "Das Geschäft hat exzellenten Schwung. Mit einer Bindungsrate von {rata}% ist der Kundenstamm stabil.",
+    "insightNeutral": "Die Analyse deutet darauf hin, dass du dich in der Datenerfassungsphase befindest. Sammle weiter Daten für Finanzprognosen.",
+    "unknownClient": "Unbekannter Kunde",
+    "weekdaysSun0": [
+      "Sonntag",
+      "Montag",
+      "Dienstag",
+      "Mittwoch",
+      "Donnerstag",
+      "Freitag",
+      "Samstag"
+    ],
+    "insights": {
+      "peakDayTitle": "Spitzentag",
+      "peakDayText": "{zi} ist dein stärkster Tag mit {n} Terminen. Stelle sicher, dass du an diesem Tag genug Personal und Verfügbarkeit hast.",
+      "slowDayTitle": "Tag mit geringer Auslastung",
+      "slowDayText": "{zi} hat die wenigsten Termine ({n}). Eine Aktion oder ein flexiblerer Zeitplan an diesem Tag könnte die Ressourcen optimieren.",
+      "concentrationTitle": "Konzentration auf eine Leistung",
+      "concentrationText": "Die Leistung „{nume}\" erzeugt {pct}% des Gesamtumsatzes. Eine Diversifizierung deines Angebots kann das Risiko senken und neue Kunden anziehen.",
+      "retentionLowTitle": "Kundenbindung im Blick behalten",
+      "retentionLowText": "Nur {rata}% der Kunden kommen zurück. Ein Treueprogramm (Rabatte, Pakete) könnte diesen Prozentsatz erhöhen.",
+      "retentionGoodTitle": "Solide Kundenbindung",
+      "retentionGoodText": "{rata}% der Kunden kommen zurück — eine solide Basis. Biete weiterhin eine konsistente Erfahrung.",
+      "avgValueLowTitle": "Durchschnittswert steigerbar",
+      "avgValueLowText": "Der Durchschnittswert pro Termin liegt bei {val} RON. Kombinierte Leistungspakete (Upselling) am Empfang können diesen Wert erhöhen.",
+      "teamLoadTitle": "Arbeitsauslastung des Teams",
+      "teamLoadText": "Im Durchschnitt bearbeitet jedes Teammitglied {avg} Termine.",
+      "teamLoadHighSuggestion": "Eine hohe Auslastung — es könnte sich lohnen zu prüfen, ob das Team Verstärkung braucht.",
+      "teamLoadLowSuggestion": "Es ist Platz für mehr Termine — du könntest in Werbung investieren, um neue Kunden zu gewinnen.",
+      "gettingStartedTitle": "Datenerfassung",
+      "gettingStartedText": "Du hast noch wenige erfasste Termine. Je mehr du hinzufügst, desto präziser werden die Empfehlungen."
+    }
+  },
+  "chronosPickers": {
+    "localeCode": "de-DE",
+    "dayNamesShort": [
+      "Mo",
+      "Di",
+      "Mi",
+      "Do",
+      "Fr",
+      "Sa",
+      "So"
+    ],
+    "monthNames": [
+      "Januar",
+      "Februar",
+      "März",
+      "April",
+      "Mai",
+      "Juni",
+      "Juli",
+      "August",
+      "September",
+      "Oktober",
+      "November",
+      "Dezember"
+    ],
+    "timePickerTitle": "Chronos Time Picker",
+    "closedMessage": "Der Betrieb ist an diesem Tag geschlossen.",
+    "selectHourLabel": "Uhrzeit wählen",
+    "minutesLabel": "Minuten",
+    "cancelBtn": "Abbrechen",
+    "closeBtn": "Schließen",
+    "statusBooked": "Belegt",
+    "statusClosed": "Geschlossen",
+    "statusExpired": "Abgelaufen",
+    "statusExceeded": "Überschritten",
+    "statusUnavailable": "Nicht verfügbar",
+    "datePickerTitle": "Chronos Date Picker"
+  },
+  "rezervare": {
+    "localeCode": "de-DE",
+    "understoodBtn": "VERSTANDEN",
+    "thanksTitle": "DANKE!",
+    "thanksText": "Deine Bewertung wurde zur Genehmigung eingereicht.",
+    "invalidLink": "Ungültiger Link",
+    "syncing": "Echtzeit-Synchronisierung...",
+    "brandLine1": "CHRONOS",
+    "brandLine2": "BOOKING",
+    "contactSectionTitle": "Deine Kontaktdaten",
+    "namePlaceholder": "VOLLSTÄNDIGER NAME",
+    "phonePlaceholder": "TELEFON",
+    "emailPlaceholder": "E-MAIL",
+    "suggestionPrefix": "⚡ ",
+    "serviceCardLabel": "Leistung {n}",
+    "serviceLabel": "Leistung",
+    "chooseServiceOpt": "LEISTUNG WÄHLEN",
+    "expertLabel": "Fachkraft",
+    "firstAvailOpt": "ERSTE VERFÜGBARKEIT",
+    "dateLabel": "Datum",
+    "timeLabel": "Uhrzeit",
+    "chooseTimeOpt": "UHRZEIT WÄHLEN",
+    "reservedIntervalLabel": "Reservierter Zeitraum",
+    "addServiceBtn": "NEUE LEISTUNG HINZUFÜGEN",
+    "notesLabel": "BESONDERE HINWEISE (OPTIONAL)",
+    "notesPlaceholder": "Hast du eine Präferenz?",
+    "processingBtn": "WIRD VERARBEITET...",
+    "confirmAllBtn": "ALLE BUCHUNGEN BESTÄTIGEN",
+    "successTitle": "Buchungen gesendet!",
+    "successText": "Alle deine Termine wurden erfasst.",
+    "retryBtn": "ERNEUT VERSUCHEN",
+    "leaveReviewTitle": "BEWERTUNG ABGEBEN",
+    "yourNamePlaceholder": "DEIN NAME",
+    "commentPlaceholder": "KOMMENTAR",
+    "sendingBtn": "WIRD GESENDET...",
+    "sendReviewBtn": "BEWERTUNG SENDEN",
+    "recentReviewsTitle": "AKTUELLE BEWERTUNGEN",
+    "salonReplyLabel": "Antwort:",
+    "noReviewsYet": "Sei die erste Person, die eine Bewertung abgibt!",
+    "footerText": "Powered by Chronos Resource Management",
+    "popupHourBlockedTitle": "Uhrzeit nicht verfügbar",
+    "popupHourBlockedMsg": "Diese Uhrzeit ist nicht verfügbar.",
+    "popupDayClosedTitle": "Geschlossener Tag",
+    "popupDayClosedMsg": "Der Betrieb ist an diesem Tag geschlossen.",
+    "popupOutsideHoursTitle": "Außerhalb der Arbeitszeit",
+    "popupOutsideHoursMsg": "Die gewählte Uhrzeit liegt außerhalb der Arbeitszeit.",
+    "popupOverlapTitle": "Dauer überschritten",
+    "popupOverlapMsg": "Die Leistung geht über die Schließzeit hinaus.",
+    "popupPlanLimitTitle": "Maximale Kapazität",
+    "popupPlanLimitMsg": "Das Buchungslimit für diesen Monat wurde erreicht.",
+    "popupAlreadyBookedTitle": "Zeitraum nicht verfügbar",
+    "popupAlreadyBookedMsg": "Es gibt bereits eine aktive Buchung in diesem Zeitraum.",
+    "popupDefaultTitle": "Limit erreicht",
+    "popupDefaultMsg": "Der gewählte Zeitraum kann nicht gebucht werden.",
+    "incompleteTitle": "Unvollständig",
+    "incompleteMsg": "Stelle sicher, dass du Leistung und Uhrzeit für alle Buchungen gewählt hast.",
+    "attentionTitle": "Achtung",
+    "attentionMsg": "Wähle zuerst die Leistung für diese Karte.",
+    "incompleteFieldsTitle": "Unvollständige Felder",
+    "incompleteFieldsMsg": "Fülle alle Felder für die Bewertung aus.",
+    "errorTitle": "Fehler",
+    "errorDefaultMsg": "Unerwarteter Fehler.",
+    "reviewsCountSuffix": " Bewertungen",
+    "noRatingYet": "Sei die erste Person, die bewertet"
+  },
+  "programariPage": {
+    "successTitle": "Termine gespeichert!",
+    "successText": "Alle Termine wurden erfolgreich erfasst.",
+    "continueBtn": "WEITER",
+    "confirmDelete": "Diesen Termin löschen?",
+    "trialTitle": "Premium-Testphase aktiv",
+    "trialSubtitle": "Chronos Team-Zugang — noch {n} Tage",
+    "trialDaysLeft": "Tage übrig",
+    "headingPrefix": "Verwaltung",
+    "headingHighlight": "Termine",
+    "planLabel": "Plan: ",
+    "monthCountSuffix": " diesen Monat",
+    "todayLabel": "Heute: ",
+    "totalSuffix": " Gesamt",
+    "onlineSuffix": " Online",
+    "calendarLink": "Kalender",
+    "clientPhotoLabel": "Profilfoto des Kunden",
+    "nameLabel": "Kundenname",
+    "namePlaceholder": "Name...",
+    "emailLabel": "E-Mail",
+    "emailPlaceholder": "kunde@email.com",
+    "phoneLabel": "Telefon",
+    "phonePlaceholder": "0170xxxxxxx",
+    "notesLabel": "Anmerkungen",
+    "notesPlaceholder": "Zusätzliche Details...",
+    "separatorLabel": "Leistungen & Buchung",
+    "filesAttachedLabel": "Angehängte Dateien",
+    "addFileBtn": "Datei hinzufügen +",
+    "noFilesAdded": "Keine Dateien hinzugefügt",
+    "todayApptsTitle": "Heutige Termine",
+    "noApptsToday": "Keine Termine für heute.",
+    "generalFallback": "Allgemein",
+    "procedureFallback": "Behandlung",
+    "noDetailsFallback": "Keine Details",
+    "atHourLabel": " um ",
+    "phoneFieldLabel": "Telefon",
+    "emailFieldLabel": "E-Mail",
+    "specialistFieldLabel": "Fachkraft",
+    "serviceFieldLabel": "Leistung",
+    "naFallback": "N/A",
+    "dashFallback": "-",
+    "visitReasonLabel": "Grund des Besuchs",
+    "noNotesFallback": "Keine Anmerkungen.",
+    "attachedFilesPopupLabel": "Angehängte Dateien",
+    "documentFallback": "Dokument",
+    "viewBtn": "ANSEHEN"
+  },
+  "multiServiceBooking": {
+    "localeCode": "de-DE",
+    "serviceLabel": "Leistung #{n}",
+    "chooseSpecialistLabel": "Fachkraft wählen",
+    "chooseSpecialistOpt": "Fachkraft wählen...",
+    "chooseServiceLabel": "Leistung wählen",
+    "chooseServiceOpt": "Leistung wählen...",
+    "dateLabel": "Datum",
+    "chooseDateBtn": "DATUM WÄHLEN",
+    "timeLabel": "Uhrzeit",
+    "chooseTimeBtn": "UHRZEIT",
+    "chooseServiceFirstAlert": "Wähle zuerst die Leistung.",
+    "reservedIntervalLabel": "Reservierter Zeitraum",
+    "addServiceBtn": "NEUE LEISTUNG HINZUFÜGEN",
+    "summaryTitle": "📋 Buchungsübersicht",
+    "firstAvailFallback": "Erste Verfügbarkeit",
+    "totalLabel": "GESAMT",
+    "minutesSuffix": " Minuten",
+    "attentionTitle": "⚠️ Achtung",
+    "processingBtn": "WIRD VERARBEITET...",
+    "saveBtn": "✓ {n} BUCHUNGEN SPEICHERN",
+    "errClientData": "Bitte gib Name, Telefon und E-Mail des Kunden ein.",
+    "errChooseService": "Leistung #{n}: wähle eine Leistung.",
+    "errChooseDate": "Leistung #{n}: wähle das Datum.",
+    "errChooseTime": "Leistung #{n}: wähle die Uhrzeit.",
+    "errTimePassed": "Leistung #{n}: {ora} liegt bereits in der Vergangenheit.",
+    "errOverlapForm": "Leistungen #{i} und #{j} überschneiden sich (gleiche Fachkraft).",
+    "errOverlapDb": "„{svc}“ um {ora} — {specName} hat bereits eine Buchung in diesem Zeitraum.",
+    "chosenSpecialistFallback": "die gewählte Fachkraft",
+    "saveErrorPrefix": "Fehler: ",
+    "saveErrorDefault": "Konnte nicht gespeichert werden.",
+    "naFallback": "N/A"
+  },
+  "abonamente": {
+    "header": {
+      "title": "Wähle",
+      "titleHighlight": "den richtigen Plan",
+      "subtitle": "Jeder Plan bietet dir genau das, was du brauchst, je nach Größe deines Unternehmens."
+    },
+    "status": {
+      "trialActive": "TESTPHASE AKTIV",
+      "planActive": "AKTIVER PLAN",
+      "trialPlanName": "CHRONOS TEAM (TESTPHASE)"
+    },
+    "countdown": {
+      "days": "TAGE",
+      "hours": "STD",
+      "min": "MIN",
+      "sec": "SEK"
+    },
+    "activateTrialBtn": "KOSTENLOSE TESTPHASE AKTIVIEREN",
+    "perMonth": "/ MONAT",
+    "badges": {
+      "popular": "AM BELIEBTESTEN",
+      "active": "DEIN PLAN"
+    },
+    "alreadyActiveBtn": "AKTIVER PLAN",
+    "modal": {
+      "title": "Änderung bestätigen",
+      "message": "Du bist in der Chronos Team-Testphase. Ein Wechsel zu {plan} beendet die Testphase sofort. Fortfahren?",
+      "confirmBtn": "JA, FORTFAHREN",
+      "cancelBtn": "ABBRECHEN"
+    },
+    "errors": {
+      "trialActivate": "Fehler beim Aktivieren der Testphase.",
+      "errorTitle": "Fehler",
+      "alreadyFree": "Du bist bereits im kostenlosen Plan.",
+      "infoTitle": "Info"
+    },
+    "plans": [
+      {
+        "name": "CHRONOS FREE",
+        "price": 0,
+        "description": "Um die App zu testen und zu sehen, wie sie funktioniert.",
+        "buttonText": "PLAN WÄHLEN",
+        "features": [
+          {
+            "text": "30 Termine / Monat",
+            "available": true,
+            "highlight": "30"
+          },
+          {
+            "text": "1 Fachkraft",
+            "available": true,
+            "highlight": "1"
+          },
+          {
+            "text": "5 Leistungen",
+            "available": true,
+            "highlight": "5"
+          },
+          {
+            "text": "Basisberichte",
+            "available": false
+          },
+          {
+            "text": "Kundenbewertungen",
+            "available": false
+          },
+          {
+            "text": "WhatsApp-Benachrichtigungen",
+            "available": false
+          }
+        ]
+      },
+      {
+        "name": "CHRONOS PRO",
+        "price": 49,
+        "description": "Für kleine Unternehmen, die mehr Kapazität brauchen.",
+        "buttonText": "PLAN WÄHLEN",
+        "features": [
+          {
+            "text": "150 Termine / Monat",
+            "available": true,
+            "highlight": "150"
+          },
+          {
+            "text": "1 Fachkraft",
+            "available": true,
+            "highlight": "1"
+          },
+          {
+            "text": "15 Leistungen",
+            "available": true,
+            "highlight": "15"
+          },
+          {
+            "text": "Basisberichte",
+            "available": true
+          },
+          {
+            "text": "Kundenbewertungen",
+            "available": false
+          },
+          {
+            "text": "WhatsApp-Benachrichtigungen",
+            "available": false
+          }
+        ]
+      },
+      {
+        "name": "CHRONOS ELITE",
+        "price": 99,
+        "description": "Für Unternehmen mit Team und hohem Kundenvolumen.",
+        "buttonText": "PLAN WÄHLEN",
+        "features": [
+          {
+            "text": "500 Termine / Monat",
+            "available": true,
+            "highlight": "500"
+          },
+          {
+            "text": "5 Fachkräfte",
+            "available": true,
+            "highlight": "5"
+          },
+          {
+            "text": "Unbegrenzte Leistungen",
+            "available": true,
+            "highlight": "Unbegrenzte"
+          },
+          {
+            "text": "Erweiterte Berichte & AI Insights",
+            "available": true,
+            "highlight": "AI Insights"
+          },
+          {
+            "text": "Kundenbewertungen & öffentliche Seite",
+            "available": true
+          },
+          {
+            "text": "WhatsApp-Benachrichtigungen",
+            "available": true
+          }
+        ]
+      },
+      {
+        "name": "CHRONOS TEAM",
+        "price": 299,
+        "description": "Für große Teams mit voller Kontrolle über das Unternehmen.",
+        "buttonText": "PLAN WÄHLEN",
+        "features": [
+          {
+            "text": "Unbegrenzte Termine",
+            "available": true,
+            "highlight": "Unbegrenzte"
+          },
+          {
+            "text": "50 Fachkräfte",
+            "available": true,
+            "highlight": "50"
+          },
+          {
+            "text": "Unbegrenzte Leistungen",
+            "available": true,
+            "highlight": "Unbegrenzte"
+          },
+          {
+            "text": "Berichte & Teamleistung",
+            "available": true,
+            "highlight": "Teamleistung"
+          },
+          {
+            "text": "Kundenbewertungen & öffentliche Seite",
+            "available": true
+          },
+          {
+            "text": "WhatsApp-Benachrichtigungen",
+            "available": true
+          }
+        ]
+      }
+    ]
+  },
+  "cookiesModal": {
+    "title": "Cookie-",
+    "titleHighlight": "Richtlinie",
+    "text1": "Wir verwenden nur technische Cookies, die notwendig sind, um dich in deinem Konto angemeldet zu halten.",
+    "text2": "Wir verwenden keine Cookies für Werbung oder kommerzielles Tracking.",
+    "text3": "Diese Cookies sind für den Betrieb der App unerlässlich und laufen beim Abmelden automatisch ab.",
+    "contactLabel": "Fragen zu Cookies? Schreib uns an ",
+    "closeBtn": "SCHLIESSEN"
+  },
+  "termeniModal": {
+    "title": "Allgemeine ",
+    "titleHighlight": "Geschäftsbedingungen",
+    "text1": "Durch die Nutzung der Chronos-Plattform stimmst du unseren Betriebsregeln zu.",
+    "text2": "Das System dient der effizienten Verwaltung von Zeit und beruflichen Ressourcen.",
+    "text3": "Der Nutzer ist für die Richtigkeit der im Kalender eingegebenen Informationen verantwortlich.",
+    "text4": "Wir behalten uns das Recht vor, diese Bedingungen zu aktualisieren; die weitere Nutzung der Plattform nach Änderungen gilt als Zustimmung.",
+    "contactLabel": "Fragen zu den Bedingungen? Schreib uns an ",
+    "acceptBtn": "AKZEPTIEREN"
+  },
+  "gdprModal": {
+    "title": "Datenschutz-",
+    "titleHighlight": "Richtlinie",
+    "text1": "Der Schutz deiner Daten hat im Chronos-System oberste Priorität.",
+    "text2": "Wir erheben nur die minimal notwendigen Daten für den Betrieb des Buchungsdienstes und die Sicherheit deines Kontos.",
+    "text3": "Wir verkaufen deine Daten nicht und verwenden eine sichere Infrastruktur zur Speicherung.",
+    "text4": "Du hast jederzeit das Recht, Zugang zu, Berichtigung oder Löschung deiner personenbezogenen Daten zu verlangen.",
+    "contactLabel": "Für Anfragen zu personenbezogenen Daten schreib uns an ",
+    "understoodBtn": "VERSTANDEN"
+  },
+  "resetPasswordPage": {
+    "checkingSecurity": "Sicherheitsprüfung...",
+    "titleLine1": "PASSWORT",
+    "titleHighlight": "FESTLEGEN",
+    "validSession": "Gültige Sitzung",
+    "newPasswordLabel": "Neues Passwort",
+    "confirmPasswordLabel": "Passwort bestätigen",
+    "errMismatch": "❌ Die Passwörter stimmen nicht überein!",
+    "errMinLength": "❌ Das Passwort muss mindestens 6 Zeichen haben!",
+    "successMsg": "✅ Passwort aktualisiert! Weiterleitung...",
+    "errConnection": "❌ Verbindungsfehler.",
+    "savingBtn": "Wird gespeichert...",
+    "saveBtn": "Neues Passwort speichern",
+    "footer": "Chronos Security Module • v2.0"
+  },
+  "dosarClient": {
+    "workNamePlaceholder": "NAME DER LEISTUNG (z. B. Haarfärbung)",
+    "deleteBtn": "✕ Löschen",
+    "serviceePriceLabel": "Leistungspreis (RON)",
+    "durationLabel": "Dauer (Minuten)",
+    "materialsUsedLabel": "📦 Verwendete Materialien",
+    "addMaterialBtn": "+ Material hinzufügen",
+    "noMaterials": "Kein Material hinzugefügt",
+    "materialNamePlaceholder": "z. B. Loreal Farbe",
+    "unitGram": "g",
+    "unitMl": "ml",
+    "unitPiece": "Stk",
+    "unitLiter": "l",
+    "unitKg": "kg",
+    "ronPerUnit": "RON/E",
+    "colProduct": "Produkt",
+    "colQuantity": "Menge",
+    "colUnit": "Einheit",
+    "colPricePerUnit": "Preis/Einheit",
+    "materialsCostLabel": "Materialkosten",
+    "netProfitLabel": "✅ Nettogewinn",
+    "lossLabel": "❌ Verlust",
+    "profitMarginLabel": "Gewinnspanne",
+    "profitGood": "🟢 Gute Rentabilität",
+    "profitMedium": "🟡 Mittlere Rentabilität",
+    "profitLow": "🔴 Niedrige Rentabilität",
+    "profitBelow": "⛔ Unter den Materialkosten",
+    "filesAttachedLabel": "📎 Angehängte Dateien",
+    "uploading": "Wird hochgeladen...",
+    "addFilesBtn": "+ Dateien hinzufügen",
+    "uploadErrorPrefix": "Upload-Fehler: ",
+    "noFilesAttached": "Keine Dateien angehängt",
+    "supportsTypes": "Unterstützt Bilder, Video, Audio, Dokumente",
+    "openLink": "Öffnen",
+    "downloadFileBtn": "Datei herunterladen",
+    "tabProfile": "Profil",
+    "tabWorks": "Leistungen",
+    "tabFiles": "Dateien",
+    "headerTitle": "Kunden-",
+    "headerHighlight": "Akte",
+    "statTotalRevenue": "Gesamtumsatz",
+    "statMaterialsCost": "Materialkosten",
+    "statNetProfit": "Nettogewinn",
+    "fullNameLabel": "Vollständiger Name",
+    "statusLabel": "Status",
+    "statusActive": "🟢 Aktives Profil",
+    "statusArchived": "🔴 Archiviertes Profil",
+    "emailLabel": "E-Mail",
+    "phoneLabel": "Telefon",
+    "historyNotesLabel": "Verlauf & Notizen",
+    "worksTabTitle": "Durchgeführte Leistungen + Gewinnrechner",
+    "newWorkBtn": "+ Neue Leistung",
+    "noWorksTitle": "Keine Leistung erfasst",
+    "noWorksSubtitle": "Füge die erste Leistung hinzu, um den Gewinn zu berechnen",
+    "removeClientBtn": "Kunde entfernen",
+    "finalizeBtn": "Abschließen",
+    "confirmDeleteWork": "Diese Leistung löschen?"
+  }
+}

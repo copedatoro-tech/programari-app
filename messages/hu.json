@@ -1,0 +1,1436 @@
+{
+  "common": {
+    "save": "Mentés",
+    "cancel": "Mégse",
+    "delete": "Törlés",
+    "edit": "Szerkesztés",
+    "confirm": "Megerősítés",
+    "close": "Bezárás",
+    "loading": "Betöltés...",
+    "search": "Keresés",
+    "back": "Vissza"
+  },
+  "nav": {
+    "calendar": "Naptár",
+    "contacts": "Hasznos kapcsolatok",
+    "clients": "Ügyfelek",
+    "settings": "Beállítások",
+    "logout": "Kijelentkezés"
+  },
+  "calendar": {
+    "day": "Nap",
+    "week": "Hét",
+    "month": "Hónap",
+    "year": "Év",
+    "today": "Ma",
+    "newAppointment": "Új időpont",
+    "noAppointments": "Nincs időpont",
+    "specialist": "Szakember"
+  },
+  "appointments": {
+    "title": "Időpontok",
+    "client": "Ügyfél",
+    "service": "Szolgáltatás",
+    "date": "Dátum",
+    "time": "Időpont",
+    "status": {
+      "confirmed": "Megerősítve",
+      "pending": "Függőben",
+      "cancelled": "Törölve",
+      "completed": "Befejezve"
+    }
+  },
+  "auth": {
+    "login": "Bejelentkezés",
+    "register": "Regisztráció",
+    "email": "E-mail",
+    "password": "Jelszó",
+    "forgotPassword": "Elfelejtette a jelszavát?",
+    "loginButton": "Bejelentkezés"
+  },
+  "subscription": {
+    "free": "Ingyenes",
+    "pro": "Pro",
+    "elite": "Elit",
+    "team": "Csapat",
+    "monthly": "Havi",
+    "annual": "Éves",
+    "upgrade": "Frissítés"
+  },
+  "layout": {
+    "nav": {
+      "programari": "Időpontok",
+      "calendar": "Naptár",
+      "clienti": "Ügyfelek",
+      "servicii": "Szolgáltatáskezelés",
+      "abonamente": "Előfizetések",
+      "rapoarte": "Elemzések & Riportok",
+      "recenzii": "Vélemények",
+      "contacteUtile": "Hasznos kapcsolatok",
+      "setari": "Beállítások",
+      "profil": "Profil"
+    },
+    "pageTitles": {
+      "programari": "Időpontok",
+      "calendar": "Időpont-naptár",
+      "clienti": "Ügyfelek",
+      "resurse": "Szolgáltatások & Szakemberek",
+      "abonamente": "Előfizetések",
+      "rapoarte": "Elemzések & Riportok",
+      "sugestii": "Ügyfélvélemények",
+      "settings": "Rendszerbeállítások",
+      "profil": "Felhasználói profil",
+      "contacteUtile": "Hasznos kapcsolatok",
+      "dashboard": "Chronos vezérlőpult"
+    },
+    "header": {
+      "abonamentActiv": "Aktív csomag",
+      "menuOpen": "MENÜ ☰",
+      "menuClose": "BEZÁRÁS ✕"
+    },
+    "logout": "KIJELENTKEZÉS",
+    "footer": {
+      "contact": "Chronos kapcsolat",
+      "termeni": "Feltételek",
+      "confidentialitate": "Adatvédelem",
+      "cookies": "Sütik",
+      "premium": "CHRONOS PREMIUM",
+      "management": "KEZELÉS",
+      "secured": "VÉDETT"
+    },
+    "loading": "Chronos szinkronizálása...",
+    "onboarding": {
+      "badge": "Chronos útmutató",
+      "understood": "Értettem — kezdjük! 🚀",
+      "profil": {
+        "titlu": "Felhasználói profil",
+        "subtitlu": "Az első fontos lépés — töltsd ki vállalkozásod összes adatát.",
+        "pasi": [
+          "📝 Add hozzá vállalkozásod nevét — ez jelenik meg a nyilvános foglalási oldalon",
+          "🔗 Állítsd be egyedi azonosítódat (pl.: salon-maria) — ez generálja a személyes linkedet és a QR-kódot az online foglalásokhoz",
+          "📞 Add hozzá a kapcsolattartási telefonszámot és e-mail címet — ezek az alkalmazásért felelős személy adatai",
+          "🖼️ Töltsd fel vállalkozásod logóját — megjelenik a foglalási oldalon és az alkalmazásban",
+          "📍 Add hozzá a címet — az ügyfelek látni fogják a foglalási oldalon, hogy tudják, hová jöjjenek"
+        ],
+        "tip": "Az azonosító elengedhetetlen — enélkül nem lehet létrehozni a foglalási linket és a QR-kódot! A kapcsolattartási adatok a felelős személyéi, és vészhelyzetben használhatók."
+      },
+      "settings": {
+        "titlu": "Rendszerbeállítások",
+        "subtitlu": "Állítsd be a munkaidőt és az elérhetőséget.",
+        "pasi": [
+          "🕐 Állítsd be a munkaidőt a hét minden napjára — pl.: H–P 09:00–18:00",
+          "🚫 Jelöld meg a zárva tartó napokat (pl.: vasárnap) — ezek pirosas háttérrel jelennek meg a naptárban",
+          "🔗 Generáld le a nyilvános foglalási linket és a QR-kódot erről az oldalról",
+          "⛔ Bizonyos órákat manuálisan is letilthatsz, ha éppen nem vagy elérhető",
+          "📱 Teszteld a foglalási linket telefonon, hogy minden megfelelően működjön"
+        ],
+        "tip": "Beállított munkaidő nélkül minden óra elérhetőnek tűnik! A zárva jelölt napok pirosas háttérrel jelennek meg a naptárban (Nap, Hét és Hónap nézetben), és online nem foglalhatók."
+      },
+      "resurse": {
+        "titlu": "Szolgáltatások & Szakemberek kezelése",
+        "subtitlu": "Add hozzá csapatodat és az egyes tagok által nyújtott szolgáltatásokat.",
+        "pasi": [
+          "👨‍💼 Add hozzá minden szakembert a teljes nevével (opcionálisan telefonszámmal/e-maillel az értesítésekhez)",
+          "✂️ Hozd létre a kínált szolgáltatásokat — add meg mindegyik árát és időtartamát",
+          "🔗 Rendeld hozzá minden szakemberhez az általa nyújtott szolgáltatásokat — ez automatikusan szűri az opciókat foglaláskor",
+          "⏱️ A szolgáltatás időtartama automatikusan lefoglalja a naptári időpontot és megelőzi az átfedéseket",
+          "💰 Az ár és az időtartam részletes termelékenységi és profitriportokat generál szakemberenként"
+        ],
+        "tip": "A szakember–szolgáltatás összekapcsolása elengedhetetlen! Időpont létrehozásakor a rendszer csak azokat a szakembereket mutatja, akik a kiválasztott szolgáltatást nyújtják, és fordítva. Az időtartam és az ár a termelékenységi riportokhoz használt."
+      },
+      "programari": {
+        "titlu": "Időpontkezelés",
+        "subtitlu": "Itt hozol létre új időpontokat és kezeled a meglévőket.",
+        "pasi": [
+          "➕ Töltsd ki az ügyfél adatait (név, telefon, e-mail) — automatikusan elmentődnek az ügyfél dossziéjába",
+          "👨‍💼 Válaszd ki a szakembert és az általa nyújtott szolgáltatást — a lista automatikusan szűrődik a beállított kapcsolatok alapján",
+          "📅 Válaszd ki a dátumot és időpontot — a rendszer automatikusan letiltja a kiválasztott szakember foglalt óráit",
+          "📎 Csatolhatsz dokumentumokat, képeket, hangot vagy videót az időponthoz",
+          "✅ A létrehozott időpontok automatikusan megjelennek a naptárban és az ügyfél dossziéjában az Ügyfelek oldalon"
+        ],
+        "tip": "Ugyanahhoz az ügyfélhez több szolgáltatást is hozzáadhatsz ugyanabban a munkamenetben — mindegyiket saját szakemberrel és időponttal! Ha két különböző szakember is elérhető ugyanabban az időpontban, mindkét időpont engedélyezett."
+      },
+      "calendar": {
+        "titlu": "Időpont-naptár",
+        "subtitlu": "Tekintsd meg, szerkeszd és rendszerezd az összes időpontot.",
+        "pasi": [
+          "📆 Válts Nap, Hét, Hónap vagy Év nézet között — mindegyiknek megvan a maga előnye",
+          "🕐 Nap nézetben: a munkaidőn belüli órák fehér háttérrel, a munkaidőn kívüliek szürke csíkos háttérrel jelennek meg — könnyen megkülönböztethetők",
+          "🚫 A zárva tartó napok (Beállításokban megadva) pirosas háttérrel jelennek meg Hét és Hónap nézetben is",
+          "👨‍💼 Szűrj szakember vagy szolgáltatás szerint, hogy mindenki naptárát külön lásd",
+          "✏️ Kattints bármely időpontra a szerkesztéshez, áthelyezéshez vagy dokumentumok hozzáadásához"
+        ],
+        "tip": "Több szakembernek is lehet időpontja ugyanabban az órában — mindegyiknek saját, külön naptára van! A foglalt órák szakemberenként, nem naponta vannak letiltva."
+      },
+      "clienti": {
+        "titlu": "Ügyféladatbázis",
+        "subtitlu": "A teljes archívum és minden ügyfél dossziéja.",
+        "pasi": [
+          "🔄 Az ügyfelek automatikusan elmentődnek az időpontokból a telefonszám alapján — nem kell manuálisan hozzáadni őket",
+          "📁 Minden ügyfélnek teljes dossziéja van: időpont-előzmények, elvégzett munkák és csatolt fájlok",
+          "📎 Fájlokat, képeket, hangot vagy videót csatolhatsz minden ügyfél dossziéjához (pl.: előtte/utána fotók, receptek, specifikációk)",
+          "🔧 A Munkák szakasz automatikusan kiszámítja az anyagköltséget, a profitot és a haszonkulcsot ügyfelenként",
+          "🔍 Gyors keresés név, telefon vagy e-mail alapján"
+        ],
+        "tip": "Az ügyféldosszié minden új időpontnál automatikusan frissül! Az időpontokhoz csatolt dokumentumok az ügyfél dossziéjában is megjelennek."
+      },
+      "abonamente": {
+        "titlu": "Chronos előfizetések",
+        "subtitlu": "Válaszd ki a megfelelő csomagot — és a próbaidőszak aktiválásának időpontját.",
+        "pasi": [
+          "⚠️ A 10 napos próbaidőszakot CSAK azután aktiváld, hogy teljesen beállítottad: Profil, Beállítások, Szolgáltatások és Szakemberek",
+          "🎁 A próbaidőszak 10 napig hozzáférést biztosít a Csapat csomaghoz (korlátlan) — ne pazarold el a beállításra",
+          "📊 Free: 30 időpont/hó · Pro: 150 · Elite: 500 · Csapat: korlátlan",
+          "💬 Az Elite és Csapat csomag automatikus WhatsApp üzenetküldést tartalmaz ügyfeleknek és szakembereknek",
+          "🔓 A foglalási link, a QR-kód és a fejlett riportok a Pro csomagtól elérhetők"
+        ],
+        "tip": "Ne aktiváld a próbaidőszakot az alkalmazás beállítása előtt — különben értékes napokat veszítesz a 10-ből! Először állíts be mindent, csak utána aktiválj."
+      },
+      "rapoarte": {
+        "titlu": "Elemzések & Riportok",
+        "subtitlu": "Kövesd nyomon vállalkozásod teljesítményét valós időben.",
+        "pasi": [
+          "📈 Tekintsd meg az időpontok számát naponta, hetente vagy havonta",
+          "💰 Elemezd a bevételt és a profitot szolgáltatásonként és szakemberenként",
+          "⭐ Kövesd az online vs. személyes foglalások arányát",
+          "📉 Azonosítsd a legnagyobb aktivitású napokat és órákat az ütemterv optimalizálásához",
+          "🔧 A riportok részletesebbek, ha beállítottad az árat és az időtartamot minden szolgáltatáshoz a Szolgáltatáskezelésben"
+        ],
+        "tip": "Minél pontosabban vannak beállítva a szolgáltatások árai és időtartamai, annál relevánsabbak a termelékenységi és profitriportok!"
+      },
+      "sugestii": {
+        "titlu": "Ügyfélvélemények",
+        "subtitlu": "Kezeld vállalkozásod online hírnevét.",
+        "pasi": [
+          "⭐ Tekintsd meg az összes véleményt, amit az ügyfelek a nyilvános foglalási oldalon keresztül hagytak",
+          "➕ Manuálisan is hozzáadhatsz véleményeket hűséges ügyfelektől, akik nem hagytak online visszajelzést",
+          "📈 Minél több pozitív véleményed van, annál több új ügyfelet vonz a foglalási oldalad",
+          "💬 A vélemények láthatók vállalkozásod nyilvános foglalási oldalán",
+          "🌟 Az átlagos értékelés befolyásolja az új ügyfelek bizalmát vállalkozásod iránt"
+        ],
+        "tip": "Kérd meg elégedett ügyfeleidet, hogy minden látogatás után hagyjanak véleményt — minden csillag számít az új ügyfelek megszerzéséhez!"
+      },
+      "contacteUtile": {
+        "titlu": "Hasznos kapcsolatok",
+        "subtitlu": "Szakmai és vészhelyzeti kapcsolataid jegyzéke.",
+        "pasi": [
+          "🏭 Mentsd el a termék- és anyagbeszállítóid számait a gyors rendelésekhez",
+          "🔧 Add hozzá a technikusok, szerelők, partnerek vagy közreműködők elérhetőségeit",
+          "⚡ Gyors elérés vészhelyzetben — meghibásodások, üzemzavarok, sürgős beszerzések",
+          "📋 Ez az oldal külön van az ügyfelektől — az ügyfelek automatikusan az Ügyfelek oldalon találhatók",
+          "👤 Itt mentheted az alkalmazásért felelős személy adatait is a gyors vészhelyzeti eléréshez"
+        ],
+        "tip": "A hasznos kapcsolatok a szakmai beszállítóid és partnereid számára valók — nem az ügyfeleknek! Az ügyfelek automatikusan elmentődnek az időpontokból a saját oldalukon."
+      }
+    },
+    "trialSuffix": " (PRÓBA)"
+  },
+  "landing": {
+    "nav": {
+      "login": "Bejelentkezés",
+      "registerCta": "Ingyenes regisztráció →"
+    },
+    "hero": {
+      "badge": "🔥 10 NAPOS INGYENES PRÓBAIDŐSZAK — KÁRTYA NÉLKÜL",
+      "titleLine1": "TE AZT CSINÁLOD, AMIHEZ",
+      "titleHighlight1": "A LEGJOBBAN ÉRTESZ!",
+      "titleLine2": "A CHRONOS INTÉZI A TÖBBIT.",
+      "subtitle": "A teljes körű menedzsment platform szalonok, klinikák, műhelyek és bármely időpontalapú vállalkozás számára. Naptár, ügyfelek, dokumentumok, riportok és online foglalás — mind egy helyen.",
+      "ctaMain": "SZERETNÉM A 10 INGYENES NAPOT",
+      "ctaSub": "HOZD LÉTRE A FIÓKODAT MOST",
+      "disclaimer": "* Kártya nélkül. Kötelezettség nélkül. Csak eredmények."
+    },
+    "mockup": {
+      "pageTitle": "Időpontok",
+      "planActive": "Aktív csomag",
+      "menuBtn": "MENÜ ☰",
+      "heading": "Időpontok",
+      "headingHighlight": "kezelése",
+      "planLine": "Csomag: CHRONOS TEAM · 8 / ∞ ebben a hónapban",
+      "todayStats": "Ma: 4 Összesen · 2 Online",
+      "calendarLabel": "Naptár",
+      "clientNameLabel": "Ügyfél neve",
+      "emailLabel": "E-mail",
+      "phoneLabel": "Telefon",
+      "notesLabel": "Megjegyzések",
+      "notesPlaceholder": "Részletek...",
+      "servicesDivider": "Szolgáltatások & időpont",
+      "serviceNumberLabel": "1. szolgáltatás —",
+      "serviceDemo": "Arcmasszázs",
+      "specialistLabel": "Szakember",
+      "serviceLabel": "Szolgáltatás",
+      "serviceWithPrice": "Arcmasszázs — 150 RON",
+      "intervalReserved": "Foglalt időszak",
+      "addServiceBtn": "Új szolgáltatás hozzáadása",
+      "summaryTitle": "📋 Foglalás összegzése",
+      "totalLabel": "ÖSSZESEN",
+      "durationMinutes": "60 perc",
+      "saveBtn": "✓ 1 IDŐPONT MENTÉSE",
+      "todayAppointments": "Mai időpontok",
+      "onlineBadge": "Online foglalás",
+      "onlineSource": "🌐 Személyes linken keresztül",
+      "autoConfirmed": "Automatikusan megerősítve",
+      "autoConfirmedName": "Alexandra elérhető ✓",
+      "autoConfirmedNote": "Időpont lezárva a naptárban",
+      "demoServices": {
+        "masajFacial": "Arcmasszázs",
+        "tunsBarba": "Hajvágás + Szakáll",
+        "vopsit": "Festés",
+        "coafor": "Frizura"
+      }
+    },
+    "features": {
+      "heading1": "MINDEN, AMIRE SZÜKSÉGED VAN.",
+      "heading2": "SEMMI TÖBB.",
+      "subtitle": "Minden modult valós vállalkozások számára terveztünk",
+      "items": [
+        {
+          "titlu": "Intelligens naptár",
+          "desc": "Nap, Hét, Hónap és Év nézet. A munkaidőn belüli órák vizuálisan elkülönülnek a munkaidőn kívüliektől. A zárva tartó napok más háttérrel jelennek meg. Szűrés szakember vagy szolgáltatás szerint."
+        },
+        {
+          "titlu": "Online foglalás",
+          "desc": "Egyedi személyes link és QR-kód a vállalkozásodhoz. Az ügyfelek maguk választják ki az elérhető időpontot. A rendszer automatikusan letiltja a foglalt órákat szakemberenként. Nincs átfedés, nincs zavar."
+        },
+        {
+          "titlu": "Ügyféladatbázis",
+          "desc": "Minden ügyfél teljes dossziéja: időpont-előzmények, elvégzett munkák, munkánkénti profitkalkulátor, csatolt fájlok (képek, videó, hang, PDF dokumentumok). Automatikusan frissül."
+        },
+        {
+          "titlu": "Szolgáltatások és szakemberek kezelése",
+          "desc": "Határozd meg a szolgáltatásokat árral és időtartammal. Rendeld hozzá minden szakembert az általa nyújtott szolgáltatásokhoz. Foglaláskor a rendszer automatikusan szűri az opciókat és lezárja a megfelelő naptári időpontot."
+        },
+        {
+          "titlu": "Riportok és elemzés",
+          "desc": "Kövesd az időpontok számát, a bevételt és a profitot szakemberenként és szolgáltatásonként. Azonosítsd a legnagyobb aktivitású órákat és napokat. Minél teljesebbek az adatok, annál pontosabbak a riportok."
+        },
+        {
+          "titlu": "Dokumentumok időpontonként",
+          "desc": "Csatolj bármilyen fájltípust minden időponthoz: PDF, képek, hang, videó. A dokumentumok automatikusan szinkronizálódnak az ügyfél dossziéjával. Hasznos receptekhez, műszaki specifikációkhoz, jegyzetekhez vagy vizuális referenciákhoz."
+        },
+        {
+          "titlu": "Ügyfélvélemények",
+          "desc": "Az ügyfelek véleményt hagyhatnak a nyilvános foglalási oldalon keresztül. Manuálisan is hozzáadhatsz véleményeket hűséges ügyfelektől. Az átlagos pontszám látható a nyilvános oldaladon, és növeli az új ügyfelek bizalmát."
+        },
+        {
+          "titlu": "Hasznos kapcsolatok",
+          "desc": "Külön névjegyzék beszállítóknak, partnereknek és közreműködőknek. Gyors hozzáférés a fontos számokhoz vészhelyzetben. Teljesen elkülönítve az ügyféladatbázistól."
+        },
+        {
+          "titlu": "WhatsApp értesítések",
+          "desc": "Elérhető az Elite és Csapat csomagokban. Küldj automatikus megerősítéseket és emlékeztetőket az ügyfeleknek WhatsAppon. Közvetlenül az alkalmazásból, egy kattintással, az ügyfél nevével és az időpont részleteivel személyre szabva."
+        }
+      ]
+    },
+    "steps": {
+      "heading": "KEZDD EL",
+      "headingHighlight": "4 EGYSZERŰ LÉPÉSBEN",
+      "subtitle": "A nulláról egy szervezett vállalkozásig kevesebb mint egy óra alatt",
+      "items": [
+        {
+          "titlu": "Töltsd ki a profilodat",
+          "desc": "Add hozzá a vállalkozásod nevét, egyedi azonosítóját, telefonszámát, címét és logóját. Az azonosító generálja a személyes linkedet és a QR-kódot az online foglalásokhoz."
+        },
+        {
+          "titlu": "Állítsd be az ütemtervet",
+          "desc": "Határozd meg a munkaidőt minden napra, jelöld a zárva tartó napokat, és add hozzá a szolgáltatásokat árral és időtartammal. Rendeld hozzá minden szakembert a szolgáltatásaihoz."
+        },
+        {
+          "titlu": "Oszd meg a linket",
+          "desc": "Küldd el a linket vagy a QR-kódot az ügyfeleidnek. Ők maguk foglalnak, a rendszer automatikusan megerősíti, és az időpont azonnal megjelenik a naptáradban."
+        },
+        {
+          "titlu": "Kövesd nyomon és fejlődj",
+          "desc": "Kövesd az aktivitási riportokat, kezeld az ügyféldossziékat, és optimalizáld az ütemtervet az alkalmazás valós adatai alapján."
+        }
+      ]
+    },
+    "pricing": {
+      "heading": "ÁTLÁTHATÓ",
+      "headingHighlight": "ÁRAK",
+      "subtitle": "Aktiváld a próbaidőszakot, miután teljesen beállítottad az alkalmazást — egyetlen napot sem veszítesz",
+      "popularBadge": "⭐ NÉPSZERŰ",
+      "planBadge": "CSOMAG",
+      "plans": [
+        {
+          "plan": "Free",
+          "price": "Ingyenes",
+          "prog": "30 időpont/hó",
+          "features": [
+            "Teljes naptár",
+            "Ügyféladatbázis",
+            "Szolgáltatáskezelés",
+            "Csatolt dokumentumok"
+          ]
+        },
+        {
+          "plan": "Pro",
+          "price": "—",
+          "prog": "150 időpont/hó",
+          "features": [
+            "Minden a Free-ből",
+            "Online foglalási link",
+            "Személyes QR-kód",
+            "Fejlett riportok"
+          ]
+        },
+        {
+          "plan": "Elite",
+          "price": "—",
+          "prog": "500 időpont/hó",
+          "features": [
+            "Minden a Pro-ból",
+            "Automatikus WhatsApp ügyfeleknek",
+            "Szakember-értesítések",
+            "Prioritásos támogatás"
+          ]
+        },
+        {
+          "plan": "Team",
+          "price": "—",
+          "prog": "Korlátlan",
+          "features": [
+            "Minden az Elite-ből",
+            "Korlátlan időpontok",
+            "Teljes multi-szakember támogatás",
+            "10 napos ingyenes próba"
+          ]
+        }
+      ],
+      "cta": "KEZDD EL 10 INGYENES NAPPAL",
+      "ctaNote": "Kártya nélkül. Kötelezettség nélkül. Aktiváld, ha minden be van állítva."
+    },
+    "audience": {
+      "heading": "BÁRKINEK, AKI",
+      "headingHighlight": "IDŐPONTOKKAL DOLGOZIK",
+      "items": [
+        {
+          "icon": "💇",
+          "label": "Fodrászatok"
+        },
+        {
+          "icon": "💅",
+          "label": "Körömszalonok"
+        },
+        {
+          "icon": "🧴",
+          "label": "Esztétikai klinikák"
+        },
+        {
+          "icon": "💪",
+          "label": "Személyi edzők"
+        },
+        {
+          "icon": "🔧",
+          "label": "Autószervizek"
+        },
+        {
+          "icon": "🏥",
+          "label": "Orvosi rendelők"
+        },
+        {
+          "icon": "🎸",
+          "label": "Zenetanárok"
+        },
+        {
+          "icon": "🏠",
+          "label": "Házhoz menő szolgáltatások"
+        }
+      ]
+    },
+    "finalCta": {
+      "heading1": "KÉSZ VAGY KIPRÓBÁLNI?",
+      "heading2": "10 NAP. INGYENES. KOCKÁZAT NÉLKÜL.",
+      "paragraph": "Töltsd ki a profilodat, állítsd be az ütemtervedet, add hozzá a szolgáltatásokat és szakembereket — és készen állsz az online foglalások fogadására. Aktiváld a próbaidőszakot, miután befejezted a beállítást, hogy ne veszíts egy napot sem.",
+      "button": "INGYENES FIÓK LÉTREHOZÁSA",
+      "note": "Kártya nélkül. Kötelezettség nélkül. Nincs üzenet este 11-kor."
+    },
+    "footer": {
+      "description": "A teljes körű menedzsment platform időpontalapú vállalkozások számára. Naptár, ügyfelek, dokumentumok, riportok és online foglalás.",
+      "legalHeading": "Jogi információk",
+      "legalLinks": [
+        {
+          "label": "Általános Szerződési Feltételek",
+          "href": "/terms"
+        },
+        {
+          "label": "Adatvédelmi szabályzat",
+          "href": "/privacy"
+        },
+        {
+          "label": "Süti szabályzat",
+          "href": "/cookies"
+        }
+      ],
+      "contactHeading": "Chronos kapcsolat",
+      "contactNote": "Legfeljebb 24 órán belül válaszolunk.",
+      "quickAccessHeading": "Gyors elérés",
+      "newAccountBtn": "Új ingyenes fiók →",
+      "loginBtn": "Belépés a fiókomba",
+      "copyright": "© 2026 CHRONOS. Minden jog fenntartva.",
+      "secured": "Supabase-szel védve"
+    }
+  },
+  "clienti": {
+    "title": "Ügyfél-",
+    "titleHighlight": "adatbázis",
+    "profilesFound": "{count} profil azonosítva",
+    "searchPlaceholder": "KERESÉS NÉV, TELEFON VAGY E-MAIL ALAPJÁN...",
+    "syncing": "Adatbázis szinkronizálása...",
+    "noneFound": "Nem található ügyfél",
+    "noPhone": "NINCS TELEFON",
+    "confirmDelete": "Véglegesen törlöd ezt az ügyfelet?"
+  },
+  "contacteUtile": {
+    "folderOptional": "Mappa (opcionális)",
+    "noFolder": "Nincs mappa",
+    "editFolder": "Szerkesztés",
+    "newFolder": "Új",
+    "folderNamePlaceholder": "MAPPA NEVE...",
+    "color": "Szín",
+    "cancel": "Mégse",
+    "update": "Frissítés",
+    "create": "Létrehozás",
+    "deleteFolder": "Mappa törlése ✕",
+    "title": "Hasznos",
+    "titleHighlight": "kapcsolatok",
+    "managementLine": "Partnerkezelés • {plan}",
+    "capacity": "{count} / {limit} Kapacitás",
+    "namePlaceholder": "TELJES NÉV *",
+    "rolePlaceholder": "SZEREP / KATEGÓRIA",
+    "phonePlaceholder": "TELEFON *",
+    "emailPlaceholder": "E-MAIL (OPCIONÁLIS)",
+    "notesPlaceholder": "MEGJEGYZÉSEK VAGY KÜLÖNLEGES RÉSZLETEK...",
+    "save": "+ Mentés",
+    "all": "Összes ({count})",
+    "folders": "Mappák ({count})",
+    "allContacts": "Összes kapcsolat",
+    "newFolderBtn": "+ Új mappa",
+    "editShort": "✎ Szerkesztés",
+    "syncing": "Adatbázis szinkronizálása...",
+    "noneInFolder": "Nincs kapcsolat ebben a mappában",
+    "noneYet": "Még nincs hozzáadott kapcsolat",
+    "clickToEdit": "KATTINTS A SZERKESZTÉSHEZ: {name}",
+    "partner": "PARTNER",
+    "call": "Hívás",
+    "whatsapp": "Wapp",
+    "mail": "Mail",
+    "editTitle": "Szerkesztés",
+    "editTitleHighlight": "Kapcsolat",
+    "deleteContact": "Kapcsolat törlése ✕",
+    "nameRequired": "A NÉV KÖTELEZŐ!",
+    "phoneRequired": "A TELEFON KÖTELEZŐ!",
+    "invalidEmail": "ÉRVÉNYTELEN E-MAIL!",
+    "planLimitReached": "{plan} CSOMAG LIMITJE ELÉRVE!",
+    "sessionExpired": "A MUNKAMENET LEJÁRT.",
+    "errorPrefix": "HIBA: ",
+    "contactSaved": "KAPCSOLAT MENTVE!",
+    "confirmDeleteContact": "VÉGLEGESEN TÖRLÖD?",
+    "confirmDeleteFolder": "Törlöd a mappát? A kapcsolatok megmaradnak, de nem lesznek hozzárendelve."
+  },
+  "loginPage": {
+    "title": "BEJELENTKEZÉS",
+    "titleHighlight": "FIÓKBA",
+    "subtitle": "Prémium Kezelőrendszer",
+    "emailPlaceholder": "E-MAIL CÍM",
+    "passwordPlaceholder": "JELSZÓ",
+    "forgotPassword": "Elfelejtetted a jelszavad?",
+    "checking": "ELLENŐRZÉS...",
+    "loginBtn": "BEJELENTKEZÉS",
+    "noAccount": "Még nincs fiókod?",
+    "createAccount": "ÚJ FIÓK LÉTREHOZÁSA",
+    "sessionExpired": "A munkamenet lejárt. Kérjük, próbáld újra.",
+    "errorPrefix": "Hiba: ",
+    "sessionNotCreated": "A munkamenetet nem sikerült létrehozni.",
+    "connectionError": "Kapcsolódási hiba."
+  },
+  "registerPage": {
+    "title": "FIÓK",
+    "titleHighlight": "LÉTREHOZÁSA",
+    "subtitle": "Prémium CHRONOS hozzáférés",
+    "fullName": "Teljes név",
+    "fullNamePlaceholder": "PL: KOVÁCS JÁNOS",
+    "phone": "Telefon",
+    "phonePlaceholder": "06 20 XXX XXXX",
+    "email": "E-mail cím",
+    "emailPlaceholder": "EMAIL@PELDA.HU",
+    "password": "Jelszó",
+    "confirmPassword": "Jelszó megerősítése",
+    "passwordMismatch": "❌ A jelszavak nem egyeznek!",
+    "passwordTooShort": "❌ A jelszónak legalább 6 karakter hosszúnak kell lennie!",
+    "unexpectedError": "❌ Váratlan szerverhiba.",
+    "accountCreated": "✅ Fiók sikeresen létrehozva! Most már bejelentkezhetsz.",
+    "processing": "FELDOLGOZÁS...",
+    "registerBtn": "ÚJ FIÓK REGISZTRÁLÁSA",
+    "haveAccount": "MÁR VAN FIÓKOD?",
+    "loginLink": "JELENTKEZZ BE"
+  },
+  "forgotPasswordPage": {
+    "title": "JELSZÓ",
+    "titleHighlight": "VISSZAÁLLÍTÁSA",
+    "email": "E-mail cím",
+    "emailPlaceholder": "email@pelda.hu",
+    "emailSent": "✅ E-mail elküldve! Ellenőrizd a postaládádat.",
+    "sending": "Küldés...",
+    "sendBtn": "Visszaállító e-mail küldése"
+  },
+  "profil": {
+    "loading": "Profil szinkronizálása...",
+    "demoMode": "ELŐNÉZETI MÓD",
+    "idPrefix": "ID: ",
+    "defaultUser": "Chronos felhasználó",
+    "save": "Mentés",
+    "saving": "Kérlek várj...",
+    "logout": "Kijelentkezés",
+    "demoLogout": "Kilépés a demóból",
+    "activeSubscription": "Aktív csomag",
+    "trialSuffix": "(PRÓBA)",
+    "changeSubscriptionBtn": "Csomag módosítása",
+    "fullNameLabel": "👤 Teljes név",
+    "emailLabel": "✉️ E-mail",
+    "phoneLabel": "📱 Telefon",
+    "roleLabel": "💼 Szerep / Beosztás",
+    "publicLinkBadge": "Nyilvános link beállítása",
+    "slugLabel": "🔗 EGYEDI FOGLALÁSI CÍM (SLUG)",
+    "slugPrefix": "/foglalas/",
+    "slugPlaceholder": "vallalkozas-neve",
+    "reserveLinkBtn": "Egyedi link lefoglalása",
+    "checking": "Ellenőrzés...",
+    "warningTitle": "⚠️ NAGYON FONTOS (KÖTELEZŐ):",
+    "warningText": "Ez a cím (Slug) a digitális azonosítód. A link bármilyen módosítása automatikusan érvényteleníti a korábban generált QR-kódokat és az ügyfeleknek már elküldött linkeket. Válassz egy jellemző nevet (pl.: salon-art-nails), amelyet később nem változtatsz meg, hogy megmaradjon a kapcsolat az ügyfelek beolvasásaival.",
+    "changePasswordBtn": "🔒 Belépési jelszó módosítása",
+    "passwordModalTitle": "Biztonság",
+    "newPasswordPlaceholder": "ÚJ JELSZÓ",
+    "confirmPasswordPlaceholder": "JELSZÓ MEGERŐSÍTÉSE",
+    "profileUpdated": "✅ Profil frissítve!",
+    "saveErrorPrefix": "Hiba a mentés során: ",
+    "slugMinLength": "⚠️ Az egyedi címnek (slug) legalább 3 karakterből kell állnia.",
+    "slugTaken": "❌ Hiba: A \"{slug}\" nevet már más lefoglalta. Válassz másik lehetőséget.",
+    "slugSuccess": "✅ Gratulálunk! Az egyedi címedet sikeresen lefoglaltuk.",
+    "errorPrefix": "Hiba: ",
+    "passwordMismatch": "A jelszavak nem egyeznek!",
+    "passwordUpdated": "✅ Jelszó frissítve!",
+    "avatarErrorPrefix": "Avatar hiba: ",
+    "demoDisabled": "🔒 Letiltva a demóban.",
+    "changeAvatar": "Módosítás",
+    "plans": {
+      "free": {
+        "nume": "CHRONOS FREE",
+        "limita": "30 foglalás / hó"
+      },
+      "pro": {
+        "nume": "CHRONOS PRO",
+        "limita": "150 foglalás / hó"
+      },
+      "elite": {
+        "nume": "CHRONOS ELITE",
+        "limita": "500 foglalás / hó"
+      },
+      "team": {
+        "nume": "CHRONOS TEAM",
+        "limita": "Korlátlan foglalás"
+      }
+    }
+  },
+  "resurse": {
+    "headingLine1": "Szolgáltatások",
+    "headingHighlight": "kezelése",
+    "headingLine2": "és",
+    "headingHighlight2": "szakemberek",
+    "demoMode": "ELŐNÉZETI MÓD (DEMO)",
+    "activePlanPrefix": "AKTÍV CSOMAG: ",
+    "backBtn": "← FŐPANEL",
+    "dbErrorPrefix": "⚠️ ",
+    "addServiceTitle": "Új szolgáltatás hozzáadása",
+    "serviceNameLabel": "Szolgáltatás neve",
+    "serviceNamePlaceholder": "PL.: MODERN HAJVÁGÁS, FESTÉS...",
+    "durationLabel": "Időtartam",
+    "hourUnit": "Ó",
+    "minuteUnit": "PERC",
+    "priceLabel": "Ár (RON)",
+    "pricePlaceholder": "RON",
+    "addServiceBtn": "+ SZOLGÁLTATÁS HOZZÁADÁSA",
+    "addStaffTitle": "Új szakember hozzáadása",
+    "staffNameLabel": "Szakember neve",
+    "staffNamePlaceholder": "PL.: KOVÁCS JÁNOS...",
+    "phoneLabel": "Telefon",
+    "phonePlaceholder": "PL.: 06...",
+    "emailLabel": "E-mail",
+    "emailPlaceholder": "szakember@email.hu",
+    "addStaffBtn": "+ SZAKEMBER HOZZÁADÁSA",
+    "activeServicesTitle": "AKTÍV SZOLGÁLTATÁSOK",
+    "teamTitle": "SZAKEMBER CSAPAT",
+    "save": "MENTÉS",
+    "cancel": "MÉGSE",
+    "update": "FRISSÍTÉS",
+    "close": "BEZÁRÁS",
+    "deletedService": "Törölt szolgáltatás",
+    "serviceLimitReached": "⚠️ Elérted a limitet! A csomagod csak {limit} szolgáltatást engedélyez.",
+    "staffLimitReached": "⚠️ Elérted a limitet! A csomagod csak {limit} szakembert engedélyez.",
+    "errorPrefix": "Hiba: ",
+    "confirmDeleteResource": "Biztosan törlöd ezt az elemet?",
+    "loading": "Chronos szinkronizálása..."
+  },
+  "sugestii": {
+    "checkingAccess": "Hozzáférés ellenőrzése...",
+    "premiumTitle": "Prémium funkció",
+    "premiumTextBefore": "A vélemények kezelése egy fejlett funkció, amely az online foglalási oldalhoz kapcsolódik, és csak a ",
+    "premiumHighlight": "CHRONOS ELITE és TEAM",
+    "premiumTextAfter": " csomagok esetén elérhető.",
+    "upgradeBtn": "Frissítés ELITE-re",
+    "headingLine1": "Vélemények",
+    "headingHighlight": "kezelése",
+    "planPrefix": "Csomag: ",
+    "viewBookingsBtn": "Foglalási oldal megtekintése →",
+    "statTotal": "Összesen",
+    "statApproved": "Jóváhagyva",
+    "statPending": "Függőben",
+    "statAvgStars": "Átlag csillag",
+    "formTitle": "Vélemény kézi hozzáadása",
+    "starAriaLabel": "{n} csillag adása",
+    "namePlaceholder": "ÜGYFÉL NEVE",
+    "commentPlaceholder": "MEGJEGYZÉS...",
+    "submitBtn": "VÉLEMÉNY KÉZI HOZZÁADÁSA",
+    "submitting": "MENTÉS...",
+    "successTitle": "Sikeresen hozzáadva!",
+    "closeBtn": "Bezárás",
+    "missingFieldsAlert": "Töltsd ki az összes mezőt!",
+    "sendErrorPrefix": "Hiba a küldés során: ",
+    "saveErrorPrefix": "Nem sikerült menteni: ",
+    "approveErrorPrefix": "Hiba a jóváhagyás során: ",
+    "disapproveErrorPrefix": "Hiba a jóváhagyás visszavonásakor: ",
+    "deleteErrorPrefix": "Hiba a törlés során: ",
+    "confirmDelete": "Véglegesen törlöd ezt a véleményt?",
+    "noneYet": "Még nincs véleményed.",
+    "approveBtn": "Jóváhagyás",
+    "disapproveBtn": "Jóváhagyás visszavonása",
+    "editBtn": "Szerkesztés / Válasz",
+    "deleteBtn": "Törlés",
+    "approvedBadge": "Jóváhagyva ✓",
+    "newBadge": "Új / Nem jóváhagyott",
+    "commentLabel": "Megjegyzés:",
+    "yourResponseLabel": "A válaszod:",
+    "saveBtn": "Mentés",
+    "cancelBtn": "Mégse",
+    "recentDateFallback": "Friss"
+  },
+  "settings": {
+    "localeCode": "hu-HU",
+    "loading": "Szinkronizálás...",
+    "toastSavedTitle": "Siker",
+    "toastSavedMsg": "A beállítások mentve!",
+    "toastSaveErrorTitle": "Hiba a mentés során",
+    "headingLine1": "Elérhetőség",
+    "headingHighlight": "beállítása",
+    "saveBtn": "Mentés ✨",
+    "backBtn": "← Vissza",
+    "premiumBadge": "Prémium funkció",
+    "premiumTitle": "Online foglalás és QR-kód",
+    "premiumTextBefore": "Aktiváld a ",
+    "premiumElite": "ELITE",
+    "premiumOr": " vagy ",
+    "premiumTeam": "TEAM",
+    "premiumTextAfter": " csomagot, hogy megkapd a személyre szabott linkedet és a QR-kódot az ügyfeleknek.",
+    "upgradeBtn": "Frissítési csomagok megtekintése",
+    "linkSectionTitle": "A Chronos linked",
+    "slugUnset": "nincs beállítva",
+    "copyBtn": "Másolás",
+    "whatsappBtn": "WhatsApp",
+    "printBtn": "🖨️ NYOMTATÁS",
+    "printWindowTitle": "Chronos QR-kód nyomtatás",
+    "whatsappMessage": "Szia! Itt tudsz közvetlenül foglalni: {url}",
+    "toastCopiedTitle": "Másolva!",
+    "toastCopiedMsg": "A link másolva!",
+    "toastCopyErrorTitle": "Hiba",
+    "toastCopyErrorMsg": "Hiba a másolás során",
+    "noSlugWarningTitle": "Figyelem: a link nem aktív!",
+    "noSlugWarningText": "Kérjük, menj a Fiókom oldalra a menüből, hogy aktiváld a linket.",
+    "calendarHeadingLine1": "Munkaidő",
+    "calendarHeadingHighlight": "beállítása",
+    "weekdaysShort": [
+      "Hé",
+      "Ke",
+      "Sze",
+      "Csü",
+      "Pé",
+      "Szo",
+      "Va"
+    ],
+    "dayBookingLabel": "Foglalás",
+    "dayPartialLabel": "Részben lefoglalva",
+    "modalBadge": "Naptárkezelés",
+    "unblockAllBtn": "✅ Minden feloldása",
+    "blockAllBtn": "🚫 Minden zárolása",
+    "presetScheduleBtn": "📋 Előre beállított ütemterv",
+    "bookingStepLabel": "Foglalási időköz",
+    "oneHourOption": "1 ÓRA (Rögzített)",
+    "minutesOption": "{v} PERC",
+    "confirmAvailabilityBtn": "Elérhetőség megerősítése",
+    "successTitle": "Sikeres művelet!",
+    "successText": "Az ütemtervet sikeresen átvitted.",
+    "applyScheduleTitle": "Ütemterv alkalmazása",
+    "applyScheduleText": "Válaszd ki a napokat, amelyekre a mai ütemtervet másolod:",
+    "weekdayLetters": [
+      "Va",
+      "Hé",
+      "Ke",
+      "Sze",
+      "Cs",
+      "Pé",
+      "Szo"
+    ],
+    "applying": "Alkalmazás...",
+    "applyNowBtn": "Alkalmazd most 🚀",
+    "cancelBtn": "Mégse"
+  },
+  "calendarPage": {
+    "dayShort": [
+      "Hé",
+      "Ke",
+      "Sze",
+      "Csü",
+      "Pé",
+      "Szo",
+      "Va"
+    ],
+    "dayLong": [
+      "Vasárnap",
+      "Hétfő",
+      "Kedd",
+      "Szerda",
+      "Csütörtök",
+      "Péntek",
+      "Szombat"
+    ],
+    "months": [
+      "Január",
+      "Február",
+      "Március",
+      "Április",
+      "Május",
+      "Június",
+      "Július",
+      "Augusztus",
+      "Szeptember",
+      "Október",
+      "November",
+      "December"
+    ],
+    "monthsShort": [
+      "Jan",
+      "Feb",
+      "Már",
+      "Ápr",
+      "Máj",
+      "Jún",
+      "Júl",
+      "Aug",
+      "Sze",
+      "Okt",
+      "Nov",
+      "Dec"
+    ],
+    "localeCode": "hu-HU",
+    "loadingSession": "Betöltés...",
+    "authRequired": "Bejelentkezés szükséges",
+    "syncing": "Szinkronizálás...",
+    "synced": "Szinkronizálva",
+    "headerTitle": "Naptár",
+    "headerHighlight": "Chronos",
+    "searchPlaceholder": "Ügyfél keresése...",
+    "searchBtn": "Keresés",
+    "todayBtn": "Ma",
+    "viewDay": "Nap",
+    "viewWeek": "Hét",
+    "viewMonth": "Hónap",
+    "viewYear": "Év",
+    "onlineLabel": "Online",
+    "progSuffix": "időpont",
+    "onlineSuffix": "online",
+    "weekGoToday": "→ Ma",
+    "closedBadge": "Zárva",
+    "closedBadgeFull": "🚫 Zárva",
+    "closedBadgeCaps": "🚫 ZÁRVA",
+    "moreCount": "+{n} további",
+    "filterSpecialists": "Szakemberek",
+    "filterAll": "Mind",
+    "filterServices": "Szolgáltatások",
+    "filterAllServices": "Mind",
+    "dayClosedBanner": "🚫 Zárva tartó nap — kézzel még adhatsz hozzá időpontokat",
+    "programStart": "Munkaidő kezdete",
+    "programEnd": "Munkaidő vége",
+    "weekDayClosedLabel": "Zárva tartó nap",
+    "hoverHint": "Kattints egy időpontra a szerkesztéshez · Kattints bárhová a bezáráshoz",
+    "docsTitle": "📎 Dokumentumok",
+    "docsAddBtn": "+ Hozzáadás",
+    "docsUploading": "⏳ Feltöltés...",
+    "docsEmpty": "Nincs dokumentum — PDF, kép, hang, videó, bármilyen fájl",
+    "docsUploadingFiles": "Fájlok feltöltése...",
+    "editModal": {
+      "nameLabel": "Név",
+      "dateLabel": "Dátum",
+      "timeLabel": "Időpont",
+      "phoneLabel": "Telefon",
+      "emailLabel": "E-mail",
+      "specialistLabel": "Szakember",
+      "serviceLabel": "Szolgáltatás",
+      "chooseOpt": "Válassz...",
+      "notesLabel": "Megjegyzések",
+      "whatsappLabel": "💬 WhatsApp",
+      "whatsappUnavailable": "Az ELITE vagy TEAM csomagban elérhető",
+      "whatsappSendBtn": "Küldés ↗",
+      "cancelBtn": "Mégse",
+      "saveBtn": "✓ Mentés",
+      "deleteTooltip": "Törlés",
+      "deleteConfirmTitle": "Törlés",
+      "deleteConfirmMsg": "Törlöd {nume} időpontját?",
+      "deleteConfirmBtn": "Törlés",
+      "updatedToast": "Időpont frissítve!"
+    },
+    "newModal": {
+      "title": "Új időpont",
+      "nameLabel": "Teljes név",
+      "namePlaceholder": "Az ügyfél neve...",
+      "phoneLabel": "Telefon",
+      "emailLabel": "E-mail",
+      "specialistLabel": "Szakember",
+      "serviceLabel": "Szolgáltatás",
+      "chooseOpt": "Válassz...",
+      "notesLabel": "Megjegyzések",
+      "cancelBtn": "Mégse",
+      "saveBtn": "Mentés",
+      "addedToast": "Időpont hozzáadva!"
+    }
+  },
+  "rapoarte": {
+    "localeCode": "hu-HU",
+    "loading": "ELEMZÉSEK GENERÁLÁSA...",
+    "lockedTitle": "Jelentések zárolva",
+    "lockedTextBefore": "A ",
+    "lockedPlanFree": "FREE",
+    "lockedTextAfter": " csomag nem tartalmaz hozzáférést a jelentésekhez. Válassz magasabb csomagot, hogy lásd vállalkozásod teljesítményét.",
+    "seePlansBtn": "Csomagok megtekintése",
+    "headingPrefix": "Jelentés",
+    "headingTeam": "Csapat",
+    "headingElite": "Részletes",
+    "headingSummary": "Összegzés",
+    "adminLabel": "Admin: ",
+    "planLabel": " | Csomag: ",
+    "backBtn": "Vissza",
+    "exportBtn": "PDF exportálása",
+    "statTotalAppts": "Összes időpont",
+    "statRevenue": "Becsült bevétel",
+    "statAvgPerDay": "Napi átlag",
+    "statAvgValue": "Átlagérték",
+    "statUniqueClients": "Egyedi ügyfelek",
+    "statRetention": "Megtartási arány",
+    "lockedStat": "ZÁROLVA",
+    "weeklyChartTitle": "Heti eloszlás",
+    "topServicesTitle": "Legjobb szolgáltatások",
+    "topServicesLocked": "Az ELITE és TEAM csomagokban elérhető",
+    "teamPerfTitle": "Csapattagok teljesítménye",
+    "tableStaff": "Csapattag",
+    "tableAppts": "Időpontok",
+    "tableRevenue": "Generált bevétel",
+    "tableEfficiency": "Volumen hatékonyság",
+    "aiInsightsTitle": "Chronos AI Insights",
+    "insightGood": "A vállalkozás kiváló lendületben van. {rata}%-os visszatérési arány mellett az ügyfélkör stabil.",
+    "insightNeutral": "Az elemzés szerint az adatgyűjtési fázisban vagy. Folytasd a feldolgozást a pénzügyi előrejelzésekért.",
+    "unknownClient": "Ismeretlen ügyfél",
+    "weekdaysSun0": [
+      "Vasárnap",
+      "Hétfő",
+      "Kedd",
+      "Szerda",
+      "Csütörtök",
+      "Péntek",
+      "Szombat"
+    ],
+    "insights": {
+      "peakDayTitle": "Csúcsnap",
+      "peakDayText": "{zi} a legforgalmasabb napod, {n} időponttal. Győződj meg róla, hogy ezen a napon elég munkaerőd és szabad kapacitásod van.",
+      "slowDayTitle": "Alacsony forgalmú nap",
+      "slowDayText": "{zi} rendelkezik a legkevesebb időponttal ({n}). Egy promóció vagy rugalmasabb beosztás ezen a napon optimalizálhatja az erőforrásokat.",
+      "concentrationTitle": "Egy szolgáltatásra való koncentráció",
+      "concentrationText": "A \"{nume}\" szolgáltatás generálja a teljes bevétel {pct}%-át. A kínálat diverzifikálása csökkentheti a kockázatot és új ügyfeleket vonzhat.",
+      "retentionLowTitle": "Figyelendő megtartás",
+      "retentionLowText": "Az ügyfelek csak {rata}%-a tér vissza. Egy hűségprogram (kedvezmények, csomagok) növelhetné ezt az arányt.",
+      "retentionGoodTitle": "Stabil megtartás",
+      "retentionGoodText": "Az ügyfelek {rata}%-a visszatér — ez stabil alap. Folytasd a következetes élmény biztosítását.",
+      "avgValueLowTitle": "Növelhető átlagérték",
+      "avgValueLowText": "Az időpontonkénti átlagérték {val} RON. A kombinált szolgáltatáscsomagok (upsell) a recepción növelhetik ezt a mutatót.",
+      "teamLoadTitle": "Csapat munkaterhelése",
+      "teamLoadText": "Átlagosan minden csapattag {avg} időpontot kezel.",
+      "teamLoadHighSuggestion": "Magas terhelés — érdemes lehet megvizsgálni, hogy a csapatnak szüksége van-e erősítésre.",
+      "teamLoadLowSuggestion": "Van hely további időpontokra — érdemes lehet promócióba invesztálni új ügyfelek megszerzéséhez.",
+      "gettingStartedTitle": "Adatgyűjtés",
+      "gettingStartedText": "Még kevés rögzített időpontod van. Ahogy egyre többet adsz hozzá, az ajánlások egyre pontosabbak lesznek."
+    }
+  },
+  "chronosPickers": {
+    "localeCode": "hu-HU",
+    "dayNamesShort": [
+      "Hé",
+      "Ke",
+      "Sze",
+      "Csü",
+      "Pé",
+      "Szo",
+      "Va"
+    ],
+    "monthNames": [
+      "Január",
+      "Február",
+      "Március",
+      "Április",
+      "Május",
+      "Június",
+      "Július",
+      "Augusztus",
+      "Szeptember",
+      "Október",
+      "November",
+      "December"
+    ],
+    "timePickerTitle": "Chronos Time Picker",
+    "closedMessage": "Az üzlet ezen a napon zárva van.",
+    "selectHourLabel": "Válassz időpontot",
+    "minutesLabel": "Perc",
+    "cancelBtn": "Mégse",
+    "closeBtn": "Bezárás",
+    "statusBooked": "Foglalt",
+    "statusClosed": "Zárva",
+    "statusExpired": "Lejárt",
+    "statusExceeded": "Túllépve",
+    "statusUnavailable": "Nem elérhető",
+    "datePickerTitle": "Chronos Date Picker"
+  },
+  "rezervare": {
+    "localeCode": "hu-HU",
+    "understoodBtn": "ÉRTETTEM",
+    "thanksTitle": "KÖSZÖNJÜK!",
+    "thanksText": "A véleményedet elküldtük jóváhagyásra.",
+    "invalidLink": "Érvénytelen link",
+    "syncing": "Valós idejű szinkronizálás...",
+    "brandLine1": "CHRONOS",
+    "brandLine2": "BOOKING",
+    "contactSectionTitle": "A te elérhetőségeid",
+    "namePlaceholder": "TELJES NÉV",
+    "phonePlaceholder": "TELEFON",
+    "emailPlaceholder": "E-MAIL",
+    "suggestionPrefix": "⚡ ",
+    "serviceCardLabel": "{n}. szolgáltatás",
+    "serviceLabel": "Szolgáltatás",
+    "chooseServiceOpt": "VÁLASSZ SZOLGÁLTATÁST",
+    "expertLabel": "Szakember",
+    "firstAvailOpt": "ELSŐ SZABAD IDŐPONT",
+    "dateLabel": "Dátum",
+    "timeLabel": "Időpont",
+    "chooseTimeOpt": "VÁLASSZ IDŐPONTOT",
+    "reservedIntervalLabel": "Lefoglalt időintervallum",
+    "addServiceBtn": "ÚJ SZOLGÁLTATÁS HOZZÁADÁSA",
+    "notesLabel": "KÜLÖNLEGES MEGJEGYZÉSEK (OPCIONÁLIS)",
+    "notesPlaceholder": "Van valamilyen preferenciád?",
+    "processingBtn": "FELDOLGOZÁS...",
+    "confirmAllBtn": "AZ ÖSSZES FOGLALÁS MEGERŐSÍTÉSE",
+    "successTitle": "Foglalások elküldve!",
+    "successText": "Az összes időpontod rögzítve lett.",
+    "retryBtn": "ÚJRA",
+    "leaveReviewTitle": "VÉLEMÉNY ÍRÁSA",
+    "yourNamePlaceholder": "A NEVED",
+    "commentPlaceholder": "MEGJEGYZÉS",
+    "sendingBtn": "KÜLDÉS...",
+    "sendReviewBtn": "VÉLEMÉNY ELKÜLDÉSE",
+    "recentReviewsTitle": "LEGÚJABB VÉLEMÉNYEK",
+    "salonReplyLabel": "Válasz:",
+    "noReviewsYet": "Legyél az első, aki véleményt ír!",
+    "footerText": "Powered by Chronos Resource Management",
+    "popupHourBlockedTitle": "Nem elérhető időpont",
+    "popupHourBlockedMsg": "Ez az időpont nem elérhető.",
+    "popupDayClosedTitle": "Zárva tartó nap",
+    "popupDayClosedMsg": "Az üzlet ezen a napon zárva van.",
+    "popupOutsideHoursTitle": "Munkaidőn kívül",
+    "popupOutsideHoursMsg": "A választott időpont a munkaidőn kívül van.",
+    "popupOverlapTitle": "Túllépett időtartam",
+    "popupOverlapMsg": "A szolgáltatás túllépi a zárási időt.",
+    "popupPlanLimitTitle": "Maximális kapacitás",
+    "popupPlanLimitMsg": "Elérted a havi foglalási limitet.",
+    "popupAlreadyBookedTitle": "Nem elérhető időszak",
+    "popupAlreadyBookedMsg": "Már van egy aktív foglalás ebben az időszakban.",
+    "popupDefaultTitle": "Limit elérve",
+    "popupDefaultMsg": "A választott időszak nem foglalható le.",
+    "incompleteTitle": "Hiányos",
+    "incompleteMsg": "Győződj meg róla, hogy minden foglaláshoz kiválasztottad a szolgáltatást és az időpontot.",
+    "attentionTitle": "Figyelem",
+    "attentionMsg": "Először válaszd ki a szolgáltatást ehhez a kártyához.",
+    "incompleteFieldsTitle": "Hiányos mezők",
+    "incompleteFieldsMsg": "Töltsd ki az összes mezőt a véleményhez.",
+    "errorTitle": "Hiba",
+    "errorDefaultMsg": "Váratlan hiba történt.",
+    "reviewsCountSuffix": " vélemény",
+    "noRatingYet": "Legyél az első, aki értékel"
+  },
+  "programariPage": {
+    "successTitle": "Időpontok mentve!",
+    "successText": "Az összes időpont sikeresen rögzítve lett.",
+    "continueBtn": "TOVÁBB",
+    "confirmDelete": "Törlöd ezt az időpontot?",
+    "trialTitle": "Prémium próba aktív",
+    "trialSubtitle": "Chronos Team hozzáférés — még {n} nap",
+    "trialDaysLeft": "nap van hátra",
+    "headingPrefix": "Időpontok",
+    "headingHighlight": "kezelése",
+    "planLabel": "Csomag: ",
+    "monthCountSuffix": " ebben a hónapban",
+    "todayLabel": "Ma: ",
+    "totalSuffix": " Összesen",
+    "onlineSuffix": " Online",
+    "calendarLink": "Naptár",
+    "clientPhotoLabel": "Ügyfél profilkép",
+    "nameLabel": "Ügyfél neve",
+    "namePlaceholder": "Név...",
+    "emailLabel": "E-mail",
+    "emailPlaceholder": "ugyfel@email.com",
+    "phoneLabel": "Telefon",
+    "phonePlaceholder": "06xxxxxxxx",
+    "notesLabel": "Megjegyzések",
+    "notesPlaceholder": "További részletek...",
+    "separatorLabel": "Szolgáltatások és foglalás",
+    "filesAttachedLabel": "Csatolt fájlok",
+    "addFileBtn": "Fájl hozzáadása +",
+    "noFilesAdded": "Nincs hozzáadott fájl",
+    "todayApptsTitle": "Mai időpontok",
+    "noApptsToday": "Nincs mai időpont.",
+    "generalFallback": "Általános",
+    "procedureFallback": "Kezelés",
+    "noDetailsFallback": "Nincs részlet",
+    "atHourLabel": " ekkor: ",
+    "phoneFieldLabel": "Telefon",
+    "emailFieldLabel": "E-mail",
+    "specialistFieldLabel": "Szakember",
+    "serviceFieldLabel": "Szolgáltatás",
+    "naFallback": "N/A",
+    "dashFallback": "-",
+    "visitReasonLabel": "A látogatás oka",
+    "noNotesFallback": "Nincs megjegyzés.",
+    "attachedFilesPopupLabel": "Csatolt fájlok",
+    "documentFallback": "Dokumentum",
+    "viewBtn": "MEGNÉZ"
+  },
+  "multiServiceBooking": {
+    "localeCode": "hu-HU",
+    "serviceLabel": "{n}. szolgáltatás",
+    "chooseSpecialistLabel": "Szakember kiválasztása",
+    "chooseSpecialistOpt": "Szakember kiválasztása...",
+    "chooseServiceLabel": "Szolgáltatás kiválasztása",
+    "chooseServiceOpt": "Szolgáltatás kiválasztása...",
+    "dateLabel": "Dátum",
+    "chooseDateBtn": "DÁTUM KIVÁLASZTÁSA",
+    "timeLabel": "Időpont",
+    "chooseTimeBtn": "IDŐPONT",
+    "chooseServiceFirstAlert": "Először válaszd ki a szolgáltatást.",
+    "reservedIntervalLabel": "Lefoglalt időintervallum",
+    "addServiceBtn": "ÚJ SZOLGÁLTATÁS HOZZÁADÁSA",
+    "summaryTitle": "📋 Foglalás összegzése",
+    "firstAvailFallback": "Első szabad időpont",
+    "totalLabel": "ÖSSZESEN",
+    "minutesSuffix": " perc",
+    "attentionTitle": "⚠️ Figyelem",
+    "processingBtn": "FELDOLGOZÁS...",
+    "saveBtn": "✓ {n} FOGLALÁS MENTÉSE",
+    "errClientData": "Kérjük, add meg az ügyfél nevét, telefonszámát és e-mail címét.",
+    "errChooseService": "{n}. szolgáltatás: válassz szolgáltatást.",
+    "errChooseDate": "{n}. szolgáltatás: válassz dátumot.",
+    "errChooseTime": "{n}. szolgáltatás: válassz időpontot.",
+    "errTimePassed": "{n}. szolgáltatás: a(z) {ora} időpont már elmúlt.",
+    "errOverlapForm": "A(z) #{i}. és #{j}. szolgáltatás átfedésben van (ugyanaz a szakember).",
+    "errOverlapDb": "„{svc}” ekkor: {ora} — {specName} már foglalt ebben az időszakban.",
+    "chosenSpecialistFallback": "a kiválasztott szakember",
+    "saveErrorPrefix": "Hiba: ",
+    "saveErrorDefault": "Nem sikerült menteni.",
+    "naFallback": "N/A"
+  },
+  "abonamente": {
+    "header": {
+      "title": "Válaszd ki",
+      "titleHighlight": "a megfelelő csomagot",
+      "subtitle": "Minden csomag pontosan azt adja, amire szükséged van, a vállalkozásod méretétől függően."
+    },
+    "status": {
+      "trialActive": "PRÓBAIDŐSZAK AKTÍV",
+      "planActive": "AKTÍV CSOMAG",
+      "trialPlanName": "CHRONOS TEAM (PRÓBA)"
+    },
+    "countdown": {
+      "days": "NAP",
+      "hours": "ÓRA",
+      "min": "PERC",
+      "sec": "MP"
+    },
+    "activateTrialBtn": "INGYENES PRÓBAIDŐSZAK AKTIVÁLÁSA",
+    "perMonth": "/ HÓ",
+    "badges": {
+      "popular": "LEGNÉPSZERŰBB",
+      "active": "A TE CSOMAGOD"
+    },
+    "alreadyActiveBtn": "AKTÍV CSOMAG",
+    "modal": {
+      "title": "Erősítsd meg a váltást",
+      "message": "Jelenleg a Chronos Team próbaidőszakban vagy. A {plan} csomagra váltás azonnal véget vet a próbának. Folytatod?",
+      "confirmBtn": "IGEN, FOLYTATOM",
+      "cancelBtn": "MÉGSE"
+    },
+    "errors": {
+      "trialActivate": "Hiba a próbaidőszak aktiválásakor.",
+      "errorTitle": "Hiba",
+      "alreadyFree": "Már az ingyenes csomagot használod.",
+      "infoTitle": "Információ"
+    },
+    "plans": [
+      {
+        "name": "CHRONOS FREE",
+        "price": 0,
+        "description": "Az alkalmazás kipróbálásához és megismeréséhez.",
+        "buttonText": "CSOMAG KIVÁLASZTÁSA",
+        "features": [
+          {
+            "text": "30 időpont / hó",
+            "available": true,
+            "highlight": "30"
+          },
+          {
+            "text": "1 szakember",
+            "available": true,
+            "highlight": "1"
+          },
+          {
+            "text": "5 szolgáltatás",
+            "available": true,
+            "highlight": "5"
+          },
+          {
+            "text": "Alap jelentések",
+            "available": false
+          },
+          {
+            "text": "Ügyfélvélemények",
+            "available": false
+          },
+          {
+            "text": "WhatsApp értesítések",
+            "available": false
+          }
+        ]
+      },
+      {
+        "name": "CHRONOS PRO",
+        "price": 49,
+        "description": "Kisvállalkozásoknak, akiknek nagyobb kapacitásra van szükségük.",
+        "buttonText": "CSOMAG KIVÁLASZTÁSA",
+        "features": [
+          {
+            "text": "150 időpont / hó",
+            "available": true,
+            "highlight": "150"
+          },
+          {
+            "text": "1 szakember",
+            "available": true,
+            "highlight": "1"
+          },
+          {
+            "text": "15 szolgáltatás",
+            "available": true,
+            "highlight": "15"
+          },
+          {
+            "text": "Alap jelentések",
+            "available": true
+          },
+          {
+            "text": "Ügyfélvélemények",
+            "available": false
+          },
+          {
+            "text": "WhatsApp értesítések",
+            "available": false
+          }
+        ]
+      },
+      {
+        "name": "CHRONOS ELITE",
+        "price": 99,
+        "description": "Csapattal működő, magas ügyfélforgalmú vállalkozásoknak.",
+        "buttonText": "CSOMAG KIVÁLASZTÁSA",
+        "features": [
+          {
+            "text": "500 időpont / hó",
+            "available": true,
+            "highlight": "500"
+          },
+          {
+            "text": "5 szakember",
+            "available": true,
+            "highlight": "5"
+          },
+          {
+            "text": "Korlátlan szolgáltatás",
+            "available": true,
+            "highlight": "Korlátlan"
+          },
+          {
+            "text": "Fejlett jelentések & AI Insights",
+            "available": true,
+            "highlight": "AI Insights"
+          },
+          {
+            "text": "Ügyfélvélemények & nyilvános oldal",
+            "available": true
+          },
+          {
+            "text": "WhatsApp értesítések",
+            "available": true
+          }
+        ]
+      },
+      {
+        "name": "CHRONOS TEAM",
+        "price": 299,
+        "description": "Nagy csapatoknak, teljes kontrollal a vállalkozás felett.",
+        "buttonText": "CSOMAG KIVÁLASZTÁSA",
+        "features": [
+          {
+            "text": "Korlátlan időpontok",
+            "available": true,
+            "highlight": "Korlátlan"
+          },
+          {
+            "text": "50 szakember",
+            "available": true,
+            "highlight": "50"
+          },
+          {
+            "text": "Korlátlan szolgáltatás",
+            "available": true,
+            "highlight": "Korlátlan"
+          },
+          {
+            "text": "Jelentések & csapatteljesítmény",
+            "available": true,
+            "highlight": "csapatteljesítmény"
+          },
+          {
+            "text": "Ügyfélvélemények & nyilvános oldal",
+            "available": true
+          },
+          {
+            "text": "WhatsApp értesítések",
+            "available": true
+          }
+        ]
+      }
+    ]
+  },
+  "cookiesModal": {
+    "title": "Cookie-",
+    "titleHighlight": "szabályzat",
+    "text1": "Csak technikai sütiket használunk, amelyek szükségesek ahhoz, hogy bejelentkezve tartsanak a fiókodban.",
+    "text2": "Nem használunk sütiket hirdetésre vagy kereskedelmi nyomkövetésre.",
+    "text3": "Ezek a sütik elengedhetetlenek az alkalmazás működéséhez, és kijelentkezéskor automatikusan lejárnak.",
+    "contactLabel": "Kérdésed van a sütikről? Írj nekünk: ",
+    "closeBtn": "BEZÁRÁS"
+  },
+  "termeniModal": {
+    "title": "Felhasználási ",
+    "titleHighlight": "feltételek",
+    "text1": "A Chronos platform használatával elfogadod a működési szabályainkat.",
+    "text2": "A rendszer az idő és a szakmai erőforrások hatékony kezelésére szolgál.",
+    "text3": "A felhasználó felelős a naptárba beírt adatok pontosságáért.",
+    "text4": "Fenntartjuk a jogot e feltételek frissítésére; a platform további használata a módosítások után azok elfogadását jelenti.",
+    "contactLabel": "Kérdésed van a feltételekről? Írj nekünk: ",
+    "acceptBtn": "ELFOGADOM"
+  },
+  "gdprModal": {
+    "title": "Adatvédelmi",
+    "titleHighlight": "szabályzat",
+    "text1": "Az adataid védelme prioritás a Chronos rendszerben.",
+    "text2": "Csak a foglalási szolgáltatás működéséhez és a fiókod biztonságához szükséges minimális adatokat gyűjtjük.",
+    "text3": "Nem adjuk el az adataidat, és biztonságos infrastruktúrát használunk a tároláshoz.",
+    "text4": "Bármikor jogod van kérni a személyes adataidhoz való hozzáférést, azok helyesbítését vagy törlését.",
+    "contactLabel": "Személyes adatokkal kapcsolatos kérésekért írj nekünk: ",
+    "understoodBtn": "ÉRTETTEM"
+  },
+  "resetPasswordPage": {
+    "checkingSecurity": "Biztonsági ellenőrzés...",
+    "titleLine1": "JELSZÓ",
+    "titleHighlight": "BEÁLLÍTÁSA",
+    "validSession": "Érvényes munkamenet",
+    "newPasswordLabel": "Új jelszó",
+    "confirmPasswordLabel": "Jelszó megerősítése",
+    "errMismatch": "❌ A jelszavak nem egyeznek!",
+    "errMinLength": "❌ A jelszónak legalább 6 karakterből kell állnia!",
+    "successMsg": "✅ Jelszó frissítve! Átirányítás...",
+    "errConnection": "❌ Kapcsolódási hiba.",
+    "savingBtn": "Mentés...",
+    "saveBtn": "Új jelszó mentése",
+    "footer": "Chronos Security Module • v2.0"
+  },
+  "dosarClient": {
+    "workNamePlaceholder": "MUNKA NEVE (pl.: Hajfestés)",
+    "deleteBtn": "✕ Törlés",
+    "serviceePriceLabel": "Szolgáltatás ára (RON)",
+    "durationLabel": "Időtartam (perc)",
+    "materialsUsedLabel": "📦 Felhasznált anyagok",
+    "addMaterialBtn": "+ Anyag hozzáadása",
+    "noMaterials": "Nincs hozzáadott anyag",
+    "materialNamePlaceholder": "pl.: Loreal Festék",
+    "unitGram": "g",
+    "unitMl": "ml",
+    "unitPiece": "db",
+    "unitLiter": "l",
+    "unitKg": "kg",
+    "ronPerUnit": "RON/e",
+    "colProduct": "Termék",
+    "colQuantity": "Mennyiség",
+    "colUnit": "Egység",
+    "colPricePerUnit": "Ár/Egység",
+    "materialsCostLabel": "Anyagköltség",
+    "netProfitLabel": "✅ Nettó nyereség",
+    "lossLabel": "❌ Veszteség",
+    "profitMarginLabel": "Nyereséghányad",
+    "profitGood": "🟢 Jó jövedelmezőség",
+    "profitMedium": "🟡 Közepes jövedelmezőség",
+    "profitLow": "🔴 Alacsony jövedelmezőség",
+    "profitBelow": "⛔ Az anyagköltség alatt",
+    "filesAttachedLabel": "📎 Csatolt fájlok",
+    "uploading": "Feltöltés...",
+    "addFilesBtn": "+ Fájlok hozzáadása",
+    "uploadErrorPrefix": "Feltöltési hiba: ",
+    "noFilesAttached": "Nincs csatolt fájl",
+    "supportsTypes": "Támogatja a képeket, videót, hangot, dokumentumokat",
+    "openLink": "Megnyitás",
+    "downloadFileBtn": "Fájl letöltése",
+    "tabProfile": "Profil",
+    "tabWorks": "Munkák",
+    "tabFiles": "Fájlok",
+    "headerTitle": "Ügyfél-",
+    "headerHighlight": "dosszié",
+    "statTotalRevenue": "Összes bevétel",
+    "statMaterialsCost": "Anyagköltség",
+    "statNetProfit": "Nettó nyereség",
+    "fullNameLabel": "Teljes név",
+    "statusLabel": "Állapot",
+    "statusActive": "🟢 Aktív profil",
+    "statusArchived": "🔴 Archivált profil",
+    "emailLabel": "E-mail",
+    "phoneLabel": "Telefon",
+    "historyNotesLabel": "Előzmények és jegyzetek",
+    "worksTabTitle": "Elvégzett munkák + Nyereségszámoló",
+    "newWorkBtn": "+ Új munka",
+    "noWorksTitle": "Nincs rögzített munka",
+    "noWorksSubtitle": "Add hozzá az első munkát a nyereség kiszámításához",
+    "removeClientBtn": "Ügyfél eltávolítása",
+    "finalizeBtn": "Befejezés",
+    "confirmDeleteWork": "Törlöd ezt a munkát?"
+  }
+}

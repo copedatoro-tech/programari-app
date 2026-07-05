@@ -1,6 +1,7 @@
 "use client";
 import { useState, useCallback } from "react";
 import { supabase } from "@/lib/supabaseClient";
+import { useTranslations } from "next-intl";
 
 // ============================================================
 // TIPURI
@@ -79,6 +80,7 @@ function CalculatorLucrare({
   onChange: (l: Lucrare) => void;
   onDelete: () => void;
 }) {
+  const t = useTranslations("dosarClient");
   const costMateriale = lucrare.materiale.reduce(
     (acc, m) => acc + m.cantitate * m.pret_unitar,
     0
@@ -120,7 +122,7 @@ function CalculatorLucrare({
       <div className="flex items-start justify-between mb-5 gap-4">
         <input
           className="flex-1 font-black italic text-lg text-slate-900 bg-transparent outline-none border-b-2 border-transparent focus:border-amber-400 uppercase"
-          placeholder="NUME LUCRARE (ex: Vopsit Păr)"
+          placeholder={t("workNamePlaceholder")}
           value={lucrare.nume}
           onChange={(e) => onChange({ ...lucrare, nume: e.target.value })}
         />
@@ -128,14 +130,14 @@ function CalculatorLucrare({
           onClick={onDelete}
           className="text-[10px] text-red-400 hover:text-red-600 font-black uppercase italic shrink-0"
         >
-          ✕ Șterge
+          {t("deleteBtn")}
         </button>
       </div>
 
       {/* Preț serviciu + Durată */}
       <div className="grid grid-cols-2 gap-3 mb-5">
         <div className="bg-slate-50 p-4 rounded-[20px]">
-          <p className="text-[9px] font-black text-slate-400 uppercase mb-1">Preț Serviciu (RON)</p>
+          <p className="text-[9px] font-black text-slate-400 uppercase mb-1">{t("serviceePriceLabel")}</p>
           <input
             type="number"
             min="0"
@@ -147,7 +149,7 @@ function CalculatorLucrare({
           />
         </div>
         <div className="bg-slate-50 p-4 rounded-[20px]">
-          <p className="text-[9px] font-black text-slate-400 uppercase mb-1">Durată (minute)</p>
+          <p className="text-[9px] font-black text-slate-400 uppercase mb-1">{t("durationLabel")}</p>
           <input
             type="number"
             min="0"
@@ -163,19 +165,19 @@ function CalculatorLucrare({
       <div className="mb-5">
         <div className="flex items-center justify-between mb-3">
           <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest">
-            📦 Materiale Utilizate
+            {t("materialsUsedLabel")}
           </p>
           <button
             onClick={addMaterial}
             className="text-[10px] font-black text-amber-600 bg-amber-50 px-3 py-1.5 rounded-xl hover:bg-amber-100 transition-all uppercase italic"
           >
-            + Adaugă Material
+            {t("addMaterialBtn")}
           </button>
         </div>
 
         {lucrare.materiale.length === 0 && (
           <p className="text-center text-slate-300 font-bold italic text-sm py-4">
-            Niciun material adăugat
+            {t("noMaterials")}
           </p>
         )}
 
@@ -187,7 +189,7 @@ function CalculatorLucrare({
             >
               <input
                 className="bg-slate-50 px-3 py-2 rounded-xl text-sm font-bold italic outline-none focus:bg-amber-50 transition-all"
-                placeholder="ex: Vopsea Loreal"
+                placeholder={t("materialNamePlaceholder")}
                 value={mat.nume}
                 onChange={(e) => updateMaterial(idx, "nume", e.target.value)}
               />
@@ -205,14 +207,14 @@ function CalculatorLucrare({
                 value={mat.unitate}
                 onChange={(e) => updateMaterial(idx, "unitate", e.target.value)}
               >
-                <option value="g">g</option>
-                <option value="ml">ml</option>
-                <option value="buc">buc</option>
-                <option value="l">l</option>
-                <option value="kg">kg</option>
+                <option value="g">{t("unitGram")}</option>
+                <option value="ml">{t("unitMl")}</option>
+                <option value="buc">{t("unitPiece")}</option>
+                <option value="l">{t("unitLiter")}</option>
+                <option value="kg">{t("unitKg")}</option>
               </select>
               <div className="relative">
-                <span className="absolute left-2 top-1/2 -translate-y-1/2 text-slate-400 text-xs font-bold">RON/u</span>
+                <span className="absolute left-2 top-1/2 -translate-y-1/2 text-slate-400 text-xs font-bold">{t("ronPerUnit")}</span>
                 <input
                   type="number"
                   min="0"
@@ -236,8 +238,8 @@ function CalculatorLucrare({
         {/* Header coloane */}
         {lucrare.materiale.length > 0 && (
           <div className="grid grid-cols-[1fr_80px_80px_100px_32px] gap-2 mt-1 px-1">
-            {["Produs", "Cantitate", "U.M.", "Preț/U.M.", ""].map((h) => (
-              <p key={h} className="text-[8px] text-slate-300 font-black uppercase text-center">{h}</p>
+            {[t("colProduct"), t("colQuantity"), t("colUnit"), t("colPricePerUnit"), ""].map((h, i) => (
+              <p key={i} className="text-[8px] text-slate-300 font-black uppercase text-center">{h}</p>
             ))}
           </div>
         )}
@@ -246,17 +248,17 @@ function CalculatorLucrare({
       {/* Sumar financiar */}
       <div className="border-t border-slate-100 pt-4 grid grid-cols-3 gap-3">
         <div className="text-center bg-slate-50 p-3 rounded-2xl">
-          <p className="text-[8px] font-black text-slate-400 uppercase mb-1">Cost Materiale</p>
+          <p className="text-[8px] font-black text-slate-400 uppercase mb-1">{t("materialsCostLabel")}</p>
           <p className="font-black italic text-slate-700 text-lg">{costMateriale.toFixed(2)} <span className="text-xs text-slate-400">RON</span></p>
         </div>
         <div className={`text-center p-3 rounded-2xl ${profitColor}`}>
           <p className="text-[8px] font-black uppercase mb-1 opacity-60">
-            {profit >= 0 ? "✅ Profit Net" : "❌ Pierdere"}
+            {profit >= 0 ? t("netProfitLabel") : t("lossLabel")}
           </p>
           <p className="font-black italic text-lg">{Math.abs(profit).toFixed(2)} <span className="text-xs opacity-60">RON</span></p>
         </div>
         <div className="text-center bg-slate-50 p-3 rounded-2xl">
-          <p className="text-[8px] font-black text-slate-400 uppercase mb-1">Marjă Profit</p>
+          <p className="text-[8px] font-black text-slate-400 uppercase mb-1">{t("profitMarginLabel")}</p>
           <p className={`font-black italic text-lg ${marja >= 30 ? "text-green-600" : marja >= 10 ? "text-amber-600" : "text-red-600"}`}>
             {marja.toFixed(1)}%
           </p>
@@ -273,7 +275,7 @@ function CalculatorLucrare({
         />
       </div>
       <p className="text-[8px] text-slate-300 font-bold text-right mt-1 uppercase">
-        {marja >= 30 ? "🟢 Profitabilitate Bună" : marja >= 10 ? "🟡 Profitabilitate Medie" : marja >= 0 ? "🔴 Profitabilitate Scăzută" : "⛔ Sub Costul Materialelor"}
+        {marja >= 30 ? t("profitGood") : marja >= 10 ? t("profitMedium") : marja >= 0 ? t("profitLow") : t("profitBelow")}
       </p>
     </div>
   );
@@ -293,6 +295,7 @@ function ManagerFisiere({
   onDelete: (id: string) => void;
   dosarId: string;
 }) {
+  const t = useTranslations("dosarClient");
   const [incarcare, setIncarcare] = useState(false);
   const [previzualizare, setPrevizualizare] = useState<FisierAtasat | null>(null);
 
@@ -320,7 +323,7 @@ function ManagerFisiere({
           created_at: new Date().toISOString(),
         });
       } catch {
-        alert(`Eroare la upload: ${file.name}`);
+        alert(`${t("uploadErrorPrefix")}${file.name}`);
       }
     }
     setIncarcare(false);
@@ -331,10 +334,10 @@ function ManagerFisiere({
     <div>
       <div className="flex items-center justify-between mb-3">
         <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest">
-          📎 Fișiere Atașate ({fisiere.length})
+          {t("filesAttachedLabel")} ({fisiere.length})
         </p>
         <label className={`text-[10px] font-black px-4 py-2 rounded-xl cursor-pointer uppercase italic transition-all ${incarcare ? "bg-slate-100 text-slate-400" : "bg-amber-50 text-amber-600 hover:bg-amber-100"}`}>
-          {incarcare ? "Se încarcă..." : "+ Adaugă Fișiere"}
+          {incarcare ? t("uploading") : t("addFilesBtn")}
           <input
             type="file"
             className="hidden"
@@ -348,8 +351,8 @@ function ManagerFisiere({
 
       {fisiere.length === 0 && (
         <div className="border-2 border-dashed border-slate-100 rounded-[25px] py-8 text-center">
-          <p className="text-slate-300 font-bold italic text-sm">Niciun fișier atașat</p>
-          <p className="text-slate-200 text-xs mt-1">Suportă imagini, video, audio, documente</p>
+          <p className="text-slate-300 font-bold italic text-sm">{t("noFilesAttached")}</p>
+          <p className="text-slate-200 text-xs mt-1">{t("supportsTypes")}</p>
         </div>
       )}
 
@@ -398,7 +401,7 @@ function ManagerFisiere({
                   className="text-[10px] bg-amber-500 text-white px-4 py-2 rounded-xl font-black uppercase hover:bg-amber-400 transition-all"
                   onClick={(e) => e.stopPropagation()}
                 >
-                  Deschide
+                  {t("openLink")}
                 </a>
                 <button onClick={() => setPrevizualizare(null)} className="text-slate-400 hover:text-white transition-colors text-xl">×</button>
               </div>
@@ -423,7 +426,7 @@ function ManagerFisiere({
                   <p className="text-slate-700 font-black italic text-lg">{previzualizare.nume}</p>
                   <p className="text-slate-400 text-sm mt-2">{formatBytes(previzualizare.dimensiune)}</p>
                   <a href={previzualizare.url} target="_blank" rel="noreferrer" className="mt-6 inline-block px-8 py-3 bg-slate-900 text-white rounded-2xl font-black text-sm uppercase hover:bg-amber-600 transition-all">
-                    Descarcă Fișierul
+                    {t("downloadFileBtn")}
                   </a>
                 </div>
               )}
@@ -445,6 +448,8 @@ export default function DosarClientComplet({
   onUpdate,
   onSterge,
 }: DosarClientProps) {
+  const t = useTranslations("dosarClient");
+
   // Guard: dacă dosarul nu e încă disponibil, nu randăm nimic
   if (!dosar) return null;
 
@@ -500,7 +505,7 @@ export default function DosarClientComplet({
   };
 
   const stergeLucrare = (idx: number) => {
-    if (!confirm("Ștergi această lucrare?")) return;
+    if (!confirm(t("confirmDeleteWork"))) return;
     salveazaLucrari(lucrari.filter((_, i) => i !== idx));
   };
 
@@ -523,9 +528,9 @@ export default function DosarClientComplet({
   const totalProfit = totalPretServicii - totalCostMateriale;
 
   const tabs = [
-    { key: "profil" as const, label: "Profil", icon: "👤" },
-    { key: "lucrari" as const, label: `Lucrări (${lucrari.length})`, icon: "🔧" },
-    { key: "fisiere" as const, label: `Fișiere (${fisiere.length})`, icon: "📎" },
+    { key: "profil" as const, label: t("tabProfile"), icon: "👤" },
+    { key: "lucrari" as const, label: `${t("tabWorks")} (${lucrari.length})`, icon: "🔧" },
+    { key: "fisiere" as const, label: `${t("tabFiles")} (${fisiere.length})`, icon: "📎" },
   ];
 
   return (
@@ -550,7 +555,7 @@ export default function DosarClientComplet({
               </div>
               <div>
                 <h2 className="text-3xl font-black italic uppercase tracking-tighter leading-none">
-                  Dosar <span className="text-amber-500">Client</span>
+                  {t("headerTitle")} <span className="text-amber-500">{t("headerHighlight")}</span>
                 </h2>
                 <p className="text-[10px] text-slate-400 font-bold uppercase mt-1 tracking-widest">
                   {dosarLocal.client_name}
@@ -569,15 +574,15 @@ export default function DosarClientComplet({
           {lucrari.length > 0 && (
             <div className="grid grid-cols-3 gap-3 mb-6">
               <div className="bg-white/10 rounded-2xl p-3 text-center">
-                <p className="text-[8px] text-slate-400 font-black uppercase">Venituri Totale</p>
+                <p className="text-[8px] text-slate-400 font-black uppercase">{t("statTotalRevenue")}</p>
                 <p className="font-black italic text-amber-400 text-xl">{totalPretServicii.toFixed(0)} RON</p>
               </div>
               <div className="bg-white/10 rounded-2xl p-3 text-center">
-                <p className="text-[8px] text-slate-400 font-black uppercase">Cost Materiale</p>
+                <p className="text-[8px] text-slate-400 font-black uppercase">{t("statMaterialsCost")}</p>
                 <p className="font-black italic text-slate-300 text-xl">{totalCostMateriale.toFixed(0)} RON</p>
               </div>
               <div className={`rounded-2xl p-3 text-center ${totalProfit >= 0 ? "bg-green-500/20" : "bg-red-500/20"}`}>
-                <p className="text-[8px] text-slate-400 font-black uppercase">Profit Net</p>
+                <p className="text-[8px] text-slate-400 font-black uppercase">{t("statNetProfit")}</p>
                 <p className={`font-black italic text-xl ${totalProfit >= 0 ? "text-green-400" : "text-red-400"}`}>
                   {totalProfit.toFixed(0)} RON
                 </p>
@@ -611,7 +616,7 @@ export default function DosarClientComplet({
             <div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                 <div className="bg-white p-5 rounded-[25px] shadow-sm border border-slate-100">
-                  <p className="text-[9px] font-black text-slate-400 uppercase italic mb-2">Nume Complet</p>
+                  <p className="text-[9px] font-black text-slate-400 uppercase italic mb-2">{t("fullNameLabel")}</p>
                   <input
                     className="w-full bg-transparent font-black italic text-xl outline-none focus:text-amber-600 uppercase"
                     value={dosarLocal.client_name || ""}
@@ -620,27 +625,27 @@ export default function DosarClientComplet({
                   />
                 </div>
                 <div className="bg-white p-5 rounded-[25px] shadow-sm border border-slate-100">
-                  <p className="text-[9px] font-black text-slate-400 uppercase italic mb-2">Status</p>
+                  <p className="text-[9px] font-black text-slate-400 uppercase italic mb-2">{t("statusLabel")}</p>
                   <select
                     className="w-full bg-transparent font-black italic text-amber-600 outline-none uppercase"
                     value={dosarLocal.status}
                     onChange={(e) => actualizeazaCamp("status", e.target.value)}
                   >
-                    <option value="Activ">🟢 Profil Activ</option>
-                    <option value="Inchis">🔴 Profil Arhivat</option>
+                    <option value="Activ">{t("statusActive")}</option>
+                    <option value="Inchis">{t("statusArchived")}</option>
                   </select>
                 </div>
                 <div className="bg-white p-5 rounded-[25px] shadow-sm border border-slate-100">
-                  <p className="text-[9px] font-black text-slate-400 uppercase italic mb-2">Email</p>
+                  <p className="text-[9px] font-black text-slate-400 uppercase italic mb-2">{t("emailLabel")}</p>
                   <input className="w-full bg-transparent font-bold italic outline-none text-slate-600" value={dosarLocal.client_email || ""} readOnly />
                 </div>
                 <div className="bg-white p-5 rounded-[25px] shadow-sm border border-slate-100">
-                  <p className="text-[9px] font-black text-slate-400 uppercase italic mb-2">Telefon</p>
+                  <p className="text-[9px] font-black text-slate-400 uppercase italic mb-2">{t("phoneLabel")}</p>
                   <input className="w-full bg-transparent font-bold italic outline-none text-slate-600" value={dosarLocal.phone_number || ""} readOnly />
                 </div>
               </div>
               <div className="px-1">
-                <p className="text-[9px] font-black text-slate-400 uppercase italic mb-2 ml-1">Istoric & Note</p>
+                <p className="text-[9px] font-black text-slate-400 uppercase italic mb-2 ml-1">{t("historyNotesLabel")}</p>
                 <textarea
                   className="w-full p-6 bg-white border border-slate-100 rounded-[30px] min-h-[200px] outline-none font-medium italic text-slate-600 text-sm focus:border-amber-200 shadow-sm transition-all"
                   value={dosarLocal.description || ""}
@@ -656,21 +661,21 @@ export default function DosarClientComplet({
             <div>
               <div className="flex items-center justify-between mb-5">
                 <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">
-                  Lucrări realizate + Calculator Profit
+                  {t("worksTabTitle")}
                 </p>
                 <button
                   onClick={adaugaLucrare}
                   className="px-6 py-3 bg-slate-900 text-white rounded-2xl font-black text-[11px] uppercase italic hover:bg-amber-600 transition-all shadow-sm"
                 >
-                  + Lucrare Nouă
+                  {t("newWorkBtn")}
                 </button>
               </div>
 
               {lucrari.length === 0 ? (
                 <div className="py-16 text-center bg-white rounded-[40px] border-2 border-dashed border-slate-100">
                   <span className="text-5xl block mb-3">🔧</span>
-                  <p className="font-black text-slate-400 text-lg uppercase italic">Nicio lucrare înregistrată</p>
-                  <p className="text-slate-300 text-sm mt-2">Adaugă prima lucrare pentru a calcula profitul</p>
+                  <p className="font-black text-slate-400 text-lg uppercase italic">{t("noWorksTitle")}</p>
+                  <p className="text-slate-300 text-sm mt-2">{t("noWorksSubtitle")}</p>
                 </div>
               ) : (
                 lucrari.map((l, idx) => (
@@ -702,13 +707,13 @@ export default function DosarClientComplet({
             onClick={() => onSterge(dosar.id)}
             className="text-[10px] font-black text-red-400 hover:text-red-600 uppercase italic tracking-widest"
           >
-            Elimină Client
+            {t("removeClientBtn")}
           </button>
           <button
             onClick={onClose}
             className="px-10 py-4 bg-slate-900 text-white rounded-[20px] font-black text-[11px] uppercase tracking-widest hover:bg-amber-600 transition-all shadow-lg"
           >
-            Finalizează
+            {t("finalizeBtn")}
           </button>
         </div>
       </div>
