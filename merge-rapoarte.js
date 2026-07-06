@@ -1,451 +1,225 @@
-"use client";
+// merge-rapoarte.js
+// Rulează cu: node merge-rapoarte.js
+const fs = require("fs");
+const path = require("path");
 
-import { useState, useEffect, Suspense, useRef, useMemo } from "react";
-import { createBrowserClient } from '@supabase/ssr';
-import Image from "next/image";
-import { Link } from "@/i18n/navigation";
-import { useTranslations } from "next-intl";
-
-type Appointment = {
-  id: string;
-  date?: string;
-  data?: string;
-  title?: string;
-  nume?: string;
-  prenume?: string;
-  serviciu_id?: string;
-  angajat_id?: string;
-  time?: string;
-  ora?: string;
-  phone?: string;
-  telefon?: string;
-  user_id: string;
+const DATA = {
+ro: { rapoarte: {
+  localeCode: "ro-RO",
+  loading: "GENERARE ANALITICE...",
+  lockedTitle: "Rapoarte Blocate",
+  lockedTextBefore: "Planul ", lockedPlanFree: "FREE",
+  lockedTextAfter: " nu include acces la rapoarte. Alege un plan superior pentru a vedea performanța afacerii tale.",
+  seePlansBtn: "Vezi Planuri",
+  headingPrefix: "Raport", headingTeam: "Echipă", headingElite: "Detaliat", headingSummary: "Sumar",
+  adminLabel: "Admin: ", planLabel: " | Plan: ",
+  backBtn: "Înapoi", exportBtn: "Exportă PDF",
+  statTotalAppts: "Total Programări", statRevenue: "Venit Estimat", statAvgPerDay: "Medie pe Zi",
+  statAvgValue: "Valoare Medie", statUniqueClients: "Clienți Unici", statRetention: "Rată Retenție",
+  lockedStat: "LOCKED",
+  weeklyChartTitle: "Distribuție Săptămânală",
+  topServicesTitle: "Servicii Top", topServicesLocked: "Disponibil în planurile ELITE & TEAM",
+  teamPerfTitle: "Performanță Membri Echipă",
+  tableStaff: "Membru Echipă", tableAppts: "Programări", tableRevenue: "Venit Generat", tableEfficiency: "Eficiență Volum",
+  aiInsightsTitle: "Chronos AI Insights",
+  insightGood: "Afacerea are un momentum excelent. Cu o rată de revenire de {rata}%, baza de clienți este stabilă.",
+  insightNeutral: "Analiza sugerează că sunteți în faza de colectare date. Continuați procesarea pentru prognoze financiare.",
+  unknownClient: "Client Necunoscut",
+  weekdaysSun0: ["Duminică","Luni","Marți","Miercuri","Joi","Vineri","Sâmbătă"]
+}},
+en: { rapoarte: {
+  localeCode: "en-US",
+  loading: "GENERATING ANALYTICS...",
+  lockedTitle: "Reports Locked",
+  lockedTextBefore: "The ", lockedPlanFree: "FREE",
+  lockedTextAfter: " plan doesn't include report access. Choose a higher plan to see your business performance.",
+  seePlansBtn: "See Plans",
+  headingPrefix: "Report", headingTeam: "Team", headingElite: "Detailed", headingSummary: "Summary",
+  adminLabel: "Admin: ", planLabel: " | Plan: ",
+  backBtn: "Back", exportBtn: "Export PDF",
+  statTotalAppts: "Total Appointments", statRevenue: "Estimated Revenue", statAvgPerDay: "Daily Average",
+  statAvgValue: "Average Value", statUniqueClients: "Unique Clients", statRetention: "Retention Rate",
+  lockedStat: "LOCKED",
+  weeklyChartTitle: "Weekly Distribution",
+  topServicesTitle: "Top Services", topServicesLocked: "Available on the ELITE & TEAM plans",
+  teamPerfTitle: "Team Member Performance",
+  tableStaff: "Team Member", tableAppts: "Appointments", tableRevenue: "Revenue Generated", tableEfficiency: "Volume Efficiency",
+  aiInsightsTitle: "Chronos AI Insights",
+  insightGood: "The business has excellent momentum. With a {rata}% return rate, the client base is stable.",
+  insightNeutral: "The analysis suggests you're in the data-collection phase. Keep processing for financial forecasts.",
+  unknownClient: "Unknown Client",
+  weekdaysSun0: ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"]
+}},
+fr: { rapoarte: {
+  localeCode: "fr-FR",
+  loading: "GÉNÉRATION DES ANALYSES...",
+  lockedTitle: "Rapports verrouillés",
+  lockedTextBefore: "Le forfait ", lockedPlanFree: "FREE",
+  lockedTextAfter: " n'inclut pas l'accès aux rapports. Choisis un forfait supérieur pour voir la performance de ton activité.",
+  seePlansBtn: "Voir les forfaits",
+  headingPrefix: "Rapport", headingTeam: "Équipe", headingElite: "Détaillé", headingSummary: "Résumé",
+  adminLabel: "Admin : ", planLabel: " | Forfait : ",
+  backBtn: "Retour", exportBtn: "Exporter en PDF",
+  statTotalAppts: "Total rendez-vous", statRevenue: "Revenu estimé", statAvgPerDay: "Moyenne par jour",
+  statAvgValue: "Valeur moyenne", statUniqueClients: "Clients uniques", statRetention: "Taux de fidélité",
+  lockedStat: "VERROUILLÉ",
+  weeklyChartTitle: "Répartition hebdomadaire",
+  topServicesTitle: "Services les plus performants", topServicesLocked: "Disponible avec les forfaits ELITE et TEAM",
+  teamPerfTitle: "Performance des membres de l'équipe",
+  tableStaff: "Membre de l'équipe", tableAppts: "Rendez-vous", tableRevenue: "Revenu généré", tableEfficiency: "Efficacité de volume",
+  aiInsightsTitle: "Chronos AI Insights",
+  insightGood: "L'activité a un excellent momentum. Avec un taux de fidélité de {rata} %, la base de clients est stable.",
+  insightNeutral: "L'analyse suggère que tu es en phase de collecte de données. Continue pour obtenir des prévisions financières.",
+  unknownClient: "Client inconnu",
+  weekdaysSun0: ["Dimanche","Lundi","Mardi","Mercredi","Jeudi","Vendredi","Samedi"]
+}},
+de: { rapoarte: {
+  localeCode: "de-DE",
+  loading: "ANALYSEN WERDEN ERSTELLT...",
+  lockedTitle: "Berichte gesperrt",
+  lockedTextBefore: "Der Plan ", lockedPlanFree: "FREE",
+  lockedTextAfter: " beinhaltet keinen Zugriff auf Berichte. Wähle einen höheren Plan, um die Leistung deines Unternehmens zu sehen.",
+  seePlansBtn: "Pläne ansehen",
+  headingPrefix: "Bericht", headingTeam: "Team", headingElite: "Detailliert", headingSummary: "Zusammenfassung",
+  adminLabel: "Admin: ", planLabel: " | Plan: ",
+  backBtn: "Zurück", exportBtn: "Als PDF exportieren",
+  statTotalAppts: "Termine gesamt", statRevenue: "Geschätzter Umsatz", statAvgPerDay: "Durchschnitt pro Tag",
+  statAvgValue: "Durchschnittswert", statUniqueClients: "Einzigartige Kunden", statRetention: "Bindungsrate",
+  lockedStat: "GESPERRT",
+  weeklyChartTitle: "Wöchentliche Verteilung",
+  topServicesTitle: "Top-Leistungen", topServicesLocked: "Verfügbar mit den Plänen ELITE und TEAM",
+  teamPerfTitle: "Leistung der Teammitglieder",
+  tableStaff: "Teammitglied", tableAppts: "Termine", tableRevenue: "Erzielter Umsatz", tableEfficiency: "Volumeneffizienz",
+  aiInsightsTitle: "Chronos AI Insights",
+  insightGood: "Das Geschäft hat exzellenten Schwung. Mit einer Bindungsrate von {rata}% ist der Kundenstamm stabil.",
+  insightNeutral: "Die Analyse deutet darauf hin, dass du dich in der Datenerfassungsphase befindest. Sammle weiter Daten für Finanzprognosen.",
+  unknownClient: "Unbekannter Kunde",
+  weekdaysSun0: ["Sonntag","Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag"]
+}},
+es: { rapoarte: {
+  localeCode: "es-ES",
+  loading: "GENERANDO ANÁLISIS...",
+  lockedTitle: "Informes bloqueados",
+  lockedTextBefore: "El plan ", lockedPlanFree: "FREE",
+  lockedTextAfter: " no incluye acceso a los informes. Elige un plan superior para ver el rendimiento de tu negocio.",
+  seePlansBtn: "Ver planes",
+  headingPrefix: "Informe", headingTeam: "Equipo", headingElite: "Detallado", headingSummary: "Resumen",
+  adminLabel: "Admin: ", planLabel: " | Plan: ",
+  backBtn: "Atrás", exportBtn: "Exportar PDF",
+  statTotalAppts: "Total de citas", statRevenue: "Ingresos estimados", statAvgPerDay: "Media diaria",
+  statAvgValue: "Valor medio", statUniqueClients: "Clientes únicos", statRetention: "Tasa de retención",
+  lockedStat: "BLOQUEADO",
+  weeklyChartTitle: "Distribución semanal",
+  topServicesTitle: "Servicios más rentables", topServicesLocked: "Disponible en los planes ELITE y TEAM",
+  teamPerfTitle: "Rendimiento de los miembros del equipo",
+  tableStaff: "Miembro del equipo", tableAppts: "Citas", tableRevenue: "Ingresos generados", tableEfficiency: "Eficiencia de volumen",
+  aiInsightsTitle: "Chronos AI Insights",
+  insightGood: "El negocio tiene un impulso excelente. Con una tasa de retención del {rata}%, la base de clientes es estable.",
+  insightNeutral: "El análisis sugiere que estás en la fase de recopilación de datos. Sigue procesando para obtener previsiones financieras.",
+  unknownClient: "Cliente desconocido",
+  weekdaysSun0: ["Domingo","Lunes","Martes","Miércoles","Jueves","Viernes","Sábado"]
+}},
+it: { rapoarte: {
+  localeCode: "it-IT",
+  loading: "GENERAZIONE ANALISI...",
+  lockedTitle: "Report bloccati",
+  lockedTextBefore: "Il piano ", lockedPlanFree: "FREE",
+  lockedTextAfter: " non include l'accesso ai report. Scegli un piano superiore per vedere le performance della tua attività.",
+  seePlansBtn: "Vedi i piani",
+  headingPrefix: "Report", headingTeam: "Team", headingElite: "Dettagliato", headingSummary: "Riepilogo",
+  adminLabel: "Admin: ", planLabel: " | Piano: ",
+  backBtn: "Indietro", exportBtn: "Esporta PDF",
+  statTotalAppts: "Totale appuntamenti", statRevenue: "Ricavi stimati", statAvgPerDay: "Media giornaliera",
+  statAvgValue: "Valore medio", statUniqueClients: "Clienti unici", statRetention: "Tasso di ritenzione",
+  lockedStat: "BLOCCATO",
+  weeklyChartTitle: "Distribuzione settimanale",
+  topServicesTitle: "Servizi principali", topServicesLocked: "Disponibile nei piani ELITE e TEAM",
+  teamPerfTitle: "Performance dei membri del team",
+  tableStaff: "Membro del team", tableAppts: "Appuntamenti", tableRevenue: "Ricavi generati", tableEfficiency: "Efficienza di volume",
+  aiInsightsTitle: "Chronos AI Insights",
+  insightGood: "L'attività ha uno slancio eccellente. Con un tasso di ritenzione del {rata}%, la base clienti è stabile.",
+  insightNeutral: "L'analisi suggerisce che sei nella fase di raccolta dati. Continua a elaborare per previsioni finanziarie.",
+  unknownClient: "Cliente sconosciuto",
+  weekdaysSun0: ["Domenica","Lunedì","Martedì","Mercoledì","Giovedì","Venerdì","Sabato"]
+}},
+hu: { rapoarte: {
+  localeCode: "hu-HU",
+  loading: "ELEMZÉSEK GENERÁLÁSA...",
+  lockedTitle: "Jelentések zárolva",
+  lockedTextBefore: "A ", lockedPlanFree: "FREE",
+  lockedTextAfter: " csomag nem tartalmaz hozzáférést a jelentésekhez. Válassz magasabb csomagot, hogy lásd vállalkozásod teljesítményét.",
+  seePlansBtn: "Csomagok megtekintése",
+  headingPrefix: "Jelentés", headingTeam: "Csapat", headingElite: "Részletes", headingSummary: "Összegzés",
+  adminLabel: "Admin: ", planLabel: " | Csomag: ",
+  backBtn: "Vissza", exportBtn: "PDF exportálása",
+  statTotalAppts: "Összes időpont", statRevenue: "Becsült bevétel", statAvgPerDay: "Napi átlag",
+  statAvgValue: "Átlagérték", statUniqueClients: "Egyedi ügyfelek", statRetention: "Megtartási arány",
+  lockedStat: "ZÁROLVA",
+  weeklyChartTitle: "Heti eloszlás",
+  topServicesTitle: "Legjobb szolgáltatások", topServicesLocked: "Az ELITE és TEAM csomagokban elérhető",
+  teamPerfTitle: "Csapattagok teljesítménye",
+  tableStaff: "Csapattag", tableAppts: "Időpontok", tableRevenue: "Generált bevétel", tableEfficiency: "Volumen hatékonyság",
+  aiInsightsTitle: "Chronos AI Insights",
+  insightGood: "A vállalkozás kiváló lendületben van. {rata}%-os visszatérési arány mellett az ügyfélkör stabil.",
+  insightNeutral: "Az elemzés szerint az adatgyűjtési fázisban vagy. Folytasd a feldolgozást a pénzügyi előrejelzésekért.",
+  unknownClient: "Ismeretlen ügyfél",
+  weekdaysSun0: ["Vasárnap","Hétfő","Kedd","Szerda","Csütörtök","Péntek","Szombat"]
+}},
+pt: { rapoarte: {
+  localeCode: "pt-PT",
+  loading: "A GERAR ANÁLISES...",
+  lockedTitle: "Relatórios bloqueados",
+  lockedTextBefore: "O plano ", lockedPlanFree: "FREE",
+  lockedTextAfter: " não inclui acesso a relatórios. Escolhe um plano superior para veres o desempenho do teu negócio.",
+  seePlansBtn: "Ver planos",
+  headingPrefix: "Relatório", headingTeam: "Equipa", headingElite: "Detalhado", headingSummary: "Resumo",
+  adminLabel: "Admin: ", planLabel: " | Plano: ",
+  backBtn: "Voltar", exportBtn: "Exportar PDF",
+  statTotalAppts: "Total de marcações", statRevenue: "Receita estimada", statAvgPerDay: "Média diária",
+  statAvgValue: "Valor médio", statUniqueClients: "Clientes únicos", statRetention: "Taxa de retenção",
+  lockedStat: "BLOQUEADO",
+  weeklyChartTitle: "Distribuição semanal",
+  topServicesTitle: "Serviços principais", topServicesLocked: "Disponível nos planos ELITE e TEAM",
+  teamPerfTitle: "Desempenho dos membros da equipa",
+  tableStaff: "Membro da equipa", tableAppts: "Marcações", tableRevenue: "Receita gerada", tableEfficiency: "Eficiência de volume",
+  aiInsightsTitle: "Chronos AI Insights",
+  insightGood: "O negócio tem um excelente momentum. Com uma taxa de retenção de {rata}%, a base de clientes é estável.",
+  insightNeutral: "A análise sugere que estás na fase de recolha de dados. Continua a processar para obter previsões financeiras.",
+  unknownClient: "Cliente desconhecido",
+  weekdaysSun0: ["Domingo","Segunda-feira","Terça-feira","Quarta-feira","Quinta-feira","Sexta-feira","Sábado"]
+}},
+pl: { rapoarte: {
+  localeCode: "pl-PL",
+  loading: "GENEROWANIE ANALIZ...",
+  lockedTitle: "Raporty zablokowane",
+  lockedTextBefore: "Plan ", lockedPlanFree: "FREE",
+  lockedTextAfter: " nie obejmuje dostępu do raportów. Wybierz wyższy plan, aby zobaczyć wyniki swojej firmy.",
+  seePlansBtn: "Zobacz plany",
+  headingPrefix: "Raport", headingTeam: "Zespół", headingElite: "Szczegółowy", headingSummary: "Podsumowanie",
+  adminLabel: "Admin: ", planLabel: " | Plan: ",
+  backBtn: "Wstecz", exportBtn: "Eksportuj PDF",
+  statTotalAppts: "Łączna liczba wizyt", statRevenue: "Szacowany przychód", statAvgPerDay: "Średnia dzienna",
+  statAvgValue: "Średnia wartość", statUniqueClients: "Unikalni klienci", statRetention: "Wskaźnik retencji",
+  lockedStat: "ZABLOKOWANE",
+  weeklyChartTitle: "Rozkład tygodniowy",
+  topServicesTitle: "Najlepsze usługi", topServicesLocked: "Dostępne w planach ELITE i TEAM",
+  teamPerfTitle: "Wydajność członków zespołu",
+  tableStaff: "Członek zespołu", tableAppts: "Wizyty", tableRevenue: "Wygenerowany przychód", tableEfficiency: "Efektywność wolumenu",
+  aiInsightsTitle: "Chronos AI Insights",
+  insightGood: "Firma ma świetne tempo rozwoju. Ze wskaźnikiem retencji {rata}%, baza klientów jest stabilna.",
+  insightNeutral: "Analiza wskazuje, że jesteś w fazie zbierania danych. Kontynuuj przetwarzanie, aby otrzymać prognozy finansowe.",
+  unknownClient: "Nieznany klient",
+  weekdaysSun0: ["Niedziela","Poniedziałek","Wtorek","Środa","Czwartek","Piątek","Sobota"]
+}}
 };
 
-type Service = {
-  id: string;
-  nume_serviciu: string;
-  price: number;
-  user_id: string;
-};
-
-type Staff = {
-  id: string;
-  name: string;
-  user_id: string;
-};
-
-function RapoarteContent() {
-  const t = useTranslations("rapoarte");
-  const localeCode = t("localeCode");
-  const weekdaysSun0 = t.raw("weekdaysSun0") as string[];
-
-  const [appointments, setAppointments] = useState<Appointment[]>([]);
-  const [services, setServices] = useState<Service[]>([]);
-  const [staff, setStaff] = useState<Staff[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [userName, setUserName] = useState<string>("");
-  const [planType, setPlanType] = useState<string>("CHRONOS FREE");
-
-  const channelRef = useRef<any>(null);
-
-  const supabase = useMemo(() => createBrowserClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  ), []);
-
-  async function fetchRealData() {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      const [apptsRes, srvRes, staffRes, profileRes] = await Promise.all([
-        supabase.from('appointments').select('*').eq('user_id', user.id),
-        supabase.from('services').select('*').eq('user_id', user.id),
-        supabase.from('staff').select('*').eq('user_id', user.id),
-        supabase.from('profiles').select('full_name, email, plan_type').eq('id', user.id).maybeSingle(),
-      ]);
-
-      if (apptsRes.data) setAppointments(apptsRes.data);
-      if (srvRes.data) setServices(srvRes.data);
-      if (staffRes.data) setStaff(staffRes.data);
-      if (profileRes.data) {
-        setUserName(profileRes.data.full_name || user.email || "");
-        setPlanType((profileRes.data.plan_type || "CHRONOS FREE").toUpperCase());
-      }
-    } catch (err) {
-      console.error("Eroare sincronizare:", err);
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  useEffect(() => {
-    let isMounted = true;
-    let activeChannel: any = null;
-
-    const initApp = async () => {
-      setLoading(true);
-      await fetchRealData();
-
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user || !isMounted) return;
-
-      const channelName = `rapoarte_realtime_${user.id}_${Math.random().toString(36).substring(2, 7)}`;
-
-      activeChannel = supabase
-        .channel(channelName)
-        .on(
-          'postgres_changes',
-          {
-            event: '*',
-            schema: 'public',
-            table: 'appointments',
-            filter: `user_id=eq.${user.id}`
-          },
-          () => {
-            if (isMounted) fetchRealData();
-          }
-        );
-
-      activeChannel.subscribe((status: string) => {
-        if (status === 'SUBSCRIBED') {
-          channelRef.current = activeChannel;
-        }
-      });
-    };
-
-    initApp();
-
-    return () => {
-      isMounted = false;
-      if (activeChannel) {
-        supabase.removeChannel(activeChannel);
-      }
-      if (channelRef.current) {
-        supabase.removeChannel(channelRef.current);
-        channelRef.current = null;
-      }
-    };
-  }, [supabase]);
-
-  const stats = useMemo(() => {
-    const getClientName = (a: Appointment): string => (a.title || a.prenume || a.nume || "").trim() || t("unknownClient");
-    const getDate = (a: Appointment): string => a.date || a.data || "";
-
-    const clientMap: Record<string, number> = {};
-    let totalRevenue = 0;
-
-    const staffPerformance: Record<string, { name: string, count: number, revenue: number }> = {};
-    staff.forEach(s => staffPerformance[s.id] = { name: s.name, count: 0, revenue: 0 });
-
-    appointments.forEach(a => {
-      const numeClient = getClientName(a);
-      clientMap[numeClient] = (clientMap[numeClient] || 0) + 1;
-
-      const srv = services.find(s => s.id === a.serviciu_id);
-      const price = Number(srv?.price) || 0;
-      totalRevenue += price;
-
-      if (a.angajat_id && staffPerformance[a.angajat_id]) {
-        staffPerformance[a.angajat_id].count++;
-        staffPerformance[a.angajat_id].revenue += price;
-      }
-    });
-
-    const totalClientiUnici = Object.keys(clientMap).length || 0;
-    const rataRevenire = totalClientiUnici > 0 ? Math.round((Object.values(clientMap).filter(v => v > 1).length / totalClientiUnici) * 100) : 0;
-    const valoareMedie = appointments.length > 0 ? Math.round(totalRevenue / appointments.length) : 0;
-
-    const zile: Record<string, number> = {};
-    weekdaysSun0.slice(1).concat(weekdaysSun0[0]).forEach(z => zile[z] = 0);
-    appointments.forEach(a => {
-      let rawDate = getDate(a);
-      if (rawDate) {
-        if (rawDate.includes('.')) {
-          const parts = rawDate.split('.');
-          if (parts.length === 3) rawDate = `${parts[2]}-${parts[1]}-${parts[0]}`;
-        }
-        const d = new Date(rawDate);
-        if (!isNaN(d.getTime())) {
-          const zi = weekdaysSun0[d.getDay()];
-          if (zile[zi] !== undefined) zile[zi]++;
-        }
-      }
-    });
-
-    const actualMax = Math.max(...Object.values(zile), 0);
-    const displayMax = actualMax <= 5 ? 5 : Math.ceil(actualMax / 10) * 10;
-    const yThresholds = [displayMax, Math.round(displayMax * 0.5), 0];
-
-    const serviceRevenue: Record<string, { nume: string; total: number }> = {};
-    appointments.forEach(a => {
-      const srv = services.find(s => s.id === a.serviciu_id);
-      if (srv) {
-        if (!serviceRevenue[srv.id]) serviceRevenue[srv.id] = { nume: srv.nume_serviciu, total: 0 };
-        serviceRevenue[srv.id].total += (Number(srv.price) || 0);
-      }
-    });
-
-    return {
-      zile,
-      displayMax,
-      yThresholds,
-      topServices: Object.values(serviceRevenue).sort((a, b) => b.total - a.total).slice(0, 5),
-      staffStats: Object.values(staffPerformance).sort((a, b) => b.revenue - a.revenue),
-      totalCount: appointments.length,
-      totalRevenue,
-      mediePeZi: appointments.length > 0 ? (appointments.length / 7).toFixed(1) : "0",
-      rataRevenire,
-      totalClientiUnici,
-      valoareMedie,
-    };
-  }, [appointments, services, staff, weekdaysSun0, t]);
-
-  // ✅ Generator de insights reale, bazate pe date — fără comparații între specialiști individuali
-  const insights = useMemo(() => {
-    const list: { title: string; text: string }[] = [];
-
-    if (stats.totalCount < 8) {
-      list.push({ title: t("insights.gettingStartedTitle"), text: t("insights.gettingStartedText") });
-      return list;
-    }
-
-    const zileEntries = Object.entries(stats.zile);
-    const maxZi = zileEntries.reduce((a, b) => (b[1] > a[1] ? b : a));
-    const minZi = zileEntries.reduce((a, b) => (b[1] < a[1] ? b : a));
-    if (maxZi[1] > 0) list.push({ title: t("insights.peakDayTitle"), text: t("insights.peakDayText", { zi: maxZi[0], n: maxZi[1] }) });
-    if (minZi[1] !== maxZi[1]) list.push({ title: t("insights.slowDayTitle"), text: t("insights.slowDayText", { zi: minZi[0], n: minZi[1] }) });
-
-    if (stats.topServices.length > 0 && stats.totalRevenue > 0) {
-      const topPct = Math.round((stats.topServices[0].total / stats.totalRevenue) * 100);
-      if (topPct >= 40) {
-        list.push({ title: t("insights.concentrationTitle"), text: t("insights.concentrationText", { nume: stats.topServices[0].nume, pct: topPct }) });
-      }
-    }
-
-    if (stats.rataRevenire < 30) {
-      list.push({ title: t("insights.retentionLowTitle"), text: t("insights.retentionLowText", { rata: stats.rataRevenire }) });
-    } else if (stats.rataRevenire >= 60) {
-      list.push({ title: t("insights.retentionGoodTitle"), text: t("insights.retentionGoodText", { rata: stats.rataRevenire }) });
-    }
-
-    const avgTopPrice = stats.topServices[0]?.total && stats.totalCount ? stats.topServices[0].total / stats.totalCount : 0;
-    if (stats.valoareMedie > 0 && stats.valoareMedie < Math.max(avgTopPrice * 0.6, 30)) {
-      list.push({ title: t("insights.avgValueLowTitle"), text: t("insights.avgValueLowText", { val: stats.valoareMedie }) });
-    }
-
-    if (staff.length > 1) {
-      const avgPerStaff = Math.round((stats.totalCount / staff.length) * 10) / 10;
-      const suggestion = avgPerStaff > 25 ? t("insights.teamLoadHighSuggestion") : avgPerStaff < 8 ? t("insights.teamLoadLowSuggestion") : "";
-      if (suggestion) {
-        list.push({ title: t("insights.teamLoadTitle"), text: `${t("insights.teamLoadText", { avg: avgPerStaff })} ${suggestion}` });
-      }
-    }
-
-    return list.slice(0, 4);
-  }, [stats, staff, t]);
-
-  const handleExport = () => window.print();
-
-  if (loading) return (
-    <div className="min-h-screen flex items-center justify-center bg-[#fcfcfc]">
-      <div className="font-black italic animate-pulse text-slate-900 uppercase text-[10px] tracking-widest">{t("loading")}</div>
-    </div>
-  );
-
-  const isFree = planType.includes("FREE");
-  const isPro = planType.includes("PRO");
-  const isElite = planType.includes("ELITE");
-  const isTeam = planType.includes("TEAM");
-
-  if (isFree) {
-    return (
-      <main className="min-h-screen bg-[#fcfcfc] flex items-center justify-center p-6">
-        <div className="max-w-md w-full bg-white p-10 rounded-[45px] shadow-xl border border-slate-100 text-center">
-          <div className="mb-6 flex justify-center">
-            <div className="w-20 h-20 bg-amber-50 rounded-full flex items-center justify-center text-4xl">🔒</div>
-          </div>
-          <h2 className="text-2xl font-black italic uppercase tracking-tighter text-slate-900 mb-4">{t("lockedTitle")}</h2>
-          <p className="text-slate-500 font-bold text-sm leading-relaxed mb-8">
-            {t("lockedTextBefore")}<span className="text-amber-600">{t("lockedPlanFree")}</span>{t("lockedTextAfter")}
-          </p>
-          <Link href="/abonamente" className="block w-full bg-slate-900 text-white py-4 rounded-[20px] font-black text-[12px] uppercase italic border-b-4 border-slate-700 hover:scale-105 transition-all text-center">{t("seePlansBtn")}</Link>
-        </div>
-      </main>
-    );
-  }
-
-  const dashboardStats = [
-    { label: t("statTotalAppts"), val: stats.totalCount, color: "text-slate-900", access: isPro || isElite || isTeam },
-    { label: t("statRevenue"), val: `${stats.totalRevenue} RON`, color: "text-emerald-600", access: isPro || isElite || isTeam },
-    { label: t("statAvgPerDay"), val: stats.mediePeZi, color: "text-slate-900", access: isPro || isElite || isTeam },
-    { label: t("statAvgValue"), val: `${stats.valoareMedie} RON`, color: "text-amber-600", access: isElite || isTeam },
-    { label: t("statUniqueClients"), val: stats.totalClientiUnici, color: "text-slate-900", access: isElite || isTeam },
-    { label: t("statRetention"), val: `${stats.rataRevenire}%`, color: "text-blue-600", access: isElite || isTeam },
-  ];
-
-  return (
-    <>
-      <style jsx global>{`
-        @media print {
-          nav, .no-print, button, a, .menu-btn { display: none !important; }
-          @page { margin: 10mm; size: auto; }
-          body {
-            background: white !important;
-            -webkit-print-color-adjust: exact !important;
-            print-color-adjust: exact !important;
-          }
-          main { padding: 0 !important; }
-          .bg-slate-900 {
-            background-color: #0f172a !important;
-            color: white !important;
-            -webkit-print-color-adjust: exact !important;
-            print-color-adjust: exact !important;
-          }
-          .bg-emerald-500 { background-color: #10b981 !important; -webkit-print-color-adjust: exact !important; }
-          .bg-blue-500 { background-color: #3b82f6 !important; -webkit-print-color-adjust: exact !important; }
-          .bg-amber-500 { background-color: #f59e0b !important; -webkit-print-color-adjust: exact !important; }
-          .shadow-md, .shadow-xl, .shadow-2xl { box-shadow: none !important; border: 1px solid #f1f5f9 !important; }
-          .chart-bar {
-            display: block !important;
-            background-color: #0f172a !important;
-            -webkit-print-color-adjust: exact !important;
-            print-color-adjust: exact !important;
-          }
-        }
-      `}</style>
-
-      <main className="min-h-screen bg-[#fcfcfc] p-6 md:p-12 text-slate-900 font-sans pb-32">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col md:flex-row justify-between items-start mb-12 gap-6 border-b pb-8 border-slate-100">
-            <div className="flex items-center gap-6">
-              <Image src="/logo-chronos.png" alt="Logo" width={60} height={60} priority className="rounded-xl" style={{ height: 'auto' }} />
-              <div>
-                <h1 className="text-4xl md:text-5xl font-black italic uppercase tracking-tighter leading-none">
-                  {t("headingPrefix")} <span className="text-amber-600">{isTeam ? t("headingTeam") : isElite ? t("headingElite") : t("headingSummary")}</span>
-                </h1>
-                <p className="text-slate-400 font-bold uppercase text-[10px] tracking-widest italic mt-2">
-                  {t("adminLabel")}{userName}{t("planLabel")}{planType} | {new Date().toLocaleDateString(localeCode)}
-                </p>
-              </div>
-            </div>
-            <div className="flex gap-3 no-print">
-              <Link href="/programari" className="bg-slate-100 text-slate-900 px-8 py-4 rounded-[15px] font-black text-[10px] uppercase italic hover:bg-slate-200 transition-all">{t("backBtn")}</Link>
-              <button onClick={handleExport} className="bg-slate-900 text-white px-8 py-4 rounded-[15px] font-black text-[10px] uppercase italic border-b-4 border-slate-700 hover:scale-105 transition-all">{t("exportBtn")}</button>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-12">
-            {dashboardStats.map((stat, i) => (
-              <div key={i} className={`bg-white p-5 rounded-[30px] shadow-sm border border-slate-100 transition-all ${!stat.access ? 'opacity-40 grayscale' : ''}`}>
-                <p className="text-[9px] font-black text-slate-400 uppercase italic mb-2 tracking-widest">{stat.label}</p>
-                <h2 className={`text-xl md:text-2xl font-black italic tracking-tighter ${stat.access ? stat.color : 'text-slate-300'}`}>
-                  {stat.access ? stat.val : t("lockedStat")}
-                </h2>
-              </div>
-            ))}
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
-            <div className="lg:col-span-2 bg-white p-10 rounded-[45px] shadow-md border border-slate-50 flex flex-col h-[450px]">
-              <h3 className="text-lg font-black uppercase italic tracking-tighter border-l-8 border-amber-500 pl-4 mb-12">{t("weeklyChartTitle")}</h3>
-              <div className="flex-1 flex gap-6">
-                <div className="flex flex-col justify-between text-[11px] font-black text-slate-300 pb-10 italic">
-                  {stats.yThresholds.map((val, i) => <span key={i}>{val}</span>)}
-                </div>
-                <div className="flex-1 flex items-end justify-around px-6 border-l border-b border-slate-100">
-                  {Object.entries(stats.zile).map(([zi, val], i) => (
-                    <div key={i} className="flex flex-col items-center w-full max-w-[40px] group relative h-full justify-end">
-                      <div
-                        className="chart-bar w-full bg-slate-900 rounded-t-lg transition-all duration-500 group-hover:bg-amber-500"
-                        style={{ height: `${(val / (stats.displayMax || 1)) * 100}%`, minHeight: '4px' }}
-                      />
-                      <span className="absolute -bottom-8 text-[9px] font-black uppercase italic text-slate-400">{zi.substring(0, 3)}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            <div className={`bg-white p-10 rounded-[45px] shadow-md border border-slate-100 flex flex-col ${(!isElite && !isTeam) ? 'opacity-40 grayscale pointer-events-none' : ''}`}>
-              <h3 className="text-lg font-black uppercase italic mb-10 tracking-tighter border-l-8 border-emerald-500 pl-4">{t("topServicesTitle")}</h3>
-              {(!isElite && !isTeam) ? (
-                <div className="flex-1 flex items-center justify-center text-center p-4">
-                  <p className="text-[10px] font-black uppercase italic text-slate-400">{t("topServicesLocked")}</p>
-                </div>
-              ) : (
-                <div className="space-y-6">
-                  {stats.topServices.map((s, i) => (
-                    <div key={i} className="space-y-2">
-                      <div className="flex justify-between text-[11px] font-black uppercase italic">
-                        <span className="truncate max-w-[150px]">{s.nume}</span>
-                        <span className="text-emerald-600">{s.total} RON</span>
-                      </div>
-                      <div className="w-full h-2 bg-slate-50 rounded-full overflow-hidden border border-slate-100">
-                        <div className="h-full bg-emerald-500" style={{ width: `${(s.total / (stats.topServices[0]?.total || 1)) * 100}%` }} />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-
-          {isTeam && (
-            <div className="mt-10 bg-white p-10 rounded-[45px] shadow-md border border-slate-100">
-              <h3 className="text-lg font-black uppercase italic mb-8 tracking-tighter border-l-8 border-blue-600 pl-4">{t("teamPerfTitle")}</h3>
-              <div className="overflow-x-auto">
-                <table className="w-full text-left">
-                  <thead>
-                    <tr className="text-[10px] font-black uppercase italic text-slate-400 border-b border-slate-100">
-                      <th className="pb-4">{t("tableStaff")}</th>
-                      <th className="pb-4">{t("tableAppts")}</th>
-                      <th className="pb-4">{t("tableRevenue")}</th>
-                      <th className="pb-4">{t("tableEfficiency")}</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-50">
-                    {stats.staffStats.map((s, i) => (
-                      <tr key={i} className="text-sm font-bold">
-                        <td className="py-4 italic uppercase">{s.name}</td>
-                        <td className="py-4">{s.count}</td>
-                        <td className="py-4 text-emerald-600">{s.revenue} RON</td>
-                        <td className="py-4">
-                            <div className="w-32 h-2 bg-slate-50 rounded-full overflow-hidden border border-slate-100">
-                              <div className="h-full bg-blue-500" style={{ width: `${(s.count / (stats.totalCount || 1)) * 100}%` }} />
-                            </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          )}
-
-          {(isElite || isTeam) && insights.length > 0 && (
-            <div className="mt-10">
-              <h3 className="text-[10px] font-black uppercase italic mb-5 text-amber-600 tracking-widest border-l-8 border-amber-500 pl-4">{t("aiInsightsTitle")}</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {insights.map((ins, i) => (
-                  <div key={i} className="bg-slate-900 p-8 rounded-[35px] text-white relative overflow-hidden shadow-xl">
-                    <div className="relative z-10">
-                      <p className="text-[10px] font-black uppercase italic mb-3 text-amber-500 tracking-widest">{ins.title}</p>
-                      <p className="text-sm md:text-base font-bold leading-relaxed">{ins.text}</p>
-                    </div>
-                    <div className="absolute -right-6 -bottom-6 text-[70px] font-black italic text-white/5 uppercase select-none no-print">AI</div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-      </main>
-    </>
-  );
+const messagesDir = path.join(__dirname, "messages");
+for (const locale of Object.keys(DATA)) {
+  const filePath = path.join(messagesDir, `${locale}.json`);
+  if (!fs.existsSync(filePath)) { console.log(`⚠️  Nu găsesc ${filePath}`); continue; }
+  const json = JSON.parse(fs.readFileSync(filePath, "utf8"));
+  Object.assign(json, DATA[locale]);
+  fs.writeFileSync(filePath, JSON.stringify(json, null, 2), "utf8");
+  console.log(`✅ ${locale}.json actualizat (rapoarte).`);
 }
-
-export default function RapoartePage() {
-  return <Suspense fallback={null}><RapoarteContent /></Suspense>;
-}
+console.log("\n🎉 Traducerile pentru rapoarte au fost adăugate!");

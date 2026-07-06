@@ -885,7 +885,9 @@
       "deleteConfirmTitle": "Usuwanie",
       "deleteConfirmMsg": "Usunąć wizytę {nume}?",
       "deleteConfirmBtn": "Usuń",
-      "updatedToast": "Wizyta zaktualizowana!"
+      "updatedToast": "Wizyta zaktualizowana!",
+      "whatsappMessageBase": "Cześć, {nume}! Czekamy na Ciebie na wizycie {data} o {ora}",
+      "whatsappMessageServiceSuffix": " na {serviciu}"
     },
     "newModal": {
       "title": "Nowa wizyta",
@@ -900,7 +902,13 @@
       "cancelBtn": "Anuluj",
       "saveBtn": "Zapisz",
       "addedToast": "Wizyta dodana!"
-    }
+    },
+    "newBookingNotifTitle": "🌐 Nowa rezerwacja online",
+    "newBookingNotifMsg": "{nume} właśnie dokonał(a) rezerwacji online.",
+    "searchSpecialistPlaceholder": "Szukaj specjalisty...",
+    "searchServicePlaceholder": "Szukaj usługi...",
+    "noResultsFound": "Brak wyników",
+    "specialistConflictError": "Wybrany specjalista ma już rezerwację w tym przedziale czasowym."
   },
   "rapoarte": {
     "localeCode": "pl-PL",

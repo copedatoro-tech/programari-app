@@ -885,7 +885,9 @@
       "deleteConfirmTitle": "Eliminar",
       "deleteConfirmMsg": "Eliminar a marcação de {nume}?",
       "deleteConfirmBtn": "Eliminar",
-      "updatedToast": "Marcação atualizada!"
+      "updatedToast": "Marcação atualizada!",
+      "whatsappMessageBase": "Olá, {nume}! Esperamos-te na tua marcação de {data}, às {ora}",
+      "whatsappMessageServiceSuffix": " para {serviciu}"
     },
     "newModal": {
       "title": "Nova marcação",
@@ -900,7 +902,13 @@
       "cancelBtn": "Cancelar",
       "saveBtn": "Guardar",
       "addedToast": "Marcação adicionada!"
-    }
+    },
+    "newBookingNotifTitle": "🌐 Nova marcação online",
+    "newBookingNotifMsg": "{nume} acabou de fazer uma marcação online.",
+    "searchSpecialistPlaceholder": "Procurar especialista...",
+    "searchServicePlaceholder": "Procurar serviço...",
+    "noResultsFound": "Sem resultados",
+    "specialistConflictError": "O especialista escolhido já tem uma marcação neste período."
   },
   "rapoarte": {
     "localeCode": "pt-PT",

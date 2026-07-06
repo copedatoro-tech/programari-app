@@ -1066,7 +1066,9 @@
       "deleteConfirmTitle": "Ștergere",
       "deleteConfirmMsg": "Ștergi programarea lui {nume}?",
       "deleteConfirmBtn": "Șterge",
-      "updatedToast": "Programare actualizată!"
+      "updatedToast": "Programare actualizată!",
+      "whatsappMessageBase": "Bună, {nume}! Te așteptăm la programarea din {data}, ora {ora}",
+      "whatsappMessageServiceSuffix": " pentru {serviciu}"
     },
     "newModal": {
       "title": "Programare nouă",
@@ -1081,7 +1083,13 @@
       "cancelBtn": "Anulează",
       "saveBtn": "Salvează",
       "addedToast": "Programare adăugată!"
-    }
+    },
+    "newBookingNotifTitle": "🌐 Programare Online Nouă",
+    "newBookingNotifMsg": "{nume} tocmai a făcut o programare online.",
+    "searchSpecialistPlaceholder": "Caută specialist...",
+    "searchServicePlaceholder": "Caută serviciu...",
+    "noResultsFound": "Niciun rezultat",
+    "specialistConflictError": "Specialistul ales are deja o programare în acest interval."
   },
   "rapoarte": {
     "localeCode": "ro-RO",

@@ -885,7 +885,9 @@
       "deleteConfirmTitle": "Suppression",
       "deleteConfirmMsg": "Supprimer le rendez-vous de {nume} ?",
       "deleteConfirmBtn": "Supprimer",
-      "updatedToast": "Rendez-vous mis à jour !"
+      "updatedToast": "Rendez-vous mis à jour !",
+      "whatsappMessageBase": "Bonjour {nume} ! On t'attend pour ton rendez-vous du {data} à {ora}",
+      "whatsappMessageServiceSuffix": " pour {serviciu}"
     },
     "newModal": {
       "title": "Nouveau rendez-vous",
@@ -900,7 +902,13 @@
       "cancelBtn": "Annuler",
       "saveBtn": "Enregistrer",
       "addedToast": "Rendez-vous ajouté !"
-    }
+    },
+    "newBookingNotifTitle": "🌐 Nouvelle réservation en ligne",
+    "newBookingNotifMsg": "{nume} vient de faire une réservation en ligne.",
+    "searchSpecialistPlaceholder": "Rechercher un spécialiste...",
+    "searchServicePlaceholder": "Rechercher un service...",
+    "noResultsFound": "Aucun résultat",
+    "specialistConflictError": "Le spécialiste choisi a déjà une réservation sur ce créneau."
   },
   "rapoarte": {
     "localeCode": "fr-FR",

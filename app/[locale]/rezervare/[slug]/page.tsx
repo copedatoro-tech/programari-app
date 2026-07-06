@@ -49,6 +49,11 @@ function parseWH(whData: any): WorkingHourEntry[] {
   }
   return Array.isArray(whData) ? whData : [];
 }
+// ✅ Cheie compusă dată+specialist — ca să blocăm orele DOAR pentru specialistul ales,
+// nu pentru toți specialiștii (specialiști diferiți pot fi ocupați la ore diferite)
+function mkKey(date: string, specialistId: string) {
+  return `${date}|${specialistId || ""}`;
+}
 
 // ─── POPUPS ──────────────────────────────────────────────────────────────────────
 function ChronosPopup({ icon, title, message, onClose }: { icon: string; title: string; message: string; onClose: () => void }) {
@@ -130,16 +135,23 @@ function RezervareContent() {
   const [mesajFeedback, setMesajFeedback] = useState("");
   const [incarcareFeedback, setIncarcareFeedback] = useState(false);
 
-  const fetchAppointmentsForDate = useCallback(async (date: string) => {
+  const fetchAppointmentsForDate = useCallback(async (date: string, specialistId?: string) => {
     if (!adminId || !date) return;
+    const key = mkKey(date, specialistId || "");
+    if (!specialistId) {
+      // Fără specialist ales ("prima disponibilitate") — nu blocăm nicio oră
+      setAppointmentsByDate(prev => ({ ...prev, [key]: [] }));
+      return;
+    }
     const { data, error } = await supabase
       .from("appointments")
       .select("time, duration")
       .eq("user_id", adminId)
       .eq("date", date)
+      .eq("angajat_id", specialistId)
       .neq("status", "cancelled");
     if (!error && data) {
-      setAppointmentsByDate(prev => ({ ...prev, [date]: data }));
+      setAppointmentsByDate(prev => ({ ...prev, [key]: data }));
     }
   }, [adminId]);
 
@@ -227,7 +239,7 @@ function RezervareContent() {
   }, [adminIdReady, adminId, fetchAdminConfig]);
 
   useEffect(() => {
-    if (adminId) fetchAppointmentsForDate(today);
+    if (adminId) fetchAppointmentsForDate(today, "");
   }, [adminId, today, fetchAppointmentsForDate]);
 
   useEffect(() => {
@@ -246,8 +258,10 @@ function RezervareContent() {
         { event: "*", schema: "public", table: "appointments", filter: `user_id=eq.${adminId}` },
         () => {
           setAppointmentsByDate(prev => {
-            const dates = Object.keys(prev);
-            dates.forEach(d => fetchAppointmentsForDate(d));
+            Object.keys(prev).forEach(key => {
+              const [d, sp] = key.split("|");
+              fetchAppointmentsForDate(d, sp);
+            });
             return prev;
           });
         }
@@ -263,17 +277,21 @@ function RezervareContent() {
   }, [adminId, fetchAppointmentsForDate, fetchFeedbacks]);
 
   const updateBooking = (id: string, fields: Partial<typeof bookings[0]>) => {
-    setBookings(prev => prev.map(b => b.id === id ? { ...b, ...fields } : b));
-    if (fields.data) {
-      fetchAppointmentsForDate(fields.data);
-    }
+    setBookings(prev => {
+      const updated = prev.map(b => b.id === id ? { ...b, ...fields } : b);
+      if (fields.data !== undefined || fields.specialist_id !== undefined) {
+        const b = updated.find(x => x.id === id);
+        if (b) fetchAppointmentsForDate(b.data, b.specialist_id);
+      }
+      return updated;
+    });
   };
 
   const addBookingCard = () => {
     const lastDate = bookings[bookings.length - 1]?.data || today;
     const newB = { ...emptyBooking(), data: lastDate };
     setBookings(prev => [...prev, newB]);
-    fetchAppointmentsForDate(lastDate);
+    fetchAppointmentsForDate(lastDate, newB.specialist_id);
   };
 
   const removeBookingCard = (id: string) => {
@@ -380,7 +398,7 @@ function RezervareContent() {
 
   const activeBooking = pickerControl ? bookings.find(b => b.id === pickerControl.bookingId) : null;
   const activeBookingAppts: ExistingAppointment[] = activeBooking
-    ? (appointmentsByDate[activeBooking.data] || [])
+    ? (appointmentsByDate[mkKey(activeBooking.data, activeBooking.specialist_id)] || [])
     : [];
 
   const avgRating = feedbacks.length > 0
@@ -588,7 +606,7 @@ function RezervareContent() {
                                 setPopup({ icon: "⚠️", title: t("attentionTitle"), message: t("attentionMsg") });
                                 return;
                               }
-                              fetchAppointmentsForDate(b.data);
+                              fetchAppointmentsForDate(b.data, b.specialist_id);
                               setPickerControl({ type: "time", bookingId: b.id });
                             }}
                             className={`w-full rounded-[25px] py-4 px-6 font-black text-[15px] uppercase italic transition-all text-center ${

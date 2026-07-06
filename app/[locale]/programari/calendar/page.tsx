@@ -51,6 +51,41 @@ function isWorkingSlot(slot: string, start: string, end: string) {
 const ALL_SLOTS: string[] = [];
 for (let m = 0; m < 24*60; m += 15)
   ALL_SLOTS.push(`${String(Math.floor(m/60)).padStart(2,"0")}:${String(m%60).padStart(2,"0")}`);
+// ✅ Verificare suprapunere pentru ACELAȘI specialist (indiferent de serviciu).
+// Specialiști diferiți pot avea programări la aceeași oră, chiar pe același serviciu.
+function hasSpecialistConflict(list: Prog[], expertId: string, date: string, ora: string, durMin: number, excludeId?: any): boolean {
+  if (!expertId) return false;
+  const s = timeToMin(ora), e = s + (durMin||30);
+  return list.some(p => {
+    if (excludeId!=null && String(p.id)===String(excludeId)) return false;
+    if (p.data !== date) return false;
+    if (p.expertId !== expertId) return false;
+    const ps = timeToMin(p.ora), pe = ps + (p.duration||30);
+    return s < pe && e > ps;
+  });
+}
+// ─── Sunet notificare (2 tonuri, generate — fără fișier audio necesar) ────────
+function playNotificationSound() {
+  try {
+    const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+    if (!AudioCtx) return;
+    const ctx = new AudioCtx();
+    const beep = (freq: number, start: number, dur: number) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(freq, ctx.currentTime + start);
+      gain.gain.setValueAtTime(0.001, ctx.currentTime + start);
+      gain.gain.exponentialRampToValueAtTime(0.18, ctx.currentTime + start + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + start + dur);
+      osc.start(ctx.currentTime + start);
+      osc.stop(ctx.currentTime + start + dur);
+    };
+    beep(880, 0, 0.22);
+    beep(1175, 0.16, 0.28);
+  } catch {}
+}
 // ─── Types ────────────────────────────────────────────────────────────────────
 type DocAtt = { id: number|string; name: string; url: string };
 type Prog = {
@@ -145,7 +180,7 @@ function AppointmentHoverCard({ prog, anchorRect, serviceById, rawStaff, staffCo
   }, [anchorRect]);
   return (
     <>
-      <div style={{ position:"fixed", inset:0, zIndex:9998, background:"transparent" }} onClick={onClose} />
+      <div style={{ position:"fixed", inset:0, zIndex:9998, background:"transparent", pointerEvents:"none" }} />
       <div ref={cardRef} style={{
         position:"fixed", top:pos.top, left:pos.left, width:284,
         background:"#fff", borderRadius:18,
@@ -290,6 +325,93 @@ function WeekStrip({ selectedDate, onSelectDate, programariByDate, adminWorkingH
     </div>
   );
 }
+// ─── FilterDropdownButton — buton compact cu panou de căutare + scroll ────────
+interface DropdownItem { id: string; label: string; sub?: string; dotColor?: string; initial?: string; count: number; }
+function FilterDropdownButton({ label, allLabel, placeholder, items, selectedId, onSelect }: {
+  label: string; allLabel: string; placeholder: string;
+  items: DropdownItem[]; selectedId: string; onSelect: (id: string) => void;
+}) {
+  const t = useTranslations("calendarPage");
+  const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState("");
+  const boxRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    function onClickOutside(e: MouseEvent) {
+      if (boxRef.current && !boxRef.current.contains(e.target as Node)) { setOpen(false); setQuery(""); }
+    }
+    if (open) {
+      document.addEventListener("mousedown", onClickOutside);
+      setTimeout(() => inputRef.current?.focus(), 30);
+    }
+    return () => document.removeEventListener("mousedown", onClickOutside);
+  }, [open]);
+
+  const selected = items.find(i => i.id === selectedId);
+  const filtered = useMemo(() => {
+    if (!query.trim()) return items;
+    const q = query.toLowerCase();
+    return items.filter(i => i.label.toLowerCase().includes(q));
+  }, [items, query]);
+
+  return (
+    <div ref={boxRef} style={{ position: "relative", flexShrink: 0 }}>
+      <button onClick={() => setOpen(o => !o)}
+        style={{
+          display: "flex", alignItems: "center", gap: 7, padding: "8px 16px", borderRadius: 999,
+          border: "1.5px solid #0f172a",
+          background: "#0f172a", color: "#f59e0b",
+          fontSize: 12, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap", transition: "all 0.15s",
+        }}>
+        <span style={{ opacity: 0.65, fontSize: 10, textTransform: "uppercase", letterSpacing: "0.06em" }}>{label}:</span>
+        {selected?.initial && (
+          <span style={{ width: 16, height: 16, borderRadius: "50%", background: selected.dotColor, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 8, fontWeight: 700, color: "#fff", flexShrink: 0 }}>{selected.initial}</span>
+        )}
+        <span style={{ opacity: 1 }}>{selected ? selected.label : allLabel}</span>
+        <span style={{ fontSize: 10, opacity: 0.65, transform: open ? "rotate(180deg)" : "none", transition: "transform 0.15s" }}>▾</span>
+      </button>
+
+      {open && (
+        <div style={{
+          position: "absolute", top: "calc(100% + 6px)", left: 0, width: 240, background: "#fff",
+          border: "1.5px solid #e2e8f0", borderRadius: 14, boxShadow: "0 12px 32px rgba(0,0,0,0.14)",
+          zIndex: 60, overflow: "hidden",
+        }}>
+          <div style={{ padding: 8, borderBottom: "1px solid #f1f5f9" }}>
+            <input ref={inputRef} value={query} onChange={e => setQuery(e.target.value)}
+              placeholder={placeholder}
+              style={{ width: "100%", background: "#f8fafc", border: "1.5px solid #e2e8f0", borderRadius: 9, padding: "6px 10px", fontSize: 11, fontWeight: 600, color: "#334155", outline: "none" }}
+              className="focus:border-amber-400 transition-all" />
+          </div>
+          <div style={{ maxHeight: 220, overflowY: "auto" }}>
+            <button onClick={() => { onSelect(""); setOpen(false); setQuery(""); }}
+              style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "8px 12px", background: !selectedId ? "#f1f5f9" : "transparent", border: "none", cursor: "pointer", fontSize: 11, fontWeight: 700, color: "#334155", textAlign: "left" }}
+              className="hover:bg-slate-50 transition-colors">
+              {allLabel}
+            </button>
+            {filtered.length === 0 && (
+              <p style={{ padding: "14px 12px", fontSize: 10, color: "#cbd5e1", fontWeight: 700, textAlign: "center" }}>{t("noResultsFound")}</p>
+            )}
+            {filtered.map(item => (
+              <button key={item.id} onClick={() => { onSelect(selectedId === item.id ? "" : item.id); setOpen(false); setQuery(""); }}
+                style={{ width: "100%", display: "flex", alignItems: "center", gap: 8, padding: "8px 12px", background: selectedId === item.id ? "#f1f5f9" : "transparent", border: "none", cursor: "pointer", textAlign: "left" }}
+                className="hover:bg-slate-50 transition-colors">
+                {item.initial && (
+                  <span style={{ width: 18, height: 18, borderRadius: "50%", background: item.dotColor, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 8, fontWeight: 700, color: "#fff", flexShrink: 0 }}>{item.initial}</span>
+                )}
+                <span style={{ flex: 1, fontSize: 11, fontWeight: 700, color: "#334155", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                  {item.label}{item.sub && <span style={{ opacity: 0.5, fontWeight: 600 }}> · {item.sub}</span>}
+                </span>
+                {item.count > 0 && <span style={{ fontSize: 9, fontWeight: 700, padding: "1px 6px", borderRadius: 99, background: "#e2e8f0", color: "#64748b", flexShrink: 0 }}>{item.count}</span>}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
 // ─── FilterBar ────────────────────────────────────────────────────────────────
 function FilterBar({ rawStaff, rawServices, programari, selectedExpert, onSelectExpert, selectedServiciu, onSelectServiciu, selectedDate }: {
   rawStaff: StaffRow[]; rawServices: ServiceRow[]; programari: Prog[];
@@ -316,40 +438,29 @@ function FilterBar({ rawStaff, rawServices, programari, selectedExpert, onSelect
     return rawServices.filter(s=>st.services.includes(s.id));
   }, [selectedExpert, rawStaff, rawServices]);
   if (!rawStaff.length&&!rawServices.length) return null;
-  const chipBase: React.CSSProperties = { display:"flex", alignItems:"center", gap:5, padding:"4px 12px", borderRadius:999, border:"1.5px solid", fontSize:11, fontWeight:700, cursor:"pointer", whiteSpace:"nowrap", flexShrink:0, transition:"all 0.15s" };
+
+  const staffItems: DropdownItem[] = rawStaff.map((st,i) => ({
+    id: st.id, label: st.name, count: cntExp[st.id]||0,
+    dotColor: SC[i%SC.length].border, initial: st.name.slice(0,1).toUpperCase(),
+  }));
+  const svcItems: DropdownItem[] = visSvc.map((svc) => {
+    const parts: string[] = [];
+    if (svc.duration>0) parts.push(`${svc.duration}min`);
+    if (svc.price>0) parts.push(`${svc.price} RON`);
+    return { id: svc.id, label: svc.nume_serviciu, sub: parts.length?parts.join(" · "):undefined, count: cntSvc[svc.id]||0 };
+  });
+
   return (
-    <div style={{ flexShrink:0, background:"#fff", borderBottom:"2px solid #e2e8f0" }}>
+    <div style={{ flexShrink:0, background:"#fff", borderBottom:"2px solid #e2e8f0", padding:"8px 14px", display:"flex", alignItems:"center", gap:10, flexWrap:"wrap" }}>
       {rawStaff.length>0&&(
-        <div style={{ display:"flex", alignItems:"center", gap:8, padding:"7px 14px", borderBottom:"1px solid #f1f5f9", overflowX:"auto", scrollbarWidth:"thin" }}>
-          <span style={{ fontSize:9, fontWeight:700, color:"#94a3b8", textTransform:"uppercase", letterSpacing:"0.08em", flexShrink:0, width:68 }}>{t("filterSpecialists")}</span>
-          <button onClick={()=>{onSelectExpert("");onSelectServiciu("");}} style={{ ...chipBase, background:!selectedExpert?"#0f172a":"#f8fafc", borderColor:!selectedExpert?"#0f172a":"#e2e8f0", color:!selectedExpert?"#fff":"#64748b" }}>{t("filterAll")}</button>
-          {rawStaff.map((st,i) => {
-            const c = SC[i%SC.length]; const isSel = selectedExpert===st.id; const cnt = cntExp[st.id]||0;
-            return (
-              <button key={st.id} onClick={()=>{onSelectExpert(isSel?"":st.id);if(!isSel)onSelectServiciu("");}} style={{ ...chipBase, background:isSel?c.chipBg:"#f8fafc", borderColor:isSel?c.chipBorder:"#e2e8f0", color:isSel?c.chipText:"#334155" }}>
-                <span style={{ width:16, height:16, borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", fontSize:8, fontWeight:700, color:"#fff", background:c.border, flexShrink:0 }}>{st.name.slice(0,1).toUpperCase()}</span>
-                {st.name}
-                {cnt>0&&<span style={{ fontSize:9, fontWeight:700, padding:"1px 5px", borderRadius:99, background:"rgba(0,0,0,0.08)", color:isSel?c.chipText:"#64748b" }}>{cnt}</span>}
-              </button>
-            );
-          })}
-        </div>
+        <FilterDropdownButton label={t("filterSpecialists")} allLabel={t("filterAll")} placeholder={t("searchSpecialistPlaceholder")}
+          items={staffItems} selectedId={selectedExpert}
+          onSelect={(id)=>{onSelectExpert(id); if(!id) onSelectServiciu("");}} />
       )}
       {rawServices.length>0&&(
-        <div style={{ display:"flex", alignItems:"center", gap:8, padding:"7px 14px", overflowX:"auto", scrollbarWidth:"thin" }}>
-          <span style={{ fontSize:9, fontWeight:700, color:"#94a3b8", textTransform:"uppercase", letterSpacing:"0.08em", flexShrink:0, width:68 }}>{t("filterServices")}</span>
-          <button onClick={()=>onSelectServiciu("")} style={{ ...chipBase, background:!selectedServiciu?"#0f172a":"#f8fafc", borderColor:!selectedServiciu?"#0f172a":"#e2e8f0", color:!selectedServiciu?"#fff":"#64748b" }}>{t("filterAllServices")}</button>
-          {visSvc.map((svc,i) => {
-            const c = SVC_C[i%SVC_C.length]; const isSel = selectedServiciu===svc.id; const cnt = cntSvc[svc.id]||0;
-            return (
-              <button key={svc.id} onClick={()=>onSelectServiciu(isSel?"":svc.id)} style={{ ...chipBase, background:isSel?c.bg:"#f8fafc", borderColor:isSel?c.border:"#e2e8f0", color:isSel?c.text:"#334155" }}>
-                {svc.nume_serviciu}
-                {svc.duration>0&&<span style={{fontSize:9,opacity:0.6}}>{svc.duration}min</span>}
-                {cnt>0&&<span style={{fontSize:9,fontWeight:700,padding:"1px 5px",borderRadius:99,background:"rgba(0,0,0,0.09)",color:isSel?c.text:"#64748b"}}>{cnt}</span>}
-              </button>
-            );
-          })}
-        </div>
+        <FilterDropdownButton label={t("filterServices")} allLabel={t("filterAllServices")} placeholder={t("searchServicePlaceholder")}
+          items={svcItems} selectedId={selectedServiciu}
+          onSelect={onSelectServiciu} />
       )}
     </div>
   );
@@ -446,12 +557,44 @@ function DayView({ selectedDate, programari, rawStaff, rawServices, serviceById,
     if (selectedServiciu&&p.serviciuId!==selectedServiciu) return false;
     return true;
   }), [programari,dateKey,selectedExpert,selectedServiciu]);
+  // ✅ Layout pe coloane: programările care se suprapun în timp apar una lângă alta (ca în vizualizarea pe săptămână),
+  // cele la ore diferite rămân una sub alta, poziționate după oră
+  const dayApptsLayout = useMemo(() => {
+    const getDur = (p: Prog) => serviceById[p.serviciuId||""]?.duration || 30;
+    const sorted = [...dayAppts].sort((a,b)=>timeToMin(a.ora)-timeToMin(b.ora));
+    const result: { prog: Prog; col: number; totalCols: number }[] = [];
+    let cluster: Prog[] = [];
+    let clusterEnd = -Infinity;
+    const flush = () => {
+      if (!cluster.length) return;
+      const colsEnd: number[] = [];
+      const colOf: Record<string, number> = {};
+      cluster.forEach(p => {
+        const s = timeToMin(p.ora), e = s + getDur(p);
+        let placed = -1;
+        for (let c=0;c<colsEnd.length;c++) { if (colsEnd[c] <= s) { colsEnd[c]=e; placed=c; break; } }
+        if (placed===-1) { colsEnd.push(e); placed = colsEnd.length-1; }
+        colOf[String(p.id)] = placed;
+      });
+      const totalCols = colsEnd.length;
+      cluster.forEach(p => result.push({ prog:p, col: colOf[String(p.id)], totalCols }));
+      cluster = [];
+    };
+    sorted.forEach(p => {
+      const s = timeToMin(p.ora), e = s + getDur(p);
+      if (s >= clusterEnd) { flush(); clusterEnd = e; }
+      else clusterEnd = Math.max(clusterEnd, e);
+      cluster.push(p);
+    });
+    flush();
+    return result;
+  }, [dayAppts, serviceById]);
   const handleMouseEnter = (p: Prog, e: React.MouseEvent) => {
     if (hoverTimer.current) clearTimeout(hoverTimer.current);
     const currentTarget = e.currentTarget as HTMLElement;
     hoverTimer.current = setTimeout(()=>{ if(currentTarget) setHoverCard({prog:p,rect:currentTarget.getBoundingClientRect()}); },320);
   };
-  const handleMouseLeave = () => { if(hoverTimer.current) clearTimeout(hoverTimer.current); };
+  const handleMouseLeave = () => { if(hoverTimer.current) clearTimeout(hoverTimer.current); setHoverCard(null); };
   return (
     <div style={{ display:"flex", flexDirection:"column", flex:1, overflow:"hidden" }}>
       {isClosed&&(
@@ -472,15 +615,16 @@ function DayView({ selectedDate, programari, rawStaff, rawServices, serviceById,
             {slots.map((slot,i) => {
               const isHour = slot.endsWith(":00");
               const isHalf = slot.endsWith(":30");
-              const isWork = !isClosed&&whStart&&whEnd&&isWorkingSlot(slot,whStart,whEnd);
-              const isOff = isClosed||!isWork;
+              const hasSchedule = !!(whStart && whEnd); // ✅ dacă nu există program setat, ziua e deschisă 24/24
+              const isWork = !isClosed && hasSchedule && isWorkingSlot(slot,whStart,whEnd);
+              const isOutsideHours = !isClosed && hasSchedule && !isWork; // ✅ program setat, dar ora e în afara lui — "închis pentru clienți"
               return (
                 <div key={slot} style={{
                   position:"absolute", left:0, right:0, top:i*SLOT_H, height:SLOT_H,
                   background: isClosed
                     ? "repeating-linear-gradient(135deg,rgba(239,68,68,0.10) 0px,rgba(239,68,68,0.10) 4px,rgba(254,242,242,1) 4px,rgba(254,242,242,1) 8px)"
-                    : isOff
-                      ? "repeating-linear-gradient(135deg,rgba(148,163,184,0.16) 0px,rgba(148,163,184,0.16) 4px,rgba(248,250,252,1) 4px,rgba(248,250,252,1) 8px)"
+                    : isOutsideHours
+                      ? "repeating-linear-gradient(45deg,rgba(148,163,184,0.28) 0px,rgba(148,163,184,0.28) 2px,transparent 2px,transparent 10px),repeating-linear-gradient(135deg,rgba(148,163,184,0.28) 0px,rgba(148,163,184,0.28) 2px,transparent 2px,transparent 10px),#eef1f5"
                       : "#fafbfc",
                   borderTop: isHour?"1.5px solid #94a3b8":isHalf?"1px solid #cbd5e1":"1px solid #e2e8f0",
                 }} />
@@ -506,9 +650,6 @@ function DayView({ selectedDate, programari, rawStaff, rawServices, serviceById,
               </div>
             )}
             {slots.map((slot,i) => {
-              const slotMin = timeToMin(slot);
-              const isOcc = dayAppts.some(p=>{ const pm=timeToMin(p.ora);const dur=serviceById[p.serviciuId||""]?.duration||15; return pm<=slotMin&&slotMin<pm+dur; });
-              if (isOcc) return null;
               return (
                 <button key={`e-${slot}`} onClick={()=>onAddNew(slot,dateKey)}
                   style={{position:"absolute",left:0,right:0,top:i*SLOT_H,height:SLOT_H,zIndex:5,background:"transparent",border:"none",cursor:"pointer"}}
@@ -517,7 +658,7 @@ function DayView({ selectedDate, programari, rawStaff, rawServices, serviceById,
                 </button>
               );
             })}
-            {dayAppts.sort((a,b)=>a.ora.localeCompare(b.ora)).map(p => {
+            {dayApptsLayout.map(({prog:p, col, totalCols}) => {
               const svc = serviceById[p.serviciuId||""];
               const endTime = svc?.duration?addMinutesToTime(p.ora,svc.duration):null;
               const topPx = ((timeToMin(p.ora)-firstMin)/15)*SLOT_H;
@@ -530,7 +671,9 @@ function DayView({ selectedDate, programari, rawStaff, rawServices, serviceById,
                   onMouseEnter={e=>handleMouseEnter(p,e)}
                   onMouseLeave={handleMouseLeave}
                   style={{
-                    position:"absolute", top:topPx+2, height:heightPx, left:8, right:8, zIndex:15,
+                    position:"absolute", top:topPx+2, height:heightPx, zIndex:15,
+                    left:`calc(8px + ${col} * (100% - 8px) / ${totalCols})`,
+                    width:`calc((100% - 8px) / ${totalCols} - 4px)`,
                     background:"#fff", borderRadius:7,
                     borderTop:"1px solid rgba(0,0,0,0.07)",
                     borderRight:"1px solid rgba(0,0,0,0.07)",
@@ -538,10 +681,10 @@ function DayView({ selectedDate, programari, rawStaff, rawServices, serviceById,
                     borderLeft:`4px solid ${color.border}`,
                     boxShadow:"0 1px 6px rgba(0,0,0,0.10), 0 0 0 1px rgba(0,0,0,0.06)",
                     padding:"5px 10px", textAlign:"left", cursor:"pointer",
-                    transition:"all 0.15s",
+                    transition:"all 0.15s", overflow:"hidden",
                   }}
                   className="hover:brightness-95 hover:shadow-md transition-all">
-                  <p style={{fontSize:10,fontWeight:700,color:color.border,lineHeight:1.3,marginBottom:1}}>
+                  <p style={{fontSize:10,fontWeight:700,color:color.border,lineHeight:1.3,marginBottom:1,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
                     {p.ora}{endTime?` → ${endTime}`:""}{p.isOnline?" 🌐":""}
                   </p>
                   <p style={{fontSize:13,fontWeight:700,color:"#1e293b",lineHeight:1.3,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
@@ -595,7 +738,7 @@ function WeekView({ selectedDate, programariByDate, rawStaff, serviceById, rawSe
     const ct = e.currentTarget as HTMLElement;
     hoverTimer.current = setTimeout(()=>{ if(ct) setHoverCard({prog:p,rect:ct.getBoundingClientRect()}); },320);
   };
-  const handleMouseLeave = () => { if(hoverTimer.current) clearTimeout(hoverTimer.current); };
+  const handleMouseLeave = () => { if(hoverTimer.current) clearTimeout(hoverTimer.current); setHoverCard(null); };
   return (
     <div style={{display:"flex",flexDirection:"column",flex:1,overflow:"hidden"}}>
       {hoverCard&&(
@@ -603,37 +746,6 @@ function WeekView({ selectedDate, programariByDate, rawStaff, serviceById, rawSe
           rawStaff={rawStaff} staffColorIndex={staffMap[hoverCard.prog.expertId||""]??0} onClose={()=>setHoverCard(null)}/>
       )}
       <div style={{flex:1,overflowY:"auto",overflowX:"hidden"}}>
-        <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)",position:"sticky",top:0,zIndex:10,background:"#fff",borderBottom:"2px solid #e2e8f0"}}>
-          {weekDays.map((day,i)=>{
-            const dn = dayLong[day.getDay()];
-            const wh = whByDay[dn];
-            const isClosed = !!wh?.closed;
-            const isToday = sameDay(day,today);
-            const isSel = sameDay(day,selectedDate);
-            const dow = (day.getDay()+6)%7;
-            const appts = (programariByDate[formatDateKey(day)]||[]).filter(p=>(!selectedExpert||p.expertId===selectedExpert)&&(!selectedServiciu||p.serviciuId===selectedServiciu));
-            return (
-              <button key={i} onClick={()=>onSelectDate(day)}
-                style={{
-                  display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",
-                  padding:"10px 6px",border:"none",cursor:"pointer",
-                  borderRight:i<6?"1px solid #e2e8f0":"none",
-                  background:isClosed?"#fff5f5":isToday?"#fffbeb":"#fff",
-                  borderBottom:isSel?"3px solid #0f172a":isClosed?"3px solid #fca5a5":"3px solid transparent",
-                  transition:"background 0.15s",
-                }}>
-                <span style={{fontSize:10,fontWeight:700,textTransform:"uppercase",letterSpacing:"0.05em",color:isClosed?"#f87171":isToday?"#d97706":"#64748b"}}>{dayShort[dow]}</span>
-                <span style={{fontSize:22,fontWeight:700,lineHeight:1.2,color:isClosed?"#f87171":isToday?"#d97706":"#1e293b"}}>{day.getDate()}</span>
-                {isClosed
-                  ? <span style={{fontSize:8,fontWeight:700,color:"#f87171",background:"#fee2e2",padding:"1px 6px",borderRadius:99,marginTop:2}}>{t("closedBadgeFull")}</span>
-                  : wh?.start?<span style={{fontSize:9,color:"#94a3b8",fontWeight:600,marginTop:1}}>{wh.start}–{wh.end}</span>:null}
-                {appts.length>0&&(
-                  <span style={{fontSize:9,fontWeight:700,padding:"2px 7px",borderRadius:99,background:isToday?"#f59e0b":"#e2e8f0",color:isToday?"#fff":"#475569",marginTop:3}}>{appts.length} {t("progSuffix")}</span>
-                )}
-              </button>
-            );
-          })}
-        </div>
         <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)",flex:1,alignItems:"start"}}>
           {weekDays.map((day,di)=>{
             const key = formatDateKey(day);
@@ -744,7 +856,7 @@ function MonthView({ selectedDate, programariByDate, rawStaff, serviceById, onEd
   },[selectedDate]);
   const staffMap = useMemo(()=>{const m:Record<string,number>={};rawStaff.forEach((s,i)=>{m[s.id]=i%SC.length;});return m;},[rawStaff]);
   const handleMouseEnter=(p:Prog,e:React.MouseEvent)=>{if(hoverTimer.current)clearTimeout(hoverTimer.current);const ct=e.currentTarget as HTMLElement;hoverTimer.current=setTimeout(()=>{if(ct)setHoverCard({prog:p,rect:ct.getBoundingClientRect()});},320);};
-  const handleMouseLeave=()=>{if(hoverTimer.current)clearTimeout(hoverTimer.current);};
+  const handleMouseLeave=()=>{if(hoverTimer.current)clearTimeout(hoverTimer.current);setHoverCard(null);};
   return (
     <div style={{display:"flex",flexDirection:"column",flex:1,overflow:"auto"}}>
       {hoverCard&&<AppointmentHoverCard prog={hoverCard.prog} anchorRect={hoverCard.rect} serviceById={serviceById} rawStaff={rawStaff} staffColorIndex={staffMap[hoverCard.prog.expertId||""]??0} onClose={()=>setHoverCard(null)}/>}
@@ -1018,7 +1130,15 @@ function CalendarContent() {
   useEffect(()=>{
     if(!userId)return;
     const ch1=supabase.channel(`cp-${userId}`).on("postgres_changes",{event:"UPDATE",schema:"public",table:"profiles",filter:`id=eq.${userId}`},()=>refetchProfile()).subscribe();
-    const ch2=supabase.channel(`ca-${userId}`).on("postgres_changes",{event:"*",schema:"public",table:"appointments",filter:`user_id=eq.${userId}`},()=>refetchAppts()).subscribe();
+    const ch2=supabase.channel(`ca-${userId}`).on("postgres_changes",{event:"*",schema:"public",table:"appointments",filter:`user_id=eq.${userId}`},(payload:any)=>{
+      // ✅ Sunet + notificare vizuală atunci când clientul face o programare online
+      if(payload.eventType==="INSERT"&&payload.new?.is_client_booking){
+        playNotificationSound();
+        const nume=payload.new.title||payload.new.prenume||payload.new.nume||"Client";
+        showToast({title:t("newBookingNotifTitle"),message:t("newBookingNotifMsg",{nume}),type:"info"});
+      }
+      refetchAppts();
+    }).subscribe();
     return()=>{supabase.removeChannel(ch1);supabase.removeChannel(ch2);};
   },[userId]);
   const adminWorkingHours = useMemo<WorkingHour[]>(()=>parseWH(profile?.working_hours),[profile?.working_hours]);
@@ -1032,11 +1152,16 @@ function CalendarContent() {
   const handleSearch = useCallback((q:string)=>{if(!q.trim()){setSearchResults([]);return;}setSearchResults(programari.filter(p=>p.nume.toLowerCase().includes(q.toLowerCase())||p.telefon?.includes(q)||p.email?.toLowerCase().includes(q.toLowerCase())).slice(0,8));},[programari]);
   const openEdit = useCallback((p:Prog)=>{setEditForm({...p});setShowDatePicker(false);setShowTimePicker(false);setShowSearchDrop(false);},[]);
   const closeModal = useCallback(()=>{setEditForm(null);setNewForm(null);setShowDatePicker(false);setShowTimePicker(false);setShowSearchDrop(false);},[]);
-  useEffect(()=>{if(!editForm)return;const sn=rawServices.find(s=>s.id===editForm.serviciuId)?.nume_serviciu;setCustomMsg(`Bună, ${editForm.nume}! Te așteptăm la programarea din ${editForm.data}, ora ${editForm.ora}${sn?` pentru ${sn}`:""}.`);},[editForm?.id]);
+  useEffect(()=>{if(!editForm)return;const sn=rawServices.find(s=>s.id===editForm.serviciuId)?.nume_serviciu;const base=t("editModal.whatsappMessageBase",{nume:editForm.nume,data:editForm.data,ora:editForm.ora});const suffix=sn?t("editModal.whatsappMessageServiceSuffix",{serviciu:sn}):"";setCustomMsg(`${base}${suffix}.`);},[editForm?.id]);
   useEffect(()=>{function h(e:MouseEvent){if(modalRef.current&&!modalRef.current.contains(e.target as Node)&&!showDatePicker&&!showTimePicker)closeModal();}if(editForm)document.addEventListener("mousedown",h);return()=>document.removeEventListener("mousedown",h);},[editForm,showDatePicker,showTimePicker]);
   const handleUpdate = async()=>{
     if(!editForm)return;
     const svc=rawServices.find(s=>s.id===editForm.serviciuId);
+    const dur=svc?.duration||editForm.duration||30;
+    if(hasSpecialistConflict(programari,editForm.expertId||"",editForm.data,editForm.ora,dur,editForm.id)){
+      await showToast({message:t("specialistConflictError"),type:"error"});
+      return;
+    }
     const{error}=await supabase.from("appointments").update({
       title:editForm.nume, prenume:editForm.nume, nume:editForm.nume,
       email:editForm.email||null, date:editForm.data, time:editForm.ora,
@@ -1237,7 +1362,19 @@ function CalendarContent() {
             <div style={{display:"flex",gap:8,paddingTop:4}}>
               <button onClick={()=>setNewForm(null)} style={{flex:1,padding:"10px",background:"#f1f5f9",border:"none",borderRadius:14,fontSize:11,fontWeight:700,color:"#64748b",cursor:"pointer"}} className="hover:bg-slate-200 transition-all">{t("newModal.cancelBtn")}</button>
               <button style={{flex:2,padding:"10px",background:"#0f172a",border:"none",borderRadius:14,fontSize:11,fontWeight:700,color:"#fff",cursor:"pointer"}} className="hover:bg-amber-600 transition-all"
-                onClick={async()=>{if(!newForm)return;const{error}=await supabase.from("appointments").insert({title:newForm.nume,prenume:newForm.nume,nume:newForm.nume,email:newForm.email||null,date:newForm.date,time:newForm.time,phone:newForm.telefon||null,details:newForm.motiv||null,angajat_id:newForm.expertId||null,serviciu_id:newForm.serviciuId||null,user_id:userId,duration:rawServices.find(s=>s.id===newForm.serviciuId)?.duration||15});if(error){await showToast({message:error.message,type:"error"});return;}qClient.invalidateQueries({queryKey:["appointments",userId]});await showToast({message:t("newModal.addedToast"),type:"success"});setNewForm(null);}}>{t("newModal.saveBtn")}</button>
+                onClick={async()=>{
+                  if(!newForm)return;
+                  const durNew=rawServices.find(s=>s.id===newForm.serviciuId)?.duration||15;
+                  if(hasSpecialistConflict(programari,newForm.expertId||"",newForm.date,newForm.time,durNew)){
+                    await showToast({message:t("specialistConflictError"),type:"error"});
+                    return;
+                  }
+                  const{error}=await supabase.from("appointments").insert({title:newForm.nume,prenume:newForm.nume,nume:newForm.nume,email:newForm.email||null,date:newForm.date,time:newForm.time,phone:newForm.telefon||null,details:newForm.motiv||null,angajat_id:newForm.expertId||null,serviciu_id:newForm.serviciuId||null,user_id:userId,duration:durNew});
+                  if(error){await showToast({message:error.message,type:"error"});return;}
+                  qClient.invalidateQueries({queryKey:["appointments",userId]});
+                  await showToast({message:t("newModal.addedToast"),type:"success"});
+                  setNewForm(null);
+                }}>{t("newModal.saveBtn")}</button>
             </div>
           </div>
         </div>

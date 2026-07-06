@@ -885,7 +885,9 @@
       "deleteConfirmTitle": "Törlés",
       "deleteConfirmMsg": "Törlöd {nume} időpontját?",
       "deleteConfirmBtn": "Törlés",
-      "updatedToast": "Időpont frissítve!"
+      "updatedToast": "Időpont frissítve!",
+      "whatsappMessageBase": "Szia, {nume}! Várunk a {data} időpontodra, {ora} órakor",
+      "whatsappMessageServiceSuffix": " ehhez: {serviciu}"
     },
     "newModal": {
       "title": "Új időpont",
@@ -900,7 +902,13 @@
       "cancelBtn": "Mégse",
       "saveBtn": "Mentés",
       "addedToast": "Időpont hozzáadva!"
-    }
+    },
+    "newBookingNotifTitle": "🌐 Új online foglalás",
+    "newBookingNotifMsg": "{nume} most foglalt időpontot online.",
+    "searchSpecialistPlaceholder": "Szakember keresése...",
+    "searchServicePlaceholder": "Szolgáltatás keresése...",
+    "noResultsFound": "Nincs eredmény",
+    "specialistConflictError": "A kiválasztott szakembernek már van foglalása ebben az időszakban."
   },
   "rapoarte": {
     "localeCode": "hu-HU",

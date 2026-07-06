@@ -885,7 +885,9 @@
       "deleteConfirmTitle": "Delete",
       "deleteConfirmMsg": "Delete {nume}'s appointment?",
       "deleteConfirmBtn": "Delete",
-      "updatedToast": "Appointment updated!"
+      "updatedToast": "Appointment updated!",
+      "whatsappMessageBase": "Hi, {nume}! We're expecting you for your appointment on {data} at {ora}",
+      "whatsappMessageServiceSuffix": " for {serviciu}"
     },
     "newModal": {
       "title": "New appointment",
@@ -900,7 +902,13 @@
       "cancelBtn": "Cancel",
       "saveBtn": "Save",
       "addedToast": "Appointment added!"
-    }
+    },
+    "newBookingNotifTitle": "🌐 New Online Booking",
+    "newBookingNotifMsg": "{nume} just made an online booking.",
+    "searchSpecialistPlaceholder": "Search specialist...",
+    "searchServicePlaceholder": "Search service...",
+    "noResultsFound": "No results found",
+    "specialistConflictError": "The chosen specialist already has a booking in this time slot."
   },
   "rapoarte": {
     "localeCode": "en-US",
