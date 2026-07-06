@@ -9,7 +9,10 @@ import { supabaseAdmin } from "@/lib/supabaseAdmin";
 function buildReminderHtml(nume: string, data: string, ora: string, serviciu?: string) {
   return `
     <div style="font-family: 'Helvetica', Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 40px; color: #0f172a; background-color: #f8fafc; border-radius: 24px;">
-      <h1 style="font-size: 24px; font-weight: 900; font-style: italic; text-transform: uppercase; letter-spacing: -0.05em; margin-bottom: 24px;">
+      <div style="text-align: center; margin-bottom: 24px;">
+        <img src="${process.env.NEXT_PUBLIC_BASE_URL}/logo-chronos.png" alt="Chronos" width="64" height="64" style="display: inline-block;" />
+      </div>
+      <h1 style="font-size: 24px; font-weight: 900; font-style: italic; text-transform: uppercase; letter-spacing: -0.05em; margin-bottom: 24px; text-align: center;">
         CHRONOS<span style="color: #f59e0b;">.</span>
       </h1>
       <div style="background-color: #ffffff; padding: 32px; border-radius: 20px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
@@ -33,8 +36,6 @@ function buildReminderHtml(nume: string, data: string, ora: string, serviciu?: s
 export async function GET(request: Request) {
   const receivedHeader = request.headers.get("authorization");
   const expectedHeader = `Bearer ${process.env.CRON_SECRET}`;
-  console.log("DEBUG primit:", JSON.stringify(receivedHeader));
-  console.log("DEBUG asteptat:", JSON.stringify(expectedHeader));
 
   // ✅ Verificare de securitate — doar Vercel Cron (cu secretul corect) poate declanșa asta
   if (receivedHeader !== expectedHeader) {

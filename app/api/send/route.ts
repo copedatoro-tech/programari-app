@@ -4,19 +4,15 @@ import { NextResponse } from 'next/server';
 export async function POST(request: Request) {
   // Inițializare securizată în interiorul rutei
   const resend = new Resend(process.env.RESEND_API_KEY);
-
   try {
     const { email, nume, data, ora } = await request.json();
-
     // Verificări de siguranță pentru datele de intrare
     if (!email) {
       return NextResponse.json({ error: "Eroare: Adresa de email lipsește." }, { status: 400 });
     }
-
     if (!process.env.RESEND_API_KEY) {
       return NextResponse.json({ error: "Eroare Configurare: API Key Resend lipsește din server." }, { status: 500 });
     }
-
     // Trimiterea e-mailului cu branding Chronos
     const dataMail = await resend.emails.send({
       from: 'Chronos <onboarding@resend.dev>', // Notă: După ce configurezi domeniul, schimbă aici
@@ -24,7 +20,10 @@ export async function POST(request: Request) {
       subject: 'Confirmare Programare • Chronos System',
       html: `
         <div style="font-family: 'Helvetica', Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 40px; color: #0f172a; background-color: #f8fafc; border-radius: 24px;">
-          <h1 style="font-size: 24px; font-weight: 900; font-style: italic; text-transform: uppercase; letter-spacing: -0.05em; margin-bottom: 24px;">
+          <div style="text-align: center; margin-bottom: 24px;">
+            <img src="${process.env.NEXT_PUBLIC_BASE_URL}/logo-chronos.png" alt="Chronos" width="64" height="64" style="display: inline-block;" />
+          </div>
+          <h1 style="font-size: 24px; font-weight: 900; font-style: italic; text-transform: uppercase; letter-spacing: -0.05em; margin-bottom: 24px; text-align: center;">
             CHRONOS<span style="color: #f59e0b;">.</span>
           </h1>
           
@@ -47,14 +46,11 @@ export async function POST(request: Request) {
         </div>
       `,
     });
-
     if (dataMail.error) {
       console.error("RESEND API ERROR:", dataMail.error);
       return NextResponse.json({ error: dataMail.error.message }, { status: 400 });
     }
-
     return NextResponse.json({ success: true, id: dataMail.data?.id });
-
   } catch (error: any) {
     console.error("SERVER CRITICAL ERROR (RESEND):", error.message);
     return NextResponse.json({ error: "Eroare internă la trimiterea mail-ului." }, { status: 500 });
