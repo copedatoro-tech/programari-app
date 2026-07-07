@@ -1113,7 +1113,10 @@
     "errorTitle": "Error",
     "errorDefaultMsg": "Unexpected error.",
     "reviewsCountSuffix": " reviews",
-    "noRatingYet": "Be the first to rate"
+    "noRatingYet": "Be the first to rate",
+    "techErrorTitle": "Temporary Technical Issue",
+    "techErrorMsg": "We're experiencing a technical issue outside our control, at our service provider. It's already being worked on — please try again in a few minutes.",
+    "techErrorRetryBtn": "Try Again"
   },
   "programariPage": {
     "successTitle": "Appointments Saved!",

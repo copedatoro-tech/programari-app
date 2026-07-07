@@ -1113,7 +1113,10 @@
     "errorTitle": "Błąd",
     "errorDefaultMsg": "Nieoczekiwany błąd.",
     "reviewsCountSuffix": " opinii",
-    "noRatingYet": "Bądź pierwszą osobą, która oceni"
+    "noRatingYet": "Bądź pierwszą osobą, która oceni",
+    "techErrorTitle": "Tymczasowy problem techniczny",
+    "techErrorMsg": "Mamy problem techniczny niezależny od nas, u naszego dostawcy usług. Już nad tym pracujemy — spróbuj ponownie za kilka minut.",
+    "techErrorRetryBtn": "Spróbuj ponownie"
   },
   "programariPage": {
     "successTitle": "Wizyty zapisane!",

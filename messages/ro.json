@@ -1294,7 +1294,10 @@
     "errorTitle": "Eroare",
     "errorDefaultMsg": "Eroare neașteptată.",
     "reviewsCountSuffix": " recenzii",
-    "noRatingYet": "Fii primul care evaluează"
+    "noRatingYet": "Fii primul care evaluează",
+    "techErrorTitle": "Problemă tehnică temporară",
+    "techErrorMsg": "Întâmpinăm o problemă tehnică independentă de noi, la furnizorul nostru de servicii. Se lucrează deja la rezolvare — te rugăm să încerci din nou peste câteva minute.",
+    "techErrorRetryBtn": "Încearcă din nou"
   },
   "programariPage": {
     "successTitle": "Programări Salvate!",

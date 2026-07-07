@@ -1113,7 +1113,10 @@
     "errorTitle": "Erreur",
     "errorDefaultMsg": "Erreur inattendue.",
     "reviewsCountSuffix": " avis",
-    "noRatingYet": "Sois le premier à noter"
+    "noRatingYet": "Sois le premier à noter",
+    "techErrorTitle": "Problème technique temporaire",
+    "techErrorMsg": "Nous rencontrons un problème technique indépendant de notre volonté, chez notre fournisseur de services. La résolution est déjà en cours — réessaie dans quelques minutes.",
+    "techErrorRetryBtn": "Réessayer"
   },
   "programariPage": {
     "successTitle": "Rendez-vous enregistrés !",

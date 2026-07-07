@@ -129,6 +129,7 @@ function RezervareContent() {
   const [trimis, setTrimis] = useState(false);
   const [loading, setLoading] = useState(false);
   const [fetchingConfig, setFetchingConfig] = useState(true);
+  const [technicalError, setTechnicalError] = useState(false);
   const [pickerControl, setPickerControl] = useState<{ type: "date" | "time"; bookingId: string } | null>(null);
 
   const [specialisti, setSpecialisti] = useState<StaffRow[]>([]);
@@ -192,13 +193,19 @@ function RezervareContent() {
   const fetchAdminIdBySlug = useCallback(async (slug: string) => {
     try {
       const { data, error } = await supabase.from("profiles").select("id").eq("slug", slug).single();
-      if (error) return null;
+      if (error) return null; // salon inexistent — caz normal, nu eroare tehnică
       return data?.id || null;
-    } catch { return null; }
+    } catch {
+      // ✅ O eroare aruncată (nu doar un răspuns "gol") înseamnă de obicei o
+      // problemă reală de conectivitate (Supabase indisponibil), nu un salon inexistent
+      setTechnicalError(true);
+      return null;
+    }
   }, []);
 
   const fetchAdminConfig = useCallback(async () => {
     if (!adminIdReady || !adminId) { setFetchingConfig(false); return; }
+    setTechnicalError(false);
     try {
       const [staffRes, servicesRes, profileRes] = await Promise.all([
         supabase.from("staff").select("*").eq("user_id", adminId).order("created_at", { ascending: false }),
@@ -221,27 +228,41 @@ function RezervareContent() {
       await fetchFeedbacks(adminId);
     } catch (e: any) {
       console.error("Eroare fetch config:", e?.message);
+      setTechnicalError(true);
     } finally {
       setFetchingConfig(false);
     }
   }, [adminId, adminIdReady, fetchFeedbacks]);
 
-  useEffect(() => {
-    async function init() {
-      if (!rawSlug) { setAdminIdReady(true); return; }
-      if (uuidRegex.test(rawSlug)) {
-        setAdminId(rawSlug);
-        setAdminIdReady(true);
-      } else {
-        const id = await fetchAdminIdBySlug(rawSlug);
-        if (id) setAdminId(id);
-        setAdminIdReady(true);
-      }
+  const initSlug = useCallback(async () => {
+    if (!rawSlug) { setAdminIdReady(true); return; }
+    setTechnicalError(false);
+    if (uuidRegex.test(rawSlug)) {
+      setAdminId(rawSlug);
+      setAdminIdReady(true);
+    } else {
+      const id = await fetchAdminIdBySlug(rawSlug);
+      if (id) setAdminId(id);
+      setAdminIdReady(true);
     }
-    init();
+  }, [rawSlug, fetchAdminIdBySlug]);
+
+  useEffect(() => {
+    initSlug();
     const saved = localStorage.getItem("chronos_user_profiles");
     if (saved) { try { setSavedUserProfiles(JSON.parse(saved)); } catch {} }
-  }, [rawSlug, fetchAdminIdBySlug]);
+  }, [initSlug]);
+
+  // ✅ Reîncercare automată, în fundal, cât timp există o eroare tehnică —
+  // clientul nu trebuie să apese nimic; mesajul dispare singur când revine conexiunea
+  useEffect(() => {
+    if (!technicalError) return;
+    const retryInterval = setInterval(() => {
+      if (!adminId) initSlug();
+      else fetchAdminConfig();
+    }, 8000);
+    return () => clearInterval(retryInterval);
+  }, [technicalError, adminId, initSlug, fetchAdminConfig]);
 
   useEffect(() => {
     if (adminIdReady && adminId) fetchAdminConfig();
@@ -470,6 +491,25 @@ function RezervareContent() {
   const avgRating = feedbacks.length > 0
     ? (feedbacks.reduce((sum, f) => sum + (f.stele || 0), 0) / feedbacks.length)
     : 0;
+
+  if (technicalError) {
+    return (
+      <main className="min-h-screen bg-slate-50 flex items-center justify-center p-6 text-center">
+        <div className="fixed top-4 right-4 z-[700]"><LocaleSwitcher /></div>
+        <div className="max-w-md">
+          <div className="text-6xl mb-4">🔧</div>
+          <h2 className="text-2xl font-black uppercase italic text-slate-900 mb-3">{t("techErrorTitle")}</h2>
+          <p className="text-slate-500 font-medium mb-6">{t("techErrorMsg")}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="px-8 py-4 bg-slate-900 text-white rounded-2xl font-black uppercase italic text-sm hover:bg-amber-500 hover:text-black transition-all shadow-lg"
+          >
+            {t("techErrorRetryBtn")}
+          </button>
+        </div>
+      </main>
+    );
+  }
 
   if (adminIdReady && !adminId) {
     return (

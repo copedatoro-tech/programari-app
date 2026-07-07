@@ -1113,7 +1113,10 @@
     "errorTitle": "Erro",
     "errorDefaultMsg": "Erro inesperado.",
     "reviewsCountSuffix": " avaliações",
-    "noRatingYet": "Sê o primeiro a avaliar"
+    "noRatingYet": "Sê o primeiro a avaliar",
+    "techErrorTitle": "Problema técnico temporário",
+    "techErrorMsg": "Estamos com um problema técnico alheio a nós, no nosso fornecedor de serviços. Já estamos a trabalhar na resolução — tenta novamente dentro de alguns minutos.",
+    "techErrorRetryBtn": "Tentar novamente"
   },
   "programariPage": {
     "successTitle": "Marcações guardadas!",

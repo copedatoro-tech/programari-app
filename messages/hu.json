@@ -1113,7 +1113,10 @@
     "errorTitle": "Hiba",
     "errorDefaultMsg": "Váratlan hiba történt.",
     "reviewsCountSuffix": " vélemény",
-    "noRatingYet": "Legyél az első, aki értékel"
+    "noRatingYet": "Legyél az első, aki értékel",
+    "techErrorTitle": "Ideiglenes technikai probléma",
+    "techErrorMsg": "Rajtunk kívülálló technikai problémánk van a szolgáltatónknál. Már dolgozunk a megoldáson — kérjük, próbáld újra néhány perc múlva.",
+    "techErrorRetryBtn": "Újra próbálom"
   },
   "programariPage": {
     "successTitle": "Időpontok mentve!",

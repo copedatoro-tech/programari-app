@@ -1113,7 +1113,10 @@
     "errorTitle": "Errore",
     "errorDefaultMsg": "Errore imprevisto.",
     "reviewsCountSuffix": " recensioni",
-    "noRatingYet": "Sii il primo a valutare"
+    "noRatingYet": "Sii il primo a valutare",
+    "techErrorTitle": "Problema tecnico temporaneo",
+    "techErrorMsg": "Stiamo riscontrando un problema tecnico indipendente da noi, presso il nostro fornitore di servizi. Ci stiamo già lavorando — riprova tra qualche minuto.",
+    "techErrorRetryBtn": "Riprova"
   },
   "programariPage": {
     "successTitle": "Appuntamenti salvati!",
