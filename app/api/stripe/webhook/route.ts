@@ -60,9 +60,28 @@ export async function POST(request: Request) {
           };
         });
 
-        const { error } = await supabaseAdmin.from("appointments").insert(rows);
+        const { data: insertedRows, error } = await supabaseAdmin
+          .from("appointments")
+          .insert(rows)
+          .select("id, date, time");
         if (error) {
           console.error("Eroare la salvarea programării plătite:", error.message);
+        } else if (insertedRows) {
+          // ✅ Email de confirmare, cu link de auto-gestionare, pentru fiecare programare plătită
+          const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+          for (const row of insertedRows) {
+            fetch(`${baseUrl}/api/send`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                email: metadata.clientEmail,
+                nume: metadata.clientNume,
+                data: row.date,
+                ora: row.time,
+                appointmentId: row.id,
+              }),
+            }).catch(() => {});
+          }
         }
       } catch (e: any) {
         console.error("Eroare la procesarea webhook-ului:", e.message);

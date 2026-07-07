@@ -193,10 +193,13 @@ function RezervareContent() {
   const fetchAdminIdBySlug = useCallback(async (slug: string) => {
     try {
       const { data, error } = await supabase.from("profiles").select("id").eq("slug", slug).single();
-      if (error) return null; // salon inexistent — caz normal, nu eroare tehnică
+      if (error) {
+        if (error.code !== "PGRST116") setTechnicalError(true); // orice altceva decât "niciun rezultat" = problemă reală
+        return null;
+      }
       return data?.id || null;
     } catch {
-      // ✅ O eroare aruncată (nu doar un răspuns "gol") înseamnă de obicei o
+      // O eroare aruncată (nu doar un răspuns "gol") înseamnă de obicei o
       // problemă reală de conectivitate (Supabase indisponibil), nu un salon inexistent
       setTechnicalError(true);
       return null;
@@ -212,6 +215,19 @@ function RezervareContent() {
         supabase.from("services").select("*").eq("user_id", adminId).order("created_at", { ascending: false }),
         supabase.from("profiles").select("working_hours, manual_blocks, stripe_account_id, stripe_onboarded, currency, require_payment_at_booking, slug").eq("id", adminId).single(),
       ]);
+      // ✅ Unele erori de rețea/conectivitate NU aruncă o excepție — Supabase le
+      // returnează liniștit ca obiect "error", fără să oprească execuția codului.
+      // "PGRST116" e codul normal pentru "niciun rând găsit" (salon inexistent) — restul
+      // codurilor de eroare (rețea, 5xx, CORS) înseamnă o problemă tehnică reală.
+      const hasTechnicalIssue =
+        (staffRes.error && staffRes.error.code !== "PGRST116") ||
+        (servicesRes.error && servicesRes.error.code !== "PGRST116") ||
+        (profileRes.error && profileRes.error.code !== "PGRST116");
+      if (hasTechnicalIssue) {
+        setTechnicalError(true);
+        setFetchingConfig(false);
+        return;
+      }
       if (staffRes.data) setSpecialisti(staffRes.data);
       if (servicesRes.data) setServicii(servicesRes.data);
       if (profileRes.data) {
@@ -444,8 +460,22 @@ function RezervareContent() {
           status: "pending",
           is_client_booking: true,
         };
-        const { error } = await supabase.from("appointments").insert([payload]);
+        const { data: inserted, error } = await supabase.from("appointments").insert([payload]).select("id").single();
         if (error) throw error;
+        // ✅ Trimitem email de confirmare, cu link de auto-gestionare (anulare/reprogramare)
+        if (inserted?.id) {
+          fetch("/api/send", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              email: clientInfo.email.trim(),
+              nume: clientInfo.nume.trim(),
+              data: b.data,
+              ora: b.ora,
+              appointmentId: inserted.id,
+            }),
+          }).catch(() => {}); // eșecul trimiterii email-ului nu trebuie să blocheze rezervarea
+        }
       }
 
       const newProfile = { nume: clientInfo.nume.trim(), telefon: clientInfo.telefon.trim(), email: clientInfo.email.trim() };

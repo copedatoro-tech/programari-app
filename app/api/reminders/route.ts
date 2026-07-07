@@ -6,13 +6,11 @@ import { supabaseAdmin } from "@/lib/supabaseAdmin";
 // nu avem limba aleasă de client la momentul rezervării, deci folosim
 // română ca limbă implicită. Poate fi extins mai târziu, salvând limba
 // aleasă de client direct pe programare, în pagina de rezervare publică.
-function buildReminderHtml(nume: string, data: string, ora: string, serviciu?: string) {
+function buildReminderHtml(nume: string, data: string, ora: string, appointmentId: string, serviciu?: string) {
+  const manageUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/gestioneaza/${appointmentId}`;
   return `
     <div style="font-family: 'Helvetica', Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 40px; color: #0f172a; background-color: #f8fafc; border-radius: 24px;">
-      <div style="text-align: center; margin-bottom: 24px;">
-        <img src="${process.env.NEXT_PUBLIC_BASE_URL}/logo-chronos.png" alt="Chronos" width="64" height="64" style="display: inline-block;" />
-      </div>
-      <h1 style="font-size: 24px; font-weight: 900; font-style: italic; text-transform: uppercase; letter-spacing: -0.05em; margin-bottom: 24px; text-align: center;">
+      <h1 style="font-size: 24px; font-weight: 900; font-style: italic; text-transform: uppercase; letter-spacing: -0.05em; margin-bottom: 24px;">
         CHRONOS<span style="color: #f59e0b;">.</span>
       </h1>
       <div style="background-color: #ffffff; padding: 32px; border-radius: 20px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
@@ -25,6 +23,13 @@ function buildReminderHtml(nume: string, data: string, ora: string, serviciu?: s
           ${serviciu ? `<p style="margin: 4px 0 0 0; font-size: 16px; font-weight: 700; color: #0f172a;">✂️ Serviciu: ${serviciu}</p>` : ""}
         </div>
         <p style="font-size: 13px; font-weight: 600; font-style: italic; color: #475569; margin-bottom: 0;">Te așteptăm cu drag!</p>
+
+        <div style="margin-top: 28px; text-align: center;">
+          <a href="${manageUrl}" style="display: inline-block; background-color: #0f172a; color: #ffffff; padding: 14px 28px; border-radius: 14px; font-weight: 900; font-size: 12px; text-transform: uppercase; text-decoration: none; letter-spacing: 0.05em;">
+            Gestionează Programarea
+          </a>
+          <p style="font-size: 10px; color: #94a3b8; margin-top: 10px;">Poți anula sau reprograma oricând, direct de aici.</p>
+        </div>
       </div>
       <p style="text-align: center; font-size: 10px; font-weight: 700; color: #cbd5e1; text-transform: uppercase; letter-spacing: 0.2em; margin-top: 32px;">
         © 2026 Chronos System • Premium Management
@@ -34,11 +39,9 @@ function buildReminderHtml(nume: string, data: string, ora: string, serviciu?: s
 }
 
 export async function GET(request: Request) {
-  const receivedHeader = request.headers.get("authorization");
-  const expectedHeader = `Bearer ${process.env.CRON_SECRET}`;
-
   // ✅ Verificare de securitate — doar Vercel Cron (cu secretul corect) poate declanșa asta
-  if (receivedHeader !== expectedHeader) {
+  const authHeader = request.headers.get("authorization");
+  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
     return NextResponse.json({ error: "Neautorizat." }, { status: 401 });
   }
 
@@ -79,7 +82,7 @@ export async function GET(request: Request) {
         from: "Chronos <onboarding@resend.dev>",
         to: [appt.email as string],
         subject: "Reamintire Programare • Chronos System",
-        html: buildReminderHtml(clientName, appt.date, appt.time),
+        html: buildReminderHtml(clientName, appt.date, appt.time, appt.id),
       });
       if (result.error) {
         errors.push(`${appt.id}: ${result.error.message}`);

@@ -5,7 +5,7 @@ export async function POST(request: Request) {
   // Inițializare securizată în interiorul rutei
   const resend = new Resend(process.env.RESEND_API_KEY);
   try {
-    const { email, nume, data, ora } = await request.json();
+    const { email, nume, data, ora, appointmentId } = await request.json();
     // Verificări de siguranță pentru datele de intrare
     if (!email) {
       return NextResponse.json({ error: "Eroare: Adresa de email lipsește." }, { status: 400 });
@@ -13,6 +13,7 @@ export async function POST(request: Request) {
     if (!process.env.RESEND_API_KEY) {
       return NextResponse.json({ error: "Eroare Configurare: API Key Resend lipsește din server." }, { status: 500 });
     }
+    const manageUrl = appointmentId ? `${process.env.NEXT_PUBLIC_BASE_URL}/gestioneaza/${appointmentId}` : null;
     // Trimiterea e-mailului cu branding Chronos
     const dataMail = await resend.emails.send({
       from: 'Chronos <onboarding@resend.dev>', // Notă: După ce configurezi domeniul, schimbă aici
@@ -38,6 +39,15 @@ export async function POST(request: Request) {
             </div>
             
             <p style="font-size: 13px; font-weight: 600; font-style: italic; color: #475569; margin-bottom: 0;">Vă așteptăm cu drag!</p>
+
+            ${manageUrl ? `
+            <div style="margin-top: 28px; text-align: center;">
+              <a href="${manageUrl}" style="display: inline-block; background-color: #0f172a; color: #ffffff; padding: 14px 28px; border-radius: 14px; font-weight: 900; font-size: 12px; text-transform: uppercase; text-decoration: none; letter-spacing: 0.05em;">
+                Gestionează Programarea
+              </a>
+              <p style="font-size: 10px; color: #94a3b8; margin-top: 10px;">Poți anula sau reprograma oricând, direct de aici.</p>
+            </div>
+            ` : ""}
           </div>
           
           <p style="text-align: center; font-size: 10px; font-weight: 700; color: #cbd5e1; text-transform: uppercase; letter-spacing: 0.2em; margin-top: 32px;">
