@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, Suspense, useCallback, useMemo, useRef } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { supabase } from "@/lib/supabaseClient";
 import { useTranslations } from "next-intl";
@@ -90,6 +90,7 @@ function RezervareContent() {
   const t = useTranslations("rezervare");
   const localeCode = t("localeCode");
   const params = useParams();
+  const searchParams = useSearchParams();
   const rawSlug = params?.slug as string | undefined;
   const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
@@ -101,6 +102,10 @@ function RezervareContent() {
 
   const [adminWorkingHours, setAdminWorkingHours] = useState<WorkingHourEntry[]>([]);
   const [adminManualBlocks, setAdminManualBlocks] = useState<Record<string, string[]>>({});
+  // ✅ Plată online la rezervare
+  const [paymentConfig, setPaymentConfig] = useState<{ required: boolean; onboarded: boolean; slug: string | null }>({
+    required: false, onboarded: false, slug: null,
+  });
 
   const [appointmentsByDate, setAppointmentsByDate] = useState<Record<string, ExistingAppointment[]>>({});
 
@@ -198,7 +203,7 @@ function RezervareContent() {
       const [staffRes, servicesRes, profileRes] = await Promise.all([
         supabase.from("staff").select("*").eq("user_id", adminId).order("created_at", { ascending: false }),
         supabase.from("services").select("*").eq("user_id", adminId).order("created_at", { ascending: false }),
-        supabase.from("profiles").select("working_hours, manual_blocks").eq("id", adminId).single(),
+        supabase.from("profiles").select("working_hours, manual_blocks, stripe_account_id, stripe_onboarded, currency, require_payment_at_booking, slug").eq("id", adminId).single(),
       ]);
       if (staffRes.data) setSpecialisti(staffRes.data);
       if (servicesRes.data) setServicii(servicesRes.data);
@@ -207,6 +212,11 @@ function RezervareContent() {
         if (profileRes.data.manual_blocks && typeof profileRes.data.manual_blocks === "object") {
           setAdminManualBlocks(profileRes.data.manual_blocks as Record<string, string[]>);
         }
+        setPaymentConfig({
+          required: !!profileRes.data.require_payment_at_booking,
+          onboarded: !!profileRes.data.stripe_onboarded && !!profileRes.data.stripe_account_id,
+          slug: profileRes.data.slug || null,
+        });
       }
       await fetchFeedbacks(adminId);
     } catch (e: any) {
@@ -241,6 +251,18 @@ function RezervareContent() {
   useEffect(() => {
     if (adminId) fetchAppointmentsForDate(today, "");
   }, [adminId, today, fetchAppointmentsForDate]);
+
+  // ✅ Clientul se întoarce de la Stripe după plată
+  useEffect(() => {
+    const platit = searchParams.get("platit");
+    if (platit === "success") {
+      setTrimis(true);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } else if (platit === "anulat") {
+      setPopup({ icon: "⚠️", title: t("attentionTitle"), message: t("errorDefaultMsg") });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
 
   useEffect(() => {
     if (!adminId) return;
@@ -342,6 +364,38 @@ function RezervareContent() {
           setLoading(false);
           return;
         }
+      }
+
+      // ✅ Dacă salonul cere plată online la rezervare, redirecționăm către Stripe
+      // și NU mai salvăm programarea direct — se salvează abia după plata confirmată (webhook).
+      if (paymentConfig.required && paymentConfig.onboarded) {
+        const res = await fetch("/api/stripe/create-booking-checkout", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            adminId,
+            clientInfo: {
+              nume: clientInfo.nume.trim(),
+              telefon: clientInfo.telefon,
+              email: clientInfo.email.trim(),
+              detalii: clientInfo.detalii,
+            },
+            bookings: bookings.map(b => ({
+              serviciu_id: b.serviciu_id,
+              specialist_id: b.specialist_id || null,
+              data: b.data,
+              ora: b.ora,
+            })),
+          }),
+        });
+        const checkoutData = await res.json();
+        if (!res.ok || !checkoutData.url) {
+          setPopup({ icon: "❌", title: t("errorTitle"), message: checkoutData.error || t("errorDefaultMsg") });
+          setLoading(false);
+          return;
+        }
+        window.location.href = checkoutData.url;
+        return;
       }
 
       for (const b of bookings) {

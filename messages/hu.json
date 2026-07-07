@@ -669,7 +669,27 @@
     "staffLimitReached": "⚠️ Elérted a limitet! A csomagod csak {limit} szakembert engedélyez.",
     "errorPrefix": "Hiba: ",
     "confirmDeleteResource": "Biztosan törlöd ezt az elemet?",
-    "loading": "Chronos szinkronizálása..."
+    "loading": "Chronos szinkronizálása...",
+    "scheduleBtn": "Munkarend",
+    "scheduleModalTitle": "Munkarend",
+    "scheduleModalSubtitle": "Állítsd be a munkaidőt ehhez:",
+    "closedDayLabel": "Zárva",
+    "openDayLabel": "Nyitva",
+    "fromLabel": "Ettől",
+    "toLabel": "Eddig",
+    "saveScheduleBtn": "Munkarend mentése",
+    "closeBtn": "Bezárás",
+    "noScheduleHint": "Ha nem állítasz be munkarendet, a szakember a vállalkozás teljes foglalási időtartama alatt elérhetőnek számít (további megkötés nélkül).",
+    "scheduleDayNames": [
+      "Vasárnap",
+      "Hétfő",
+      "Kedd",
+      "Szerda",
+      "Csütörtök",
+      "Péntek",
+      "Szombat"
+    ],
+    "scheduleSavedToast": "Munkarend sikeresen elmentve!"
   },
   "sugestii": {
     "checkingAccess": "Hozzáférés ellenőrzése...",
@@ -781,7 +801,21 @@
     ],
     "applying": "Alkalmazás...",
     "applyNowBtn": "Alkalmazd most 🚀",
-    "cancelBtn": "Mégse"
+    "cancelBtn": "Mégse",
+    "paymentSectionTitle": "Online fizetés foglaláskor",
+    "paymentSectionSubtitle": "Az ügyfelek teljes egészében kifizetik a szolgáltatást a foglaláskor — a pénz automatikusan megérkezik a fiókodba.",
+    "connectStripeBtn": "Stripe csatlakoztatása",
+    "connectingBtn": "Csatlakozás...",
+    "stripeConnectedLabel": "✅ Stripe fiók csatlakoztatva",
+    "stripeNotConnectedLabel": "Stripe fiók nincs csatlakoztatva",
+    "requirePaymentLabel": "Teljes fizetés megkövetelése foglaláskor",
+    "requirePaymentOn": "Aktiválva",
+    "requirePaymentOff": "Kikapcsolva",
+    "currencyLabel": "Fizetési pénznem",
+    "commissionNoticeTitle": "Átláthatóság a jutalékról",
+    "commissionNoticeText": "A Chronos 1% jutalékot von le minden beérkezett fizetésből, a feldolgozás és a rendszer karbantartása érdekében. A maradék (99%) automatikusan, közvetlenül a Stripe fiókodba érkezik — a Chronos soha nem tartja meg az ügyfeleid pénzét.",
+    "paymentPremiumTextBefore": "Az online fizetés foglaláskor elérhető a ",
+    "connectionPending": "Fejezd be adataid kitöltését a Stripe ablakban a fizetések aktiválásához."
   },
   "calendarPage": {
     "dayShort": [
@@ -1303,7 +1337,7 @@
       },
       {
         "name": "CHRONOS TEAM",
-        "price": 299,
+        "price": 199,
         "description": "Nagy csapatoknak, teljes kontrollal a vállalkozás felett.",
         "buttonText": "CSOMAG KIVÁLASZTÁSA",
         "features": [

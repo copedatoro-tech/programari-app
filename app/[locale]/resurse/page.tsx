@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { createBrowserClient } from '@supabase/ssr';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
+import { showToast } from "@/lib/toast";
 
 const LIMITE = {
   STAFF: {
@@ -27,12 +28,31 @@ const PLAN_LABELS: Record<string, string> = {
   "chronos team":  "CHRONOS TEAM",
 };
 
+// Zilele stocate in baza de date (working_hours.day) sunt salvate intotdeauna
+// in romana, indiferent de limba interfetei - la fel ca la profilul general
+// (adminWorkingHours), pentru consecventa cu tot restul aplicatiei.
+const RO_DAY_NAMES = ["Duminică","Luni","Marți","Miercuri","Joi","Vineri","Sâmbătă"];
+// Ordinea de afisare in interfata: Luni -> Duminica (mai naturala pentru un program de lucru)
+const DISPLAY_ORDER = [1, 2, 3, 4, 5, 6, 0];
+
+interface ScheduleDay { day: string; start: string; end: string; closed: boolean }
+
 function normalizeazaPlan(plan: string): string {
   const p = (plan || "").toLowerCase().trim();
   if (p.includes("team"))  return "chronos team";
   if (p.includes("elite")) return "chronos elite";
   if (p.includes("pro"))   return "chronos pro";
   return "chronos free";
+}
+
+function parseStaffWH(raw: any): ScheduleDay[] {
+  if (!raw) return [];
+  if (typeof raw === "string") { try { return JSON.parse(raw); } catch { return []; } }
+  return Array.isArray(raw) ? raw : [];
+}
+
+function defaultSchedule(): ScheduleDay[] {
+  return RO_DAY_NAMES.map((day) => ({ day, start: "09:00", end: "18:00", closed: false }));
 }
 
 export default function ResursePage() {
@@ -52,6 +72,12 @@ export default function ResursePage() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editForm, setEditForm]   = useState<any>(null);
 
+  // Program individual per specialist
+  const [scheduleStaffId, setScheduleStaffId] = useState<string | null>(null);
+  const [scheduleForm, setScheduleForm] = useState<ScheduleDay[]>([]);
+  const [savingSchedule, setSavingSchedule] = useState(false);
+  const scheduleModalRef = useRef<HTMLDivElement>(null);
+
   const supabase = useMemo(() =>
     createBrowserClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -62,6 +88,7 @@ export default function ResursePage() {
   const editStaffRef    = useRef<HTMLDivElement>(null);
   const oreOptiuni      = Array.from({ length: 25 }, (_, i) => i);
   const minuteOptiuni   = [0, 15, 30, 45];
+  const scheduleDayNames = t.raw("scheduleDayNames") as string[];
 
   const fetchResurse = useCallback(async (uid: string) => {
     try {
@@ -96,7 +123,7 @@ export default function ResursePage() {
       setStaff(stf ?? []);
     } catch (err) {
       console.error("Eroare la preluarea datelor:", err);
-      setErrorMsg("Eroare la încărcarea datelor.");
+      setErrorMsg("Eroare la incarcarea datelor.");
     } finally {
       setLoading(false);
     }
@@ -139,10 +166,13 @@ export default function ResursePage() {
         setEditingId(null);
         setEditForm(null);
       }
+      if (scheduleStaffId && scheduleModalRef.current && !scheduleModalRef.current.contains(target)) {
+        setScheduleStaffId(null);
+      }
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [editingId]);
+  }, [editingId, scheduleStaffId]);
 
   const getLimitaServicii = () => LIMITE.SERVICII[userPlan as keyof typeof LIMITE.SERVICII] ?? LIMITE.SERVICII["chronos free"];
   const getLimitaStaff     = () => LIMITE.STAFF[userPlan as keyof typeof LIMITE.STAFF]       ?? LIMITE.STAFF["chronos free"];
@@ -241,6 +271,42 @@ export default function ResursePage() {
     setEditForm({ ...editForm, services: lista });
   };
 
+  // Deschide modalul de program pentru un specialist
+  const openScheduleModal = (staffMember: any) => {
+    if (isDemo) return;
+    const existing = parseStaffWH(staffMember.working_hours);
+    if (existing.length === 7) {
+      setScheduleForm(existing);
+    } else {
+      setScheduleForm(defaultSchedule());
+    }
+    setScheduleStaffId(staffMember.id);
+  };
+
+  const updateScheduleDay = (day: string, field: keyof ScheduleDay, value: any) => {
+    setScheduleForm(prev => prev.map(d => d.day === day ? { ...d, [field]: value } : d));
+  };
+
+  const clearSchedule = () => {
+    setScheduleForm([]);
+  };
+
+  const saveSchedule = async () => {
+    if (!scheduleStaffId || !userId || isDemo) return;
+    setSavingSchedule(true);
+    const { error } = await supabase
+      .from('staff')
+      .update({ working_hours: scheduleForm })
+      .eq('id', scheduleStaffId);
+    setSavingSchedule(false);
+    if (error) { alert(error.message); return; }
+    await showToast({ message: t("scheduleSavedToast"), type: "success" });
+    setScheduleStaffId(null);
+    await fetchResurse(userId);
+  };
+
+  const scheduleStaffMember = staff.find(s => s.id === scheduleStaffId);
+
   if (loading) return (
     <div className="min-h-screen flex items-center justify-center bg-slate-50">
       <div className="text-center font-black italic text-amber-600 animate-pulse uppercase tracking-[0.3em] text-[10px]">{t("loading")}</div>
@@ -278,7 +344,7 @@ export default function ResursePage() {
           <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-2xl text-red-600 text-[11px] font-black uppercase italic">{errorMsg}</div>
         )}
 
-        {/* SECȚIUNI ADĂUGARE */}
+        {/* SECTIUNI ADAUGARE */}
         <div className="space-y-6 mb-16">
 
           {/* Formular SERVICIU */}
@@ -380,10 +446,10 @@ export default function ResursePage() {
 
         </div>
 
-        {/* GRID AFIȘARE */}
+        {/* GRID AFISARE */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
 
-          {/* Servicii Listă */}
+          {/* Servicii Lista */}
           <div className="bg-white p-10 rounded-[50px] shadow-xl border border-slate-50 relative">
             <h2 className="text-[11px] font-black uppercase italic text-slate-400 mb-10 tracking-[0.3em] border-b pb-6">
               {t("activeServicesTitle")} ({services.length} / {getLimitaServicii() >= 999 ? '∞' : getLimitaServicii()})
@@ -430,7 +496,7 @@ export default function ResursePage() {
             </div>
           </div>
 
-          {/* Experți Listă */}
+          {/* Experti Lista */}
           <div className="bg-white p-10 rounded-[50px] shadow-xl border border-slate-50 relative">
             <h2 className="text-[11px] font-black uppercase italic text-slate-400 mb-10 tracking-[0.3em] border-b pb-6 text-right">
               {t("teamTitle")} ({staff.length} / {getLimitaStaff() >= 999 ? '∞' : getLimitaStaff()})
@@ -486,9 +552,19 @@ export default function ResursePage() {
                           })}
                         </div>
                       </div>
-                      {!isDemo && (
-                        <button onClick={e => { e.stopPropagation(); handleDelete(p.id, 'staff'); }} className="opacity-0 group-hover:opacity-100 bg-slate-800 text-red-400 w-10 h-10 flex items-center justify-center rounded-xl border border-slate-700 hover:bg-red-500 hover:text-white transition-all">✕</button>
-                      )}
+                      <div className="flex flex-col gap-2 items-end">
+                        {!isDemo && (
+                          <button
+                            onClick={e => { e.stopPropagation(); openScheduleModal(p); }}
+                            className="opacity-0 group-hover:opacity-100 bg-slate-800 text-amber-500 px-3 py-2 flex items-center justify-center rounded-xl border border-slate-700 hover:bg-amber-500 hover:text-slate-900 transition-all text-[9px] font-black uppercase italic whitespace-nowrap"
+                          >
+                            🗓️ {t("scheduleBtn")}
+                          </button>
+                        )}
+                        {!isDemo && (
+                          <button onClick={e => { e.stopPropagation(); handleDelete(p.id, 'staff'); }} className="opacity-0 group-hover:opacity-100 bg-slate-800 text-red-400 w-10 h-10 flex items-center justify-center rounded-xl border border-slate-700 hover:bg-red-500 hover:text-white transition-all">✕</button>
+                        )}
+                      </div>
                     </div>
                   )}
                 </div>
@@ -498,6 +574,85 @@ export default function ResursePage() {
 
         </div>
       </div>
+
+      {/* MODAL PROGRAM INDIVIDUAL PER SPECIALIST */}
+      {scheduleStaffId && scheduleStaffMember && (
+        <div className="fixed inset-0 bg-slate-900/70 backdrop-blur-md z-[200] flex items-center justify-center p-4">
+          <div ref={scheduleModalRef} className="bg-white w-full max-w-2xl rounded-[45px] p-8 md:p-10 shadow-2xl border-t-[10px] border-amber-500 max-h-[85vh] overflow-y-auto">
+            <div className="flex justify-between items-start mb-2">
+              <div>
+                <span className="text-[9px] font-black text-amber-500 uppercase tracking-widest italic mb-1 block">{t("scheduleModalTitle")}</span>
+                <h3 className="text-2xl font-black uppercase italic text-slate-900 tracking-tighter">
+                  {t("scheduleModalSubtitle")} {scheduleStaffMember.name}
+                </h3>
+              </div>
+              <button onClick={() => setScheduleStaffId(null)} className="w-10 h-10 flex items-center justify-center bg-slate-100 rounded-xl font-black text-slate-400 hover:bg-red-500 hover:text-white transition-all">✕</button>
+            </div>
+
+            {scheduleForm.length === 0 ? (
+              <div className="my-8 p-8 bg-amber-50 border-2 border-dashed border-amber-200 rounded-[30px] text-center">
+                <p className="text-[11px] font-bold text-amber-800 italic mb-4">{t("noScheduleHint")}</p>
+                <button
+                  onClick={() => setScheduleForm(defaultSchedule())}
+                  className="px-6 py-3 bg-slate-900 text-amber-500 rounded-xl font-black text-[10px] uppercase italic hover:bg-amber-500 hover:text-slate-900 transition-all"
+                >
+                  {t("openDayLabel")} 09:00-18:00 →
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-3 my-6">
+                {DISPLAY_ORDER.map((dayIdx) => {
+                  const dayRo = RO_DAY_NAMES[dayIdx];
+                  const entry = scheduleForm.find(d => d.day === dayRo) || { day: dayRo, start: "09:00", end: "18:00", closed: false };
+                  return (
+                    <div key={dayRo} className={`flex flex-col sm:flex-row sm:items-center gap-3 p-4 rounded-2xl border-2 transition-all ${entry.closed ? 'bg-red-50 border-red-100' : 'bg-slate-50 border-slate-100'}`}>
+                      <div className="w-full sm:w-32 shrink-0">
+                        <span className="text-[11px] font-black uppercase italic text-slate-700">{scheduleDayNames[dayIdx]}</span>
+                      </div>
+                      <button
+                        onClick={() => updateScheduleDay(dayRo, "closed", !entry.closed)}
+                        className={`px-4 py-2 rounded-xl text-[9px] font-black uppercase italic transition-all shrink-0 ${entry.closed ? 'bg-red-500 text-white' : 'bg-green-500 text-white'}`}
+                      >
+                        {entry.closed ? t("closedDayLabel") : t("openDayLabel")}
+                      </button>
+                      {!entry.closed && (
+                        <div className="flex items-center gap-2 flex-1">
+                          <span className="text-[9px] font-black text-slate-400 uppercase">{t("fromLabel")}</span>
+                          <input type="time" value={entry.start}
+                            onChange={e => updateScheduleDay(dayRo, "start", e.target.value)}
+                            className="p-2 rounded-lg border-2 border-slate-200 font-black text-[12px] outline-none focus:border-amber-500" />
+                          <span className="text-[9px] font-black text-slate-400 uppercase">{t("toLabel")}</span>
+                          <input type="time" value={entry.end}
+                            onChange={e => updateScheduleDay(dayRo, "end", e.target.value)}
+                            className="p-2 rounded-lg border-2 border-slate-200 font-black text-[12px] outline-none focus:border-amber-500" />
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+            <div className="flex gap-3 mt-6 pt-6 border-t border-slate-100">
+              {scheduleForm.length > 0 && (
+                <button onClick={clearSchedule} className="px-5 py-4 bg-slate-100 text-slate-500 rounded-xl font-black text-[10px] uppercase italic hover:bg-slate-200 transition-all">
+                  ↺
+                </button>
+              )}
+              <button onClick={() => setScheduleStaffId(null)} className="flex-1 py-4 bg-slate-100 text-slate-500 rounded-xl font-black text-[11px] uppercase italic hover:bg-slate-200 transition-all">
+                {t("closeBtn")}
+              </button>
+              <button
+                onClick={saveSchedule}
+                disabled={savingSchedule}
+                className="flex-1 py-4 bg-slate-900 text-amber-500 rounded-xl font-black text-[11px] uppercase italic hover:bg-amber-500 hover:text-slate-900 transition-all shadow-lg disabled:opacity-50"
+              >
+                {savingSchedule ? "..." : t("saveScheduleBtn")}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

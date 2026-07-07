@@ -669,7 +669,27 @@
     "staffLimitReached": "⚠️ Limit erreicht! Dein Plan erlaubt nur {limit} Fachkräfte.",
     "errorPrefix": "Fehler: ",
     "confirmDeleteResource": "Möchtest du diese Ressource wirklich löschen?",
-    "loading": "Chronos wird synchronisiert..."
+    "loading": "Chronos wird synchronisiert...",
+    "scheduleBtn": "Arbeitszeit",
+    "scheduleModalTitle": "Arbeitszeitplan",
+    "scheduleModalSubtitle": "Lege die Arbeitszeiten fest für",
+    "closedDayLabel": "Geschlossen",
+    "openDayLabel": "Geöffnet",
+    "fromLabel": "Von",
+    "toLabel": "Bis",
+    "saveScheduleBtn": "Zeitplan speichern",
+    "closeBtn": "Schließen",
+    "noScheduleHint": "Wenn du keinen Zeitplan festlegst, gilt die Fachkraft als verfügbar während des gesamten Buchungsfensters des Unternehmens (ohne zusätzliche Einschränkungen).",
+    "scheduleDayNames": [
+      "Sonntag",
+      "Montag",
+      "Dienstag",
+      "Mittwoch",
+      "Donnerstag",
+      "Freitag",
+      "Samstag"
+    ],
+    "scheduleSavedToast": "Zeitplan erfolgreich gespeichert!"
   },
   "sugestii": {
     "checkingAccess": "Zugriff wird überprüft...",
@@ -781,7 +801,21 @@
     ],
     "applying": "Wird angewendet...",
     "applyNowBtn": "Jetzt anwenden 🚀",
-    "cancelBtn": "Abbrechen"
+    "cancelBtn": "Abbrechen",
+    "paymentSectionTitle": "Online-Zahlung bei der Buchung",
+    "paymentSectionSubtitle": "Kunden zahlen die Leistung vollständig direkt bei der Buchung — das Geld erreicht automatisch dein Konto.",
+    "connectStripeBtn": "Stripe verbinden",
+    "connectingBtn": "Verbindung wird hergestellt...",
+    "stripeConnectedLabel": "✅ Stripe-Konto verbunden",
+    "stripeNotConnectedLabel": "Stripe-Konto nicht verbunden",
+    "requirePaymentLabel": "Vollständige Zahlung bei Buchung verlangen",
+    "requirePaymentOn": "Aktiviert",
+    "requirePaymentOff": "Deaktiviert",
+    "currencyLabel": "Zahlungswährung",
+    "commissionNoticeTitle": "Transparenz zur Provision",
+    "commissionNoticeText": "Chronos behält 1% Provision von jeder eingenommenen Zahlung ein, für Verarbeitung und Systemwartung. Der Rest (99%) erreicht automatisch direkt dein Stripe-Konto — Chronos hält niemals das Geld deiner Kunden.",
+    "paymentPremiumTextBefore": "Online-Zahlung bei Buchung ist verfügbar in den Plänen ",
+    "connectionPending": "Schließe das Ausfüllen deiner Daten im Stripe-Fenster ab, um Zahlungen zu aktivieren."
   },
   "calendarPage": {
     "dayShort": [
@@ -1303,7 +1337,7 @@
       },
       {
         "name": "CHRONOS TEAM",
-        "price": 299,
+        "price": 199,
         "description": "Für große Teams mit voller Kontrolle über das Unternehmen.",
         "buttonText": "PLAN WÄHLEN",
         "features": [

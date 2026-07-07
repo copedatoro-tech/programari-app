@@ -1,7 +1,7 @@
 "use client";
-import { useState, useEffect, useRef, useMemo, useCallback, startTransition } from "react";
+import { useState, useEffect, useRef, useMemo, useCallback, startTransition, Suspense } from "react";
 import { createBrowserClient } from "@supabase/ssr";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Link } from "@/i18n/navigation";
 import { useTranslations, useLocale } from "next-intl";
 import { QRCodeSVG } from "qrcode.react";
@@ -9,10 +9,13 @@ import { showToast } from "@/lib/toast";
 
 type ManualBlocksMap = Record<string, string[]>;
 
-export default function AdminSettingsHub() {
+const CURRENCY_OPTIONS = ["RON", "EUR", "USD", "GBP", "HUF", "PLN"];
+
+function SettingsContent() {
   const t = useTranslations("settings");
   const locale = useLocale();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const supabase = useMemo(() => createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
@@ -38,6 +41,13 @@ export default function AdminSettingsHub() {
   const modalRef = useRef<HTMLDivElement>(null);
   const confirmPopupRef = useRef<HTMLDivElement>(null);
   const qrRef = useRef<HTMLDivElement>(null);
+
+  // ✅ Plată online la rezervare
+  const [stripeOnboarded, setStripeOnboarded] = useState(false);
+  const [stripeAccountId, setStripeAccountId] = useState<string | null>(null);
+  const [requirePayment, setRequirePayment] = useState(false);
+  const [currency, setCurrency] = useState("RON");
+  const [connectingStripe, setConnectingStripe] = useState(false);
 
   const localeCode = t("localeCode");
   const weekdaysShort = t.raw("weekdaysShort") as string[];
@@ -90,6 +100,40 @@ export default function AdminSettingsHub() {
     if (data) setDaysWithBookings(Array.from(new Set(data.map((a: any) => a.date))));
   }, [supabase]);
 
+  const loadProfile = useCallback(async (currentUid: string) => {
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', currentUid)
+      .maybeSingle();
+    if (profile) {
+      setUserPlan(profile.plan_type?.toUpperCase() || "CHRONOS FREE");
+      setBookingInterval(profile.booking_interval || 60);
+      setStripeOnboarded(!!profile.stripe_onboarded);
+      setStripeAccountId(profile.stripe_account_id || null);
+      setRequirePayment(!!profile.require_payment_at_booking);
+      setCurrency(profile.currency || "RON");
+      const savedSlug = profile.slug || "";
+      if (savedSlug) {
+        setSlug(savedSlug);
+      } else {
+        const base = formatSlug(profile.full_name || "chronos");
+        const autoSlug = `${base || "chronos"}-${currentUid.slice(0, 6)}`;
+        setSlug(autoSlug);
+        await supabase.from('profiles').update({
+          slug: autoSlug,
+          updated_at: new Date().toISOString()
+        }).eq('id', currentUid);
+      }
+      const rawBlocks = profile.manual_blocks;
+      if (rawBlocks && typeof rawBlocks === 'object' && !Array.isArray(rawBlocks)) {
+        setManualBlocks(rawBlocks as ManualBlocksMap);
+      } else {
+        setManualBlocks({});
+      }
+    }
+  }, [supabase, formatSlug]);
+
   useEffect(() => {
     setMounted(true);
     async function initAdmin() {
@@ -97,39 +141,54 @@ export default function AdminSettingsHub() {
       if (!session) { router.replace("/login"); return; }
       const currentUid = session.user.id;
       setUserId(currentUid);
-
-      const { data: profile, error: profileError } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', currentUid)
-        .maybeSingle();
-      if (profile) {
-        setUserPlan(profile.plan_type?.toUpperCase() || "CHRONOS FREE");
-        setBookingInterval(profile.booking_interval || 60);
-        const savedSlug = profile.slug || "";
-        if (savedSlug) {
-          setSlug(savedSlug);
-        } else {
-          const base = formatSlug(profile.full_name || session.user.email?.split("@")[0] || "chronos");
-          const autoSlug = `${base || "chronos"}-${currentUid.slice(0, 6)}`;
-          setSlug(autoSlug);
-          await supabase.from('profiles').update({
-            slug: autoSlug,
-            updated_at: new Date().toISOString()
-          }).eq('id', currentUid);
-        }
-        const rawBlocks = profile.manual_blocks;
-        if (rawBlocks && typeof rawBlocks === 'object' && !Array.isArray(rawBlocks)) {
-          setManualBlocks(rawBlocks as ManualBlocksMap);
-        } else {
-          setManualBlocks({});
-        }
-      }
+      await loadProfile(currentUid);
       await fetchMonthlyAppointments(currentUid, currentMonth);
       setLoading(false);
     }
     initAdmin();
-  }, [supabase, router, currentMonth, fetchMonthlyAppointments, formatSlug]);
+  }, [supabase, router, currentMonth, fetchMonthlyAppointments, loadProfile]);
+
+  // ✅ Când ne întoarcem de la Stripe după conectare, reîncărcăm profilul
+  useEffect(() => {
+    if (searchParams.get("stripe") === "connected" && userId) {
+      loadProfile(userId).then(() => {
+        showToast({ message: t("stripeConnectedLabel"), type: "success" });
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams, userId]);
+
+  const handleConnectStripe = async () => {
+    setConnectingStripe(true);
+    try {
+      const res = await fetch("/api/stripe/connect", { method: "POST" });
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        await showToast({ message: data.error || "Eroare la conectare.", type: "error" });
+        setConnectingStripe(false);
+      }
+    } catch (e: any) {
+      await showToast({ message: e?.message || "Eroare la conectare.", type: "error" });
+      setConnectingStripe(false);
+    }
+  };
+
+  const handleToggleRequirePayment = async () => {
+    if (!userId) return;
+    const newVal = !requirePayment;
+    setRequirePayment(newVal);
+    await supabase.from('profiles').update({ require_payment_at_booking: newVal }).eq('id', userId);
+    await showToast({ message: t("toastSavedMsg"), type: "success" });
+  };
+
+  const handleCurrencyChange = async (newCurrency: string) => {
+    if (!userId) return;
+    setCurrency(newCurrency);
+    await supabase.from('profiles').update({ currency: newCurrency }).eq('id', userId);
+    await showToast({ message: t("toastSavedMsg"), type: "success" });
+  };
 
   const saveSettings = async (blocksToSave: ManualBlocksMap = manualBlocks) => {
     if (!userId) return;
@@ -395,6 +454,83 @@ export default function AdminSettingsHub() {
           </div>
         </section>
 
+        {/* ✅ SECTIUNE PLATA ONLINE - PROTEJATA (Elite/Team) */}
+        <section className="relative bg-white rounded-[30px] p-6 md:p-8 mb-8 shadow-xl border border-slate-100 overflow-hidden">
+          {!isEliteOrTeam && (
+             <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-white/80 backdrop-blur-md p-6 text-center">
+                <div className="bg-amber-500 text-black px-4 py-1 rounded-full font-black text-[10px] uppercase mb-2">{t("premiumBadge")}</div>
+                <h3 className="text-slate-900 font-black uppercase italic text-lg tracking-tighter">{t("paymentSectionTitle")}</h3>
+                <p className="text-slate-500 text-[10px] font-bold uppercase max-w-md mt-1">
+                  {t("paymentPremiumTextBefore")}<span className="text-amber-600">{t("premiumElite")}</span>{t("premiumOr")}<span className="text-amber-600">{t("premiumTeam")}</span>
+                </p>
+                <Link href="/upgrade" className="mt-4 px-6 py-2 bg-slate-900 text-white rounded-lg font-black uppercase text-[9px] italic hover:bg-amber-500 hover:text-black transition-all">
+                  {t("upgradeBtn")}
+                </Link>
+             </div>
+          )}
+
+          <div className={`transition-all ${!isEliteOrTeam ? 'blur-sm grayscale opacity-30 pointer-events-none' : ''}`}>
+            <h2 className="text-lg md:text-xl font-black uppercase italic text-slate-900 tracking-tighter mb-2 border-l-4 border-amber-500 pl-3">
+              {t("paymentSectionTitle")}
+            </h2>
+            <p className="text-slate-500 text-[11px] font-bold mb-6">{t("paymentSectionSubtitle")}</p>
+
+            <div className="flex flex-col md:flex-row items-stretch gap-4 mb-6">
+              {/* Status conectare Stripe */}
+              <div className="flex-1 bg-slate-50 border-2 border-slate-100 rounded-[22px] p-5 flex flex-col justify-between">
+                <div className="flex items-center gap-2 mb-3">
+                  <span className={`w-2.5 h-2.5 rounded-full ${stripeOnboarded ? 'bg-green-500' : 'bg-slate-300'}`}></span>
+                  <span className={`text-[11px] font-black uppercase italic ${stripeOnboarded ? 'text-green-700' : 'text-slate-400'}`}>
+                    {stripeOnboarded ? t("stripeConnectedLabel") : t("stripeNotConnectedLabel")}
+                  </span>
+                </div>
+                {stripeAccountId && !stripeOnboarded && (
+                  <p className="text-[9px] font-bold text-amber-600 italic mb-3">{t("connectionPending")}</p>
+                )}
+                <button
+                  type="button"
+                  onClick={handleConnectStripe}
+                  disabled={connectingStripe}
+                  className="w-full py-3 bg-slate-900 text-white rounded-xl font-black text-[10px] uppercase italic hover:bg-amber-500 hover:text-black transition-all shadow-md disabled:opacity-50"
+                >
+                  {connectingStripe ? t("connectingBtn") : t("connectStripeBtn")}
+                </button>
+              </div>
+
+              {/* Comutator plată obligatorie */}
+              <div className="flex-1 bg-slate-50 border-2 border-slate-100 rounded-[22px] p-5 flex flex-col justify-between">
+                <span className="text-[10px] font-black uppercase text-slate-500 italic mb-3 block">{t("requirePaymentLabel")}</span>
+                <button
+                  type="button"
+                  onClick={handleToggleRequirePayment}
+                  disabled={!stripeOnboarded}
+                  className={`w-full py-3 rounded-xl font-black text-[10px] uppercase italic transition-all shadow-md disabled:opacity-40 ${requirePayment ? 'bg-green-500 text-white' : 'bg-slate-200 text-slate-500'}`}
+                >
+                  {requirePayment ? t("requirePaymentOn") : t("requirePaymentOff")}
+                </button>
+              </div>
+
+              {/* Valuta */}
+              <div className="flex-1 bg-slate-50 border-2 border-slate-100 rounded-[22px] p-5 flex flex-col justify-between">
+                <span className="text-[10px] font-black uppercase text-slate-500 italic mb-3 block">{t("currencyLabel")}</span>
+                <select
+                  value={currency}
+                  onChange={(e) => handleCurrencyChange(e.target.value)}
+                  className="w-full py-3 px-3 bg-white border-2 border-slate-200 rounded-xl font-black text-[12px] outline-none focus:border-amber-500"
+                >
+                  {CURRENCY_OPTIONS.map((c) => <option key={c} value={c}>{c}</option>)}
+                </select>
+              </div>
+            </div>
+
+            {/* Transparență comision */}
+            <div className="bg-amber-50 border-2 border-amber-200 rounded-[22px] p-5">
+              <p className="text-[10px] font-black uppercase text-amber-800 italic mb-2">{t("commissionNoticeTitle")}</p>
+              <p className="text-[11px] font-bold text-amber-900 leading-relaxed">{t("commissionNoticeText")}</p>
+            </div>
+          </div>
+        </section>
+
         {isEliteOrTeam && !slug && (
           <div className="mb-8 p-6 bg-red-50 border-2 border-red-200 rounded-[25px] flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-4">
@@ -527,5 +663,13 @@ export default function AdminSettingsHub() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function AdminSettingsHub() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-white flex items-center justify-center font-black text-amber-500 animate-pulse text-[10px] uppercase">...</div>}>
+      <SettingsContent />
+    </Suspense>
   );
 }

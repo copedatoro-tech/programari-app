@@ -669,7 +669,27 @@
     "staffLimitReached": "⚠️ Limite atingido! O teu plano permite apenas {limit} especialistas.",
     "errorPrefix": "Erro: ",
     "confirmDeleteResource": "Tens a certeza que queres eliminar este recurso?",
-    "loading": "A sincronizar Chronos..."
+    "loading": "A sincronizar Chronos...",
+    "scheduleBtn": "Horário",
+    "scheduleModalTitle": "Horário de trabalho",
+    "scheduleModalSubtitle": "Define o horário de trabalho para",
+    "closedDayLabel": "Encerrado",
+    "openDayLabel": "Aberto",
+    "fromLabel": "Das",
+    "toLabel": "Até",
+    "saveScheduleBtn": "Guardar horário",
+    "closeBtn": "Fechar",
+    "noScheduleHint": "Se não definires um horário, o especialista é considerado disponível durante toda a janela de marcações do negócio (sem restrições adicionais).",
+    "scheduleDayNames": [
+      "Domingo",
+      "Segunda-feira",
+      "Terça-feira",
+      "Quarta-feira",
+      "Quinta-feira",
+      "Sexta-feira",
+      "Sábado"
+    ],
+    "scheduleSavedToast": "Horário guardado com sucesso!"
   },
   "sugestii": {
     "checkingAccess": "A verificar o acesso...",
@@ -781,7 +801,21 @@
     ],
     "applying": "A aplicar...",
     "applyNowBtn": "Aplicar agora 🚀",
-    "cancelBtn": "Cancelar"
+    "cancelBtn": "Cancelar",
+    "paymentSectionTitle": "Pagamento online na marcação",
+    "paymentSectionSubtitle": "Os clientes pagam o serviço na íntegra, diretamente na marcação — o dinheiro chega automaticamente à tua conta.",
+    "connectStripeBtn": "Conectar Stripe",
+    "connectingBtn": "A conectar...",
+    "stripeConnectedLabel": "✅ Conta Stripe conectada",
+    "stripeNotConnectedLabel": "Conta Stripe não conectada",
+    "requirePaymentLabel": "Exigir pagamento completo na marcação",
+    "requirePaymentOn": "Ativado",
+    "requirePaymentOff": "Desativado",
+    "currencyLabel": "Moeda de cobrança",
+    "commissionNoticeTitle": "Transparência sobre a comissão",
+    "commissionNoticeText": "A Chronos retém uma comissão de 1% de cada pagamento cobrado, para processamento e manutenção do sistema. O restante (99%) chega direta e automaticamente à tua conta Stripe — a Chronos nunca fica com o dinheiro dos teus clientes.",
+    "paymentPremiumTextBefore": "O pagamento online na marcação está disponível nos planos ",
+    "connectionPending": "Termina de preencher os teus dados na janela da Stripe para ativar os pagamentos."
   },
   "calendarPage": {
     "dayShort": [
@@ -1303,7 +1337,7 @@
       },
       {
         "name": "CHRONOS TEAM",
-        "price": 299,
+        "price": 199,
         "description": "Para grandes equipas com controlo total sobre o negócio.",
         "buttonText": "ESCOLHER PLANO",
         "features": [

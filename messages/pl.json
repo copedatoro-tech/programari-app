@@ -669,7 +669,27 @@
     "staffLimitReached": "⚠️ Limit osiągnięty! Twój plan pozwala tylko na {limit} specjalistów.",
     "errorPrefix": "Błąd: ",
     "confirmDeleteResource": "Czy na pewno chcesz usunąć ten zasób?",
-    "loading": "Synchronizacja Chronos..."
+    "loading": "Synchronizacja Chronos...",
+    "scheduleBtn": "Grafik",
+    "scheduleModalTitle": "Grafik pracy",
+    "scheduleModalSubtitle": "Ustaw godziny pracy dla",
+    "closedDayLabel": "Zamknięte",
+    "openDayLabel": "Otwarte",
+    "fromLabel": "Od",
+    "toLabel": "Do",
+    "saveScheduleBtn": "Zapisz grafik",
+    "closeBtn": "Zamknij",
+    "noScheduleHint": "Jeśli nie ustawisz grafiku, specjalista jest uznawany za dostępnego przez cały czas rezerwacji firmy (bez dodatkowych ograniczeń).",
+    "scheduleDayNames": [
+      "Niedziela",
+      "Poniedziałek",
+      "Wtorek",
+      "Środa",
+      "Czwartek",
+      "Piątek",
+      "Sobota"
+    ],
+    "scheduleSavedToast": "Grafik zapisany pomyślnie!"
   },
   "sugestii": {
     "checkingAccess": "Sprawdzanie dostępu...",
@@ -781,7 +801,21 @@
     ],
     "applying": "Stosowanie...",
     "applyNowBtn": "Zastosuj teraz 🚀",
-    "cancelBtn": "Anuluj"
+    "cancelBtn": "Anuluj",
+    "paymentSectionTitle": "Płatność online przy rezerwacji",
+    "paymentSectionSubtitle": "Klienci płacą za usługę w całości bezpośrednio przy rezerwacji — pieniądze trafiają automatycznie na Twoje konto.",
+    "connectStripeBtn": "Połącz Stripe",
+    "connectingBtn": "Łączenie...",
+    "stripeConnectedLabel": "✅ Konto Stripe połączone",
+    "stripeNotConnectedLabel": "Konto Stripe niepołączone",
+    "requirePaymentLabel": "Wymagaj pełnej płatności przy rezerwacji",
+    "requirePaymentOn": "Włączone",
+    "requirePaymentOff": "Wyłączone",
+    "currencyLabel": "Waluta rozliczeniowa",
+    "commissionNoticeTitle": "Przejrzystość dotycząca prowizji",
+    "commissionNoticeText": "Chronos pobiera 1% prowizji z każdej otrzymanej płatności, na potrzeby przetwarzania i utrzymania systemu. Reszta (99%) trafia bezpośrednio i automatycznie na Twoje konto Stripe — Chronos nigdy nie zatrzymuje pieniędzy Twoich klientów.",
+    "paymentPremiumTextBefore": "Płatność online przy rezerwacji jest dostępna w planach ",
+    "connectionPending": "Dokończ wypełnianie danych w oknie Stripe, aby aktywować płatności."
   },
   "calendarPage": {
     "dayShort": [
@@ -1303,7 +1337,7 @@
       },
       {
         "name": "CHRONOS TEAM",
-        "price": 299,
+        "price": 199,
         "description": "Dla dużych zespołów z pełną kontrolą nad firmą.",
         "buttonText": "WYBIERZ PLAN",
         "features": [

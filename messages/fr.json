@@ -669,7 +669,27 @@
     "staffLimitReached": "⚠️ Limite atteinte ! Ton forfait permet seulement {limit} experts.",
     "errorPrefix": "Erreur : ",
     "confirmDeleteResource": "Es-tu sûr de vouloir supprimer cette ressource ?",
-    "loading": "Synchronisation Chronos..."
+    "loading": "Synchronisation Chronos...",
+    "scheduleBtn": "Horaire",
+    "scheduleModalTitle": "Horaire de travail",
+    "scheduleModalSubtitle": "Définis les horaires de travail pour",
+    "closedDayLabel": "Fermé",
+    "openDayLabel": "Ouvert",
+    "fromLabel": "De",
+    "toLabel": "À",
+    "saveScheduleBtn": "Enregistrer l'horaire",
+    "closeBtn": "Fermer",
+    "noScheduleHint": "Si tu ne définis aucun horaire, le spécialiste est considéré disponible pendant toute la plage de réservation de l'entreprise (sans restriction supplémentaire).",
+    "scheduleDayNames": [
+      "Dimanche",
+      "Lundi",
+      "Mardi",
+      "Mercredi",
+      "Jeudi",
+      "Vendredi",
+      "Samedi"
+    ],
+    "scheduleSavedToast": "Horaire enregistré avec succès !"
   },
   "sugestii": {
     "checkingAccess": "Vérification de l'accès...",
@@ -781,7 +801,21 @@
     ],
     "applying": "Application en cours...",
     "applyNowBtn": "Appliquer maintenant 🚀",
-    "cancelBtn": "Annuler"
+    "cancelBtn": "Annuler",
+    "paymentSectionTitle": "Paiement en ligne à la réservation",
+    "paymentSectionSubtitle": "Les clients paient le service en intégralité, directement à la réservation — l'argent arrive automatiquement sur ton compte.",
+    "connectStripeBtn": "Connecter Stripe",
+    "connectingBtn": "Connexion en cours...",
+    "stripeConnectedLabel": "✅ Compte Stripe connecté",
+    "stripeNotConnectedLabel": "Compte Stripe non connecté",
+    "requirePaymentLabel": "Exiger le paiement complet à la réservation",
+    "requirePaymentOn": "Activé",
+    "requirePaymentOff": "Désactivé",
+    "currencyLabel": "Devise d'encaissement",
+    "commissionNoticeTitle": "Transparence sur la commission",
+    "commissionNoticeText": "Chronos retient une commission de 1 % sur chaque paiement encaissé, pour le traitement et la maintenance du système. Le reste (99 %) arrive directement, automatiquement, sur ton compte Stripe — Chronos ne détient jamais l'argent de tes clients.",
+    "paymentPremiumTextBefore": "Le paiement en ligne à la réservation est disponible avec les forfaits ",
+    "connectionPending": "Termine de remplir tes informations dans la fenêtre Stripe pour activer les paiements."
   },
   "calendarPage": {
     "dayShort": [
@@ -1303,7 +1337,7 @@
       },
       {
         "name": "CHRONOS TEAM",
-        "price": 299,
+        "price": 199,
         "description": "Pour les grandes équipes avec un contrôle total sur l'activité.",
         "buttonText": "CHOISIR",
         "features": [

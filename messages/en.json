@@ -669,7 +669,27 @@
     "staffLimitReached": "⚠️ Limit reached! Your plan allows only {limit} specialists.",
     "errorPrefix": "Error: ",
     "confirmDeleteResource": "Are you sure you want to delete this resource?",
-    "loading": "Syncing Chronos..."
+    "loading": "Syncing Chronos...",
+    "scheduleBtn": "Schedule",
+    "scheduleModalTitle": "Working Schedule",
+    "scheduleModalSubtitle": "Set working hours for",
+    "closedDayLabel": "Closed",
+    "openDayLabel": "Open",
+    "fromLabel": "From",
+    "toLabel": "To",
+    "saveScheduleBtn": "Save Schedule",
+    "closeBtn": "Close",
+    "noScheduleHint": "If you don't set a schedule, the specialist is considered available during the business's entire booking window (no extra restrictions).",
+    "scheduleDayNames": [
+      "Sunday",
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday"
+    ],
+    "scheduleSavedToast": "Schedule saved successfully!"
   },
   "sugestii": {
     "checkingAccess": "Checking access...",
@@ -781,7 +801,21 @@
     ],
     "applying": "Applying...",
     "applyNowBtn": "Apply Now 🚀",
-    "cancelBtn": "Cancel"
+    "cancelBtn": "Cancel",
+    "paymentSectionTitle": "Online Payment at Booking",
+    "paymentSectionSubtitle": "Clients pay for the service in full, right at booking — the money reaches your account automatically.",
+    "connectStripeBtn": "Connect Stripe",
+    "connectingBtn": "Connecting...",
+    "stripeConnectedLabel": "✅ Stripe Account Connected",
+    "stripeNotConnectedLabel": "Stripe account not connected",
+    "requirePaymentLabel": "Require full payment at booking",
+    "requirePaymentOn": "Enabled",
+    "requirePaymentOff": "Disabled",
+    "currencyLabel": "Payment currency",
+    "commissionNoticeTitle": "Commission transparency",
+    "commissionNoticeText": "Chronos keeps a 1% commission from each payment collected, to cover processing and system maintenance. The rest (99%) reaches your Stripe account directly, automatically — Chronos never holds your clients' money.",
+    "paymentPremiumTextBefore": "Online payment at booking is available on the ",
+    "connectionPending": "Finish filling in your details in the Stripe window to activate payments."
   },
   "calendarPage": {
     "dayShort": [
@@ -1303,7 +1337,7 @@
       },
       {
         "name": "CHRONOS TEAM",
-        "price": 299,
+        "price": 199,
         "description": "For large teams with full control over the business.",
         "buttonText": "CHOOSE PLAN",
         "features": [

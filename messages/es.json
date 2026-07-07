@@ -669,7 +669,27 @@
     "staffLimitReached": "⚠️ ¡Límite alcanzado! Tu plan permite solo {limit} expertos.",
     "errorPrefix": "Error: ",
     "confirmDeleteResource": "¿Seguro que quieres eliminar este recurso?",
-    "loading": "Sincronizando Chronos..."
+    "loading": "Sincronizando Chronos...",
+    "scheduleBtn": "Horario",
+    "scheduleModalTitle": "Horario de trabajo",
+    "scheduleModalSubtitle": "Establece el horario de trabajo para",
+    "closedDayLabel": "Cerrado",
+    "openDayLabel": "Abierto",
+    "fromLabel": "Desde",
+    "toLabel": "Hasta",
+    "saveScheduleBtn": "Guardar horario",
+    "closeBtn": "Cerrar",
+    "noScheduleHint": "Si no estableces un horario, se considera que el especialista está disponible durante toda la franja de reservas del negocio (sin restricciones adicionales).",
+    "scheduleDayNames": [
+      "Domingo",
+      "Lunes",
+      "Martes",
+      "Miércoles",
+      "Jueves",
+      "Viernes",
+      "Sábado"
+    ],
+    "scheduleSavedToast": "¡Horario guardado con éxito!"
   },
   "sugestii": {
     "checkingAccess": "Verificando el acceso...",
@@ -781,7 +801,21 @@
     ],
     "applying": "Aplicando...",
     "applyNowBtn": "Aplicar ahora 🚀",
-    "cancelBtn": "Cancelar"
+    "cancelBtn": "Cancelar",
+    "paymentSectionTitle": "Pago en línea al reservar",
+    "paymentSectionSubtitle": "Los clientes pagan el servicio completo directamente al reservar — el dinero llega automáticamente a tu cuenta.",
+    "connectStripeBtn": "Conectar Stripe",
+    "connectingBtn": "Conectando...",
+    "stripeConnectedLabel": "✅ Cuenta Stripe conectada",
+    "stripeNotConnectedLabel": "Cuenta Stripe no conectada",
+    "requirePaymentLabel": "Exigir pago completo al reservar",
+    "requirePaymentOn": "Activado",
+    "requirePaymentOff": "Desactivado",
+    "currencyLabel": "Moneda de cobro",
+    "commissionNoticeTitle": "Transparencia sobre la comisión",
+    "commissionNoticeText": "Chronos retiene una comisión del 1% de cada pago cobrado, para el procesamiento y mantenimiento del sistema. El resto (99%) llega directa y automáticamente a tu cuenta Stripe — Chronos nunca retiene el dinero de tus clientes.",
+    "paymentPremiumTextBefore": "El pago en línea al reservar está disponible en los planes ",
+    "connectionPending": "Termina de completar tus datos en la ventana de Stripe para activar los pagos."
   },
   "calendarPage": {
     "dayShort": [
@@ -1303,7 +1337,7 @@
       },
       {
         "name": "CHRONOS TEAM",
-        "price": 299,
+        "price": 199,
         "description": "Para equipos grandes con control total sobre el negocio.",
         "buttonText": "ELEGIR PLAN",
         "features": [

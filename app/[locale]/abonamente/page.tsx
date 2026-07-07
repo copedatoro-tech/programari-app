@@ -315,7 +315,7 @@ export default function AbonamentePage() {
                   <span className="text-4xl font-black tracking-tighter text-slate-900">{plan.price}</span>
                   <span className="text-xs font-black text-slate-300 uppercase italic">{t("perMonth")}</span>
                   {locale !== "ro" && plan.price > 0 && (
-                    <span className="text-[10px] font-bold text-slate-300 italic w-full">(~{eurApprox} EUR)</span>
+                    <span className="text-[11px] font-black text-amber-600 italic w-full mt-1">≈ {eurApprox} EUR</span>
                   )}
                 </div>
 

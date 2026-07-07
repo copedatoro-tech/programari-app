@@ -616,7 +616,7 @@
       },
       {
         "name": "CHRONOS TEAM",
-        "price": 299,
+        "price": 199,
         "description": "Pentru echipe mari, cu control complet asupra afacerii.",
         "buttonText": "ALEGE PLANUL",
         "features": [
@@ -850,7 +850,27 @@
     "staffLimitReached": "⚠️ Limită atinsă! Planul tău permite doar {limit} experți.",
     "errorPrefix": "Eroare: ",
     "confirmDeleteResource": "Sigur vrei să ștergi resursa?",
-    "loading": "Sincronizare Chronos..."
+    "loading": "Sincronizare Chronos...",
+    "scheduleBtn": "Program",
+    "scheduleModalTitle": "Program de lucru",
+    "scheduleModalSubtitle": "Setează orele de lucru pentru",
+    "closedDayLabel": "Închis",
+    "openDayLabel": "Deschis",
+    "fromLabel": "De la",
+    "toLabel": "Până la",
+    "saveScheduleBtn": "Salvează Programul",
+    "closeBtn": "Închide",
+    "noScheduleHint": "Dacă nu setezi niciun program, specialistul e considerat disponibil în tot intervalul de rezervare al afacerii (fără restricții suplimentare).",
+    "scheduleDayNames": [
+      "Duminică",
+      "Luni",
+      "Marți",
+      "Miercuri",
+      "Joi",
+      "Vineri",
+      "Sâmbătă"
+    ],
+    "scheduleSavedToast": "Program salvat cu succes!"
   },
   "sugestii": {
     "checkingAccess": "Se verifică accesul...",
@@ -962,7 +982,21 @@
     ],
     "applying": "Se aplică...",
     "applyNowBtn": "Aplică Acum 🚀",
-    "cancelBtn": "Anulează"
+    "cancelBtn": "Anulează",
+    "paymentSectionTitle": "Plată Online la Rezervare",
+    "paymentSectionSubtitle": "Clienții plătesc serviciul integral, direct la rezervare — banii ajung automat în contul tău.",
+    "connectStripeBtn": "Conectează Stripe",
+    "connectingBtn": "Se conectează...",
+    "stripeConnectedLabel": "✅ Cont Stripe Conectat",
+    "stripeNotConnectedLabel": "Cont Stripe neconectat",
+    "requirePaymentLabel": "Cere plată completă la rezervare",
+    "requirePaymentOn": "Activat",
+    "requirePaymentOff": "Dezactivat",
+    "currencyLabel": "Valută de încasare",
+    "commissionNoticeTitle": "Transparență privind comisionul",
+    "commissionNoticeText": "Chronos reține un comision de 1% din fiecare plată încasată, pentru procesarea și mentenanța sistemului. Restul sumei (99%) ajunge direct, automat, în contul tău Stripe — Chronos nu ține niciodată banii clienților tăi.",
+    "paymentPremiumTextBefore": "Plata online la rezervare e disponibilă în planurile ",
+    "connectionPending": "Finalizează completarea datelor în fereastra Stripe pentru a activa plățile."
   },
   "calendarPage": {
     "dayShort": [

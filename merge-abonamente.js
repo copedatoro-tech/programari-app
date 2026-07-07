@@ -49,7 +49,7 @@ ro: { abonamente: {
         { text: "Recenzii clienți & pagină publică", available: true },
         { text: "Notificări WhatsApp", available: true }
       ]},
-    { name: "CHRONOS TEAM", price: 299, description: "Pentru echipe mari, cu control complet asupra afacerii.", buttonText: "ALEGE PLANUL",
+    { name: "CHRONOS TEAM", price: 199, description: "Pentru echipe mari, cu control complet asupra afacerii.", buttonText: "ALEGE PLANUL",
       features: [
         { text: "Rezervări nelimitate", available: true, highlight: "nelimitate" },
         { text: "50 specialiști", available: true, highlight: "50" },
@@ -105,7 +105,7 @@ en: { abonamente: {
         { text: "Client reviews & public page", available: true },
         { text: "WhatsApp notifications", available: true }
       ]},
-    { name: "CHRONOS TEAM", price: 299, description: "For large teams with full control over the business.", buttonText: "CHOOSE PLAN",
+    { name: "CHRONOS TEAM", price: 199, description: "For large teams with full control over the business.", buttonText: "CHOOSE PLAN",
       features: [
         { text: "Unlimited bookings", available: true, highlight: "Unlimited" },
         { text: "50 specialists", available: true, highlight: "50" },
@@ -161,7 +161,7 @@ fr: { abonamente: {
         { text: "Avis clients & page publique", available: true },
         { text: "Notifications WhatsApp", available: true }
       ]},
-    { name: "CHRONOS TEAM", price: 299, description: "Pour les grandes équipes avec un contrôle total sur l'activité.", buttonText: "CHOISIR",
+    { name: "CHRONOS TEAM", price: 199, description: "Pour les grandes équipes avec un contrôle total sur l'activité.", buttonText: "CHOISIR",
       features: [
         { text: "Réservations illimitées", available: true, highlight: "illimitées" },
         { text: "50 spécialistes", available: true, highlight: "50" },
@@ -217,7 +217,7 @@ de: { abonamente: {
         { text: "Kundenbewertungen & öffentliche Seite", available: true },
         { text: "WhatsApp-Benachrichtigungen", available: true }
       ]},
-    { name: "CHRONOS TEAM", price: 299, description: "Für große Teams mit voller Kontrolle über das Unternehmen.", buttonText: "PLAN WÄHLEN",
+    { name: "CHRONOS TEAM", price: 199, description: "Für große Teams mit voller Kontrolle über das Unternehmen.", buttonText: "PLAN WÄHLEN",
       features: [
         { text: "Unbegrenzte Termine", available: true, highlight: "Unbegrenzte" },
         { text: "50 Fachkräfte", available: true, highlight: "50" },
@@ -273,7 +273,7 @@ es: { abonamente: {
         { text: "Reseñas de clientes y página pública", available: true },
         { text: "Notificaciones de WhatsApp", available: true }
       ]},
-    { name: "CHRONOS TEAM", price: 299, description: "Para equipos grandes con control total sobre el negocio.", buttonText: "ELEGIR PLAN",
+    { name: "CHRONOS TEAM", price: 199, description: "Para equipos grandes con control total sobre el negocio.", buttonText: "ELEGIR PLAN",
       features: [
         { text: "Citas ilimitadas", available: true, highlight: "ilimitadas" },
         { text: "50 especialistas", available: true, highlight: "50" },
@@ -329,7 +329,7 @@ it: { abonamente: {
         { text: "Recensioni clienti & pagina pubblica", available: true },
         { text: "Notifiche WhatsApp", available: true }
       ]},
-    { name: "CHRONOS TEAM", price: 299, description: "Per grandi team con pieno controllo sull'attività.", buttonText: "SCEGLI PIANO",
+    { name: "CHRONOS TEAM", price: 199, description: "Per grandi team con pieno controllo sull'attività.", buttonText: "SCEGLI PIANO",
       features: [
         { text: "Appuntamenti illimitati", available: true, highlight: "illimitati" },
         { text: "50 specialisti", available: true, highlight: "50" },
@@ -385,7 +385,7 @@ hu: { abonamente: {
         { text: "Ügyfélvélemények & nyilvános oldal", available: true },
         { text: "WhatsApp értesítések", available: true }
       ]},
-    { name: "CHRONOS TEAM", price: 299, description: "Nagy csapatoknak, teljes kontrollal a vállalkozás felett.", buttonText: "CSOMAG KIVÁLASZTÁSA",
+    { name: "CHRONOS TEAM", price: 199, description: "Nagy csapatoknak, teljes kontrollal a vállalkozás felett.", buttonText: "CSOMAG KIVÁLASZTÁSA",
       features: [
         { text: "Korlátlan időpontok", available: true, highlight: "Korlátlan" },
         { text: "50 szakember", available: true, highlight: "50" },
@@ -441,7 +441,7 @@ pt: { abonamente: {
         { text: "Avaliações de clientes & página pública", available: true },
         { text: "Notificações WhatsApp", available: true }
       ]},
-    { name: "CHRONOS TEAM", price: 299, description: "Para grandes equipas com controlo total sobre o negócio.", buttonText: "ESCOLHER PLANO",
+    { name: "CHRONOS TEAM", price: 199, description: "Para grandes equipas com controlo total sobre o negócio.", buttonText: "ESCOLHER PLANO",
       features: [
         { text: "Marcações ilimitadas", available: true, highlight: "ilimitadas" },
         { text: "50 especialistas", available: true, highlight: "50" },
@@ -497,7 +497,7 @@ pl: { abonamente: {
         { text: "Opinie klientów & strona publiczna", available: true },
         { text: "Powiadomienia WhatsApp", available: true }
       ]},
-    { name: "CHRONOS TEAM", price: 299, description: "Dla dużych zespołów z pełną kontrolą nad firmą.", buttonText: "WYBIERZ PLAN",
+    { name: "CHRONOS TEAM", price: 199, description: "Dla dużych zespołów z pełną kontrolą nad firmą.", buttonText: "WYBIERZ PLAN",
       features: [
         { text: "Nielimitowane wizyty", available: true, highlight: "Nielimitowane" },
         { text: "50 specjalistów", available: true, highlight: "50" },
