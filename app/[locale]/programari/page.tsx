@@ -93,7 +93,7 @@ function ProgramariContent() {
     queryKey: ["angajati"],
     queryFn: async () => {
       if (!userId) return [];
-      const { data } = await supabase.from("staff").select("id, name, services").eq("user_id", userId);
+      const { data } = await supabase.from("staff").select("id, name, services, working_hours").eq("user_id", userId);
       return data || [];
     },
     enabled: !!userId,

@@ -532,7 +532,7 @@ export default function ResursePage() {
                         </p>
                       </div>
                       {!isDemo && (
-                        <button onClick={e => { e.stopPropagation(); handleDelete(s.id, 'services'); }} className="opacity-0 group-hover:opacity-100 bg-white text-red-500 w-10 h-10 flex items-center justify-center rounded-xl shadow-md border border-red-100 hover:bg-red-500 hover:text-white transition-all">✕</button>
+                        <button onClick={e => { e.stopPropagation(); handleDelete(s.id, 'services'); }} className="bg-white text-red-500 w-10 h-10 flex items-center justify-center rounded-xl shadow-md border border-red-100 hover:bg-red-500 hover:text-white transition-all">✕</button>
                       )}
                     </div>
                   )}
@@ -601,13 +601,13 @@ export default function ResursePage() {
                         {!isDemo && (
                           <button
                             onClick={e => { e.stopPropagation(); openScheduleModal(p); }}
-                            className="opacity-0 group-hover:opacity-100 bg-slate-800 text-amber-500 px-3 py-2 flex items-center justify-center rounded-xl border border-slate-700 hover:bg-amber-500 hover:text-slate-900 transition-all text-[9px] font-black uppercase italic whitespace-nowrap"
+                            className="bg-slate-800 text-amber-500 px-3 py-2 flex items-center justify-center rounded-xl border border-slate-700 hover:bg-amber-500 hover:text-slate-900 transition-all text-[9px] font-black uppercase italic whitespace-nowrap"
                           >
                             🗓️ {t("scheduleBtn")}
                           </button>
                         )}
                         {!isDemo && (
-                          <button onClick={e => { e.stopPropagation(); handleDelete(p.id, 'staff'); }} className="opacity-0 group-hover:opacity-100 bg-slate-800 text-red-400 w-10 h-10 flex items-center justify-center rounded-xl border border-slate-700 hover:bg-red-500 hover:text-white transition-all">✕</button>
+                          <button onClick={e => { e.stopPropagation(); handleDelete(p.id, 'staff'); }} className="bg-slate-800 text-red-400 w-10 h-10 flex items-center justify-center rounded-xl border border-slate-700 hover:bg-red-500 hover:text-white transition-all">✕</button>
                         )}
                       </div>
                     </div>

@@ -95,7 +95,7 @@ type Prog = {
 };
 type ViewMode = "day"|"week"|"month"|"year";
 type ManualBlocks = Record<string, string[]>;
-interface StaffRow   { id: string; name: string; services: string[] }
+interface StaffRow   { id: string; name: string; services: string[]; working_hours?: any }
 interface ServiceRow { id: string; nume_serviciu: string; price: number; duration: number }
 interface WorkingHour{ day: string; start: string; end: string; closed: boolean }
 // ─── Colors ───────────────────────────────────────────────────────────────────
@@ -1110,7 +1110,7 @@ function CalendarContent() {
   });
   const {data:rawStaff=[]} = useQuery<StaffRow[]>({
     queryKey:["staff",userId],enabled:!!userId,staleTime:1000*60*10,
-    queryFn:async()=>{const{data}=await supabase.from("staff").select("id,name,services").eq("user_id",userId!);return data??[];},
+    queryFn:async()=>{const{data}=await supabase.from("staff").select("id,name,services,working_hours").eq("user_id",userId!);return data??[];},
   });
   const {data:rawServices=[]} = useQuery<ServiceRow[]>({
     queryKey:["services",userId],enabled:!!userId,staleTime:1000*60*10,
@@ -1179,6 +1179,23 @@ function CalendarContent() {
     if(!editForm)return;const ok=await showConfirm({title:t("editModal.deleteConfirmTitle"),message:t("editModal.deleteConfirmMsg",{nume:editForm.nume}),confirmText:t("editModal.deleteConfirmBtn"),type:"danger"});
     if(!ok)return;await supabase.from("appointments").delete().eq("id",editForm.id);qClient.invalidateQueries({queryKey:["appointments",userId]});closeModal();
   };
+  // ✅ Program efectiv pentru vizualizarea calendarului: al specialistului filtrat
+  // (dacă are unul propriu setat), altfel cel general al salonului
+  const viewWorkingHours = useMemo(() => {
+    if (!selectedExpert) return adminWorkingHours;
+    const st = rawStaff.find(s => s.id === selectedExpert);
+    const staffWH = parseWH(st?.working_hours);
+    return staffWH.length > 0 ? staffWH : adminWorkingHours;
+  }, [selectedExpert, rawStaff, adminWorkingHours]);
+
+  // ✅ Program efectiv pentru selectoarele din modalul de editare, bazat pe specialistul ales acolo
+  const editWorkingHours = useMemo(() => {
+    if (!editForm?.expertId) return adminWorkingHours;
+    const st = rawStaff.find(s => s.id === editForm.expertId);
+    const staffWH = parseWH(st?.working_hours);
+    return staffWH.length > 0 ? staffWH : adminWorkingHours;
+  }, [editForm?.expertId, rawStaff, adminWorkingHours]);
+
   const handleSelectExpert = useCallback((id:string)=>{setSelectedExpert(id);if(id&&selectedServiciu){const st=rawStaff.find(s=>s.id===id);if(st?.services?.length&&!st.services.includes(selectedServiciu))setSelectedServiciu("");}},[selectedServiciu,rawStaff]);
   const handleSelectServiciu = useCallback((id:string)=>{setSelectedServiciu(id);if(id&&selectedExpert){const st=rawStaff.find(s=>s.id===selectedExpert);if(st?.services?.length&&!st.services.includes(id))setSelectedExpert("");}},[selectedExpert,rawStaff]);
   const nav = useCallback((dir:number)=>{setSelectedDate(prev=>{const d=new Date(prev);if(viewMode==="year")d.setFullYear(d.getFullYear()+dir);else if(viewMode==="month")d.setMonth(d.getMonth()+dir);else if(viewMode==="week")d.setDate(d.getDate()+dir*7);else d.setDate(d.getDate()+dir);return d;});},[viewMode]);
@@ -1218,8 +1235,8 @@ function CalendarContent() {
     <div style={{display:"flex",flexDirection:"column",height:"100vh",background:"#f8fafc",overflow:"hidden"}}>
       {editForm&&(
         <>
-          {showDatePicker&&(<div style={{position:"fixed",inset:0,zIndex:900,background:"rgba(0,0,0,0.5)",backdropFilter:"blur(4px)",display:"flex",alignItems:"center",justifyContent:"center",padding:16}} onClick={()=>setShowDatePicker(false)}><div onClick={e=>e.stopPropagation()}><ChronosDatePicker value={editForm.data} onChange={v=>{setEditForm(p=>p?{...p,data:v,ora:""}:null);setShowDatePicker(false);}} minDate={today} onClose={()=>setShowDatePicker(false)} workingHours={adminWorkingHours} manualBlocks={adminManualBlocks}/></div></div>)}
-          {showTimePicker&&(<div style={{position:"fixed",inset:0,zIndex:900,background:"rgba(0,0,0,0.5)",backdropFilter:"blur(4px)",display:"flex",alignItems:"center",justifyContent:"center",padding:16}} onClick={()=>setShowTimePicker(false)}><div onClick={e=>e.stopPropagation()}><ChronosTimePicker value={editForm.ora||"09:00"} onChange={v=>{setEditForm(p=>p?{...p,ora:v}:null);setShowTimePicker(false);}} onClose={()=>setShowTimePicker(false)} workingHours={adminWorkingHours} existingAppointments={editExisting} selectedDate={editForm.data} serviceDuration={editSvcDur} manualBlocks={adminManualBlocks}/></div></div>)}
+          {showDatePicker&&(<div style={{position:"fixed",inset:0,zIndex:900,background:"rgba(0,0,0,0.5)",backdropFilter:"blur(4px)",display:"flex",alignItems:"center",justifyContent:"center",padding:16}} onClick={()=>setShowDatePicker(false)}><div onClick={e=>e.stopPropagation()}><ChronosDatePicker value={editForm.data} onChange={v=>{setEditForm(p=>p?{...p,data:v,ora:""}:null);setShowDatePicker(false);}} minDate={today} onClose={()=>setShowDatePicker(false)} workingHours={editWorkingHours} manualBlocks={adminManualBlocks}/></div></div>)}
+          {showTimePicker&&(<div style={{position:"fixed",inset:0,zIndex:900,background:"rgba(0,0,0,0.5)",backdropFilter:"blur(4px)",display:"flex",alignItems:"center",justifyContent:"center",padding:16}} onClick={()=>setShowTimePicker(false)}><div onClick={e=>e.stopPropagation()}><ChronosTimePicker value={editForm.ora||"09:00"} onChange={v=>{setEditForm(p=>p?{...p,ora:v}:null);setShowTimePicker(false);}} onClose={()=>setShowTimePicker(false)} workingHours={editWorkingHours} existingAppointments={editExisting} selectedDate={editForm.data} serviceDuration={editSvcDur} manualBlocks={adminManualBlocks}/></div></div>)}
           <div style={{position:"fixed",inset:0,background:"rgba(15,23,42,0.72)",backdropFilter:"blur(6px)",zIndex:500,display:"flex",alignItems:"center",justifyContent:"center",padding:12}} onClick={closeModal}>
             <div ref={modalRef} onClick={e=>e.stopPropagation()} style={{background:"#fff",width:"100%",maxWidth:540,borderRadius:20,overflow:"hidden",boxShadow:"0 24px 60px rgba(0,0,0,0.25)",border:"1px solid #e2e8f0",position:"relative",display:"flex",flexDirection:"column",maxHeight:"96vh"}}>
               <button onClick={closeModal} style={{position:"absolute",top:10,right:10,width:28,height:28,background:"#1e293b",border:"none",borderRadius:8,cursor:"pointer",fontSize:12,fontWeight:700,color:"#94a3b8",zIndex:30,display:"flex",alignItems:"center",justifyContent:"center"}} className="hover:bg-red-500 hover:text-white transition-all">✕</button>
@@ -1426,7 +1443,7 @@ function CalendarContent() {
       </div>
 
       {(viewMode==="day"||viewMode==="week")&&(
-        <WeekStrip selectedDate={selectedDate} onSelectDate={d=>{setSelectedDate(d);setViewMode("day");}} programariByDate={programariByDate} adminWorkingHours={adminWorkingHours}/>
+        <WeekStrip selectedDate={selectedDate} onSelectDate={d=>{setSelectedDate(d);setViewMode("day");}} programariByDate={programariByDate} adminWorkingHours={viewWorkingHours}/>
       )}
 
       <FilterBar rawStaff={rawStaff} rawServices={rawServices} programari={programari}
@@ -1438,18 +1455,18 @@ function CalendarContent() {
         {isLoading&&<div style={{height:3,background:"#fef3c7",overflow:"hidden",flexShrink:0}}><div style={{height:"100%",width:"33%",background:"#f59e0b"}} className="animate-pulse"/></div>}
         {viewMode==="day"&&(
           <DayView selectedDate={selectedDate} programari={filteredProg} rawStaff={rawStaff} rawServices={rawServices} serviceById={serviceById}
-            onEdit={openEdit} adminWorkingHours={adminWorkingHours} selectedExpert={selectedExpert} selectedServiciu={selectedServiciu}
+            onEdit={openEdit} adminWorkingHours={viewWorkingHours} selectedExpert={selectedExpert} selectedServiciu={selectedServiciu}
             onSelectServiciu={handleSelectServiciu}
             onAddNew={(time,date)=>setNewForm({date,time,nume:"",telefon:"",email:"",serviciuId:"",expertId:selectedExpert||rawStaff[0]?.id||"",motiv:""})}/>
         )}
         {viewMode==="week"&&(
           <WeekView selectedDate={selectedDate} programariByDate={programariByDate} rawStaff={rawStaff} rawServices={rawServices} serviceById={serviceById}
-            onEdit={openEdit} selectedExpert={selectedExpert} selectedServiciu={selectedServiciu} adminWorkingHours={adminWorkingHours}
+            onEdit={openEdit} selectedExpert={selectedExpert} selectedServiciu={selectedServiciu} adminWorkingHours={viewWorkingHours}
             onSelectDate={d=>{setSelectedDate(d);setViewMode("day");}}/>
         )}
         {viewMode==="month"&&(
           <MonthView selectedDate={selectedDate} programariByDate={programariByDate} rawStaff={rawStaff} serviceById={serviceById}
-            onEdit={openEdit} onDayClick={d=>{setSelectedDate(d);setViewMode("day");}} selectedExpert={selectedExpert} selectedServiciu={selectedServiciu} adminWorkingHours={adminWorkingHours}/>
+            onEdit={openEdit} onDayClick={d=>{setSelectedDate(d);setViewMode("day");}} selectedExpert={selectedExpert} selectedServiciu={selectedServiciu} adminWorkingHours={viewWorkingHours}/>
         )}
         {viewMode==="year"&&(
           <YearView selectedDate={selectedDate} programariByDate={programariByDate} onMonthClick={(yr,mo)=>{setSelectedDate(new Date(yr,mo,1));setViewMode("month");}}/>

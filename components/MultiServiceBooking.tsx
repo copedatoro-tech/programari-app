@@ -7,9 +7,15 @@ import { ChronosTimePicker, ChronosDatePicker } from "@/components/ChronosDateTi
 
 // ─── Tipuri ────────────────────────────────────────────────────────────────────
 interface ServiceRow   { id: string; nume_serviciu: string; price: number; duration: number }
-interface StaffRow     { id: string; name: string; services: string[] }
+interface StaffRow     { id: string; name: string; services: string[]; working_hours?: any }
 interface WorkingHour  { day: string; start: string; end: string; closed: boolean }
 interface ExistingAppt { time: string; duration: number }
+
+function parseWH(raw: any): WorkingHour[] {
+  if (!raw) return [];
+  if (typeof raw === "string") { try { return JSON.parse(raw); } catch { return []; } }
+  return Array.isArray(raw) ? raw : [];
+}
 
 interface ServiceSlot {
   slotId:        string;
@@ -78,6 +84,14 @@ function SlotRow({
 
   const svc = servicii.find((s) => s.id === slot.serviciu_id);
 
+  // ✅ Program efectiv: al specialistului ales pentru acest serviciu, dacă are unul propriu — altfel cel general
+  const effectiveWH = useMemo(() => {
+    if (!slot.specialist_id) return workingHours;
+    const st = specialisti.find((s) => s.id === slot.specialist_id);
+    const staffWH = parseWH(st?.working_hours);
+    return staffWH.length > 0 ? staffWH : workingHours;
+  }, [slot.specialist_id, specialisti, workingHours]);
+
   // Specialiștii care oferă serviciul ales
   const filteredSpec = useMemo(() =>
     slot.serviciu_id
@@ -127,7 +141,7 @@ function SlotRow({
               value={slot.data}
               onChange={(v) => { onChange({ data: v, ora: "00:00" }); setShowDate(false); }}
               minDate={today} onClose={() => setShowDate(false)}
-              workingHours={workingHours} manualBlocks={manualBlocks}
+              workingHours={effectiveWH} manualBlocks={manualBlocks}
             />
           </div>
         </div>
@@ -141,7 +155,7 @@ function SlotRow({
               value={slot.ora && slot.ora !== "00:00" ? slot.ora : "09:00"}
               onChange={(v) => { onChange({ ora: v }); setShowTime(false); }}
               onClose={() => setShowTime(false)}
-              workingHours={workingHours}
+              workingHours={effectiveWH}
               existingAppointments={apptForSlot}
               selectedDate={slot.data}
               serviceDuration={svc?.duration || 30}
