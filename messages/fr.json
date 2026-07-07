@@ -689,7 +689,9 @@
       "Vendredi",
       "Samedi"
     ],
-    "scheduleSavedToast": "Horaire enregistré avec succès !"
+    "scheduleSavedToast": "Horaire enregistré avec succès !",
+    "addIntervalBtn": "+ Ajouter un créneau",
+    "removeIntervalBtn": "Supprimer"
   },
   "sugestii": {
     "checkingAccess": "Vérification de l'accès...",

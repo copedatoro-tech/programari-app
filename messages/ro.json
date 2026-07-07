@@ -870,7 +870,9 @@
       "Vineri",
       "Sâmbătă"
     ],
-    "scheduleSavedToast": "Program salvat cu succes!"
+    "scheduleSavedToast": "Program salvat cu succes!",
+    "addIntervalBtn": "+ Adaugă interval",
+    "removeIntervalBtn": "Elimină"
   },
   "sugestii": {
     "checkingAccess": "Se verifică accesul...",

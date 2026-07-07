@@ -689,7 +689,9 @@
       "Freitag",
       "Samstag"
     ],
-    "scheduleSavedToast": "Zeitplan erfolgreich gespeichert!"
+    "scheduleSavedToast": "Zeitplan erfolgreich gespeichert!",
+    "addIntervalBtn": "+ Zeitraum hinzufügen",
+    "removeIntervalBtn": "Entfernen"
   },
   "sugestii": {
     "checkingAccess": "Zugriff wird überprüft...",

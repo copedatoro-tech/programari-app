@@ -61,6 +61,7 @@ export default function ResursePage() {
   const [services, setServices]   = useState<any[]>([]);
   const [staff, setStaff]         = useState<any[]>([]);
   const [userPlan, setUserPlan]   = useState("chronos free");
+  const [businessCurrency, setBusinessCurrency] = useState("RON");
   const [loading, setLoading]     = useState(true);
   const [userId, setUserId]       = useState<string | null>(null);
   const [isDemo, setIsDemo]       = useState(false);
@@ -74,7 +75,7 @@ export default function ResursePage() {
 
   // Program individual per specialist
   const [scheduleStaffId, setScheduleStaffId] = useState<string | null>(null);
-  const [scheduleForm, setScheduleForm] = useState<ScheduleDay[]>([]);
+  const [scheduleByDay, setScheduleByDay] = useState<Record<string, { start: string; end: string }[]>>({});
   const [savingSchedule, setSavingSchedule] = useState(false);
   const scheduleModalRef = useRef<HTMLDivElement>(null);
 
@@ -97,7 +98,7 @@ export default function ResursePage() {
 
       const { data: profiles, error: profileError } = await supabase
         .from('profiles')
-        .select('plan_type')
+        .select('plan_type, currency')
         .eq('id', uid);
 
       if (profileError) console.error("Eroare profil:", profileError.message);
@@ -105,6 +106,7 @@ export default function ResursePage() {
       const profile = profiles && profiles.length > 0 ? profiles[0] : null;
       const planNormalizat = normalizeazaPlan(profile?.plan_type || "");
       setUserPlan(planNormalizat);
+      setBusinessCurrency(profile?.currency || "RON");
 
       const { data: svs, error: errSvs } = await supabase
         .from('services')
@@ -271,32 +273,71 @@ export default function ResursePage() {
     setEditForm({ ...editForm, services: lista });
   };
 
-  // Deschide modalul de program pentru un specialist
+  // Deschide modalul de program pentru un specialist — grupăm intrările existente pe zi,
+  // ca să suportăm mai multe intervale separate în aceeași zi (ex: 02-03, 14-15, 20-21)
   const openScheduleModal = (staffMember: any) => {
     if (isDemo) return;
     const existing = parseStaffWH(staffMember.working_hours);
-    if (existing.length === 7) {
-      setScheduleForm(existing);
-    } else {
-      setScheduleForm(defaultSchedule());
-    }
+    const grouped: Record<string, { start: string; end: string }[]> = {};
+    existing.forEach((entry) => {
+      if (entry.closed) return; // zilele închise explicit rămân fără intervale (= închise)
+      if (!grouped[entry.day]) grouped[entry.day] = [];
+      grouped[entry.day].push({ start: entry.start, end: entry.end });
+    });
+    setScheduleByDay(grouped);
     setScheduleStaffId(staffMember.id);
   };
 
-  const updateScheduleDay = (day: string, field: keyof ScheduleDay, value: any) => {
-    setScheduleForm(prev => prev.map(d => d.day === day ? { ...d, [field]: value } : d));
+  const setDefaultSchedule = () => {
+    const grouped: Record<string, { start: string; end: string }[]> = {};
+    RO_DAY_NAMES.forEach((day) => { grouped[day] = [{ start: "09:00", end: "18:00" }]; });
+    setScheduleByDay(grouped);
+  };
+
+  const addInterval = (day: string) => {
+    setScheduleByDay(prev => ({
+      ...prev,
+      [day]: [...(prev[day] || []), { start: "09:00", end: "18:00" }],
+    }));
+  };
+
+  const removeInterval = (day: string, idx: number) => {
+    setScheduleByDay(prev => {
+      const updated = (prev[day] || []).filter((_, i) => i !== idx);
+      return { ...prev, [day]: updated };
+    });
+  };
+
+  const updateInterval = (day: string, idx: number, field: "start" | "end", value: string) => {
+    setScheduleByDay(prev => ({
+      ...prev,
+      [day]: (prev[day] || []).map((iv, i) => i === idx ? { ...iv, [field]: value } : iv),
+    }));
   };
 
   const clearSchedule = () => {
-    setScheduleForm([]);
+    setScheduleByDay({});
   };
+
+  const hasAnySchedule = Object.values(scheduleByDay).some(intervals => intervals.length > 0);
 
   const saveSchedule = async () => {
     if (!scheduleStaffId || !userId || isDemo) return;
     setSavingSchedule(true);
+    // Transformăm în formatul plat, salvat în baza de date — o zi poate apărea
+    // de mai multe ori, o dată per interval; zilele fără intervale = închise
+    const flat: ScheduleDay[] = [];
+    RO_DAY_NAMES.forEach((day) => {
+      const intervals = scheduleByDay[day] || [];
+      if (intervals.length === 0) {
+        flat.push({ day, start: "00:00", end: "00:00", closed: true });
+      } else {
+        intervals.forEach((iv) => flat.push({ day, start: iv.start, end: iv.end, closed: false }));
+      }
+    });
     const { error } = await supabase
       .from('staff')
-      .update({ working_hours: scheduleForm })
+      .update({ working_hours: flat })
       .eq('id', scheduleStaffId);
     setSavingSchedule(false);
     if (error) { alert(error.message); return; }
@@ -380,14 +421,17 @@ export default function ResursePage() {
                 </div>
               </div>
               <div className="flex flex-col gap-1">
-                <span className="text-[8px] font-black text-slate-400 ml-3 uppercase">{t("priceLabel")}</span>
-                <input
-                  type="number"
-                  className="w-28 bg-slate-50 p-5 rounded-2xl font-black uppercase italic text-[11px] outline-none border-2 border-transparent focus:border-amber-500 transition-all shadow-inner"
-                  placeholder={t("pricePlaceholder")}
-                  value={newService.price}
-                  onChange={e => setNewService({ ...newService, price: e.target.value })}
-                />
+                <span className="text-[8px] font-black text-slate-400 ml-3 uppercase">{t("priceLabel")} <span className="text-amber-600">({businessCurrency})</span></span>
+                <div className="relative">
+                  <input
+                    type="number"
+                    className="w-32 bg-slate-50 p-5 pr-12 rounded-2xl font-black uppercase italic text-[11px] outline-none border-2 border-transparent focus:border-amber-500 transition-all shadow-inner"
+                    placeholder={t("pricePlaceholder")}
+                    value={newService.price}
+                    onChange={e => setNewService({ ...newService, price: e.target.value })}
+                  />
+                  <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[9px] font-black text-slate-400">{businessCurrency}</span>
+                </div>
               </div>
               <button
                 onClick={handleAddService}
@@ -463,6 +507,7 @@ export default function ResursePage() {
                         value={editForm?.name || ""} onChange={e => setEditForm({ ...editForm, name: e.target.value })} />
                       <div className="flex gap-2">
                          <input className="flex-1 p-4 rounded-xl border-2 border-slate-100 font-black text-[11px]"
+                          placeholder={businessCurrency}
                           value={editForm?.price || ""} onChange={e => setEditForm({ ...editForm, price: e.target.value })} />
                          <select className="flex-1 p-4 rounded-xl border-2 border-slate-100 font-black text-[11px]"
                           value={editForm?.hour || "0"} onChange={e => setEditForm({ ...editForm, hour: e.target.value })}>
@@ -483,7 +528,7 @@ export default function ResursePage() {
                       <div>
                         <p className="font-black uppercase italic text-[13px] text-slate-900 group-hover:text-amber-600 transition-colors">{s.nume_serviciu}</p>
                         <p className="text-[10px] font-bold text-slate-400 mt-1 uppercase italic tracking-widest">
-                          {s.price} RON — {Math.floor(s.duration / 60) > 0 ? `${Math.floor(s.duration / 60)}${t("hourUnit")} ` : ''}{s.duration % 60} {t("minuteUnit")}
+                          {s.price} {businessCurrency} — {Math.floor(s.duration / 60) > 0 ? `${Math.floor(s.duration / 60)}${t("hourUnit")} ` : ''}{s.duration % 60} {t("minuteUnit")}
                         </p>
                       </div>
                       {!isDemo && (
@@ -589,11 +634,11 @@ export default function ResursePage() {
               <button onClick={() => setScheduleStaffId(null)} className="w-10 h-10 flex items-center justify-center bg-slate-100 rounded-xl font-black text-slate-400 hover:bg-red-500 hover:text-white transition-all">✕</button>
             </div>
 
-            {scheduleForm.length === 0 ? (
+            {!hasAnySchedule ? (
               <div className="my-8 p-8 bg-amber-50 border-2 border-dashed border-amber-200 rounded-[30px] text-center">
                 <p className="text-[11px] font-bold text-amber-800 italic mb-4">{t("noScheduleHint")}</p>
                 <button
-                  onClick={() => setScheduleForm(defaultSchedule())}
+                  onClick={setDefaultSchedule}
                   className="px-6 py-3 bg-slate-900 text-amber-500 rounded-xl font-black text-[10px] uppercase italic hover:bg-amber-500 hover:text-slate-900 transition-all"
                 >
                   {t("openDayLabel")} 09:00-18:00 →
@@ -603,30 +648,44 @@ export default function ResursePage() {
               <div className="space-y-3 my-6">
                 {DISPLAY_ORDER.map((dayIdx) => {
                   const dayRo = RO_DAY_NAMES[dayIdx];
-                  const entry = scheduleForm.find(d => d.day === dayRo) || { day: dayRo, start: "09:00", end: "18:00", closed: false };
+                  const intervals = scheduleByDay[dayRo] || [];
+                  const isClosed = intervals.length === 0;
                   return (
-                    <div key={dayRo} className={`flex flex-col sm:flex-row sm:items-center gap-3 p-4 rounded-2xl border-2 transition-all ${entry.closed ? 'bg-red-50 border-red-100' : 'bg-slate-50 border-slate-100'}`}>
-                      <div className="w-full sm:w-32 shrink-0">
+                    <div key={dayRo} className={`flex flex-col gap-3 p-4 rounded-2xl border-2 transition-all ${isClosed ? 'bg-red-50 border-red-100' : 'bg-slate-50 border-slate-100'}`}>
+                      <div className="flex items-center justify-between gap-3">
                         <span className="text-[11px] font-black uppercase italic text-slate-700">{scheduleDayNames[dayIdx]}</span>
+                        <div className="flex items-center gap-2">
+                          {isClosed ? (
+                            <span className="px-4 py-2 rounded-xl text-[9px] font-black uppercase italic bg-red-500 text-white">{t("closedDayLabel")}</span>
+                          ) : (
+                            <span className="px-4 py-2 rounded-xl text-[9px] font-black uppercase italic bg-green-500 text-white">{t("openDayLabel")}</span>
+                          )}
+                          <button
+                            onClick={() => addInterval(dayRo)}
+                            className="px-3 py-2 rounded-xl text-[9px] font-black uppercase italic bg-slate-900 text-amber-500 hover:bg-amber-500 hover:text-slate-900 transition-all"
+                          >
+                            {t("addIntervalBtn")}
+                          </button>
+                        </div>
                       </div>
-                      <button
-                        onClick={() => updateScheduleDay(dayRo, "closed", !entry.closed)}
-                        className={`px-4 py-2 rounded-xl text-[9px] font-black uppercase italic transition-all shrink-0 ${entry.closed ? 'bg-red-500 text-white' : 'bg-green-500 text-white'}`}
-                      >
-                        {entry.closed ? t("closedDayLabel") : t("openDayLabel")}
-                      </button>
-                      {!entry.closed && (
-                        <div className="flex items-center gap-2 flex-1">
+                      {intervals.map((iv, idx) => (
+                        <div key={idx} className="flex items-center gap-2 pl-1">
                           <span className="text-[9px] font-black text-slate-400 uppercase">{t("fromLabel")}</span>
-                          <input type="time" value={entry.start}
-                            onChange={e => updateScheduleDay(dayRo, "start", e.target.value)}
+                          <input type="time" value={iv.start}
+                            onChange={e => updateInterval(dayRo, idx, "start", e.target.value)}
                             className="p-2 rounded-lg border-2 border-slate-200 font-black text-[12px] outline-none focus:border-amber-500" />
                           <span className="text-[9px] font-black text-slate-400 uppercase">{t("toLabel")}</span>
-                          <input type="time" value={entry.end}
-                            onChange={e => updateScheduleDay(dayRo, "end", e.target.value)}
+                          <input type="time" value={iv.end}
+                            onChange={e => updateInterval(dayRo, idx, "end", e.target.value)}
                             className="p-2 rounded-lg border-2 border-slate-200 font-black text-[12px] outline-none focus:border-amber-500" />
+                          <button
+                            onClick={() => removeInterval(dayRo, idx)}
+                            className="ml-auto px-3 py-1.5 rounded-lg text-[9px] font-black uppercase italic text-red-400 hover:bg-red-50 transition-all"
+                          >
+                            ✕ {t("removeIntervalBtn")}
+                          </button>
                         </div>
-                      )}
+                      ))}
                     </div>
                   );
                 })}
@@ -634,7 +693,7 @@ export default function ResursePage() {
             )}
 
             <div className="flex gap-3 mt-6 pt-6 border-t border-slate-100">
-              {scheduleForm.length > 0 && (
+              {hasAnySchedule && (
                 <button onClick={clearSchedule} className="px-5 py-4 bg-slate-100 text-slate-500 rounded-xl font-black text-[10px] uppercase italic hover:bg-slate-200 transition-all">
                   ↺
                 </button>

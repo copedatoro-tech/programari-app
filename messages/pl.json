@@ -689,7 +689,9 @@
       "Piątek",
       "Sobota"
     ],
-    "scheduleSavedToast": "Grafik zapisany pomyślnie!"
+    "scheduleSavedToast": "Grafik zapisany pomyślnie!",
+    "addIntervalBtn": "+ Dodaj przedział",
+    "removeIntervalBtn": "Usuń"
   },
   "sugestii": {
     "checkingAccess": "Sprawdzanie dostępu...",

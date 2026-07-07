@@ -689,7 +689,9 @@
       "Venerdì",
       "Sabato"
     ],
-    "scheduleSavedToast": "Orario salvato con successo!"
+    "scheduleSavedToast": "Orario salvato con successo!",
+    "addIntervalBtn": "+ Aggiungi intervallo",
+    "removeIntervalBtn": "Rimuovi"
   },
   "sugestii": {
     "checkingAccess": "Verifica dell'accesso...",

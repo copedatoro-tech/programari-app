@@ -8,7 +8,7 @@ import { useTranslations } from "next-intl";
 import LocaleSwitcher from "@/components/LocaleSwitcher";
 import { ChronosTimePicker, ChronosDatePicker } from "@/components/ChronosDateTimePickers";
 
-interface StaffRow { id: string; name: string; services: string[] }
+interface StaffRow { id: string; name: string; services: string[]; working_hours?: any }
 interface ServiceRow { id: string; nume_serviciu: string; price: number; duration: number }
 interface ExistingAppointment { time: string; duration: number }
 interface WorkingHourEntry { day: string; start: string; end: string; closed: boolean }
@@ -175,13 +175,13 @@ function RezervareContent() {
     }
   }, []);
 
-  const isDateAvailable = useCallback((dateStr: string): boolean => {
+  const isDateAvailable = useCallback((dateStr: string, whToUse: WorkingHourEntry[] = adminWorkingHours): boolean => {
     if (!dateStr) return false;
     const [y, mo, d] = dateStr.split("-").map(Number);
     const dateObj = new Date(y, mo - 1, d);
     const dayName = DAY_NAMES_LONG[dateObj.getDay()];
-    if (adminWorkingHours.length > 0) {
-      const schedule = adminWorkingHours.find((h) => h.day === dayName);
+    if (whToUse.length > 0) {
+      const schedule = whToUse.find((h) => h.day === dayName);
       if (!schedule || schedule.closed) return false;
     }
     const dayBlocks = adminManualBlocks[dateStr] || [];
@@ -459,6 +459,13 @@ function RezervareContent() {
   const activeBookingAppts: ExistingAppointment[] = activeBooking
     ? (appointmentsByDate[mkKey(activeBooking.data, activeBooking.specialist_id)] || [])
     : [];
+  // ✅ Program efectiv: al specialistului ales, dacă are unul setat — altfel, cel general al salonului
+  const effectiveWorkingHours = useMemo(() => {
+    if (!activeBooking?.specialist_id) return adminWorkingHours;
+    const staffMember = specialisti.find(s => s.id === activeBooking.specialist_id);
+    const staffWH = parseWH(staffMember?.working_hours);
+    return staffWH.length > 0 ? staffWH : adminWorkingHours;
+  }, [activeBooking?.specialist_id, specialisti, adminWorkingHours]);
 
   const avgRating = feedbacks.length > 0
     ? (feedbacks.reduce((sum, f) => sum + (f.stele || 0), 0) / feedbacks.length)
@@ -505,9 +512,9 @@ function RezervareContent() {
               }}
               minDate={today}
               onClose={() => setPickerControl(null)}
-              workingHours={adminWorkingHours}
+              workingHours={effectiveWorkingHours}
               manualBlocks={adminManualBlocks}
-              isDateAvailable={isDateAvailable}
+              isDateAvailable={(d) => isDateAvailable(d, effectiveWorkingHours)}
             />
           </div>
         </div>
@@ -523,7 +530,7 @@ function RezervareContent() {
                 setPickerControl(null);
               }}
               onClose={() => setPickerControl(null)}
-              workingHours={adminWorkingHours}
+              workingHours={effectiveWorkingHours}
               existingAppointments={activeBookingAppts}
               selectedDate={activeBooking.data}
               serviceDuration={servicii.find(s => s.id === activeBooking.serviciu_id)?.duration || 30}

@@ -53,8 +53,7 @@ type SlotStatus = "available" | "blocked" | "outside" | "overlap" | "manual_bloc
 
 function getSlotStatus(
   time: string,
-  workingStart: string,
-  workingEnd: string,
+  intervals: { start: string; end: string }[],
   existingAppointments: ExistingAppointment[],
   serviceDuration: number,
   manualBlocksForDay: string[],
@@ -68,13 +67,20 @@ function getSlotStatus(
     if (slotMinutes < currentMinutes) return "past";
   }
 
-  const startMinutes = timeToMinutes(workingStart);
-  const endMinutes = timeToMinutes(workingEnd);
-
-  if (slotMinutes < startMinutes || slotMinutes >= endMinutes) return "outside";
-
   const serviceLen = serviceDuration > 0 ? serviceDuration : 15;
-  if (slotMinutes + serviceLen > endMinutes) return "overlap";
+  // ✅ Poate fi mai multe intervale în aceeași zi (ex: 08-09, 14-15) — slotul e valid
+  // dacă încape complet într-UNUL dintre ele, nu neapărat în primul găsit
+  let withinAnyRange = false;
+  let fitsInAnyInterval = false;
+  for (const iv of intervals) {
+    const s = timeToMinutes(iv.start), e = timeToMinutes(iv.end);
+    if (slotMinutes >= s && slotMinutes < e) {
+      withinAnyRange = true;
+      if (slotMinutes + serviceLen <= e) { fitsInAnyInterval = true; break; }
+    }
+  }
+  if (!withinAnyRange) return "outside";
+  if (!fitsInAnyInterval) return "overlap";
 
   if (manualBlocksForDay.includes(time)) return "manual_block";
 
@@ -121,15 +127,18 @@ export function ChronosTimePicker({
     selectedDate ? (manualBlocks[selectedDate] || []) : [],
   [selectedDate, manualBlocks]);
 
-  const daySchedule = useMemo(() => {
-    if (!selectedDate || workingHours.length === 0) return null;
+  const dayIntervals = useMemo(() => {
+    if (!selectedDate || workingHours.length === 0) return [];
     const dayName = getDayNameFromDateString(selectedDate);
-    return workingHours.find((h) => h.day === dayName) || null;
+    return workingHours
+      .filter((h) => h.day === dayName && !h.closed)
+      .map((h) => ({ start: h.start, end: h.end }));
   }, [selectedDate, workingHours]);
 
-  const isClosed = daySchedule?.closed === true;
-  const workingStart = daySchedule?.start || "00:00";
-  const workingEnd = daySchedule?.end || "23:59";
+  // O zi e închisă dacă nu are niciun interval deschis (fie explicit "closed", fie fără nicio intrare)
+  const isClosed = dayIntervals.length === 0 && workingHours.length > 0;
+  const workingStart = dayIntervals[0]?.start || "00:00";
+  const workingEnd = dayIntervals[dayIntervals.length - 1]?.end || "23:59";
 
   const minutes = useMemo(() => ["00", "15", "30", "45"], []);
   const allHours = useMemo(() => Array.from({ length: 24 }, (_, i) => String(i).padStart(2, "0")), []);
@@ -140,15 +149,14 @@ export function ChronosTimePicker({
 
       return getSlotStatus(
         `${h}:${m}`,
-        workingStart,
-        workingEnd,
+        dayIntervals,
         existingAppointments,
         serviceDuration,
         manualBlocksForDay,
         isToday
       );
     },
-    [isClosed, workingStart, workingEnd, existingAppointments, serviceDuration, manualBlocksForDay, isToday]
+    [isClosed, dayIntervals, existingAppointments, serviceDuration, manualBlocksForDay, isToday]
   );
 
   const hoursToShow = useMemo(() => {
@@ -346,8 +354,9 @@ export function ChronosDatePicker({
     (date: Date): boolean => {
       if (!workingHours || workingHours.length === 0) return false;
       const dayName = DAY_NAMES_LONG[date.getDay()];
-      const schedule = workingHours.find((h) => h.day === dayName);
-      return schedule?.closed === true;
+      const dayEntries = workingHours.filter((h) => h.day === dayName);
+      if (dayEntries.length === 0) return false;
+      return dayEntries.every((h) => h.closed === true);
     },
     [workingHours]
   );

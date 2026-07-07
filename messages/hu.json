@@ -689,7 +689,9 @@
       "Péntek",
       "Szombat"
     ],
-    "scheduleSavedToast": "Munkarend sikeresen elmentve!"
+    "scheduleSavedToast": "Munkarend sikeresen elmentve!",
+    "addIntervalBtn": "+ Időszak hozzáadása",
+    "removeIntervalBtn": "Eltávolítás"
   },
   "sugestii": {
     "checkingAccess": "Hozzáférés ellenőrzése...",
