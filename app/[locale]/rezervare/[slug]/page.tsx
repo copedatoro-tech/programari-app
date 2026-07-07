@@ -252,14 +252,19 @@ function RezervareContent() {
     if (adminId) fetchAppointmentsForDate(today, "");
   }, [adminId, today, fetchAppointmentsForDate]);
 
-  // ✅ Clientul se întoarce de la Stripe după plată
+  // ✅ Clientul se întoarce de la Stripe după plată — arătăm doar un mesaj
+  // de confirmare, apoi curățăm adresa, ca să rămână direct pe formular,
+  // gata pentru o nouă rezervare, fără să ceară vreun buton apăsat.
   useEffect(() => {
     const platit = searchParams.get("platit");
     if (platit === "success") {
-      setTrimis(true);
+      setPopup({ icon: "✅", title: t("successTitle"), message: t("successText") });
+      window.history.replaceState(null, "", window.location.pathname);
       window.scrollTo({ top: 0, behavior: "smooth" });
+      setTimeout(() => setPopup(null), 3500);
     } else if (platit === "anulat") {
       setPopup({ icon: "⚠️", title: t("attentionTitle"), message: t("errorDefaultMsg") });
+      window.history.replaceState(null, "", window.location.pathname);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
@@ -536,7 +541,7 @@ function RezervareContent() {
           <div className="text-6xl mb-6">✅</div>
           <h2 className="text-3xl font-black uppercase italic mb-4">{t("successTitle")}</h2>
           <p className="text-slate-500 font-bold mb-8">{t("successText")}</p>
-          <button onClick={() => window.location.reload()} className="w-full max-w-xs bg-slate-900 text-white py-5 rounded-2xl font-black uppercase italic hover:bg-amber-500 hover:text-black transition-all">{t("retryBtn")}</button>
+          <button onClick={() => { window.location.href = window.location.origin + window.location.pathname; }} className="w-full max-w-xs bg-slate-900 text-white py-5 rounded-2xl font-black uppercase italic hover:bg-amber-500 hover:text-black transition-all">{t("retryBtn")}</button>
         </div>
       ) : (
         <div className="w-full max-w-6xl mb-14 relative z-10">
