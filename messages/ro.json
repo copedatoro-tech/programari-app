@@ -996,7 +996,8 @@
     "commissionNoticeTitle": "Transparență privind comisionul",
     "commissionNoticeText": "Chronos reține un comision de 1% din fiecare plată încasată, pentru procesarea și mentenanța sistemului. Restul sumei (99%) ajunge direct, automat, în contul tău Stripe — Chronos nu ține niciodată banii clienților tăi.",
     "paymentPremiumTextBefore": "Plata online la rezervare e disponibilă în planurile ",
-    "connectionPending": "Finalizează completarea datelor în fereastra Stripe pentru a activa plățile."
+    "connectionPending": "Finalizează completarea datelor în fereastra Stripe pentru a activa plățile.",
+    "refreshStatusBtn": "🔄 Reverifică starea"
   },
   "calendarPage": {
     "dayShort": [

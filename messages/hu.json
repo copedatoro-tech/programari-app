@@ -815,7 +815,8 @@
     "commissionNoticeTitle": "Átláthatóság a jutalékról",
     "commissionNoticeText": "A Chronos 1% jutalékot von le minden beérkezett fizetésből, a feldolgozás és a rendszer karbantartása érdekében. A maradék (99%) automatikusan, közvetlenül a Stripe fiókodba érkezik — a Chronos soha nem tartja meg az ügyfeleid pénzét.",
     "paymentPremiumTextBefore": "Az online fizetés foglaláskor elérhető a ",
-    "connectionPending": "Fejezd be adataid kitöltését a Stripe ablakban a fizetések aktiválásához."
+    "connectionPending": "Fejezd be adataid kitöltését a Stripe ablakban a fizetések aktiválásához.",
+    "refreshStatusBtn": "🔄 Állapot frissítése"
   },
   "calendarPage": {
     "dayShort": [

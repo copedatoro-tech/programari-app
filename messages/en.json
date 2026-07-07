@@ -815,7 +815,8 @@
     "commissionNoticeTitle": "Commission transparency",
     "commissionNoticeText": "Chronos keeps a 1% commission from each payment collected, to cover processing and system maintenance. The rest (99%) reaches your Stripe account directly, automatically — Chronos never holds your clients' money.",
     "paymentPremiumTextBefore": "Online payment at booking is available on the ",
-    "connectionPending": "Finish filling in your details in the Stripe window to activate payments."
+    "connectionPending": "Finish filling in your details in the Stripe window to activate payments.",
+    "refreshStatusBtn": "🔄 Refresh status"
   },
   "calendarPage": {
     "dayShort": [

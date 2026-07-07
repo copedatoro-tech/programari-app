@@ -815,7 +815,8 @@
     "commissionNoticeTitle": "Transparenz zur Provision",
     "commissionNoticeText": "Chronos behält 1% Provision von jeder eingenommenen Zahlung ein, für Verarbeitung und Systemwartung. Der Rest (99%) erreicht automatisch direkt dein Stripe-Konto — Chronos hält niemals das Geld deiner Kunden.",
     "paymentPremiumTextBefore": "Online-Zahlung bei Buchung ist verfügbar in den Plänen ",
-    "connectionPending": "Schließe das Ausfüllen deiner Daten im Stripe-Fenster ab, um Zahlungen zu aktivieren."
+    "connectionPending": "Schließe das Ausfüllen deiner Daten im Stripe-Fenster ab, um Zahlungen zu aktivieren.",
+    "refreshStatusBtn": "🔄 Status aktualisieren"
   },
   "calendarPage": {
     "dayShort": [

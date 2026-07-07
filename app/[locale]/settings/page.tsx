@@ -175,6 +175,20 @@ function SettingsContent() {
     }
   };
 
+  const handleRefreshStripeStatus = async () => {
+    setConnectingStripe(true);
+    try {
+      const res = await fetch("/api/stripe/connect/status");
+      const data = await res.json();
+      setStripeOnboarded(!!data.onboarded);
+      await showToast({ message: data.onboarded ? t("stripeConnectedLabel") : t("connectionPending"), type: data.onboarded ? "success" : "info" });
+    } catch {
+      // ignorăm
+    } finally {
+      setConnectingStripe(false);
+    }
+  };
+
   const handleToggleRequirePayment = async () => {
     if (!userId) return;
     const newVal = !requirePayment;
@@ -495,6 +509,16 @@ function SettingsContent() {
                 >
                   {connectingStripe ? t("connectingBtn") : t("connectStripeBtn")}
                 </button>
+                {stripeAccountId && !stripeOnboarded && (
+                  <button
+                    type="button"
+                    onClick={handleRefreshStripeStatus}
+                    disabled={connectingStripe}
+                    className="w-full mt-2 py-2.5 bg-white border-2 border-slate-200 text-slate-600 rounded-xl font-black text-[9px] uppercase italic hover:border-amber-500 hover:text-amber-600 transition-all disabled:opacity-50"
+                  >
+                    {t("refreshStatusBtn")}
+                  </button>
+                )}
               </div>
 
               {/* Comutator plată obligatorie */}

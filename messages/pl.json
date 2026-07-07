@@ -815,7 +815,8 @@
     "commissionNoticeTitle": "Przejrzystość dotycząca prowizji",
     "commissionNoticeText": "Chronos pobiera 1% prowizji z każdej otrzymanej płatności, na potrzeby przetwarzania i utrzymania systemu. Reszta (99%) trafia bezpośrednio i automatycznie na Twoje konto Stripe — Chronos nigdy nie zatrzymuje pieniędzy Twoich klientów.",
     "paymentPremiumTextBefore": "Płatność online przy rezerwacji jest dostępna w planach ",
-    "connectionPending": "Dokończ wypełnianie danych w oknie Stripe, aby aktywować płatności."
+    "connectionPending": "Dokończ wypełnianie danych w oknie Stripe, aby aktywować płatności.",
+    "refreshStatusBtn": "🔄 Sprawdź ponownie"
   },
   "calendarPage": {
     "dayShort": [
