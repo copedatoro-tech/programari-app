@@ -426,7 +426,7 @@ export default function ResursePage() {
                   <input
                     type="number"
                     className="w-32 bg-slate-50 p-5 pr-12 rounded-2xl font-black uppercase italic text-[11px] outline-none border-2 border-transparent focus:border-amber-500 transition-all shadow-inner"
-                    placeholder={t("pricePlaceholder")}
+                    placeholder={businessCurrency}
                     value={newService.price}
                     onChange={e => setNewService({ ...newService, price: e.target.value })}
                   />
