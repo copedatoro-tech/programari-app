@@ -128,7 +128,10 @@ export function ChronosTimePicker({
   [selectedDate, manualBlocks]);
 
   const dayIntervals = useMemo(() => {
-    if (!selectedDate || workingHours.length === 0) return [];
+    if (!selectedDate) return [];
+    // ✅ Fără niciun program configurat = deschis non-stop (regula stabilită) —
+    // simulăm un interval "toată ziua", ca să nu fie interpretat greșit ca "zero ore libere"
+    if (workingHours.length === 0) return [{ start: "00:00", end: "23:59" }];
     const dayName = getDayNameFromDateString(selectedDate);
     return workingHours
       .filter((h) => h.day === dayName && !h.closed)
