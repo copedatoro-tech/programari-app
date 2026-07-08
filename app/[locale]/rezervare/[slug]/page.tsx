@@ -131,6 +131,9 @@ function RezervareContent() {
   const [fetchingConfig, setFetchingConfig] = useState(true);
   const [technicalError, setTechnicalError] = useState(false);
   const [pickerControl, setPickerControl] = useState<{ type: "date" | "time"; bookingId: string } | null>(null);
+  const [waitlistModal, setWaitlistModal] = useState<{ bookingId: string } | null>(null);
+  const [waitlistSaving, setWaitlistSaving] = useState(false);
+  const [waitlistJoined, setWaitlistJoined] = useState(false);
 
   const [specialisti, setSpecialisti] = useState<StaffRow[]>([]);
   const [servicii, setServicii] = useState<ServiceRow[]>([]);
@@ -376,6 +379,37 @@ function RezervareContent() {
     }
   };
 
+  const handleJoinWaitlist = async () => {
+    if (!waitlistModal || !adminId) return;
+    const b = bookings.find((x) => x.id === waitlistModal.bookingId);
+    if (!b || !clientInfo.nume.trim() || !clientInfo.email.trim()) {
+      setPopup({ icon: "⚠️", title: t("attentionTitle"), message: t("attentionMsg") });
+      return;
+    }
+    setWaitlistSaving(true);
+    try {
+      const res = await fetch("/api/waitlist", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          adminId,
+          specialistId: b.specialist_id || null,
+          serviciuId: b.serviciu_id || null,
+          date: b.data,
+          clientName: clientInfo.nume.trim(),
+          clientPhone: clientInfo.telefon,
+          clientEmail: clientInfo.email.trim(),
+        }),
+      });
+      if (!res.ok) throw new Error();
+      setWaitlistJoined(true);
+    } catch {
+      setPopup({ icon: "❌", title: t("errorTitle"), message: t("errorDefaultMsg") });
+    } finally {
+      setWaitlistSaving(false);
+    }
+  };
+
   const trimiteRezervare = async (e: React.FormEvent) => {
     e.preventDefault();
     const newErrors: Record<string, boolean> = {};
@@ -613,6 +647,41 @@ function RezervareContent() {
       {popup && <ChronosPopup {...popup} onClose={() => setPopup(null)} />}
       {feedbackTrimisSucces && <SuccessPopup onClose={() => setFeedbackTrimisSucces(false)} />}
 
+      {waitlistModal && (
+        <div className="fixed inset-0 z-[850] bg-slate-950/50 backdrop-blur-sm flex items-center justify-center p-4"
+          onClick={() => { setWaitlistModal(null); setWaitlistJoined(false); }}>
+          <div onClick={(e) => e.stopPropagation()} className="bg-white w-full max-w-sm rounded-[35px] p-8 shadow-2xl text-center">
+            {waitlistJoined ? (
+              <>
+                <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4 text-white text-3xl">✓</div>
+                <h3 className="text-lg font-black uppercase italic text-slate-900 mb-2">{t("waitlist.joinedTitle")}</h3>
+                <p className="text-slate-500 text-sm mb-6">{t("waitlist.joinedMsg")}</p>
+                <button onClick={() => { setWaitlistModal(null); setWaitlistJoined(false); }}
+                  className="w-full py-4 bg-slate-100 text-slate-500 rounded-2xl font-black uppercase italic text-sm hover:bg-slate-200 transition-all">
+                  {t("waitlist.closeBtn")}
+                </button>
+              </>
+            ) : (
+              <>
+                <h3 className="text-lg font-black uppercase italic text-slate-900 mb-2">{t("waitlist.joinModalTitle")}</h3>
+                <p className="text-slate-500 text-sm mb-6">{t("waitlist.joinModalSubtitle")}</p>
+                <button
+                  onClick={handleJoinWaitlist}
+                  disabled={waitlistSaving}
+                  className="w-full py-4 bg-amber-500 text-black rounded-2xl font-black uppercase italic text-sm hover:bg-amber-600 transition-all disabled:opacity-50 mb-3"
+                >
+                  {waitlistSaving ? "..." : t("waitlist.submitBtn")}
+                </button>
+                <button onClick={() => setWaitlistModal(null)}
+                  className="w-full py-3 text-slate-400 font-black uppercase italic text-[11px] hover:text-red-500 transition-colors">
+                  {t("waitlist.closeBtn")}
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+
       {trimis ? (
         <div className="w-full max-w-2xl bg-white rounded-[55px] p-20 text-center shadow-2xl border-t-8 border-amber-500 relative z-10">
           <div className="text-6xl mb-6">✅</div>
@@ -754,6 +823,18 @@ function RezervareContent() {
                           </button>
                         </div>
                       </div>
+
+                      {b.serviciu_id && (
+                        <div className="text-center mt-1">
+                          <button
+                            type="button"
+                            onClick={() => setWaitlistModal({ bookingId: b.id })}
+                            className="text-[10px] font-black uppercase italic text-slate-400 hover:text-amber-600 underline decoration-dotted transition-colors"
+                          >
+                            {t("waitlist.joinBtn")}
+                          </button>
+                        </div>
+                      )}
 
                       {b.ora !== "00:00" && b.serviciu_id && (() => {
                         const svc = servicii.find(s => s.id === b.serviciu_id);

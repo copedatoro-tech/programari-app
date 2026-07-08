@@ -1,12 +1,13 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
+import { notifyWaitlistIfAny } from "@/lib/notifyWaitlist";
 
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
 
   const { data: appt, error: fetchError } = await supabaseAdmin
     .from("appointments")
-    .select("id, status")
+    .select("id, status, user_id, angajat_id, serviciu_id, date, time, duration")
     .eq("id", id)
     .single();
 
@@ -26,6 +27,9 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
+
+  // ✅ Locul tocmai s-a eliberat — verificăm dacă cineva de pe lista de așteptare îl vrea
+  notifyWaitlistIfAny(appt.user_id, appt.angajat_id, appt.date, appt.time, appt.duration || 30, appt.serviciu_id).catch(() => {});
 
   return NextResponse.json({ success: true });
 }

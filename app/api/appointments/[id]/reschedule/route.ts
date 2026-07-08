@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
+import { notifyWaitlistIfAny } from "@/lib/notifyWaitlist";
 
 function timeToMin(t: string): number {
   const [h, m] = t.split(":").map(Number);
@@ -17,7 +18,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
 
   const { data: appt, error: fetchError } = await supabaseAdmin
     .from("appointments")
-    .select("id, angajat_id, duration, user_id, status")
+    .select("id, angajat_id, duration, user_id, status, date, time, serviciu_id")
     .eq("id", id)
     .single();
 
@@ -62,6 +63,9 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
+
+  // ✅ Vechiul loc tocmai s-a eliberat — verificăm lista de așteptare pentru el
+  notifyWaitlistIfAny(appt.user_id, appt.angajat_id, appt.date, appt.time, appt.duration || 30, appt.serviciu_id).catch(() => {});
 
   return NextResponse.json({ success: true });
 }
