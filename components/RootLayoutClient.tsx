@@ -23,6 +23,7 @@ function OnboardingModal({
   onClose: () => void;
   t: ReturnType<typeof useTranslations>;
 }) {
+  // Mapăm calea curentă la cheia din JSON-ul de traduceri
   const KEY_BY_PATH: Record<string, string> = {
     "/profil": "profil",
     "/settings": "settings",
@@ -75,6 +76,7 @@ function OnboardingModal({
           display: "flex", flexDirection: "column",
         }}
       >
+        {/* Header */}
         <div style={{ background: "#0f172a", padding: "20px 22px 16px", flexShrink: 0 }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
@@ -94,6 +96,7 @@ function OnboardingModal({
           <p style={{ fontSize: 11, color: "#94a3b8", margin: 0, fontWeight: 600 }}>{subtitlu}</p>
         </div>
 
+        {/* Body */}
         <div style={{ padding: "16px 20px", overflowY: "auto", flex: 1 }}>
           <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 14 }}>
             {pasi.map((pas, i) => (
@@ -112,6 +115,7 @@ function OnboardingModal({
           )}
         </div>
 
+        {/* Footer */}
         <div style={{ padding: "12px 20px", borderTop: "1.5px solid #f1f5f9", flexShrink: 0, display: "flex", gap: 8 }}>
           <button onClick={onClose} style={{ flex: 1, padding: "10px", background: "#0f172a", border: "none", borderRadius: 14, fontSize: 12, fontWeight: 700, color: "#fff", cursor: "pointer", textTransform: "uppercase", fontStyle: "italic" }}
             className="hover:bg-amber-600 transition-all">
@@ -126,7 +130,7 @@ function OnboardingModal({
 // ─── RootLayoutClient ──────────────────────────────────────────────────────
 export default function RootLayoutClient({ children }: { children: React.ReactNode }) {
   const t = useTranslations("layout");
-  const path = usePathname();
+  const path = usePathname(); // fără prefixul de limbă, datorită @/i18n/navigation
   const router = useRouter();
 
   const [authLoaded, setAuthLoaded] = useState(false);
@@ -150,6 +154,7 @@ export default function RootLayoutClient({ children }: { children: React.ReactNo
     path === "/forgot-password" ||
     (path && path.startsWith("/rezervare"));
 
+  // ─── Onboarding: verificăm dacă pagina curentă a fost văzută ────────────
   useEffect(() => {
     if (!isLoggedIn || isPublicPage || !path) return;
     if (!ONBOARDING_PATHS.includes(path)) return;
@@ -173,6 +178,7 @@ export default function RootLayoutClient({ children }: { children: React.ReactNo
       case "/programari":          return t("pageTitles.programari");
       case "/programari/calendar": return t("pageTitles.calendar");
       case "/clienti":             return t("pageTitles.clienti");
+      case "/lista-asteptare":     return t("nav.listaAsteptare");
       case "/resurse":             return t("pageTitles.resurse");
       case "/abonamente":          return t("pageTitles.abonamente");
       case "/rapoarte":            return t("pageTitles.rapoarte");
@@ -193,7 +199,7 @@ export default function RootLayoutClient({ children }: { children: React.ReactNo
         if (!mounted) return;
         if (session?.user) {
           setIsLoggedIn(true);
-          getActivePlan(supabase, session.user.id, t("trialSuffix"))
+          getActivePlan(supabase, session.user.id)
             .then((plan) => { if (mounted) setActivePlan(plan); })
             .catch(() => {});
         } else {
@@ -212,7 +218,7 @@ export default function RootLayoutClient({ children }: { children: React.ReactNo
         setIsLoggedIn(!!session);
         setAuthLoaded(true);
         if (session?.user) {
-          getActivePlan(supabase, session.user.id, t("trialSuffix"))
+          getActivePlan(supabase, session.user.id)
             .then((plan) => { if (mounted) setActivePlan(plan); })
             .catch(() => {});
         }
@@ -221,9 +227,9 @@ export default function RootLayoutClient({ children }: { children: React.ReactNo
     return () => { mounted = false; subscription?.unsubscribe(); };
   }, [path]);
 
-  // ✅ Eliminat: redirect dublu către /login. Middleware.ts verifică deja
-  // sesiunea la nivel de server și redirecționează corect — verificarea
-  // din React aici intra în conflict cu el (buclă /programari ↔ /login).
+  useEffect(() => {
+    if (authLoaded && !isLoggedIn && !isPublicPage) router.replace("/login");
+  }, [authLoaded, isLoggedIn, isPublicPage, router]);
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -243,6 +249,7 @@ export default function RootLayoutClient({ children }: { children: React.ReactNo
     { href: "/programari",          icon: "📅", label: t("nav.programari") },
     { href: "/programari/calendar", icon: "🗓️", label: t("nav.calendar") },
     { href: "/clienti",             icon: "👥", label: t("nav.clienti") },
+    { href: "/lista-asteptare",     icon: "📋", label: t("nav.listaAsteptare") },
     { href: "/resurse",             icon: "📦", label: t("nav.servicii") },
     { href: "/abonamente",          icon: "💎", label: t("nav.abonamente") },
     { href: "/rapoarte",            icon: "📊", label: t("nav.rapoarte") },
@@ -254,14 +261,9 @@ export default function RootLayoutClient({ children }: { children: React.ReactNo
 
   return authLoaded ? (
     <>
+      {/* ── Onboarding modal per pagină ─────────────────────────────── */}
       {false && showOnboarding && isLoggedIn && (
         <OnboardingModal path={path} onClose={closeOnboarding} t={t} />
-      )}
-
-      {isPublicPage && path !== "/" && !path?.startsWith("/rezervare") && (
-        <div className="fixed top-4 right-4 z-[700]">
-          <LocaleSwitcher />
-        </div>
       )}
 
       {!isPublicPage && (
@@ -331,6 +333,7 @@ export default function RootLayoutClient({ children }: { children: React.ReactNo
         <footer className="w-full bg-white border-t-2 border-slate-100 py-5 px-8 mt-auto">
           <div className="max-w-7xl w-full mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
 
+            {/* Stânga: Logo + Contact */}
             <div className="flex items-center gap-4">
               <Image src="/logo-chronos.png" alt="Logo Footer" width={52} height={52} priority className="object-contain" />
               <div className="flex flex-col">
@@ -345,6 +348,7 @@ export default function RootLayoutClient({ children }: { children: React.ReactNo
               </div>
             </div>
 
+            {/* Centru: Legal */}
             <div className="flex items-center gap-6">
               <button onClick={() => setModalOpen({ ...modalOpen, termeni: true })}
                 className="text-[11px] font-black uppercase italic text-slate-500 hover:text-amber-500 transition-colors">
@@ -360,6 +364,7 @@ export default function RootLayoutClient({ children }: { children: React.ReactNo
               </button>
             </div>
 
+            {/* Dreapta: Brand + Secured */}
             <div className="flex items-center gap-4">
               <div className="text-right hidden sm:block">
                 <p className="text-[11px] font-black text-slate-900 uppercase italic leading-tight">
