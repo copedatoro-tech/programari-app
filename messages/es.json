@@ -692,7 +692,9 @@
     ],
     "scheduleSavedToast": "¡Horario guardado con éxito!",
     "addIntervalBtn": "+ Añadir intervalo",
-    "removeIntervalBtn": "Eliminar"
+    "removeIntervalBtn": "Eliminar",
+    "techErrorBannerMsg": "Problema técnico temporal, ajeno a nosotros — se está resolviendo.",
+    "techErrorRetryBtn": "🔄 Reintentar"
   },
   "sugestii": {
     "checkingAccess": "Verificando el acceso...",
@@ -816,10 +818,12 @@
     "requirePaymentOff": "Desactivado",
     "currencyLabel": "Moneda de cobro",
     "commissionNoticeTitle": "Transparencia sobre la comisión",
-    "commissionNoticeText": "Chronos retiene una comisión del 1% de cada pago cobrado, para el procesamiento y mantenimiento del sistema. El resto (99%) llega directa y automáticamente a tu cuenta Stripe — Chronos nunca retiene el dinero de tus clientes.",
+    "commissionNoticeText": "Chronos retiene una comisión del 1% de cada pago cobrado, para el procesamiento y mantenimiento del sistema. Además, Stripe (el procesador de pagos) retiene su propia comisión de procesamiento (normalmente ~1,5% + una pequeña tarifa fija, según el tipo de tarjeta). El resto llega automáticamente a tu cuenta Stripe — Chronos nunca retiene el dinero de tus clientes.",
     "paymentPremiumTextBefore": "El pago en línea al reservar está disponible en los planes ",
     "connectionPending": "Termina de completar tus datos en la ventana de Stripe para activar los pagos.",
-    "refreshStatusBtn": "🔄 Volver a verificar"
+    "refreshStatusBtn": "🔄 Volver a verificar",
+    "techErrorBannerMsg": "Problema técnico temporal, ajeno a nosotros — se está resolviendo.",
+    "techErrorRetryBtn": "🔄 Reintentar"
   },
   "calendarPage": {
     "dayShort": [
@@ -946,7 +950,9 @@
     "searchSpecialistPlaceholder": "Buscar especialista...",
     "searchServicePlaceholder": "Buscar servicio...",
     "noResultsFound": "Sin resultados",
-    "specialistConflictError": "El especialista elegido ya tiene una reserva en este horario."
+    "specialistConflictError": "El especialista elegido ya tiene una reserva en este horario.",
+    "techErrorBannerMsg": "Problema técnico temporal, ajeno a nosotros — se está resolviendo.",
+    "techErrorRetryBtn": "🔄 Reintentar"
   },
   "rapoarte": {
     "localeCode": "es-ES",

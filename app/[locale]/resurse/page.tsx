@@ -5,6 +5,7 @@ import { createBrowserClient } from '@supabase/ssr';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { showToast } from "@/lib/toast";
+import SimpleTimePicker from "@/components/SimpleTimePicker";
 
 const LIMITE = {
   STAFF: {
@@ -66,6 +67,7 @@ export default function ResursePage() {
   const [userId, setUserId]       = useState<string | null>(null);
   const [isDemo, setIsDemo]       = useState(false);
   const [errorMsg, setErrorMsg]   = useState<string | null>(null);
+  const [technicalError, setTechnicalError] = useState(false);
 
   const [newService, setNewService] = useState({ name: '', price: '', hour: '0', minute: '30' });
   const [newStaff, setNewStaff]     = useState({ name: '', phone: '', email: '' });
@@ -121,11 +123,14 @@ export default function ResursePage() {
         .order('created_at', { ascending: false });
 
       if (errSvs) setErrorMsg(`${t("dbErrorPrefix")}${errSvs.message}`);
+      // ✅ Dacă ambele interogări principale eșuează, e o problemă tehnică reală,
+      // nu doar o listă goală (caz normal pentru un cont nou)
+      if (errSvs && errStf) setTechnicalError(true);
       setServices(svs ?? []);
       setStaff(stf ?? []);
     } catch (err) {
       console.error("Eroare la preluarea datelor:", err);
-      setErrorMsg("Eroare la incarcarea datelor.");
+      setTechnicalError(true);
     } finally {
       setLoading(false);
     }
@@ -301,6 +306,14 @@ export default function ResursePage() {
     }));
   };
 
+  // ✅ Comutare rapidă: un click transformă ziua din deschisă în închisă (sau invers)
+  const toggleDayClosed = (day: string) => {
+    setScheduleByDay(prev => {
+      const isCurrentlyClosed = (prev[day] || []).length === 0;
+      return { ...prev, [day]: isCurrentlyClosed ? [{ start: "09:00", end: "18:00" }] : [] };
+    });
+  };
+
   const removeInterval = (day: string, idx: number) => {
     setScheduleByDay(prev => {
       const updated = (prev[day] || []).filter((_, i) => i !== idx);
@@ -380,6 +393,18 @@ export default function ResursePage() {
             {t("backBtn")}
           </button>
         </header>
+
+        {technicalError && (
+          <div className="mb-6 p-5 bg-amber-50 border-2 border-amber-200 rounded-[25px] flex flex-col md:flex-row items-center justify-between gap-3">
+            <p className="text-[12px] font-bold text-amber-800">{t("techErrorBannerMsg")}</p>
+            <button
+              onClick={() => userId && fetchResurse(userId)}
+              className="px-5 py-2.5 bg-slate-900 text-white rounded-xl font-black text-[10px] uppercase italic hover:bg-amber-500 hover:text-black transition-all shrink-0"
+            >
+              {t("techErrorRetryBtn")}
+            </button>
+          </div>
+        )}
 
         {errorMsg && (
           <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-2xl text-red-600 text-[11px] font-black uppercase italic">{errorMsg}</div>
@@ -656,28 +681,36 @@ export default function ResursePage() {
                         <span className="text-[11px] font-black uppercase italic text-slate-700">{scheduleDayNames[dayIdx]}</span>
                         <div className="flex items-center gap-2">
                           {isClosed ? (
-                            <span className="px-4 py-2 rounded-xl text-[9px] font-black uppercase italic bg-red-500 text-white">{t("closedDayLabel")}</span>
+                            <button
+                              onClick={() => toggleDayClosed(dayRo)}
+                              className="px-4 py-2 rounded-xl text-[9px] font-black uppercase italic bg-red-500 text-white hover:bg-green-500 transition-all"
+                            >
+                              {t("closedDayLabel")}
+                            </button>
                           ) : (
-                            <span className="px-4 py-2 rounded-xl text-[9px] font-black uppercase italic bg-green-500 text-white">{t("openDayLabel")}</span>
+                            <button
+                              onClick={() => toggleDayClosed(dayRo)}
+                              className="px-4 py-2 rounded-xl text-[9px] font-black uppercase italic bg-green-500 text-white hover:bg-red-500 transition-all"
+                            >
+                              {t("openDayLabel")}
+                            </button>
                           )}
-                          <button
-                            onClick={() => addInterval(dayRo)}
-                            className="px-3 py-2 rounded-xl text-[9px] font-black uppercase italic bg-slate-900 text-amber-500 hover:bg-amber-500 hover:text-slate-900 transition-all"
-                          >
-                            {t("addIntervalBtn")}
-                          </button>
+                          {!isClosed && (
+                            <button
+                              onClick={() => addInterval(dayRo)}
+                              className="px-3 py-2 rounded-xl text-[9px] font-black uppercase italic bg-slate-900 text-amber-500 hover:bg-amber-500 hover:text-slate-900 transition-all"
+                            >
+                              {t("addIntervalBtn")}
+                            </button>
+                          )}
                         </div>
                       </div>
                       {intervals.map((iv, idx) => (
                         <div key={idx} className="flex items-center gap-2 pl-1">
                           <span className="text-[9px] font-black text-slate-400 uppercase">{t("fromLabel")}</span>
-                          <input type="time" value={iv.start}
-                            onChange={e => updateInterval(dayRo, idx, "start", e.target.value)}
-                            className="p-2 rounded-lg border-2 border-slate-200 font-black text-[12px] outline-none focus:border-amber-500" />
+                          <SimpleTimePicker value={iv.start} onChange={(v) => updateInterval(dayRo, idx, "start", v)} />
                           <span className="text-[9px] font-black text-slate-400 uppercase">{t("toLabel")}</span>
-                          <input type="time" value={iv.end}
-                            onChange={e => updateInterval(dayRo, idx, "end", e.target.value)}
-                            className="p-2 rounded-lg border-2 border-slate-200 font-black text-[12px] outline-none focus:border-amber-500" />
+                          <SimpleTimePicker value={iv.end} onChange={(v) => updateInterval(dayRo, idx, "end", v)} />
                           <button
                             onClick={() => removeInterval(dayRo, idx)}
                             className="ml-auto px-3 py-1.5 rounded-lg text-[9px] font-black uppercase italic text-red-400 hover:bg-red-50 transition-all"

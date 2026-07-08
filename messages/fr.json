@@ -692,7 +692,9 @@
     ],
     "scheduleSavedToast": "Horaire enregistré avec succès !",
     "addIntervalBtn": "+ Ajouter un créneau",
-    "removeIntervalBtn": "Supprimer"
+    "removeIntervalBtn": "Supprimer",
+    "techErrorBannerMsg": "Problème technique temporaire, indépendant de nous — en cours de résolution.",
+    "techErrorRetryBtn": "🔄 Réessayer"
   },
   "sugestii": {
     "checkingAccess": "Vérification de l'accès...",
@@ -816,10 +818,12 @@
     "requirePaymentOff": "Désactivé",
     "currencyLabel": "Devise d'encaissement",
     "commissionNoticeTitle": "Transparence sur la commission",
-    "commissionNoticeText": "Chronos retient une commission de 1 % sur chaque paiement encaissé, pour le traitement et la maintenance du système. Le reste (99 %) arrive directement, automatiquement, sur ton compte Stripe — Chronos ne détient jamais l'argent de tes clients.",
+    "commissionNoticeText": "Chronos retient une commission de 1 % sur chaque paiement encaissé, pour le traitement et la maintenance du système. De plus, Stripe (le processeur de paiement) retient ses propres frais de traitement (généralement ~1,5 % + des frais fixes, selon le type de carte). Le reste arrive automatiquement sur ton compte Stripe — Chronos ne détient jamais l'argent de tes clients.",
     "paymentPremiumTextBefore": "Le paiement en ligne à la réservation est disponible avec les forfaits ",
     "connectionPending": "Termine de remplir tes informations dans la fenêtre Stripe pour activer les paiements.",
-    "refreshStatusBtn": "🔄 Vérifier à nouveau"
+    "refreshStatusBtn": "🔄 Vérifier à nouveau",
+    "techErrorBannerMsg": "Problème technique temporaire, indépendant de nous — en cours de résolution.",
+    "techErrorRetryBtn": "🔄 Réessayer"
   },
   "calendarPage": {
     "dayShort": [
@@ -946,7 +950,9 @@
     "searchSpecialistPlaceholder": "Rechercher un spécialiste...",
     "searchServicePlaceholder": "Rechercher un service...",
     "noResultsFound": "Aucun résultat",
-    "specialistConflictError": "Le spécialiste choisi a déjà une réservation sur ce créneau."
+    "specialistConflictError": "Le spécialiste choisi a déjà une réservation sur ce créneau.",
+    "techErrorBannerMsg": "Problème technique temporaire, indépendant de nous — en cours de résolution.",
+    "techErrorRetryBtn": "🔄 Réessayer"
   },
   "rapoarte": {
     "localeCode": "fr-FR",

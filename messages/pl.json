@@ -692,7 +692,9 @@
     ],
     "scheduleSavedToast": "Grafik zapisany pomyślnie!",
     "addIntervalBtn": "+ Dodaj przedział",
-    "removeIntervalBtn": "Usuń"
+    "removeIntervalBtn": "Usuń",
+    "techErrorBannerMsg": "Tymczasowy problem techniczny, niezależny od nas — trwają prace nad rozwiązaniem.",
+    "techErrorRetryBtn": "🔄 Spróbuj ponownie"
   },
   "sugestii": {
     "checkingAccess": "Sprawdzanie dostępu...",
@@ -816,10 +818,12 @@
     "requirePaymentOff": "Wyłączone",
     "currencyLabel": "Waluta rozliczeniowa",
     "commissionNoticeTitle": "Przejrzystość dotycząca prowizji",
-    "commissionNoticeText": "Chronos pobiera 1% prowizji z każdej otrzymanej płatności, na potrzeby przetwarzania i utrzymania systemu. Reszta (99%) trafia bezpośrednio i automatycznie na Twoje konto Stripe — Chronos nigdy nie zatrzymuje pieniędzy Twoich klientów.",
+    "commissionNoticeText": "Chronos pobiera 1% prowizji z każdej otrzymanej płatności, na potrzeby przetwarzania i utrzymania systemu. Dodatkowo Stripe (procesor płatności) pobiera własną opłatę za przetwarzanie (zazwyczaj ~1,5% + niewielka stała opłata, w zależności od typu karty). Reszta trafia automatycznie na Twoje konto Stripe — Chronos nigdy nie zatrzymuje pieniędzy Twoich klientów.",
     "paymentPremiumTextBefore": "Płatność online przy rezerwacji jest dostępna w planach ",
     "connectionPending": "Dokończ wypełnianie danych w oknie Stripe, aby aktywować płatności.",
-    "refreshStatusBtn": "🔄 Sprawdź ponownie"
+    "refreshStatusBtn": "🔄 Sprawdź ponownie",
+    "techErrorBannerMsg": "Tymczasowy problem techniczny, niezależny od nas — trwają prace nad rozwiązaniem.",
+    "techErrorRetryBtn": "🔄 Spróbuj ponownie"
   },
   "calendarPage": {
     "dayShort": [
@@ -946,7 +950,9 @@
     "searchSpecialistPlaceholder": "Szukaj specjalisty...",
     "searchServicePlaceholder": "Szukaj usługi...",
     "noResultsFound": "Brak wyników",
-    "specialistConflictError": "Wybrany specjalista ma już rezerwację w tym przedziale czasowym."
+    "specialistConflictError": "Wybrany specjalista ma już rezerwację w tym przedziale czasowym.",
+    "techErrorBannerMsg": "Tymczasowy problem techniczny, niezależny od nas — trwają prace nad rozwiązaniem.",
+    "techErrorRetryBtn": "🔄 Spróbuj ponownie"
   },
   "rapoarte": {
     "localeCode": "pl-PL",

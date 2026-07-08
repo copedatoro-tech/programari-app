@@ -692,7 +692,9 @@
     ],
     "scheduleSavedToast": "Zeitplan erfolgreich gespeichert!",
     "addIntervalBtn": "+ Zeitraum hinzufügen",
-    "removeIntervalBtn": "Entfernen"
+    "removeIntervalBtn": "Entfernen",
+    "techErrorBannerMsg": "Vorübergehendes technisches Problem, außerhalb unserer Kontrolle — wird bearbeitet.",
+    "techErrorRetryBtn": "🔄 Erneut versuchen"
   },
   "sugestii": {
     "checkingAccess": "Zugriff wird überprüft...",
@@ -816,10 +818,12 @@
     "requirePaymentOff": "Deaktiviert",
     "currencyLabel": "Zahlungswährung",
     "commissionNoticeTitle": "Transparenz zur Provision",
-    "commissionNoticeText": "Chronos behält 1% Provision von jeder eingenommenen Zahlung ein, für Verarbeitung und Systemwartung. Der Rest (99%) erreicht automatisch direkt dein Stripe-Konto — Chronos hält niemals das Geld deiner Kunden.",
+    "commissionNoticeText": "Chronos behält 1% Provision von jeder eingenommenen Zahlung ein, für Verarbeitung und Systemwartung. Zusätzlich behält Stripe (der Zahlungsdienstleister) seine eigene Bearbeitungsgebühr ein (in der Regel ~1,5% + eine kleine feste Gebühr, je nach Kartentyp). Der Rest erreicht automatisch dein Stripe-Konto — Chronos hält niemals das Geld deiner Kunden.",
     "paymentPremiumTextBefore": "Online-Zahlung bei Buchung ist verfügbar in den Plänen ",
     "connectionPending": "Schließe das Ausfüllen deiner Daten im Stripe-Fenster ab, um Zahlungen zu aktivieren.",
-    "refreshStatusBtn": "🔄 Status aktualisieren"
+    "refreshStatusBtn": "🔄 Status aktualisieren",
+    "techErrorBannerMsg": "Vorübergehendes technisches Problem, außerhalb unserer Kontrolle — wird bearbeitet.",
+    "techErrorRetryBtn": "🔄 Erneut versuchen"
   },
   "calendarPage": {
     "dayShort": [
@@ -946,7 +950,9 @@
     "searchSpecialistPlaceholder": "Fachkraft suchen...",
     "searchServicePlaceholder": "Leistung suchen...",
     "noResultsFound": "Keine Ergebnisse",
-    "specialistConflictError": "Die gewählte Fachkraft hat bereits eine Buchung in diesem Zeitraum."
+    "specialistConflictError": "Die gewählte Fachkraft hat bereits eine Buchung in diesem Zeitraum.",
+    "techErrorBannerMsg": "Vorübergehendes technisches Problem, außerhalb unserer Kontrolle — wird bearbeitet.",
+    "techErrorRetryBtn": "🔄 Erneut versuchen"
   },
   "rapoarte": {
     "localeCode": "de-DE",

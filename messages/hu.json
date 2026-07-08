@@ -692,7 +692,9 @@
     ],
     "scheduleSavedToast": "Munkarend sikeresen elmentve!",
     "addIntervalBtn": "+ Időszak hozzáadása",
-    "removeIntervalBtn": "Eltávolítás"
+    "removeIntervalBtn": "Eltávolítás",
+    "techErrorBannerMsg": "Ideiglenes technikai probléma, rajtunk kívülálló okból — folyamatban a megoldás.",
+    "techErrorRetryBtn": "🔄 Újra próbálom"
   },
   "sugestii": {
     "checkingAccess": "Hozzáférés ellenőrzése...",
@@ -816,10 +818,12 @@
     "requirePaymentOff": "Kikapcsolva",
     "currencyLabel": "Fizetési pénznem",
     "commissionNoticeTitle": "Átláthatóság a jutalékról",
-    "commissionNoticeText": "A Chronos 1% jutalékot von le minden beérkezett fizetésből, a feldolgozás és a rendszer karbantartása érdekében. A maradék (99%) automatikusan, közvetlenül a Stripe fiókodba érkezik — a Chronos soha nem tartja meg az ügyfeleid pénzét.",
+    "commissionNoticeText": "A Chronos 1% jutalékot von le minden beérkezett fizetésből, a feldolgozás és a rendszer karbantartása érdekében. Emellett a Stripe (a fizetési szolgáltató) is levonja saját feldolgozási díját (jellemzően ~1,5% + egy kis fix díj, kártyatípustól függően). A maradék automatikusan a Stripe fiókodba érkezik — a Chronos soha nem tartja meg az ügyfeleid pénzét.",
     "paymentPremiumTextBefore": "Az online fizetés foglaláskor elérhető a ",
     "connectionPending": "Fejezd be adataid kitöltését a Stripe ablakban a fizetések aktiválásához.",
-    "refreshStatusBtn": "🔄 Állapot frissítése"
+    "refreshStatusBtn": "🔄 Állapot frissítése",
+    "techErrorBannerMsg": "Ideiglenes technikai probléma, rajtunk kívülálló okból — folyamatban a megoldás.",
+    "techErrorRetryBtn": "🔄 Újra próbálom"
   },
   "calendarPage": {
     "dayShort": [
@@ -946,7 +950,9 @@
     "searchSpecialistPlaceholder": "Szakember keresése...",
     "searchServicePlaceholder": "Szolgáltatás keresése...",
     "noResultsFound": "Nincs eredmény",
-    "specialistConflictError": "A kiválasztott szakembernek már van foglalása ebben az időszakban."
+    "specialistConflictError": "A kiválasztott szakembernek már van foglalása ebben az időszakban.",
+    "techErrorBannerMsg": "Ideiglenes technikai probléma, rajtunk kívülálló okból — folyamatban a megoldás.",
+    "techErrorRetryBtn": "🔄 Újra próbálom"
   },
   "rapoarte": {
     "localeCode": "hu-HU",

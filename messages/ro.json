@@ -873,7 +873,9 @@
     ],
     "scheduleSavedToast": "Program salvat cu succes!",
     "addIntervalBtn": "+ Adaugă interval",
-    "removeIntervalBtn": "Elimină"
+    "removeIntervalBtn": "Elimină",
+    "techErrorBannerMsg": "Problemă tehnică temporară, independentă de noi — se lucrează la rezolvare.",
+    "techErrorRetryBtn": "🔄 Reîncearcă"
   },
   "sugestii": {
     "checkingAccess": "Se verifică accesul...",
@@ -997,10 +999,12 @@
     "requirePaymentOff": "Dezactivat",
     "currencyLabel": "Valută de încasare",
     "commissionNoticeTitle": "Transparență privind comisionul",
-    "commissionNoticeText": "Chronos reține un comision de 1% din fiecare plată încasată, pentru procesarea și mentenanța sistemului. Restul sumei (99%) ajunge direct, automat, în contul tău Stripe — Chronos nu ține niciodată banii clienților tăi.",
+    "commissionNoticeText": "Chronos reține un comision de 1% din fiecare plată încasată, pentru procesarea și mentenanța sistemului. În plus, Stripe (procesatorul de plăți) reține propriul comision de procesare (de obicei ~1,5% + o taxă fixă mică, variază după tipul cardului). Restul ajunge automat în contul tău Stripe — Chronos nu ține niciodată banii clienților tăi.",
     "paymentPremiumTextBefore": "Plata online la rezervare e disponibilă în planurile ",
     "connectionPending": "Finalizează completarea datelor în fereastra Stripe pentru a activa plățile.",
-    "refreshStatusBtn": "🔄 Reverifică starea"
+    "refreshStatusBtn": "🔄 Reverifică starea",
+    "techErrorBannerMsg": "Problemă tehnică temporară, independentă de noi — se lucrează la rezolvare.",
+    "techErrorRetryBtn": "🔄 Reîncearcă"
   },
   "calendarPage": {
     "dayShort": [
@@ -1127,7 +1131,9 @@
     "searchSpecialistPlaceholder": "Caută specialist...",
     "searchServicePlaceholder": "Caută serviciu...",
     "noResultsFound": "Niciun rezultat",
-    "specialistConflictError": "Specialistul ales are deja o programare în acest interval."
+    "specialistConflictError": "Specialistul ales are deja o programare în acest interval.",
+    "techErrorBannerMsg": "Problemă tehnică temporară, independentă de noi — se lucrează la rezolvare.",
+    "techErrorRetryBtn": "🔄 Reîncearcă"
   },
   "rapoarte": {
     "localeCode": "ro-RO",

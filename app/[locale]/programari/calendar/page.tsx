@@ -1104,7 +1104,7 @@ function CalendarContent() {
     staleTime:1000*60*10, gcTime:1000*60*30,
   });
   const userId = session?.user?.id;
-  const {data:profile,refetch:refetchProfile} = useQuery({
+  const {data:profile,refetch:refetchProfile,isError:profileIsError} = useQuery({
     queryKey:["profile",userId],enabled:!!userId,staleTime:1000*60*5,
     queryFn:async()=>{const{data}=await supabase.from("profiles").select("plan_type,trial_started_at,manual_blocks,working_hours").eq("id",userId!).single();return data;},
   });
@@ -1441,6 +1441,15 @@ function CalendarContent() {
         </div>
         {userSub&&<span style={{fontSize:8,background:"#f1f5f9",color:"#94a3b8",padding:"4px 8px",borderRadius:7,fontWeight:700,textTransform:"uppercase",flexShrink:0}} className="hidden lg:block">{userSub.plan}</span>}
       </div>
+
+      {profileIsError && (
+        <div style={{margin:"10px 14px", padding:"14px 18px", background:"#fffbeb", border:"2px solid #fde68a", borderRadius:20, display:"flex", flexWrap:"wrap", alignItems:"center", justifyContent:"space-between", gap:10}}>
+          <p style={{fontSize:12, fontWeight:700, color:"#92400e", margin:0}}>{t("techErrorBannerMsg")}</p>
+          <button onClick={()=>refetchProfile()} style={{padding:"8px 16px", background:"#0f172a", color:"#fff", border:"none", borderRadius:10, fontSize:10, fontWeight:900, textTransform:"uppercase", fontStyle:"italic", cursor:"pointer"}} className="hover:bg-amber-500 hover:text-black transition-all">
+            {t("techErrorRetryBtn")}
+          </button>
+        </div>
+      )}
 
       {(viewMode==="day"||viewMode==="week")&&(
         <WeekStrip selectedDate={selectedDate} onSelectDate={d=>{setSelectedDate(d);setViewMode("day");}} programariByDate={programariByDate} adminWorkingHours={viewWorkingHours}/>

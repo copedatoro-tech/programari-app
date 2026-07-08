@@ -692,7 +692,9 @@
     ],
     "scheduleSavedToast": "Schedule saved successfully!",
     "addIntervalBtn": "+ Add interval",
-    "removeIntervalBtn": "Remove"
+    "removeIntervalBtn": "Remove",
+    "techErrorBannerMsg": "Temporary technical issue, outside our control — it's being worked on.",
+    "techErrorRetryBtn": "🔄 Retry"
   },
   "sugestii": {
     "checkingAccess": "Checking access...",
@@ -816,10 +818,12 @@
     "requirePaymentOff": "Disabled",
     "currencyLabel": "Payment currency",
     "commissionNoticeTitle": "Commission transparency",
-    "commissionNoticeText": "Chronos keeps a 1% commission from each payment collected, to cover processing and system maintenance. The rest (99%) reaches your Stripe account directly, automatically — Chronos never holds your clients' money.",
+    "commissionNoticeText": "Chronos keeps a 1% commission from each payment collected, for processing and system maintenance. In addition, Stripe (the payment processor) keeps its own processing fee (typically ~1.5% + a small fixed fee, depending on card type). The rest reaches your Stripe account automatically — Chronos never holds your clients' money.",
     "paymentPremiumTextBefore": "Online payment at booking is available on the ",
     "connectionPending": "Finish filling in your details in the Stripe window to activate payments.",
-    "refreshStatusBtn": "🔄 Refresh status"
+    "refreshStatusBtn": "🔄 Refresh status",
+    "techErrorBannerMsg": "Temporary technical issue, outside our control — it's being worked on.",
+    "techErrorRetryBtn": "🔄 Retry"
   },
   "calendarPage": {
     "dayShort": [
@@ -946,7 +950,9 @@
     "searchSpecialistPlaceholder": "Search specialist...",
     "searchServicePlaceholder": "Search service...",
     "noResultsFound": "No results found",
-    "specialistConflictError": "The chosen specialist already has a booking in this time slot."
+    "specialistConflictError": "The chosen specialist already has a booking in this time slot.",
+    "techErrorBannerMsg": "Temporary technical issue, outside our control — it's being worked on.",
+    "techErrorRetryBtn": "🔄 Retry"
   },
   "rapoarte": {
     "localeCode": "en-US",

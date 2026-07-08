@@ -100,13 +100,20 @@ function SettingsContent() {
     if (data) setDaysWithBookings(Array.from(new Set(data.map((a: any) => a.date))));
   }, [supabase]);
 
+  const [technicalError, setTechnicalError] = useState(false);
+
   const loadProfile = useCallback(async (currentUid: string) => {
-    const { data: profile, error: profileError } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', currentUid)
-      .maybeSingle();
-    if (profile) {
+    setTechnicalError(false);
+    try {
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', currentUid)
+        .maybeSingle();
+      // ✅ maybeSingle() nu dă eroare când nu găsește nimic — dacă totuși
+      // apare o eroare aici, e o problemă tehnică reală de conectivitate
+      if (profileError) { setTechnicalError(true); return; }
+      if (profile) {
       setUserPlan(profile.plan_type?.toUpperCase() || "CHRONOS FREE");
       setBookingInterval(profile.booking_interval || 60);
       setStripeOnboarded(!!profile.stripe_onboarded);
@@ -131,6 +138,9 @@ function SettingsContent() {
       } else {
         setManualBlocks({});
       }
+      }
+    } catch {
+      setTechnicalError(true);
     }
   }, [supabase, formatSlug]);
 
@@ -429,6 +439,18 @@ function SettingsContent() {
             </Link>
           </div>
         </header>
+
+        {technicalError && (
+          <div className="mb-6 p-5 bg-amber-50 border-2 border-amber-200 rounded-[25px] flex flex-col md:flex-row items-center justify-between gap-3">
+            <p className="text-[12px] font-bold text-amber-800">{t("techErrorBannerMsg")}</p>
+            <button
+              onClick={() => userId && loadProfile(userId)}
+              className="px-5 py-2.5 bg-slate-900 text-white rounded-xl font-black text-[10px] uppercase italic hover:bg-amber-500 hover:text-black transition-all shrink-0"
+            >
+              {t("techErrorRetryBtn")}
+            </button>
+          </div>
+        )}
 
         {/* SECTIUNE LINK SI QR - PROTEJATA */}
         <section className="relative bg-slate-900 rounded-[30px] p-6 mb-4 shadow-xl overflow-hidden">
