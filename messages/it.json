@@ -1540,5 +1540,28 @@
     "claimNotFoundMsg": "Questo link non è più valido.",
     "claimAlreadyDoneTitle": "Già elaborato",
     "claimAlreadyDoneMsg": "Questo invito è già stato usato o è scaduto."
+  },
+  "listaAsteptare": {
+    "headingLine1": "Lista d'",
+    "headingHighlight": "Attesa",
+    "subtitle": "Clienti in attesa di un posto libero",
+    "backBtn": "Pannello Principale",
+    "loading": "Caricamento...",
+    "emptyTitle": "Nessuno in lista",
+    "emptyMsg": "Al momento non hai clienti nella lista d'attesa.",
+    "colClient": "Cliente",
+    "colContact": "Contatto",
+    "colDate": "Data desiderata",
+    "colSpecialist": "Specialista",
+    "colService": "Servizio",
+    "colStatus": "Stato",
+    "colJoined": "Iscritto",
+    "anyOpt": "Qualsiasi",
+    "statusWaiting": "🕓 In attesa",
+    "statusNotified": "📧 Notificato",
+    "statusConfirmed": "✅ Confermato",
+    "statusExpired": "⏱️ Scaduto",
+    "removeBtn": "Rimuovi",
+    "confirmRemove": "Sei sicuro di voler rimuovere questo cliente dalla lista?"
   }
 }

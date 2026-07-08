@@ -1540,5 +1540,28 @@
     "claimNotFoundMsg": "Ten link nie jest już ważny.",
     "claimAlreadyDoneTitle": "Już przetworzone",
     "claimAlreadyDoneMsg": "To zaproszenie zostało już wykorzystane lub wygasło."
+  },
+  "listaAsteptare": {
+    "headingLine1": "Lista",
+    "headingHighlight": "Oczekujących",
+    "subtitle": "Klienci czekający na wolne miejsce",
+    "backBtn": "Panel Główny",
+    "loading": "Ładowanie...",
+    "emptyTitle": "Nikogo na liście",
+    "emptyMsg": "Obecnie nie masz klientów na liście oczekujących.",
+    "colClient": "Klient",
+    "colContact": "Kontakt",
+    "colDate": "Pożądana data",
+    "colSpecialist": "Specjalista",
+    "colService": "Usługa",
+    "colStatus": "Status",
+    "colJoined": "Zapisano",
+    "anyOpt": "Dowolny",
+    "statusWaiting": "🕓 Oczekuje",
+    "statusNotified": "📧 Powiadomiony",
+    "statusConfirmed": "✅ Potwierdzony",
+    "statusExpired": "⏱️ Wygasł",
+    "removeBtn": "Usuń",
+    "confirmRemove": "Czy na pewno chcesz usunąć tego klienta z listy?"
   }
 }

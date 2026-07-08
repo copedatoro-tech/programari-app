@@ -1540,5 +1540,28 @@
     "claimNotFoundMsg": "Este enlace ya no es válido.",
     "claimAlreadyDoneTitle": "Ya procesado",
     "claimAlreadyDoneMsg": "Esta invitación ya ha sido usada o ha expirado."
+  },
+  "listaAsteptare": {
+    "headingLine1": "Lista de",
+    "headingHighlight": "Espera",
+    "subtitle": "Clientes esperando un hueco libre",
+    "backBtn": "Panel Principal",
+    "loading": "Cargando...",
+    "emptyTitle": "Nadie en la lista",
+    "emptyMsg": "Actualmente no tienes clientes en la lista de espera.",
+    "colClient": "Cliente",
+    "colContact": "Contacto",
+    "colDate": "Fecha deseada",
+    "colSpecialist": "Especialista",
+    "colService": "Servicio",
+    "colStatus": "Estado",
+    "colJoined": "Inscrito",
+    "anyOpt": "Cualquiera",
+    "statusWaiting": "🕓 Esperando",
+    "statusNotified": "📧 Notificado",
+    "statusConfirmed": "✅ Confirmado",
+    "statusExpired": "⏱️ Expirado",
+    "removeBtn": "Eliminar",
+    "confirmRemove": "¿Seguro que quieres eliminar a este cliente de la lista?"
   }
 }

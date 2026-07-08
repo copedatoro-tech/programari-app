@@ -1540,5 +1540,28 @@
     "claimNotFoundMsg": "Acest link nu mai este valabil.",
     "claimAlreadyDoneTitle": "Deja procesat",
     "claimAlreadyDoneMsg": "Această invitație a fost deja folosită sau a expirat."
+  },
+  "listaAsteptare": {
+    "headingLine1": "Listă de",
+    "headingHighlight": "Așteptare",
+    "subtitle": "Clienții care așteaptă un loc liber",
+    "backBtn": "Panou Principal",
+    "loading": "Se încarcă...",
+    "emptyTitle": "Nimeni pe listă",
+    "emptyMsg": "Momentan nu ai clienți înscriși pe lista de așteptare.",
+    "colClient": "Client",
+    "colContact": "Contact",
+    "colDate": "Data dorită",
+    "colSpecialist": "Specialist",
+    "colService": "Serviciu",
+    "colStatus": "Status",
+    "colJoined": "Înscris",
+    "anyOpt": "Oricare",
+    "statusWaiting": "🕓 Așteaptă",
+    "statusNotified": "📧 Notificat",
+    "statusConfirmed": "✅ Confirmat",
+    "statusExpired": "⏱️ Expirat",
+    "removeBtn": "Elimină",
+    "confirmRemove": "Sigur elimini acest client de pe listă?"
   }
 }

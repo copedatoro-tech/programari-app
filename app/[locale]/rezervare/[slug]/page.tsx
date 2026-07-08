@@ -88,6 +88,7 @@ function SuccessPopup({ onClose }: { onClose: () => void }) {
 // ─── MAIN COMPONENT ───────────────────────────────────────────────────────────────
 function RezervareContent() {
   const t = useTranslations("rezervare");
+  const tWaitlist = useTranslations("waitlist");
   const localeCode = t("localeCode");
   const params = useParams();
   const searchParams = useSearchParams();
@@ -654,27 +655,27 @@ function RezervareContent() {
             {waitlistJoined ? (
               <>
                 <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4 text-white text-3xl">✓</div>
-                <h3 className="text-lg font-black uppercase italic text-slate-900 mb-2">{t("waitlist.joinedTitle")}</h3>
-                <p className="text-slate-500 text-sm mb-6">{t("waitlist.joinedMsg")}</p>
+                <h3 className="text-lg font-black uppercase italic text-slate-900 mb-2">{tWaitlist("joinedTitle")}</h3>
+                <p className="text-slate-500 text-sm mb-6">{tWaitlist("joinedMsg")}</p>
                 <button onClick={() => { setWaitlistModal(null); setWaitlistJoined(false); }}
                   className="w-full py-4 bg-slate-100 text-slate-500 rounded-2xl font-black uppercase italic text-sm hover:bg-slate-200 transition-all">
-                  {t("waitlist.closeBtn")}
+                  {tWaitlist("closeBtn")}
                 </button>
               </>
             ) : (
               <>
-                <h3 className="text-lg font-black uppercase italic text-slate-900 mb-2">{t("waitlist.joinModalTitle")}</h3>
-                <p className="text-slate-500 text-sm mb-6">{t("waitlist.joinModalSubtitle")}</p>
+                <h3 className="text-lg font-black uppercase italic text-slate-900 mb-2">{tWaitlist("joinModalTitle")}</h3>
+                <p className="text-slate-500 text-sm mb-6">{tWaitlist("joinModalSubtitle")}</p>
                 <button
                   onClick={handleJoinWaitlist}
                   disabled={waitlistSaving}
                   className="w-full py-4 bg-amber-500 text-black rounded-2xl font-black uppercase italic text-sm hover:bg-amber-600 transition-all disabled:opacity-50 mb-3"
                 >
-                  {waitlistSaving ? "..." : t("waitlist.submitBtn")}
+                  {waitlistSaving ? "..." : tWaitlist("submitBtn")}
                 </button>
                 <button onClick={() => setWaitlistModal(null)}
                   className="w-full py-3 text-slate-400 font-black uppercase italic text-[11px] hover:text-red-500 transition-colors">
-                  {t("waitlist.closeBtn")}
+                  {tWaitlist("closeBtn")}
                 </button>
               </>
             )}
@@ -831,7 +832,7 @@ function RezervareContent() {
                             onClick={() => setWaitlistModal({ bookingId: b.id })}
                             className="text-[10px] font-black uppercase italic text-slate-400 hover:text-amber-600 underline decoration-dotted transition-colors"
                           >
-                            {t("waitlist.joinBtn")}
+                            {tWaitlist("joinBtn")}
                           </button>
                         </div>
                       )}

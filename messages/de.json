@@ -1540,5 +1540,28 @@
     "claimNotFoundMsg": "Dieser Link ist nicht mehr gültig.",
     "claimAlreadyDoneTitle": "Bereits verarbeitet",
     "claimAlreadyDoneMsg": "Diese Einladung wurde bereits verwendet oder ist abgelaufen."
+  },
+  "listaAsteptare": {
+    "headingLine1": "Warte-",
+    "headingHighlight": "liste",
+    "subtitle": "Kunden, die auf einen freien Platz warten",
+    "backBtn": "Hauptbereich",
+    "loading": "Wird geladen...",
+    "emptyTitle": "Niemand auf der Liste",
+    "emptyMsg": "Du hast derzeit keine Kunden auf der Warteliste.",
+    "colClient": "Kunde",
+    "colContact": "Kontakt",
+    "colDate": "Gewünschtes Datum",
+    "colSpecialist": "Fachkraft",
+    "colService": "Leistung",
+    "colStatus": "Status",
+    "colJoined": "Angemeldet",
+    "anyOpt": "Beliebig",
+    "statusWaiting": "🕓 Wartet",
+    "statusNotified": "📧 Benachrichtigt",
+    "statusConfirmed": "✅ Bestätigt",
+    "statusExpired": "⏱️ Abgelaufen",
+    "removeBtn": "Entfernen",
+    "confirmRemove": "Möchtest du diesen Kunden wirklich von der Liste entfernen?"
   }
 }

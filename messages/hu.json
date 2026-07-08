@@ -1540,5 +1540,28 @@
     "claimNotFoundMsg": "Ez a link már nem érvényes.",
     "claimAlreadyDoneTitle": "Már feldolgozva",
     "claimAlreadyDoneMsg": "Ezt a meghívást már felhasználták, vagy lejárt."
+  },
+  "listaAsteptare": {
+    "headingLine1": "Vára-",
+    "headingHighlight": "kozási lista",
+    "subtitle": "Szabad helyre váró ügyfelek",
+    "backBtn": "Főpanel",
+    "loading": "Betöltés...",
+    "emptyTitle": "Senki a listán",
+    "emptyMsg": "Jelenleg nincs ügyfeled a várakozási listán.",
+    "colClient": "Ügyfél",
+    "colContact": "Kapcsolat",
+    "colDate": "Kívánt dátum",
+    "colSpecialist": "Szakember",
+    "colService": "Szolgáltatás",
+    "colStatus": "Állapot",
+    "colJoined": "Feliratkozva",
+    "anyOpt": "Bármelyik",
+    "statusWaiting": "🕓 Várakozik",
+    "statusNotified": "📧 Értesítve",
+    "statusConfirmed": "✅ Megerősítve",
+    "statusExpired": "⏱️ Lejárt",
+    "removeBtn": "Eltávolítás",
+    "confirmRemove": "Biztosan eltávolítod ezt az ügyfelet a listáról?"
   }
 }

@@ -1540,5 +1540,28 @@
     "claimNotFoundMsg": "Este link já não é válido.",
     "claimAlreadyDoneTitle": "Já processado",
     "claimAlreadyDoneMsg": "Este convite já foi utilizado ou expirou."
+  },
+  "listaAsteptare": {
+    "headingLine1": "Lista de",
+    "headingHighlight": "Espera",
+    "subtitle": "Clientes à espera de uma vaga",
+    "backBtn": "Painel Principal",
+    "loading": "A carregar...",
+    "emptyTitle": "Ninguém na lista",
+    "emptyMsg": "Neste momento não tens clientes na lista de espera.",
+    "colClient": "Cliente",
+    "colContact": "Contacto",
+    "colDate": "Data desejada",
+    "colSpecialist": "Especialista",
+    "colService": "Serviço",
+    "colStatus": "Estado",
+    "colJoined": "Inscrito",
+    "anyOpt": "Qualquer",
+    "statusWaiting": "🕓 À espera",
+    "statusNotified": "📧 Notificado",
+    "statusConfirmed": "✅ Confirmado",
+    "statusExpired": "⏱️ Expirado",
+    "removeBtn": "Remover",
+    "confirmRemove": "Tens a certeza que queres remover este cliente da lista?"
   }
 }

@@ -1540,5 +1540,28 @@
     "claimNotFoundMsg": "This link is no longer valid.",
     "claimAlreadyDoneTitle": "Already Processed",
     "claimAlreadyDoneMsg": "This invitation has already been used or has expired."
+  },
+  "listaAsteptare": {
+    "headingLine1": "Waiting",
+    "headingHighlight": "List",
+    "subtitle": "Clients waiting for an open spot",
+    "backBtn": "Main Panel",
+    "loading": "Loading...",
+    "emptyTitle": "No one on the list",
+    "emptyMsg": "You don't currently have any clients on the waitlist.",
+    "colClient": "Client",
+    "colContact": "Contact",
+    "colDate": "Desired date",
+    "colSpecialist": "Specialist",
+    "colService": "Service",
+    "colStatus": "Status",
+    "colJoined": "Joined",
+    "anyOpt": "Any",
+    "statusWaiting": "🕓 Waiting",
+    "statusNotified": "📧 Notified",
+    "statusConfirmed": "✅ Confirmed",
+    "statusExpired": "⏱️ Expired",
+    "removeBtn": "Remove",
+    "confirmRemove": "Are you sure you want to remove this client from the list?"
   }
 }
