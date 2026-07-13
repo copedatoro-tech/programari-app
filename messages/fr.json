@@ -832,7 +832,9 @@
       "updateError": "Erreur lors de la mise à jour.",
       "updateSuccess": "Mis à jour avec succès !",
       "deactivateError": "Erreur lors de la désactivation.",
-      "phoneHint": "Facultatif, mais nécessaire si vous souhaitez envoyer les données d'accès via WhatsApp."
+      "phoneHint": "Facultatif, mais nécessaire si vous souhaitez envoyer les données d'accès via WhatsApp.",
+      "teamOnlyBadge": "Team Uniquement",
+      "teamOnlyHint": "Le portail spécialiste est disponible uniquement sur le plan Chronos Team. Cliquez pour mettre à niveau."
     }
   },
   "sugestii": {
@@ -1495,9 +1497,8 @@
             "highlight": "500"
           },
           {
-            "text": "5 spécialistes + portail individuel",
-            "available": true,
-            "highlight": "5"
+            "text": "5 spécialistes",
+            "available": true
           },
           {
             "text": "50 services",

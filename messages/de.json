@@ -832,7 +832,9 @@
       "updateError": "Fehler bei der Aktualisierung.",
       "updateSuccess": "Erfolgreich aktualisiert!",
       "deactivateError": "Fehler bei der Deaktivierung.",
-      "phoneHint": "Optional, aber erforderlich, wenn Sie die Zugangsdaten per WhatsApp senden möchten."
+      "phoneHint": "Optional, aber erforderlich, wenn Sie die Zugangsdaten per WhatsApp senden möchten.",
+      "teamOnlyBadge": "Nur Team",
+      "teamOnlyHint": "Das Spezialisten-Portal ist nur im Chronos Team Plan verfügbar. Klicken Sie zum Upgrade."
     }
   },
   "sugestii": {
@@ -1495,9 +1497,8 @@
             "highlight": "500"
           },
           {
-            "text": "5 Spezialisten + individuelles Portal",
-            "available": true,
-            "highlight": "5"
+            "text": "5 Spezialisten",
+            "available": true
           },
           {
             "text": "50 Dienstleistungen",

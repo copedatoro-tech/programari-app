@@ -832,7 +832,9 @@
       "updateError": "Hiba a frissítés során.",
       "updateSuccess": "Sikeresen frissítve!",
       "deactivateError": "Hiba a letiltás során.",
-      "phoneHint": "Opcionális, de szükséges, ha WhatsAppon szeretné elküldeni a hozzáférési adatokat."
+      "phoneHint": "Opcionális, de szükséges, ha WhatsAppon szeretné elküldeni a hozzáférési adatokat.",
+      "teamOnlyBadge": "Csak Team",
+      "teamOnlyHint": "A szakember portál csak a Chronos Team csomagban érhető el. Kattintson a frissítéshez."
     }
   },
   "sugestii": {
@@ -1495,9 +1497,8 @@
             "highlight": "500"
           },
           {
-            "text": "5 szakember + egyéni portál",
-            "available": true,
-            "highlight": "5"
+            "text": "5 szakember",
+            "available": true
           },
           {
             "text": "50 szolgáltatás",

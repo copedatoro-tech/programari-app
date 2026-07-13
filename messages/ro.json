@@ -682,9 +682,8 @@
             "highlight": "500"
           },
           {
-            "text": "5 specialiști + portal individual",
-            "available": true,
-            "highlight": "5"
+            "text": "5 specialiști",
+            "available": true
           },
           {
             "text": "50 servicii",
@@ -1015,7 +1014,9 @@
       "updateError": "Eroare la actualizare.",
       "updateSuccess": "Actualizat cu succes!",
       "deactivateError": "Eroare la dezactivare.",
-      "phoneHint": "Opțional, dar necesar dacă vrei să trimiți datele de acces pe WhatsApp."
+      "phoneHint": "Opțional, dar necesar dacă vrei să trimiți datele de acces pe WhatsApp.",
+      "teamOnlyBadge": "Doar Team",
+      "teamOnlyHint": "Portalul de specialist e disponibil doar pe planul Chronos Team. Apasă pentru a face upgrade."
     }
   },
   "sugestii": {

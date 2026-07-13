@@ -832,7 +832,9 @@
       "updateError": "Error al actualizar.",
       "updateSuccess": "¡Actualizado con éxito!",
       "deactivateError": "Error al desactivar.",
-      "phoneHint": "Opcional, pero necesario si quieres enviar los datos de acceso por WhatsApp."
+      "phoneHint": "Opcional, pero necesario si quieres enviar los datos de acceso por WhatsApp.",
+      "teamOnlyBadge": "Solo Team",
+      "teamOnlyHint": "El portal del especialista solo está disponible en el plan Chronos Team. Haz clic para actualizar."
     }
   },
   "sugestii": {
@@ -1495,9 +1497,8 @@
             "highlight": "500"
           },
           {
-            "text": "5 especialistas + portal individual",
-            "available": true,
-            "highlight": "5"
+            "text": "5 especialistas",
+            "available": true
           },
           {
             "text": "50 servicios",

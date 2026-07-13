@@ -851,12 +851,20 @@ export default function ResursePage() {
                             >
                               {t("staffPortal.activeAccountBadge")}
                             </button>
-                          ) : (
+                          ) : userPlan === 'chronos team' ? (
                             <button
                               onClick={e => { e.stopPropagation(); openInviteModal(p); }}
                               className="bg-slate-800 text-blue-400 px-3 py-2 flex items-center justify-center rounded-xl border border-slate-700 hover:bg-blue-500 hover:text-white transition-all text-[9px] font-black uppercase italic whitespace-nowrap"
                             >
                               {t("staffPortal.inviteBtn")}
+                            </button>
+                          ) : (
+                            <button
+                              onClick={e => { e.stopPropagation(); router.push('/abonamente'); }}
+                              title={t("staffPortal.teamOnlyHint")}
+                              className="bg-slate-800/50 text-slate-500 px-3 py-2 flex items-center justify-center rounded-xl border border-slate-700 hover:border-amber-500 hover:text-amber-500 transition-all text-[9px] font-black uppercase italic whitespace-nowrap"
+                            >
+                              🔒 {t("staffPortal.teamOnlyBadge")}
                             </button>
                           )
                         )}

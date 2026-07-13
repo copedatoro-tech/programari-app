@@ -832,7 +832,9 @@
       "updateError": "Error updating.",
       "updateSuccess": "Successfully updated!",
       "deactivateError": "Error deactivating.",
-      "phoneHint": "Optional, but required if you want to send the access details via WhatsApp."
+      "phoneHint": "Optional, but required if you want to send the access details via WhatsApp.",
+      "teamOnlyBadge": "Team Only",
+      "teamOnlyHint": "The specialist portal is only available on the Chronos Team plan. Click to upgrade."
     }
   },
   "sugestii": {
@@ -1495,9 +1497,8 @@
             "highlight": "500"
           },
           {
-            "text": "5 specialists + individual portal",
-            "available": true,
-            "highlight": "5"
+            "text": "5 specialists",
+            "available": true
           },
           {
             "text": "50 services",

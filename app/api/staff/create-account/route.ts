@@ -9,8 +9,6 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Neautentificat." }, { status: 401 });
     }
 
-    // ✅ Verificăm cine face efectiv cererea (nu doar ce spune body-ul) —
-    // extragem identitatea reală din token-ul de sesiune trimis de client
     const { data: callerData, error: callerError } = await supabaseAdmin.auth.getUser(token);
     if (callerError || !callerData?.user) {
       return NextResponse.json({ error: "Sesiune invalidă." }, { status: 401 });
@@ -23,6 +21,23 @@ export async function POST(request: Request) {
     }
     if (tempPassword.length < 6) {
       return NextResponse.json({ error: "Parola trebuie să aibă minim 6 caractere." }, { status: 400 });
+    }
+
+    // ✅ Portalul de specialist e disponibil DOAR pentru planul Chronos Team —
+    // verificăm planul apelantului (administratorul), nu al specialistului
+    const { data: callerProfile } = await supabaseAdmin
+      .from("profiles")
+      .select("plan_type, trial_started_at")
+      .eq("id", callerId)
+      .maybeSingle();
+
+    const plan = (callerProfile?.plan_type || "").toUpperCase();
+    const trialActive = !!callerProfile?.trial_started_at &&
+      (Date.now() - new Date(callerProfile.trial_started_at).getTime() < 10 * 24 * 60 * 60 * 1000);
+    const hasAccess = trialActive || plan.includes("TEAM");
+
+    if (!hasAccess) {
+      return NextResponse.json({ error: "Portalul de specialist este disponibil doar pentru planul Chronos Team." }, { status: 403 });
     }
 
     // ✅ Confirmăm că specialistul aparține salonului celui care face cererea
