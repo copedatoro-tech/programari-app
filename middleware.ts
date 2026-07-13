@@ -30,12 +30,18 @@ export async function middleware(req: NextRequest) {
 
   const intlResponse = intlMiddleware(req)
 
+  // ✅ FIX: adăugat "/specialist" — altfel middleware-ul verifica sesiunea de
+  // ADMINISTRATOR (din cookies) pe rutele de specialist, n-o găsea (fiindcă
+  // specialistul are propria sesiune, separată) și redirecționa automat spre
+  // login-ul normal al aplicației, în loc să lase pagina /specialist/login
+  // să-și facă propria verificare (deja construită în layout-ul de specialist).
   const isPublicRoute =
     pathname === '/' ||
     pathname === '/login' ||
     pathname === '/register' ||
     pathname === '/forgot-password' ||
-    pathname.startsWith('/rezervare')
+    pathname.startsWith('/rezervare') ||
+    pathname.startsWith('/specialist')
 
   if (isPublicRoute) {
     return intlResponse
@@ -59,7 +65,13 @@ export async function middleware(req: NextRequest) {
     }
   )
 
-  const { data: { user } } = await supabase.auth.getUser()
+  let user = null
+  try {
+    const { data, error } = await supabase.auth.getUser()
+    if (!error) user = data.user
+  } catch {
+    return res
+  }
 
   if (!user) {
     url.pathname = withLocale('/login')

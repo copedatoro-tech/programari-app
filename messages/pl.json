@@ -97,7 +97,8 @@
       "cookies": "Pliki cookie",
       "premium": "CHRONOS PREMIUM",
       "management": "ZARZĄDZANIE",
-      "secured": "ZABEZPIECZONE"
+      "secured": "ZABEZPIECZONE",
+      "reviewTour": "Powtorz Przewodnik"
     },
     "loading": "Synchronizacja Chronos...",
     "onboarding": {
@@ -222,6 +223,96 @@
           "👤 Możesz tu również zapisać dane osoby odpowiedzialnej za aplikację do szybkiego kontaktu w sytuacji awaryjnej"
         ],
         "tip": "Przydatne kontakty są przeznaczone dla Twoich dostawców i partnerów zawodowych — nie dla klientów! Klienci są zapisywani automatycznie z wizyt na swojej dedykowanej stronie."
+      },
+      "welcomeTitle": "Witamy w Chronos!",
+      "welcomeSubtitle": "Przeprowadzimy Cie krok po kroku przez najwazniejsze strony, aby Twoja aplikacja dzialala w 100%.",
+      "welcomeInfoNote": "To jest przewodnik informacyjny, wykonywany tylko raz. Zalecamy uwazne przejscie przez niego — pomoze Ci to korzystac z Chronos w najlepszych warunkach, bez tracenia czasu pozniej na szukanie, gdzie co jest.",
+      "welcomeListIntro": "Przejdziesz przez:",
+      "startTourBtn": "Rozpocznij Przewodnik 🚀",
+      "skipTourBtn": "Pomin — znam juz aplikacje",
+      "stepCounter": "Krok {current} z {total}",
+      "prevBtn": "← Wstecz",
+      "nextBtn": "Dalej →",
+      "finishBtn": "Zakoncz i Aktywuj Okres Probny 🎁",
+      "activatingTitle": "Aktywowanie okresu probnego...",
+      "activatingSubtitle": "Chwila, przygotowujemy dla Ciebie plan Chronos Team.",
+      "finalTitle": "Wszystko gotowe!",
+      "finalSubtitle": "Zakonczyles wstepna konfiguracje, a okres probny Chronos Team jest aktywny.",
+      "finalTrialLine": "10 dni darmowego pelnego dostepu — bez karty, bez zobowiazan.",
+      "goToDashboardBtn": "Przejdz do Wizyt →",
+      "tryItBtn": "Kliknij podswietlony przycisk ponizej, aby zobaczyc, jak to dziala.",
+      "skipStepBtn": "Pomin ten krok →",
+      "highlights": {
+        "profil": {
+          "avatar": {
+            "title": "Zdjecie / Logo",
+            "desc": "Przeslij zdjecie lub logo swojej firmy. Pojawia sie na publicznej stronie rezerwacji i pomaga klientom latwo Cie rozpoznac."
+          },
+          "businessName": {
+            "title": "Nazwa Firmy",
+            "desc": "Wypelnij nazwe swojej firmy. Jest wyswietlana klientom i moze automatycznie wygenerowac Twoj unikalny adres, jesli jeszcze go nie ustawiles."
+          },
+          "phone": {
+            "title": "Telefon Kontaktowy",
+            "desc": "Dodaj numer telefonu osoby odpowiedzialnej. Przydatny do szybkiego kontaktu w pilnych sytuacjach."
+          },
+          "slug": {
+            "title": "Unikalny Adres (Slug)",
+            "desc": "Tutaj widzisz i mozesz edytowac swoj unikalny adres rezerwacji — istotna czesc Twojego publicznego linku."
+          },
+          "slugButton": {
+            "title": "Zarezerwuj Adres",
+            "desc": "Kliknij ten przycisk, aby zapisac swoj unikalny adres. Po zarezerwowaniu unikaj jego zmiany, aby nie uniewaznic juz udostepnionych kodow QR."
+          },
+          "saveButton": {
+            "title": "Zapisz Zmiany",
+            "desc": "Kliknij tutaj, aby zapisac wszystkie wypelnione powyzej dane."
+          }
+        },
+        "settings": {
+          "workingHours": {
+            "title": "Godziny Pracy",
+            "desc": "Kliknij dowolny dzien w tym kalendarzu, aby ustawic godziny pracy i blokady. Bez ustawionego harmonogramu wszystkie godziny wydaja sie dostepne."
+          },
+          "notifications": {
+            "title": "Powiadomienia",
+            "desc": "Wybierz, jak chcesz byc powiadamiany o nowych rezerwacjach online — wyskakujace okienko, dzwiek lub powiadomienie systemowe."
+          },
+          "stripe": {
+            "title": "Platnosci Online (Stripe)",
+            "desc": "Polacz Stripe, aby akceptowac platnosci online bezposrednio przy rezerwacji — pieniadze trafiaja prosto na Twoje konto, z przejrzysta prowizja 1%."
+          }
+        },
+        "resurse": {
+          "duration": {
+            "title": "Czas Trwania Uslugi",
+            "desc": "Wypelnij, ile trwa kazda usluga — system wykorzystuje te wartosc do automatycznego blokowania odpowiedniego przedzialu czasowego w kalendarzu przy kazdej rezerwacji."
+          },
+          "price": {
+            "title": "Cena Uslugi",
+            "desc": "Cena jest wyswietlana klientowi przy rezerwacji online i, jesli wlaczyles platnosc online, jest to dokladna kwota pobierana automatycznie przy rezerwacji."
+          },
+          "addStaff": {
+            "title": "Dodaj Specjaliste",
+            "desc": "Kliknij ten przycisk, aby dodac nowego czlonka zespolu. Nastepnie mozesz przypisac mu oferowane uslugi i harmonogram pracy."
+          }
+        },
+        "programari": {
+          "email": {
+            "title": "Email Klienta",
+            "desc": "Dodaj email klienta — potwierdzenie rezerwacji i przypomnienie wysylane dzien wczesniej sa automatycznie na niego wysylane."
+          },
+          "phone": {
+            "title": "Telefon Klienta",
+            "desc": "Dodaj numer telefonu — wiadomosci potwierdzajace i przypominajace sa automatycznie wysylane przez WhatsApp, jesli masz plan Elite lub Team."
+          }
+        },
+        "abonamente": {
+          "activateTrial": {
+            "title": "Aktywuj Okres Próbny",
+            "desc": "Skończyłeś konfigurację? Kliknij ten przycisk, aby aktywować 10 darmowych dni pełnego dostępu do planu Team — bez karty, bez zobowiązań."
+          }
+        }
       }
     },
     "trialSuffix": " (OKRES PRÓBNY)"
@@ -694,7 +785,55 @@
     "addIntervalBtn": "+ Dodaj przedział",
     "removeIntervalBtn": "Usuń",
     "techErrorBannerMsg": "Tymczasowy problem techniczny, niezależny od nas — trwają prace nad rozwiązaniem.",
-    "techErrorRetryBtn": "🔄 Spróbuj ponownie"
+    "techErrorRetryBtn": "🔄 Spróbuj ponownie",
+    "staffPortal": {
+      "inviteBtn": "📱 Zaproś do Konta",
+      "activeAccountBadge": "✅ Konto Aktywne",
+      "portalLabel": "Portal Specjalisty",
+      "inviteTitle": "Zaproś {name}",
+      "inviteIntro": "Tworzymy dla niego własne konto, z tymczasowym hasłem. Przekazujesz mu te dane — będzie mógł zalogować się osobno, na portalu specjalisty, aby zobaczyć swoje własne wizyty i powiadomienia.",
+      "emailLabel": "Email Specjalisty",
+      "passwordLabel": "Tymczasowe Hasło",
+      "regeneratePasswordTitle": "Wygeneruj inne",
+      "creatingBtn": "Tworzenie...",
+      "createAccountBtn": "Utwórz Konto",
+      "successTitle": "Konto utworzone pomyślnie!",
+      "successSubtitle": "Przekaż te informacje specjaliście, aby mógł się zalogować.",
+      "linkLabel": "Link",
+      "emailFieldLabel": "Email",
+      "tempPasswordLabel": "Tymczasowe Hasło",
+      "sendWhatsappBtn": "📲 Wyślij przez WhatsApp",
+      "sendEmailBtn": "✉️ Wyślij przez Email",
+      "copyCredentialsBtn": "📋 Kopiuj Dane Dostępowe",
+      "closeBtn": "Zamknij",
+      "copiedToast": "Dane dostępowe skopiowane!",
+      "noPhoneError": "Specjalista nie ma zapisanego prawidłowego numeru telefonu.",
+      "waMessageTemplate": "Cześć {name}! Masz dostęp do swojego portalu Chronos, aby zobaczyć swoje wizyty:\n\n🔗 {link}\n📧 Email: {email}\n🔑 Hasło: {password}\n\nZalecamy zmianę hasła po pierwszym zalogowaniu.",
+      "emailSubject": "Dostęp Chronos — Portal Specjalisty",
+      "emailBodyTemplate": "Cześć {name}!\n\nMasz dostęp do swojego portalu Chronos, aby zobaczyć swoje wizyty:\n\nLink: {link}\nEmail: {email}\nHasło: {password}\n\nZalecamy zmianę hasła po pierwszym zalogowaniu.",
+      "copyTemplate": "Dostęp Chronos — Portal Specjalisty\nLink: {link}\nEmail: {email}\nHasło: {password}",
+      "manageTitle": "Konto: {name}",
+      "correctEmailLabel": "Popraw email",
+      "newPasswordOptionalLabel": "Nowe hasło (opcjonalnie)",
+      "newPasswordPlaceholder": "Zostaw puste, jeśli nie zmieniasz hasła",
+      "generateNewPasswordTitle": "Wygeneruj nowe hasło",
+      "savingBtn": "Zapisywanie...",
+      "saveChangesBtn": "Zapisz Zmiany",
+      "deactivateIntro": "Odszedł z zespołu? Możesz całkowicie dezaktywować jego dostęp.",
+      "deactivateBtn": "🚫 Dezaktywuj Konto",
+      "confirmDeactivateTitle": "Czy na pewno chcesz dezaktywować to konto?",
+      "confirmDeactivateText": "{name} nie będzie już mógł zalogować się do portalu specjalisty. Możesz zaprosić go ponownie później, jeśli będzie to potrzebne.",
+      "cancelBtn": "Anuluj",
+      "yesDeactivateBtn": "Tak, dezaktywuj",
+      "deactivatedToast": "Konto zostało dezaktywowane.",
+      "nothingChangedError": "Nic nie zmieniłeś.",
+      "sessionExpiredError": "Sesja wygasła. Odśwież stronę.",
+      "connectionError": "Błąd połączenia.",
+      "updateError": "Błąd podczas aktualizacji.",
+      "updateSuccess": "Pomyślnie zaktualizowano!",
+      "deactivateError": "Błąd podczas dezaktywacji.",
+      "phoneHint": "Opcjonalne, ale wymagane, jeśli chcesz wysłać dane dostępowe przez WhatsApp."
+    }
   },
   "sugestii": {
     "checkingAccess": "Sprawdzanie dostępu...",
@@ -823,7 +962,24 @@
     "connectionPending": "Dokończ wypełnianie danych w oknie Stripe, aby aktywować płatności.",
     "refreshStatusBtn": "🔄 Sprawdź ponownie",
     "techErrorBannerMsg": "Tymczasowy problem techniczny, niezależny od nas — trwają prace nad rozwiązaniem.",
-    "techErrorRetryBtn": "🔄 Spróbuj ponownie"
+    "techErrorRetryBtn": "🔄 Spróbuj ponownie",
+    "notifications": {
+      "title": "Powiadomienia",
+      "subtitle": "Wybierz, jak chcesz byc powiadamiany o nowej rezerwacji online.",
+      "inAppLabel": "Wyskakujace okno w aplikacji",
+      "inAppDesc": "Pojawia sie bezposrednio na ekranie, gdy masz Chronos otwarty w aktywnej karcie.",
+      "systemLabel": "Powiadomienie systemowe",
+      "systemDesc": "Pojawia sie nawet przy innej aktywnej karcie lub zminimalizowanej przegladarce. Wymaga uprawnien przegladarki.",
+      "systemUnsupported": "Twoja przegladarka nie obsluguje powiadomien systemowych.",
+      "systemPermissionDenied": "Powiadomienia sa zablokowane w ustawieniach przegladarki. Mozesz je wlaczyc recznie.",
+      "systemTestMessage": "Powiadomienia systemowe sa aktywne!",
+      "soundLabel": "Dzwiek",
+      "volumeLabel": "Glosnosc",
+      "statusOnSuffix": "Aktywne",
+      "statusOffSuffix": "Wyłączone",
+      "activateBtn": "Aktywuj",
+      "deactivateBtn": "Wyłącz"
+    }
   },
   "calendarPage": {
     "dayShort": [
@@ -1017,7 +1173,10 @@
       "teamLoadLowSuggestion": "Jest miejsce na więcej wizyt — możesz zainwestować w promocję, aby przyciągnąć nowych klientów.",
       "gettingStartedTitle": "Zbieranie danych",
       "gettingStartedText": "Masz jeszcze mało zarejestrowanych wizyt. Gdy dodasz więcej, rekomendacje będą coraz precyzyjniejsze."
-    }
+    },
+    "aiInsightsUpsellTitle": "🤖 AI Insights — Tylko Chronos Team",
+    "aiInsightsUpsellText": "Automatyczne analizy generowane przez AI, dostępne wyłącznie w planie Team.",
+    "aiInsightsUpsellBtn": "Zobacz Plan Team"
   },
   "chronosPickers": {
     "localeCode": "pl-PL",
@@ -1089,6 +1248,7 @@
     "successText": "Wszystkie Twoje wizyty zostały zarejestrowane.",
     "retryBtn": "Zrób nową rezerwację",
     "leaveReviewTitle": "DODAJ OPINIĘ",
+    "starAriaLabel": "Przyznaj {n} gwiazdek",
     "yourNamePlaceholder": "TWOJE IMIĘ",
     "commentPlaceholder": "KOMENTARZ",
     "sendingBtn": "WYSYŁANIE...",
@@ -1170,7 +1330,17 @@
     "noNotesFallback": "Brak uwag.",
     "attachedFilesPopupLabel": "Załączone pliki",
     "documentFallback": "Dokument",
-    "viewBtn": "ZOBACZ"
+    "viewBtn": "ZOBACZ",
+    "calendarPanel": {
+      "todayLabel": "Dzisiaj",
+      "apptsForLabel": "Wizyty —",
+      "noApptsLabel": "Brak wizyt tego dnia",
+      "totalSuffix": "razem",
+      "onlineSuffix": "online",
+      "receptionSuffix": "recepcja",
+      "onlineBadge": "🌐 Online",
+      "receptionBadge": "🏠 Recepcja"
+    }
   },
   "multiServiceBooking": {
     "localeCode": "pl-PL",
@@ -1203,7 +1373,8 @@
     "chosenSpecialistFallback": "wybrany specjalista",
     "saveErrorPrefix": "Błąd: ",
     "saveErrorDefault": "Nie udało się zapisać.",
-    "naFallback": "Brak"
+    "naFallback": "Brak",
+    "noServicesForSpecialist": "Ten specjalista nie ma przypisanych usług — dodaj je na stronie Zasoby."
   },
   "abonamente": {
     "header": {
@@ -1324,27 +1495,28 @@
             "highlight": "500"
           },
           {
-            "text": "5 specjalistów",
+            "text": "5 specjalistów + indywidualny portal",
             "available": true,
             "highlight": "5"
           },
           {
-            "text": "Nielimitowane usługi",
+            "text": "50 usług",
             "available": true,
-            "highlight": "Nielimitowane"
+            "highlight": "50"
           },
           {
-            "text": "Zaawansowane raporty & AI Insights",
+            "text": "Zaawansowane Raporty",
             "available": true,
-            "highlight": "AI Insights"
+            "highlight": "Zaawansowane"
           },
           {
             "text": "Opinie klientów & strona publiczna",
             "available": true
           },
           {
-            "text": "Powiadomienia WhatsApp",
-            "available": true
+            "text": "Potwierdzenia i Przypomnienia WhatsApp (300/mies.)",
+            "available": true,
+            "highlight": "300/mies."
           }
         ]
       },
@@ -1360,7 +1532,7 @@
             "highlight": "Nielimitowane"
           },
           {
-            "text": "50 specjalistów",
+            "text": "50 specjalistów + indywidualny portal",
             "available": true,
             "highlight": "50"
           },
@@ -1370,17 +1542,18 @@
             "highlight": "Nielimitowane"
           },
           {
-            "text": "Raporty & wydajność zespołu",
+            "text": "Raporty AI & Wydajność Zespołu",
             "available": true,
-            "highlight": "wydajność zespołu"
+            "highlight": "AI"
           },
           {
             "text": "Opinie klientów & strona publiczna",
             "available": true
           },
           {
-            "text": "Powiadomienia WhatsApp",
-            "available": true
+            "text": "Nieograniczone Potwierdzenia i Przypomnienia WhatsApp",
+            "available": true,
+            "highlight": "Nieograniczone"
           }
         ]
       }
@@ -1570,5 +1743,61 @@
     "statusExpired": "⏱️ Wygasł",
     "removeBtn": "Usuń",
     "confirmRemove": "Czy na pewno chcesz usunąć tego klienta z listy?"
+  },
+  "specialistPortal": {
+    "login": {
+      "title": "Portal",
+      "titleHighlight": "Specjalisty",
+      "subtitle": "Dostęp tylko dla zespołu",
+      "emailPlaceholder": "EMAIL",
+      "passwordPlaceholder": "HASŁO",
+      "wrongCredentials": "Nieprawidłowy email lub hasło.",
+      "notSpecialistAccount": "To konto nie jest powiązane ze specjalistą.",
+      "connectionError": "Błąd połączenia. Spróbuj ponownie.",
+      "checkingBtn": "Sprawdzanie...",
+      "loginBtn": "Zaloguj się",
+      "noAccessFooter": "Nie otrzymałeś danych dostępowych? Skontaktuj się z administratorem salonu."
+    },
+    "dashboard": {
+      "loading": "Ładowanie...",
+      "greeting": "Cześć,",
+      "subtitle": "Twoje wizyty",
+      "logoutBtn": "Wyloguj",
+      "notificationsTitle": "Twoje Powiadomienia",
+      "popupLabel": "Wyskakujące okno",
+      "soundLabel": "Dźwięk",
+      "activeStatus": "Aktywne",
+      "offStatus": "Wyłączone",
+      "volumeLabel": "Głośność:",
+      "todayTitle": "Dzisiaj",
+      "noApptsToday": "Brak wizyt dzisiaj",
+      "upcomingTitle": "Nadchodzące Dni",
+      "onlineBadge": "🌐 Online",
+      "newBookingToastPrefix": "📅 Nowa wizyta:",
+      "soundChoiceLabel": "Wybierz dźwięk powiadomienia",
+      "previewSoundTitle": "Odsłuchaj",
+      "serviceLabel": "Usługa",
+      "phoneLabel": "Telefon Klienta",
+      "emailLabel": "Email Klienta",
+      "noteLabel": "Notatka",
+      "noSelectionHint": "Najedź myszką na wizytę, aby zobaczyć szybki podgląd, lub kliknij, aby przypiąć ją na ekranie",
+      "noExtraDetails": "Brak dodatkowych informacji dla tej wizyty",
+      "statusOnSuffix": "Aktywne",
+      "statusOffSuffix": "Wyłączone",
+      "activateBtn": "Aktywuj",
+      "deactivateBtn": "Wyłącz",
+      "systemLabel": "Powiadomienie Systemowe",
+      "systemDesc": "Pojawia się jako zwykłe powiadomienie Windows/Mac, nawet jeśli przeglądasz inną stronę lub przeglądarka jest zminimalizowana.",
+      "systemUnsupported": "Twoja przeglądarka nie obsługuje powiadomień systemowych.",
+      "systemPermissionDenied": "Powiadomienia są zablokowane w ustawieniach przeglądarki. Możesz je włączyć ręcznie.",
+      "systemTestMessage": "Powiadomienia systemowe są aktywne!",
+      "pinnedLabel": "Przypięte",
+      "unpinTitle": "Odepnij",
+      "qrTitle": "Twój Kod QR do Rezerwacji",
+      "qrDesc": "Pokaż ten kod klientowi — zeskanuje go i trafi bezpośrednio na stronę rezerwacji, z Tobą już wybranym jako specjalista. Wybiera tylko datę i godzinę.",
+      "qrCopyBtn": "📋 Kopiuj Link",
+      "qrCopiedBtn": "✓ Skopiowano!",
+      "qrNoSlugHint": "Twój salon nie ma jeszcze skonfigurowanego publicznego adresu rezerwacji — poproś administratora o aktywację w Profilu."
+    }
   }
 }

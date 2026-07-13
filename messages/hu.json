@@ -97,7 +97,8 @@
       "cookies": "Sütik",
       "premium": "CHRONOS PREMIUM",
       "management": "KEZELÉS",
-      "secured": "VÉDETT"
+      "secured": "VÉDETT",
+      "reviewTour": "Tura Ujranezese"
     },
     "loading": "Chronos szinkronizálása...",
     "onboarding": {
@@ -222,6 +223,96 @@
           "👤 Itt mentheted az alkalmazásért felelős személy adatait is a gyors vészhelyzeti eléréshez"
         ],
         "tip": "A hasznos kapcsolatok a szakmai beszállítóid és partnereid számára valók — nem az ügyfeleknek! Az ügyfelek automatikusan elmentődnek az időpontokból a saját oldalukon."
+      },
+      "welcomeTitle": "Udvozlunk a Chronosban!",
+      "welcomeSubtitle": "Lepesrol lepesre vegigvezetunk a fontos oldalakon, hogy az alkalmazasod 100%-ban mukodokepes legyen.",
+      "welcomeInfoNote": "Ez egy tajekoztato tura, amelyet csak egyszer kell megtenni. Javasoljuk, hogy figyelmesen kovesd vegig — segit abban, hogy a Chronost a legjobb feltetelek mellett hasznald, es kesobb ne kelljen idot vesztegetned a keresgelessel.",
+      "welcomeListIntro": "Ezeken haladsz vegig:",
+      "startTourBtn": "Vezetett Tura Inditasa 🚀",
+      "skipTourBtn": "Kihagyas — mar ismerem az appot",
+      "stepCounter": "{current}. lepes / {total}",
+      "prevBtn": "← Vissza",
+      "nextBtn": "Tovabb →",
+      "finishBtn": "Befejezes es Proba Aktivalasa 🎁",
+      "activatingTitle": "Probaidoszak aktivalasa...",
+      "activatingSubtitle": "Egy pillanat, elokeszitjuk a Chronos Team csomagot.",
+      "finalTitle": "Minden kesz!",
+      "finalSubtitle": "Befejezted a kezdeti beallitast, es a Chronos Team probaidoszak aktiv.",
+      "finalTrialLine": "10 nap ingyenes, teljes hozzaferes — kartya nelkul, kotelezettseg nelkul.",
+      "goToDashboardBtn": "Ugras a Foglalasokhoz →",
+      "tryItBtn": "Kattints az alabbi kiemelt gombra, hogy lasd, hogyan mukodik.",
+      "skipStepBtn": "Lepes kihagyasa →",
+      "highlights": {
+        "profil": {
+          "avatar": {
+            "title": "Foto / Logo",
+            "desc": "Toltson fel egy fotot vagy a vallalkozasa logojat. Megjelenik a nyilvanos foglalasi oldalon, es segit az ugyfeleknek konnyen felismerni Ont."
+          },
+          "businessName": {
+            "title": "Vallalkozas Neve",
+            "desc": "Adja meg vallalkozasa nevet. Az ugyfelek latjak, es automatikusan generalhatja az egyedi cimet, ha meg nem allitotta be."
+          },
+          "phone": {
+            "title": "Kapcsolattartasi Telefonszam",
+            "desc": "Adja hozza a felelos szemely telefonszamat. Hasznos a gyors kapcsolatfelvetelhez surgos helyzetekben."
+          },
+          "slug": {
+            "title": "Egyedi Cim (Slug)",
+            "desc": "Itt lathatja es szerkesztheti egyedi foglalasi cimet — nyilvanos linkje elengedhetetlen resze."
+          },
+          "slugButton": {
+            "title": "Cim Lefoglalasa",
+            "desc": "Kattintson erre a gombra az egyedi cim mentesehez. A lefoglalas utan kerulje a modositast, hogy ne ervenytelenitse a mar megosztott QR-kodokat."
+          },
+          "saveButton": {
+            "title": "Modositasok Mentese",
+            "desc": "Kattintson ide a fent kitoltott adatok mentesehez."
+          }
+        },
+        "settings": {
+          "workingHours": {
+            "title": "Munkaido",
+            "desc": "Kattintson barmelyik napra ebben a naptarban a munkaido es a zarolasok beallitasahoz. Beallitott idobeosztas nelkul minden ora elerhetonek tunik."
+          },
+          "notifications": {
+            "title": "Ertesitesek",
+            "desc": "Valassza ki, hogyan szeretne ertesulni az uj online foglalasokrol — felugro ablak, hang vagy rendszerertesites."
+          },
+          "stripe": {
+            "title": "Online Fizetesek (Stripe)",
+            "desc": "Csatlakoztassa a Stripe-ot, hogy kozvetlenul a foglaláskor online fizeteseket fogadhasson el — a penz egyenesen a szamlajara kerul, atlathato 1%-os dijjal."
+          }
+        },
+        "resurse": {
+          "duration": {
+            "title": "Szolgaltatas Idotartama",
+            "desc": "Adja meg, mennyi ideig tart az egyes szolgaltatasok — a rendszer ezt az erteket hasznalja a megfelelo idointervallum automatikus blokkolasara a naptarban minden foglaláskor."
+          },
+          "price": {
+            "title": "Szolgaltatas Ara",
+            "desc": "Az ar megjelenik az ugyfelnek online foglaláskor, es ha aktivalta az online fizetest, ez a foglaláskor automatikusan levont pontos osszeg."
+          },
+          "addStaff": {
+            "title": "Szakember Hozzaadasa",
+            "desc": "Kattintson erre a gombra uj csapattag hozzaadasahoz. Ezutan hozzarendelheti az altala nyujtott szolgaltatasokat es munkarendjet."
+          }
+        },
+        "programari": {
+          "email": {
+            "title": "Ugyfel Email",
+            "desc": "Adja hozza az ugyfel e-mail cimet — a foglalas visszaigazolasa es az elozo napi emlekezteto automatikusan oda kerul elkuldesre."
+          },
+          "phone": {
+            "title": "Ugyfel Telefonszama",
+            "desc": "Adja hozza a telefonszamot — a visszaigazolo es emlekezteto uzenetek automatikusan WhatsAppon keresztul kerulnek elkuldesre, ha Elite vagy Team csomagja van."
+          }
+        },
+        "abonamente": {
+          "activateTrial": {
+            "title": "Próbaidőszak Aktiválása",
+            "desc": "Befejezte a beállítást? Kattintson erre a gombra, hogy aktiválja a 10 napos ingyenes, teljes hozzáférést a Team csomaghoz — kártya nélkül, kötelezettség nélkül."
+          }
+        }
       }
     },
     "trialSuffix": " (PRÓBA)"
@@ -694,7 +785,55 @@
     "addIntervalBtn": "+ Időszak hozzáadása",
     "removeIntervalBtn": "Eltávolítás",
     "techErrorBannerMsg": "Ideiglenes technikai probléma, rajtunk kívülálló okból — folyamatban a megoldás.",
-    "techErrorRetryBtn": "🔄 Újra próbálom"
+    "techErrorRetryBtn": "🔄 Újra próbálom",
+    "staffPortal": {
+      "inviteBtn": "📱 Meghívás Fiókba",
+      "activeAccountBadge": "✅ Aktív Fiók",
+      "portalLabel": "Szakember Portál",
+      "inviteTitle": "{name} Meghívása",
+      "inviteIntro": "Létrehozunk neki egy saját fiókot, ideiglenes jelszóval. Ön elküldi neki ezeket az adatokat — külön be tud jelentkezni a szakember portálra, hogy lássa saját foglalásait és értesítéseit.",
+      "emailLabel": "Szakember Email",
+      "passwordLabel": "Ideiglenes Jelszó",
+      "regeneratePasswordTitle": "Új generálása",
+      "creatingBtn": "Létrehozás...",
+      "createAccountBtn": "Fiók Létrehozása",
+      "successTitle": "Fiók sikeresen létrehozva!",
+      "successSubtitle": "Küldje el ezeket az adatokat a szakembernek, hogy be tudjon jelentkezni.",
+      "linkLabel": "Link",
+      "emailFieldLabel": "Email",
+      "tempPasswordLabel": "Ideiglenes Jelszó",
+      "sendWhatsappBtn": "📲 Küldés WhatsAppon",
+      "sendEmailBtn": "✉️ Küldés Emailben",
+      "copyCredentialsBtn": "📋 Hozzáférési Adatok Másolása",
+      "closeBtn": "Bezárás",
+      "copiedToast": "Hozzáférési adatok másolva!",
+      "noPhoneError": "A szakembernek nincs érvényes mentett telefonszáma.",
+      "waMessageTemplate": "Szia {name}! Hozzáférsz a Chronos portálodhoz, hogy megtekintsd foglalásaidat:\n\n🔗 {link}\n📧 Email: {email}\n🔑 Jelszó: {password}\n\nJavasoljuk, hogy az első bejelentkezés után változtasd meg a jelszavad.",
+      "emailSubject": "Chronos Hozzáférés — Szakember Portál",
+      "emailBodyTemplate": "Szia {name}!\n\nHozzáférsz a Chronos portálodhoz, hogy megtekintsd foglalásaidat:\n\nLink: {link}\nEmail: {email}\nJelszó: {password}\n\nJavasoljuk, hogy az első bejelentkezés után változtasd meg a jelszavad.",
+      "copyTemplate": "Chronos Hozzáférés — Szakember Portál\nLink: {link}\nEmail: {email}\nJelszó: {password}",
+      "manageTitle": "Fiók: {name}",
+      "correctEmailLabel": "Email javítása",
+      "newPasswordOptionalLabel": "Új jelszó (opcionális)",
+      "newPasswordPlaceholder": "Hagyja üresen, ha nem változtatja meg a jelszót",
+      "generateNewPasswordTitle": "Új jelszó generálása",
+      "savingBtn": "Mentés...",
+      "saveChangesBtn": "Módosítások Mentése",
+      "deactivateIntro": "Elhagyta a csapatot? Teljesen letilthatja a hozzáférését.",
+      "deactivateBtn": "🚫 Fiók Letiltása",
+      "confirmDeactivateTitle": "Biztosan letiltja ezt a fiókot?",
+      "confirmDeactivateText": "{name} többé nem tud bejelentkezni a szakember portálra. Később bármikor újra meghívhatja, ha szükséges.",
+      "cancelBtn": "Mégse",
+      "yesDeactivateBtn": "Igen, letiltás",
+      "deactivatedToast": "A fiók letiltva.",
+      "nothingChangedError": "Nem változtatott semmit.",
+      "sessionExpiredError": "A munkamenet lejárt. Töltse újra az oldalt.",
+      "connectionError": "Kapcsolódási hiba.",
+      "updateError": "Hiba a frissítés során.",
+      "updateSuccess": "Sikeresen frissítve!",
+      "deactivateError": "Hiba a letiltás során.",
+      "phoneHint": "Opcionális, de szükséges, ha WhatsAppon szeretné elküldeni a hozzáférési adatokat."
+    }
   },
   "sugestii": {
     "checkingAccess": "Hozzáférés ellenőrzése...",
@@ -823,7 +962,24 @@
     "connectionPending": "Fejezd be adataid kitöltését a Stripe ablakban a fizetések aktiválásához.",
     "refreshStatusBtn": "🔄 Állapot frissítése",
     "techErrorBannerMsg": "Ideiglenes technikai probléma, rajtunk kívülálló okból — folyamatban a megoldás.",
-    "techErrorRetryBtn": "🔄 Újra próbálom"
+    "techErrorRetryBtn": "🔄 Újra próbálom",
+    "notifications": {
+      "title": "Ertesitesek",
+      "subtitle": "Valassza ki, hogyan szeretne ertesulni uj online foglalasrol.",
+      "inAppLabel": "Felugro ablak az appban",
+      "inAppDesc": "Kozvetlenul a kepernyon jelenik meg, amig a Chronos aktiv lapon van nyitva.",
+      "systemLabel": "Rendszerertesites",
+      "systemDesc": "Akkor is megjelenik, ha masik lap aktiv vagy a bongeszo minimalizalva van. Bongeszoengedelyt igenyel.",
+      "systemUnsupported": "A bongeszoje nem tamogatja a rendszerertesiteseket.",
+      "systemPermissionDenied": "Az ertesitesek blokkolva vannak a bongeszo beallitasaiban. Manualisan engedelyezheti.",
+      "systemTestMessage": "A rendszerertesitesek aktivak!",
+      "soundLabel": "Hang",
+      "volumeLabel": "Hangero",
+      "statusOnSuffix": "Aktív",
+      "statusOffSuffix": "Kikapcsolva",
+      "activateBtn": "Aktiválás",
+      "deactivateBtn": "Kikapcsolás"
+    }
   },
   "calendarPage": {
     "dayShort": [
@@ -1017,7 +1173,10 @@
       "teamLoadLowSuggestion": "Van hely további időpontokra — érdemes lehet promócióba invesztálni új ügyfelek megszerzéséhez.",
       "gettingStartedTitle": "Adatgyűjtés",
       "gettingStartedText": "Még kevés rögzített időpontod van. Ahogy egyre többet adsz hozzá, az ajánlások egyre pontosabbak lesznek."
-    }
+    },
+    "aiInsightsUpsellTitle": "🤖 AI Insights — Csak Chronos Team",
+    "aiInsightsUpsellText": "Automatikus, MI által generált elemzések, kizárólag a Team csomagban elérhető.",
+    "aiInsightsUpsellBtn": "Team Csomag Megtekintése"
   },
   "chronosPickers": {
     "localeCode": "hu-HU",
@@ -1089,6 +1248,7 @@
     "successText": "Az összes időpontod rögzítve lett.",
     "retryBtn": "Új foglalás készítése",
     "leaveReviewTitle": "VÉLEMÉNY ÍRÁSA",
+    "starAriaLabel": "{n} csillag adása",
     "yourNamePlaceholder": "A NEVED",
     "commentPlaceholder": "MEGJEGYZÉS",
     "sendingBtn": "KÜLDÉS...",
@@ -1170,7 +1330,17 @@
     "noNotesFallback": "Nincs megjegyzés.",
     "attachedFilesPopupLabel": "Csatolt fájlok",
     "documentFallback": "Dokumentum",
-    "viewBtn": "MEGNÉZ"
+    "viewBtn": "MEGNÉZ",
+    "calendarPanel": {
+      "todayLabel": "Ma",
+      "apptsForLabel": "Foglalások —",
+      "noApptsLabel": "Nincs foglalás ezen a napon",
+      "totalSuffix": "összesen",
+      "onlineSuffix": "online",
+      "receptionSuffix": "recepció",
+      "onlineBadge": "🌐 Online",
+      "receptionBadge": "🏠 Recepció"
+    }
   },
   "multiServiceBooking": {
     "localeCode": "hu-HU",
@@ -1203,7 +1373,8 @@
     "chosenSpecialistFallback": "a kiválasztott szakember",
     "saveErrorPrefix": "Hiba: ",
     "saveErrorDefault": "Nem sikerült menteni.",
-    "naFallback": "N/A"
+    "naFallback": "N/A",
+    "noServicesForSpecialist": "Ehhez a szakemberhez nincs szolgáltatás rendelve — adjon hozzá az Erőforrások oldalon."
   },
   "abonamente": {
     "header": {
@@ -1324,27 +1495,28 @@
             "highlight": "500"
           },
           {
-            "text": "5 szakember",
+            "text": "5 szakember + egyéni portál",
             "available": true,
             "highlight": "5"
           },
           {
-            "text": "Korlátlan szolgáltatás",
+            "text": "50 szolgáltatás",
             "available": true,
-            "highlight": "Korlátlan"
+            "highlight": "50"
           },
           {
-            "text": "Fejlett jelentések & AI Insights",
+            "text": "Fejlett Jelentések",
             "available": true,
-            "highlight": "AI Insights"
+            "highlight": "Fejlett"
           },
           {
             "text": "Ügyfélvélemények & nyilvános oldal",
             "available": true
           },
           {
-            "text": "WhatsApp értesítések",
-            "available": true
+            "text": "WhatsApp Visszaigazolások & Emlékeztetők (300/hó)",
+            "available": true,
+            "highlight": "300/hó"
           }
         ]
       },
@@ -1360,7 +1532,7 @@
             "highlight": "Korlátlan"
           },
           {
-            "text": "50 szakember",
+            "text": "50 szakember + egyéni portál",
             "available": true,
             "highlight": "50"
           },
@@ -1370,17 +1542,18 @@
             "highlight": "Korlátlan"
           },
           {
-            "text": "Jelentések & csapatteljesítmény",
+            "text": "MI Jelentések & Csapatteljesítmény",
             "available": true,
-            "highlight": "csapatteljesítmény"
+            "highlight": "MI"
           },
           {
             "text": "Ügyfélvélemények & nyilvános oldal",
             "available": true
           },
           {
-            "text": "WhatsApp értesítések",
-            "available": true
+            "text": "Korlátlan WhatsApp Visszaigazolások & Emlékeztetők",
+            "available": true,
+            "highlight": "Korlátlan"
           }
         ]
       }
@@ -1570,5 +1743,61 @@
     "statusExpired": "⏱️ Lejárt",
     "removeBtn": "Eltávolítás",
     "confirmRemove": "Biztosan eltávolítod ezt az ügyfelet a listáról?"
+  },
+  "specialistPortal": {
+    "login": {
+      "title": "Portál",
+      "titleHighlight": "Szakember",
+      "subtitle": "Csak csapattagoknak",
+      "emailPlaceholder": "EMAIL",
+      "passwordPlaceholder": "JELSZÓ",
+      "wrongCredentials": "Hibás email vagy jelszó.",
+      "notSpecialistAccount": "Ez a fiók nincs szakemberhez rendelve.",
+      "connectionError": "Kapcsolódási hiba. Próbálja újra.",
+      "checkingBtn": "Ellenőrzés...",
+      "loginBtn": "Bejelentkezés",
+      "noAccessFooter": "Nem kapott hozzáférési adatokat? Vegye fel a kapcsolatot a szalon adminisztrátorával."
+    },
+    "dashboard": {
+      "loading": "Betöltés...",
+      "greeting": "Szia,",
+      "subtitle": "Foglalásaid",
+      "logoutBtn": "Kijelentkezés",
+      "notificationsTitle": "Értesítéseid",
+      "popupLabel": "Felugró ablak",
+      "soundLabel": "Hang",
+      "activeStatus": "Aktív",
+      "offStatus": "Kikapcsolva",
+      "volumeLabel": "Hangerő:",
+      "todayTitle": "Ma",
+      "noApptsToday": "Ma nincs foglalás",
+      "upcomingTitle": "Következő Napok",
+      "onlineBadge": "🌐 Online",
+      "newBookingToastPrefix": "📅 Új foglalás:",
+      "soundChoiceLabel": "Válassz értesítési hangot",
+      "previewSoundTitle": "Meghallgatás",
+      "serviceLabel": "Szolgáltatás",
+      "phoneLabel": "Ügyfél Telefonszáma",
+      "emailLabel": "Ügyfél Email",
+      "noteLabel": "Megjegyzés",
+      "noSelectionHint": "Vigye az egeret egy foglalás fölé a gyors előnézethez, vagy kattintson a képernyőn való rögzítéshez",
+      "noExtraDetails": "Nincs további információ ehhez a foglaláshoz",
+      "statusOnSuffix": "Aktív",
+      "statusOffSuffix": "Kikapcsolva",
+      "activateBtn": "Aktiválás",
+      "deactivateBtn": "Kikapcsolás",
+      "systemLabel": "Rendszerértesítés",
+      "systemDesc": "Normál Windows/Mac értesítésként jelenik meg, még akkor is, ha másik oldalon böngészik, vagy a böngésző minimalizálva van.",
+      "systemUnsupported": "A böngészője nem támogatja a rendszerértesítéseket.",
+      "systemPermissionDenied": "Az értesítések blokkolva vannak a böngésző beállításaiban. Manuálisan engedélyezheti.",
+      "systemTestMessage": "A rendszerértesítések aktívak!",
+      "pinnedLabel": "Rögzítve",
+      "unpinTitle": "Rögzítés feloldása",
+      "qrTitle": "Foglalási QR-kódod",
+      "qrDesc": "Mutasd meg ezt a kódot az ügyfélnek — beolvassa, és közvetlenül a foglalási oldalra kerül, ahol te már ki vagy választva szakemberként. Csak a dátumot és időpontot választja.",
+      "qrCopyBtn": "📋 Link Másolása",
+      "qrCopiedBtn": "✓ Másolva!",
+      "qrNoSlugHint": "A szalonodnak még nincs beállított nyilvános foglalási címe — kérd meg az adminisztrátort, hogy aktiválja a Profilból."
+    }
   }
 }

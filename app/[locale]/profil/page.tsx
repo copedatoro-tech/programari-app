@@ -1,10 +1,11 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState, useMemo } from "react";
 import { createBrowserClient } from '@supabase/ssr';
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
+import { Crown, Gem, ShieldCheck, Zap } from "lucide-react";
 
 export default function ProfilPage() {
   const t = useTranslations("profil");
@@ -34,6 +35,14 @@ export default function ProfilPage() {
 
   const [pass1, setPass1] = useState("");
   const [pass2, setPass2] = useState("");
+
+  // ✅ Iconiță distinctă per plan, la fel ca în Abonamente și header-ul general
+  const PLAN_ICONS: Record<string, { Icon: any; color: string }> = {
+    "chronos free":  { Icon: ShieldCheck, color: "text-slate-500" },
+    "chronos pro":   { Icon: Zap,         color: "text-amber-500" },
+    "chronos elite": { Icon: Gem,         color: "text-sky-500" },
+    "chronos team":  { Icon: Crown,       color: "text-violet-500" },
+  };
 
   const LIMITE_ABONAMENTE: Record<string, { nume: string; limita: string; culoare: string }> = {
     "chronos free": { nume: t("plans.free.nume"), limita: t("plans.free.limita"), culoare: "text-slate-900" },
@@ -105,9 +114,17 @@ export default function ProfilPage() {
           }
 
           setAvatarUrl(profile?.avatar_url || "");
-          setIsTrialActive(profile?.trial_activated === true);
 
-          if (profile?.plan_type) {
+          // ✅ Trial activ = în fereastra de 10 zile de la trial_started_at,
+          // exact aceeași logică folosită în Abonamente și RootLayoutClient —
+          // câmpul "trial_activated" nu reflectă corect starea reală
+          const trialActive = !!profile?.trial_started_at &&
+            (Date.now() - new Date(profile.trial_started_at).getTime() < 10 * 24 * 60 * 60 * 1000);
+          setIsTrialActive(trialActive);
+
+          if (trialActive) {
+            setSubscriptionPlan("chronos team");
+          } else if (profile?.plan_type) {
             setSubscriptionPlan(profile.plan_type.toLowerCase());
           }
         }
@@ -234,7 +251,7 @@ export default function ProfilPage() {
         <div className="bg-slate-900 p-12 flex flex-col md:flex-row items-center gap-10 relative overflow-hidden">
           <div className="absolute top-0 right-0 w-80 h-80 bg-amber-500/10 rounded-full blur-[100px] -mr-32 -mt-32 z-0"></div>
 
-          <div className="relative w-40 h-40 shrink-0 group z-10">
+          <div id="onboarding-avatar" className="relative w-40 h-40 shrink-0 group z-10">
             <div className="w-full h-full rounded-[45px] overflow-hidden border-4 border-slate-800 bg-slate-800 flex items-center justify-center shadow-2xl relative">
               {avatarUrl ? (
                 <Image src={avatarUrl} alt="Avatar" fill style={{ objectFit: 'cover' }} />
@@ -264,6 +281,7 @@ export default function ProfilPage() {
 
           <div className="flex flex-col gap-4 z-10">
             <button
+              id="onboarding-save-btn"
               title={t("save")}
               onClick={handleUpdateAll}
               disabled={updating || isDemo}
@@ -280,7 +298,15 @@ export default function ProfilPage() {
         {/* Plan Section */}
         <div className="px-12 py-8 bg-slate-50 border-b border-slate-100 flex flex-col md:flex-row items-center justify-between gap-8">
           <div className="flex items-center gap-6">
-            <div className="w-16 h-16 bg-white rounded-3xl flex items-center justify-center shadow-xl border border-slate-100 text-3xl">💎</div>
+            {(() => {
+              const planVisual = PLAN_ICONS[subscriptionPlan.toLowerCase()] || PLAN_ICONS["chronos free"];
+              const PlanIcon = planVisual.Icon;
+              return (
+                <div className="w-16 h-16 bg-white rounded-3xl flex items-center justify-center shadow-xl border border-slate-100">
+                  <PlanIcon className={`w-8 h-8 ${planVisual.color}`} strokeWidth={2.4} />
+                </div>
+              );
+            })()}
             <div>
               <p className="text-[10px] font-black text-slate-400 uppercase italic">{t("activeSubscription")}</p>
               <h3 className={`text-2xl font-black italic uppercase ${LIMITE_ABONAMENTE[subscriptionPlan.toLowerCase()]?.culoare || 'text-slate-900'}`}>
@@ -307,6 +333,7 @@ export default function ProfilPage() {
                 {t("fullNameLabel")}
               </label>
               <input
+                id="onboarding-nume"
                 type="text"
                 value={nume}
                 onChange={(e) => {
@@ -333,6 +360,7 @@ export default function ProfilPage() {
                 {t("phoneLabel")}
               </label>
               <input
+                id="onboarding-telefon"
                 type="text"
                 value={telefon}
                 onChange={!isDemo ? (e) => setTelefon(e.target.value) : undefined}
@@ -369,6 +397,7 @@ export default function ProfilPage() {
                 <div className="relative flex items-center">
                   <span className="absolute left-6 text-slate-400 font-bold text-xs italic">{t("slugPrefix")}</span>
                   <input
+                    id="onboarding-slug"
                     type="text"
                     placeholder={t("slugPlaceholder")}
                     value={slug}
@@ -383,6 +412,7 @@ export default function ProfilPage() {
               </div>
 
               <button
+                id="onboarding-slug-btn"
                 title={t("reserveLinkBtn")}
                 onClick={handleUpdateSlug}
                 disabled={updating || isDemo}

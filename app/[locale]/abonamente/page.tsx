@@ -1,40 +1,33 @@
 "use client";
-
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { createBrowserClient } from "@supabase/ssr";
 import { useTranslations, useLocale } from "next-intl";
 import { showToast, showConfirm } from "@/lib/toast";
-
-// --- METADATA STATICĂ PER PLAN (id-uri și link-uri Stripe — NU se traduc) ---
+import { Crown, Gem, ShieldCheck, Zap } from "lucide-react";
+// --- METADATA STATICA PER PLAN (id-uri si link-uri Stripe - NU se traduc) ---
 const PLAN_META = [
-  { id: "CHRONOS FREE", stripeLink: "#", popular: false },
-  { id: "CHRONOS PRO", stripeLink: "https://buy.stripe.com/8x2eV76Qg5EugHF8lG0RG04", popular: true },
-  { id: "CHRONOS ELITE", stripeLink: "https://buy.stripe.com/28EaER6Qgff4bnl59u0RG02", popular: false },
-  { id: "CHRONOS TEAM", stripeLink: "https://buy.stripe.com/8x2eV76QgaYO9fdeK40RG06", popular: false },
+  { id: "CHRONOS FREE", stripeLink: "#", popular: false, Icon: ShieldCheck, accent: "text-slate-700", bg: "bg-slate-100", ring: "border-slate-200" },
+  { id: "CHRONOS PRO", stripeLink: "https://buy.stripe.com/8x2eV76Qg5EugHF8lG0RG04", popular: true, Icon: Zap, accent: "text-amber-600", bg: "bg-amber-50", ring: "border-amber-200" },
+  { id: "CHRONOS ELITE", stripeLink: "https://buy.stripe.com/28EaER6Qgff4bnl59u0RG02", popular: false, Icon: Gem, accent: "text-sky-600", bg: "bg-sky-50", ring: "border-sky-200" },
+  { id: "CHRONOS TEAM", stripeLink: "https://buy.stripe.com/8x2eV76QgaYO9fdeK40RG06", popular: false, Icon: Crown, accent: "text-violet-600", bg: "bg-violet-50", ring: "border-violet-200" },
 ];
-
-// Curs fix aproximativ pentru afișare informativă (nu pentru facturare - plata rămâne mereu în RON)
+// Curs fix aproximativ pentru afisare informativa (nu pentru facturare - plata ramane mereu in RON)
 const RON_TO_EUR = 5;
-
-// --- FUNCȚIE UTILITARĂ PENTRU A FI FOLOSITĂ ÎN ALTĂ PARTE A APLICAȚIEI ---
-export const getActivePlan = async (supabase: any, userId: string, trialSuffix: string = " (TRIAL)") => {
+// --- FUNCTIE UTILITARA PENTRU A FI FOLOSITA IN ALTA PARTE A APLICATIEI ---
+const getActivePlan = async (supabase: any, userId: string, trialSuffix: string = " (TRIAL)") => {
   const { data: profile } = await supabase
     .from("profiles")
     .select("plan_type, trial_started_at")
     .eq("id", userId)
     .single();
-
   if (!profile) return "CHRONOS FREE";
-
   if (profile.trial_started_at) {
     const start = new Date(profile.trial_started_at);
     const end = new Date(start.getTime() + 10 * 24 * 60 * 60 * 1000);
     if (new Date() < end) return `CHRONOS TEAM${trialSuffix}`;
   }
-
   return profile.plan_type || "CHRONOS FREE";
 };
-
 // Modal elegant de schimbare plan
 function ElegantModal({ title, message, confirmLabel, cancelLabel, onConfirm, onCancel }: {
   title: string;
@@ -76,7 +69,6 @@ function ElegantModal({ title, message, confirmLabel, cancelLabel, onConfirm, on
     </div>
   );
 }
-
 export default function AbonamentePage() {
   const t = useTranslations("abonamente");
   const locale = useLocale();
@@ -88,13 +80,11 @@ export default function AbonamentePage() {
   const [user, setUser] = useState<any>(null);
   const [showModal, setShowModal] = useState<any>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
-
   const plans = t.raw("plans") as {
     name: string; price: number; description: string;
     features: { text: string; available: boolean; highlight?: string }[];
     buttonText: string;
   }[];
-
   const supabase = useMemo(() => createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
@@ -217,6 +207,9 @@ export default function AbonamentePage() {
 
   if (!mounted) return null;
 
+  const activeMeta = PLAN_META.find((plan) => plan.id === currentPlan) || PLAN_META[0];
+  const ActivePlanIcon = activeMeta.Icon;
+
   return (
     <main className="min-h-screen bg-slate-50 py-10 px-4 md:px-8 font-sans">
       {showModal && (
@@ -242,7 +235,11 @@ export default function AbonamentePage() {
 
         {user && (
           <div className="mb-10 max-w-4xl mx-auto bg-white border border-slate-200 rounded-[30px] p-6 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.4)] flex flex-col md:flex-row items-center justify-between gap-4 transition-all hover:shadow-[0_25px_50px_-12px_rgba(0,0,0,0.5)]">
-            <div>
+            <div className="flex items-center gap-4">
+              <div className={`w-16 h-16 rounded-2xl ${activeMeta.bg} ${activeMeta.ring} border flex items-center justify-center shadow-sm`}>
+                <ActivePlanIcon className={`w-8 h-8 ${activeMeta.accent}`} strokeWidth={2.6} />
+              </div>
+              <div>
               <p className="text-[9px] font-black uppercase tracking-widest text-amber-500 mb-1">
                 {isTrialActive ? t("status.trialActive") : t("status.planActive")}
               </p>
@@ -250,6 +247,7 @@ export default function AbonamentePage() {
                 {isTrialActive ? t("status.trialPlanName") : currentPlan}
               </h2>
               <p className="text-slate-400 text-[10px] font-bold uppercase tracking-tight">{user.email}</p>
+              </div>
             </div>
 
             <div className="flex items-center gap-3">
@@ -270,6 +268,7 @@ export default function AbonamentePage() {
               ) : (
                 !trialUsed && (
                   <button
+                    id="onboarding-activate-trial-btn"
                     onClick={handleActivateTrial}
                     className="bg-amber-500 text-black px-6 py-3 rounded-xl font-black italic uppercase text-[10px] hover:bg-black hover:text-white transition-all duration-300 shadow-lg shadow-amber-500/20"
                   >
@@ -306,9 +305,14 @@ export default function AbonamentePage() {
                   </div>
                 )}
 
-                <div className="mb-6">
+                <div className="mb-6 flex items-start gap-4">
+                  <div className={`w-14 h-14 rounded-2xl ${meta.bg} ${meta.ring} border flex items-center justify-center shadow-sm shrink-0`}>
+                    <meta.Icon className={`w-7 h-7 ${meta.accent}`} strokeWidth={2.6} />
+                  </div>
+                  <div>
                   <h3 className="text-lg font-black italic uppercase text-slate-900 mb-1">{plan.name}</h3>
                   <p className="text-slate-400 text-[11px] font-bold leading-relaxed h-7">{plan.description}</p>
+                  </div>
                 </div>
 
                 <div className="mb-8 flex items-baseline gap-1 flex-wrap">

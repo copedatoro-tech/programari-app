@@ -11,6 +11,7 @@ export default function PareriClienti() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [currentAdminId, setCurrentAdminId] = useState<string | null>(null);
   const [userPlan, setUserPlan] = useState<string | null>(null);
+  const [bookingSlug, setBookingSlug] = useState<string | null>(null);
   const [loadingPlan, setLoadingPlan] = useState(true);
   const [isMounted, setIsMounted] = useState(false);
 
@@ -63,18 +64,29 @@ export default function PareriClienti() {
           setLoadingPlan(false);
           return;
         }
+        // ✅ Aducem și trial_started_at + slug, ca planul afișat să reflecte
+        // corect perioada de probă, iar butonul de rezervări să meargă la
+        // link-ul public real al salonului, nu la o rută generică fără slug.
         const { data: profile } = await supabase
           .from("profiles")
-          .select("plan_type")
+          .select("plan_type, trial_started_at, slug")
           .eq("id", adminIdToUse)
           .single();
-        const currentPlan = profile?.plan_type || "START (GRATUIT)";
+
+        const rawPlan = profile?.plan_type || "START (GRATUIT)";
+        const trialActive = !!profile?.trial_started_at &&
+          (Date.now() - new Date(profile.trial_started_at).getTime() < 10 * 24 * 60 * 60 * 1000);
+
+        const currentPlan = trialActive ? "CHRONOS TEAM (TRIAL)" : rawPlan;
         setUserPlan(currentPlan);
+        setBookingSlug(profile?.slug || null);
         setCurrentAdminId(adminIdToUse);
         setIsLoggedIn(true);
         setLoadingPlan(false);
 
-        const areAcces = currentPlan === "CHRONOS ELITE" || currentPlan === "CHRONOS TEAM";
+        // ✅ Accesul la recenzii ține cont de trial — cine e în perioada de
+        // probă are automat acces Team, indiferent de planul salvat efectiv
+        const areAcces = trialActive || rawPlan === "CHRONOS ELITE" || rawPlan === "CHRONOS TEAM";
         if (areAcces) {
           preiaFeedback(adminIdToUse);
           if (channelRef.current) {
@@ -273,28 +285,45 @@ export default function PareriClienti() {
       <div className="max-w-6xl mx-auto">
 
         {/* Header Unitar */}
-        <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-10 bg-white p-6 rounded-[35px] shadow-sm border border-slate-100">
-          <div className="flex items-center gap-6">
-            <img
-              src="/logo-chronos.png"
-              alt="Logo"
-              className="w-[120px] h-auto"
-            />
-            <h1 className="text-2xl md:text-4xl font-black uppercase italic tracking-tighter">
-              {t("headingLine1")} <span className="text-amber-600">{t("headingHighlight")}</span>
-            </h1>
-          </div>
-          <div className="flex items-center gap-4">
-            <span className="text-[9px] font-black uppercase bg-amber-100 text-amber-700 px-4 py-2 rounded-full italic">
-              {t("planPrefix")}{userPlan?.replace("(GRATUIT)", "")}
-            </span>
-            <Link
-              href="/rezervare"
-              title={t("viewBookingsBtn")}
-              className="font-black uppercase italic text-[9px] py-4 px-8 bg-slate-900 text-white rounded-2xl shadow-xl hover:bg-amber-500 hover:text-black transition-all"
-            >
-              {t("viewBookingsBtn")}
-            </Link>
+        <div className="bg-white p-6 rounded-[35px] shadow-sm border border-slate-100 mb-10">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-6">
+              <img
+                src="/logo-chronos.png"
+                alt="Logo"
+                className="w-[120px] h-auto"
+              />
+              <h1 className="text-2xl md:text-4xl font-black uppercase italic tracking-tighter">
+                {t("headingLine1")} <span className="text-amber-600">{t("headingHighlight")}</span>
+              </h1>
+            </div>
+            <div className="flex flex-col items-end gap-2">
+              <div className="flex items-center gap-4">
+                <span className="text-[9px] font-black uppercase bg-amber-100 text-amber-700 px-4 py-2 rounded-full italic">
+                  {t("planPrefix")}{userPlan?.replace("(GRATUIT)", "")}
+                </span>
+                {bookingSlug ? (
+                  <Link
+                    href={`/rezervare/${bookingSlug}`}
+                    title={t("viewBookingsBtn")}
+                    className="font-black uppercase italic text-[9px] py-4 px-8 bg-slate-900 text-white rounded-2xl shadow-xl hover:bg-amber-500 hover:text-black transition-all"
+                  >
+                    {t("viewBookingsBtn")}
+                  </Link>
+                ) : (
+                  <Link
+                    href="/profil"
+                    title={t("viewBookingsBtn")}
+                    className="font-black uppercase italic text-[9px] py-4 px-8 bg-slate-200 text-slate-500 rounded-2xl shadow-xl hover:bg-slate-300 transition-all"
+                  >
+                    {t("viewBookingsBtn")}
+                  </Link>
+                )}
+              </div>
+              <p className="text-[9px] font-bold italic text-slate-400 text-right max-w-[280px] leading-snug">
+                💡 Aceasta e pagina publică pe care o văd clienții tăi când fac o programare online — util pentru recepție, ca să verifici cum arată.
+              </p>
+            </div>
           </div>
         </div>
 

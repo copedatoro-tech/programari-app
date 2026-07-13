@@ -424,7 +424,7 @@ function RapoarteContent() {
             </div>
           )}
 
-          {(isElite || isTeam) && insights.length > 0 && (
+          {isTeam && insights.length > 0 && (
             <div className="mt-10">
               <h3 className="text-[10px] font-black uppercase italic mb-5 text-amber-600 tracking-widest border-l-8 border-amber-500 pl-4">{t("aiInsightsTitle")}</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -438,6 +438,16 @@ function RapoarteContent() {
                   </div>
                 ))}
               </div>
+            </div>
+          )}
+
+          {isElite && !isTeam && (
+            <div className="mt-10 bg-white p-8 rounded-[35px] shadow-md border-2 border-dashed border-amber-200 text-center">
+              <p className="text-[10px] font-black uppercase italic text-amber-600 tracking-widest mb-2">{t("aiInsightsUpsellTitle")}</p>
+              <p className="text-[11px] font-bold text-slate-500 mb-4">{t("aiInsightsUpsellText")}</p>
+              <Link href="/abonamente" className="inline-block bg-slate-900 text-white px-6 py-3 rounded-xl font-black text-[10px] uppercase italic hover:bg-amber-500 hover:text-black transition-all">
+                {t("aiInsightsUpsellBtn")}
+              </Link>
             </div>
           )}
         </div>

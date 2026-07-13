@@ -97,12 +97,28 @@
       "cookies": "Cookies",
       "premium": "CHRONOS PREMIUM",
       "management": "MANAGEMENT",
-      "secured": "SECURED"
+      "secured": "SECURED",
+      "reviewTour": "Revezi Turul"
     },
     "loading": "Sincronizare Chronos...",
     "onboarding": {
       "badge": "Ghid Chronos",
       "understood": "Am înțeles — să începem! 🚀",
+      "welcomeTitle": "Bine ai venit in Chronos",
+      "welcomeSubtitle": "Parcurgem impreuna zonele importante ale aplicatiei. Turul te ajuta sa configurezi corect profilul, programul, serviciile si modul in care primesc clientii confirmarile.",
+      "welcomeListIntro": "Ce verificam impreuna",
+      "startTourBtn": "Incepe turul",
+      "skipTourBtn": "Sari peste tur",
+      "stepCounter": "Pasul {current} din {total}",
+      "prevBtn": "Inapoi",
+      "nextBtn": "Mai departe",
+      "finishBtn": "Finalizeaza turul",
+      "activatingTitle": "Se finalizeaza turul...",
+      "activatingSubtitle": "Un moment, salvam progresul tau.",
+      "finalTitle": "Tur finalizat",
+      "finalSubtitle": "Ai finalizat turul initial. Dupa ce termini setarile importante, activeaza perioada de proba ca sa beneficiezi de toate zilele incluse.",
+      "finalTrialLine": "Recomandare: activeaza trial-ul doar cand profilul, programul, serviciile si specialistii sunt pregatiti.",
+      "goToDashboardBtn": "Mergi la programari",
       "profil": {
         "titlu": "Profil Utilizator",
         "subtitlu": "Primul pas important — completează toate datele afacerii tale.",
@@ -222,6 +238,81 @@
           "👤 Poți salva aici și datele persoanei responsabile de aplicație pentru contact rapid în caz de urgență"
         ],
         "tip": "Contactele utile sunt pentru furnizorii și partenerii tăi profesionali — nu pentru clienți! Clienții se salvează automat din programări în pagina dedicată."
+      },
+      "welcomeInfoNote": "Turul este contextual: iti arata fiecare zona direct in pagina, acolo unde trebuie verificata sau completata.",
+      "tryItBtn": "Poti apasa pe elementul evidentiat sau poti continua turul.",
+      "skipStepBtn": "Continua turul",
+      "highlights": {
+        "profil": {
+          "avatar": {
+            "title": "Poza / Logo",
+            "desc": "Incarca o poza sau logo-ul afacerii tale. Apare pe pagina publica de rezervari si ii ajuta pe clienti sa te recunoasca usor."
+          },
+          "businessName": {
+            "title": "Nume afacere",
+            "desc": "Completeaza numele afacerii tale. Apare clientilor si poate genera automat adresa unica daca nu ai completat-o deja."
+          },
+          "phone": {
+            "title": "Telefon contact",
+            "desc": "Adauga numarul de telefon al persoanei responsabile. Este util pentru contact rapid in situatii urgente."
+          },
+          "slug": {
+            "title": "Adresa unica",
+            "desc": "Aici vezi si poti edita adresa unica de rezervare, partea principala din link-ul tau public."
+          },
+          "slugButton": {
+            "title": "Rezerva adresa",
+            "desc": "Apasa acest buton ca sa salvezi adresa unica. Dupa rezervare, evita sa o schimbi daca ai distribuit deja link-uri sau coduri QR."
+          },
+          "saveButton": {
+            "title": "Salveaza modificarile",
+            "desc": "Apasa aici pentru a salva toate datele completate in profil."
+          }
+        },
+        "settings": {
+          "workingHours": {
+            "title": "Program de lucru",
+            "desc": "Click pe orice zi din calendar ca sa setezi orele de lucru si eventualele blocaje. Orele din afara programului apar diferentiat."
+          },
+          "notifications": {
+            "title": "Notificari",
+            "desc": "De aici controlezi notificarile din aplicatie, notificarile de sistem si sunetul, ca sa vezi rapid programarile noi sau schimbarile importante."
+          },
+          "stripe": {
+            "title": "Plati online",
+            "desc": "Conecteaza Stripe ca sa poti incasa plati online direct la rezervare. Banii ajung automat in contul tau, conform setarilor Stripe."
+          }
+        },
+        "resurse": {
+          "duration": {
+            "title": "Durata Serviciului",
+            "desc": "Completează cât durează fiecare serviciu — sistemul folosește această valoare ca să blocheze automat intervalul corect în calendar, la fiecare programare."
+          },
+          "price": {
+            "title": "Prețul Serviciului",
+            "desc": "Prețul apare clientului la rezervarea online și, dacă ai activat plata online, este suma exactă care se încasează automat la rezervare."
+          },
+          "addStaff": {
+            "title": "Adaugă Specialistul",
+            "desc": "Apasă acest buton ca să adaugi un specialist nou în echipă. Poți apoi să-i asociezi serviciile pe care le oferă și programul lui de lucru."
+          }
+        },
+        "programari": {
+          "email": {
+            "title": "Email Client",
+            "desc": "Adaugă email-ul clientului — pe el se trimite automat confirmarea programării și reamintirea cu o zi înainte."
+          },
+          "phone": {
+            "title": "Telefon Client",
+            "desc": "Adaugă numărul de telefon — pe el se trimit automat mesajele de confirmare și reamintire pe WhatsApp, dacă ai planul Elite sau Team."
+          }
+        },
+        "abonamente": {
+          "activateTrial": {
+            "title": "Activează Trial-ul",
+            "desc": "Ai terminat configurarea? Apasă acest buton ca să activezi 10 zile gratuite de acces complet la planul Team — fără card, fără obligații."
+          }
+        }
       }
     },
     "trialSuffix": " (PERIOADĂ PROBĂ)"
@@ -591,27 +682,28 @@
             "highlight": "500"
           },
           {
-            "text": "5 specialiști",
+            "text": "5 specialiști + portal individual",
             "available": true,
             "highlight": "5"
           },
           {
-            "text": "Servicii nelimitate",
+            "text": "50 servicii",
             "available": true,
-            "highlight": "nelimitate"
+            "highlight": "50"
           },
           {
-            "text": "Rapoarte avansate & AI Insights",
+            "text": "Rapoarte avansate",
             "available": true,
-            "highlight": "AI Insights"
+            "highlight": "avansate"
           },
           {
             "text": "Recenzii clienți & pagină publică",
             "available": true
           },
           {
-            "text": "Notificări WhatsApp",
-            "available": true
+            "text": "Confirmări & Reamintiri WhatsApp (300/lună)",
+            "available": true,
+            "highlight": "300/lună"
           }
         ]
       },
@@ -627,7 +719,7 @@
             "highlight": "nelimitate"
           },
           {
-            "text": "50 specialiști",
+            "text": "50 specialiști + portal individual",
             "available": true,
             "highlight": "50"
           },
@@ -637,17 +729,18 @@
             "highlight": "nelimitate"
           },
           {
-            "text": "Rapoarte & performanță echipă",
+            "text": "Rapoarte AI & performanță echipă",
             "available": true,
-            "highlight": "performanță echipă"
+            "highlight": "AI"
           },
           {
             "text": "Recenzii clienți & pagină publică",
             "available": true
           },
           {
-            "text": "Notificări WhatsApp",
-            "available": true
+            "text": "Confirmări & Reamintiri WhatsApp Nelimitat",
+            "available": true,
+            "highlight": "Nelimitat"
           }
         ]
       }
@@ -875,7 +968,55 @@
     "addIntervalBtn": "+ Adaugă interval",
     "removeIntervalBtn": "Elimină",
     "techErrorBannerMsg": "Problemă tehnică temporară, independentă de noi — se lucrează la rezolvare.",
-    "techErrorRetryBtn": "🔄 Reîncearcă"
+    "techErrorRetryBtn": "🔄 Reîncearcă",
+    "staffPortal": {
+      "inviteBtn": "📱 Invită la cont",
+      "activeAccountBadge": "✅ Cont activ",
+      "portalLabel": "Portal Specialist",
+      "inviteTitle": "Invită pe {name}",
+      "inviteIntro": "Îi creăm un cont propriu, cu o parolă temporară. Îi transmiți tu aceste date — el se va putea loga separat, la portalul de specialist, ca să-și vadă propriile programări și notificări.",
+      "emailLabel": "Email specialist",
+      "passwordLabel": "Parolă temporară",
+      "regeneratePasswordTitle": "Generează alta",
+      "creatingBtn": "Se creează...",
+      "createAccountBtn": "Creează contul",
+      "successTitle": "Cont creat cu succes!",
+      "successSubtitle": "Transmite-i aceste date specialistului, ca să se poată loga.",
+      "linkLabel": "Link",
+      "emailFieldLabel": "Email",
+      "tempPasswordLabel": "Parolă temporară",
+      "sendWhatsappBtn": "📲 Trimite pe WhatsApp",
+      "sendEmailBtn": "✉️ Trimite pe Email",
+      "copyCredentialsBtn": "📋 Copiază datele de acces",
+      "closeBtn": "Închide",
+      "copiedToast": "Datele de acces au fost copiate!",
+      "noPhoneError": "Specialistul nu are un număr de telefon valid salvat.",
+      "waMessageTemplate": "Salut, {name}! Ai acces la portalul tău Chronos, ca să-ți vezi programările:\n\n🔗 {link}\n📧 Email: {email}\n🔑 Parolă: {password}\n\nÎți recomand să-ți schimbi parola după prima logare.",
+      "emailSubject": "Acces Chronos — Portal Specialist",
+      "emailBodyTemplate": "Salut, {name}!\n\nAi acces la portalul tău Chronos, ca să-ți vezi programările:\n\nLink: {link}\nEmail: {email}\nParolă: {password}\n\nÎți recomand să-ți schimbi parola după prima logare.",
+      "copyTemplate": "Acces Chronos — Portal Specialist\nLink: {link}\nEmail: {email}\nParolă: {password}",
+      "manageTitle": "Cont: {name}",
+      "correctEmailLabel": "Corectează email-ul",
+      "newPasswordOptionalLabel": "Parolă nouă (opțional)",
+      "newPasswordPlaceholder": "Lasă gol dacă nu schimbi parola",
+      "generateNewPasswordTitle": "Generează o parolă nouă",
+      "savingBtn": "Se salvează...",
+      "saveChangesBtn": "Salvează modificările",
+      "deactivateIntro": "A plecat din echipă? Poți dezactiva complet accesul lui.",
+      "deactivateBtn": "🚫 Dezactivează contul",
+      "confirmDeactivateTitle": "Sigur dezactivezi acest cont?",
+      "confirmDeactivateText": "{name} nu va mai putea intra în portalul de specialist. Poți invita din nou oricând, mai târziu, dacă e nevoie.",
+      "cancelBtn": "Renunță",
+      "yesDeactivateBtn": "Da, dezactivează",
+      "deactivatedToast": "Contul a fost dezactivat.",
+      "nothingChangedError": "Nu ai schimbat nimic.",
+      "sessionExpiredError": "Sesiune expirată. Reîncarcă pagina.",
+      "connectionError": "Eroare de conexiune.",
+      "updateError": "Eroare la actualizare.",
+      "updateSuccess": "Actualizat cu succes!",
+      "deactivateError": "Eroare la dezactivare.",
+      "phoneHint": "Opțional, dar necesar dacă vrei să trimiți datele de acces pe WhatsApp."
+    }
   },
   "sugestii": {
     "checkingAccess": "Se verifică accesul...",
@@ -1004,7 +1145,24 @@
     "connectionPending": "Finalizează completarea datelor în fereastra Stripe pentru a activa plățile.",
     "refreshStatusBtn": "🔄 Reverifică starea",
     "techErrorBannerMsg": "Problemă tehnică temporară, independentă de noi — se lucrează la rezolvare.",
-    "techErrorRetryBtn": "🔄 Reîncearcă"
+    "techErrorRetryBtn": "🔄 Reîncearcă",
+    "notifications": {
+      "title": "Notificări",
+      "subtitle": "Alege cum vrei să fii anunțat când primești o programare online nouă.",
+      "inAppLabel": "Popup în aplicație",
+      "inAppDesc": "Apare direct pe ecran, cât timp ai Chronos deschis într-un tab activ.",
+      "systemLabel": "Notificare de sistem",
+      "systemDesc": "Apare chiar și când ai altă filă activă sau browserul minimizat. Necesită permisiune din browser.",
+      "systemUnsupported": "Browserul tău nu suportă notificări de sistem.",
+      "systemPermissionDenied": "Notificările sunt blocate din setările browserului. Le poți activa manual din setările site-ului.",
+      "systemTestMessage": "Notificările de sistem sunt active!",
+      "soundLabel": "Sunet",
+      "volumeLabel": "Volum",
+      "statusOnSuffix": "Activ",
+      "statusOffSuffix": "Dezactivat",
+      "activateBtn": "Activează",
+      "deactivateBtn": "Dezactivează"
+    }
   },
   "calendarPage": {
     "dayShort": [
@@ -1198,7 +1356,10 @@
       "teamLoadLowSuggestion": "Este loc pentru mai multe programări — poți investi în promovare pentru a atrage clienți noi.",
       "gettingStartedTitle": "Colectare date",
       "gettingStartedText": "Ai încă puține programări înregistrate. Pe măsură ce adaugi mai multe, recomandările vor deveni tot mai precise."
-    }
+    },
+    "aiInsightsUpsellTitle": "🤖 AI Insights — Doar Chronos Team",
+    "aiInsightsUpsellText": "Analize automate, generate de inteligență artificială, disponibile exclusiv pe planul Team.",
+    "aiInsightsUpsellBtn": "Vezi Planul Team"
   },
   "chronosPickers": {
     "localeCode": "ro-RO",
@@ -1270,6 +1431,7 @@
     "successText": "Toate programările tale au fost înregistrate.",
     "retryBtn": "Fă o nouă rezervare",
     "leaveReviewTitle": "LASĂ O RECENZIE",
+    "starAriaLabel": "Acordă {n} stele",
     "yourNamePlaceholder": "NUMELE TĂU",
     "commentPlaceholder": "COMENTARIU",
     "sendingBtn": "SE TRIMITE...",
@@ -1351,7 +1513,17 @@
     "noNotesFallback": "Fără observații.",
     "attachedFilesPopupLabel": "Fișiere atașate",
     "documentFallback": "Document",
-    "viewBtn": "VEZI"
+    "viewBtn": "VEZI",
+    "calendarPanel": {
+      "todayLabel": "Astăzi",
+      "apptsForLabel": "Programări —",
+      "noApptsLabel": "Nicio programare în această zi",
+      "totalSuffix": "total",
+      "onlineSuffix": "online",
+      "receptionSuffix": "recepție",
+      "onlineBadge": "🌐 Online",
+      "receptionBadge": "🏠 Recepție"
+    }
   },
   "multiServiceBooking": {
     "localeCode": "ro-RO",
@@ -1384,7 +1556,8 @@
     "chosenSpecialistFallback": "specialistul ales",
     "saveErrorPrefix": "Eroare: ",
     "saveErrorDefault": "Nu s-a putut salva.",
-    "naFallback": "N/A"
+    "naFallback": "N/A",
+    "noServicesForSpecialist": "Acest specialist nu are servicii asociate — adaugă-i din pagina Resurse."
   },
   "cookiesModal": {
     "title": "Politică",
@@ -1570,5 +1743,61 @@
     "statusExpired": "⏱️ Expirat",
     "removeBtn": "Elimină",
     "confirmRemove": "Sigur elimini acest client de pe listă?"
+  },
+  "specialistPortal": {
+    "login": {
+      "title": "Portal",
+      "titleHighlight": "Specialist",
+      "subtitle": "Acces doar pentru echipă",
+      "emailPlaceholder": "EMAIL",
+      "passwordPlaceholder": "PAROLĂ",
+      "wrongCredentials": "Email sau parolă greșită.",
+      "notSpecialistAccount": "Acest cont nu este asociat unui specialist.",
+      "connectionError": "Eroare de conexiune. Încearcă din nou.",
+      "checkingBtn": "Se verifică...",
+      "loginBtn": "Intră în cont",
+      "noAccessFooter": "Nu ai primit datele de acces? Contactează administratorul salonului."
+    },
+    "dashboard": {
+      "loading": "Se încarcă...",
+      "greeting": "Salut,",
+      "subtitle": "Programările tale",
+      "logoutBtn": "Ieșire",
+      "notificationsTitle": "Notificările tale",
+      "popupLabel": "Popup",
+      "soundLabel": "Sunet",
+      "activeStatus": "Activ",
+      "offStatus": "Oprit",
+      "volumeLabel": "Volum:",
+      "todayTitle": "Astăzi",
+      "noApptsToday": "Nicio programare azi",
+      "upcomingTitle": "Zilele următoare",
+      "onlineBadge": "🌐 Online",
+      "newBookingToastPrefix": "📅 Programare nouă:",
+      "soundChoiceLabel": "Alege sunetul de notificare",
+      "previewSoundTitle": "Ascultă",
+      "serviceLabel": "Serviciu",
+      "phoneLabel": "Telefon Client",
+      "emailLabel": "Email Client",
+      "noteLabel": "Notă",
+      "noSelectionHint": "Treci cu mouse-ul peste o programare pentru previzualizare, sau dă click ca s-o fixezi pe ecran",
+      "noExtraDetails": "Nicio informație suplimentară pentru această programare",
+      "statusOnSuffix": "Activ",
+      "statusOffSuffix": "Dezactivat",
+      "activateBtn": "Activează",
+      "deactivateBtn": "Dezactivează",
+      "systemLabel": "Notificare Sistem",
+      "systemDesc": "Apare ca notificare normală de Windows/Mac, chiar dacă navighezi pe altă pagină sau ai browserul minimizat.",
+      "systemUnsupported": "Browserul tău nu suportă notificări de sistem.",
+      "systemPermissionDenied": "Notificările sunt blocate din setările browserului. Le poți activa manual din setările site-ului.",
+      "systemTestMessage": "Notificările de sistem sunt active!",
+      "pinnedLabel": "Fixat",
+      "unpinTitle": "Anulează fixarea",
+      "qrTitle": "Codul Tău QR de Rezervare",
+      "qrDesc": "Arată acest cod clientului — scanează, ajunge direct pe pagina de rezervare, cu tine deja ales ca specialist. El alege doar data și ora.",
+      "qrCopyBtn": "📋 Copiază Link-ul",
+      "qrCopiedBtn": "✓ Copiat!",
+      "qrNoSlugHint": "Salonul tău nu are încă o adresă publică de rezervare configurată — cere administratorului s-o activeze din Profil."
+    }
   }
 }

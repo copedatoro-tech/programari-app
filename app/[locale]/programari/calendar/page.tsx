@@ -65,11 +65,12 @@ function hasSpecialistConflict(list: Prog[], expertId: string, date: string, ora
   });
 }
 // ─── Sunet notificare (2 tonuri, generate — fără fișier audio necesar) ────────
-function playNotificationSound() {
+function playNotificationSound(volume: number = 75) {
   try {
     const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
     if (!AudioCtx) return;
     const ctx = new AudioCtx();
+    const peakGain = 0.18 * Math.max(0, Math.min(100, volume)) / 100;
     const beep = (freq: number, start: number, dur: number) => {
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
@@ -77,13 +78,21 @@ function playNotificationSound() {
       osc.type = "sine";
       osc.frequency.setValueAtTime(freq, ctx.currentTime + start);
       gain.gain.setValueAtTime(0.001, ctx.currentTime + start);
-      gain.gain.exponentialRampToValueAtTime(0.18, ctx.currentTime + start + 0.02);
+      gain.gain.exponentialRampToValueAtTime(Math.max(peakGain, 0.001), ctx.currentTime + start + 0.02);
       gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + start + dur);
       osc.start(ctx.currentTime + start);
       osc.stop(ctx.currentTime + start + dur);
     };
     beep(880, 0, 0.22);
     beep(1175, 0.16, 0.28);
+  } catch {}
+}
+// ─── Notificare de sistem (browser) — apare chiar dacă tab-ul nu e activ ──────
+function playSystemNotification(title: string, body: string) {
+  try {
+    if (typeof window === "undefined" || !("Notification" in window)) return;
+    if (Notification.permission !== "granted") return;
+    new Notification(title, { body, icon: "/logo-chronos.png" });
   } catch {}
 }
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -98,6 +107,8 @@ type ManualBlocks = Record<string, string[]>;
 interface StaffRow   { id: string; name: string; services: string[]; working_hours?: any }
 interface ServiceRow { id: string; nume_serviciu: string; price: number; duration: number }
 interface WorkingHour{ day: string; start: string; end: string; closed: boolean }
+type NotificationSettings = { in_app_enabled: boolean; system_enabled: boolean; sound_enabled: boolean; volume: number };
+const DEFAULT_NOTIF_SETTINGS: NotificationSettings = { in_app_enabled: true, system_enabled: false, sound_enabled: true, volume: 75 };
 // ─── Colors ───────────────────────────────────────────────────────────────────
 const SC = [
   { avatar:"bg-blue-500",   border:"#3b82f6", workBg:"#eff6ff", chipBg:"#dbeafe", chipText:"#1d4ed8", chipBorder:"#93c5fd" },
@@ -557,8 +568,6 @@ function DayView({ selectedDate, programari, rawStaff, rawServices, serviceById,
     if (selectedServiciu&&p.serviciuId!==selectedServiciu) return false;
     return true;
   }), [programari,dateKey,selectedExpert,selectedServiciu]);
-  // ✅ Layout pe coloane: programările care se suprapun în timp apar una lângă alta (ca în vizualizarea pe săptămână),
-  // cele la ore diferite rămân una sub alta, poziționate după oră
   const dayApptsLayout = useMemo(() => {
     const getDur = (p: Prog) => serviceById[p.serviciuId||""]?.duration || 30;
     const sorted = [...dayAppts].sort((a,b)=>timeToMin(a.ora)-timeToMin(b.ora));
@@ -615,9 +624,9 @@ function DayView({ selectedDate, programari, rawStaff, rawServices, serviceById,
             {slots.map((slot,i) => {
               const isHour = slot.endsWith(":00");
               const isHalf = slot.endsWith(":30");
-              const hasSchedule = !!(whStart && whEnd); // ✅ dacă nu există program setat, ziua e deschisă 24/24
+              const hasSchedule = !!(whStart && whEnd);
               const isWork = !isClosed && hasSchedule && isWorkingSlot(slot,whStart,whEnd);
-              const isOutsideHours = !isClosed && hasSchedule && !isWork; // ✅ program setat, dar ora e în afara lui — "închis pentru clienți"
+              const isOutsideHours = !isClosed && hasSchedule && !isWork;
               return (
                 <div key={slot} style={{
                   position:"absolute", left:0, right:0, top:i*SLOT_H, height:SLOT_H,
@@ -869,7 +878,9 @@ function MonthView({ selectedDate, programariByDate, rawStaff, serviceById, onEd
         {grid.map((day,idx)=>{
           const key=formatDateKey(day);
           const allAppts=programariByDate[key]||[];
-          const appts=allAppts.filter(p=>(!selectedExpert||p.expertId===selectedExpert)&&(!selectedServiciu||p.serviciuId===selectedServiciu));
+          const appts=allAppts
+            .filter(p=>(!selectedExpert||p.expertId===selectedExpert)&&(!selectedServiciu||p.serviciuId===selectedServiciu))
+            .sort((a,b)=>(a.ora||"").localeCompare(b.ora||"")); // ✅ ordonate cronologic, nu în ordinea creării
           const online=appts.filter(p=>p.isOnline).length;
           const isCurMo=day.getMonth()===selectedDate.getMonth();
           const isToday=sameDay(day,today);const isSel=sameDay(day,selectedDate);
@@ -952,9 +963,6 @@ function YearView({ selectedDate, programariByDate, onMonthClick }: {
   );
 }
 // ─── DocumentsSection ──────────────────────────────────────────────────────────
-// Extras dintr-un IIFE inline care apela useState la fiecare render —
-// asta cauza eroarea "Rendered more hooks than during the previous render".
-// Acum e o componentă React normală, cu hooks la nivelul ei (legal).
 interface DocumentsSectionProps {
   editForm: Prog;
   userId: string | undefined;
@@ -1106,8 +1114,13 @@ function CalendarContent() {
   const userId = session?.user?.id;
   const {data:profile,refetch:refetchProfile,isError:profileIsError} = useQuery({
     queryKey:["profile",userId],enabled:!!userId,staleTime:1000*60*5,
-    queryFn:async()=>{const{data}=await supabase.from("profiles").select("plan_type,trial_started_at,manual_blocks,working_hours").eq("id",userId!).single();return data;},
+    queryFn:async()=>{const{data}=await supabase.from("profiles").select("plan_type,trial_started_at,manual_blocks,working_hours,notification_settings").eq("id",userId!).single();return data;},
   });
+  const notifSettings: NotificationSettings = useMemo(() => {
+    const raw = profile?.notification_settings;
+    if (raw && typeof raw === "object") return { ...DEFAULT_NOTIF_SETTINGS, ...raw };
+    return DEFAULT_NOTIF_SETTINGS;
+  }, [profile?.notification_settings]);
   const {data:rawStaff=[]} = useQuery<StaffRow[]>({
     queryKey:["staff",userId],enabled:!!userId,staleTime:1000*60*10,
     queryFn:async()=>{const{data}=await supabase.from("staff").select("id,name,services,working_hours").eq("user_id",userId!);return data??[];},
@@ -1131,16 +1144,18 @@ function CalendarContent() {
     if(!userId)return;
     const ch1=supabase.channel(`cp-${userId}`).on("postgres_changes",{event:"UPDATE",schema:"public",table:"profiles",filter:`id=eq.${userId}`},()=>refetchProfile()).subscribe();
     const ch2=supabase.channel(`ca-${userId}`).on("postgres_changes",{event:"*",schema:"public",table:"appointments",filter:`user_id=eq.${userId}`},(payload:any)=>{
-      // ✅ Sunet + notificare vizuală atunci când clientul face o programare online
+      // ✅ Notificări la programare online nouă — respectă setările din Settings
       if(payload.eventType==="INSERT"&&payload.new?.is_client_booking){
-        playNotificationSound();
         const nume=payload.new.title||payload.new.prenume||payload.new.nume||"Client";
-        showToast({title:t("newBookingNotifTitle"),message:t("newBookingNotifMsg",{nume}),type:"info"});
+        if(notifSettings.sound_enabled) playNotificationSound(notifSettings.volume);
+        if(notifSettings.in_app_enabled) showToast({title:t("newBookingNotifTitle"),message:t("newBookingNotifMsg",{nume}),type:"info"});
+        if(notifSettings.system_enabled) playSystemNotification(t("newBookingNotifTitle"),t("newBookingNotifMsg",{nume}));
       }
       refetchAppts();
     }).subscribe();
     return()=>{supabase.removeChannel(ch1);supabase.removeChannel(ch2);};
-  },[userId]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  },[userId,notifSettings.sound_enabled,notifSettings.volume,notifSettings.in_app_enabled,notifSettings.system_enabled]);
   const adminWorkingHours = useMemo<WorkingHour[]>(()=>parseWH(profile?.working_hours),[profile?.working_hours]);
   const adminManualBlocks = useMemo<ManualBlocks>(()=>{const r=profile?.manual_blocks;if(!r||typeof r!=="object"||Array.isArray(r))return{};return r as ManualBlocks;},[profile?.manual_blocks]);
   const userSub = useMemo(()=>{if(!profile)return null;let plan=(profile.plan_type||"CHRONOS FREE").toUpperCase();if(profile.trial_started_at&&Date.now()-new Date(profile.trial_started_at).getTime()<10*24*60*60*1000)plan="CHRONOS TEAM";return{plan};},[profile]);
@@ -1179,8 +1194,6 @@ function CalendarContent() {
     if(!editForm)return;const ok=await showConfirm({title:t("editModal.deleteConfirmTitle"),message:t("editModal.deleteConfirmMsg",{nume:editForm.nume}),confirmText:t("editModal.deleteConfirmBtn"),type:"danger"});
     if(!ok)return;await supabase.from("appointments").delete().eq("id",editForm.id);qClient.invalidateQueries({queryKey:["appointments",userId]});closeModal();
   };
-  // ✅ Program efectiv pentru vizualizarea calendarului: al specialistului filtrat
-  // (dacă are unul propriu setat), altfel cel general al salonului
   const viewWorkingHours = useMemo(() => {
     if (!selectedExpert) return adminWorkingHours;
     const st = rawStaff.find(s => s.id === selectedExpert);
@@ -1188,7 +1201,6 @@ function CalendarContent() {
     return staffWH.length > 0 ? staffWH : adminWorkingHours;
   }, [selectedExpert, rawStaff, adminWorkingHours]);
 
-  // ✅ Program efectiv pentru selectoarele din modalul de editare, bazat pe specialistul ales acolo
   const editWorkingHours = useMemo(() => {
     if (!editForm?.expertId) return adminWorkingHours;
     const st = rawStaff.find(s => s.id === editForm.expertId);
@@ -1210,7 +1222,6 @@ function CalendarContent() {
     ).map(p=>({time:p.ora,duration:p.duration||30}));
   },[programari,editForm?.data,editForm?.id,editForm?.expertId]);
   const editSvcDur = useMemo(()=>{if(!editForm?.serviciuId)return 0;return rawServices.find(s=>s.id===editForm.serviciuId)?.duration||0;},[editForm?.serviciuId,rawServices]);
-  // ✅ Filtrare specialist ↔ serviciu pentru modalul de PROGRAMARE NOUĂ (bug reparat aici)
   const newAngOpts = useMemo(()=>{
     if(!newForm?.serviciuId)return rawStaff;
     return rawStaff.filter(a=>a.services?.includes(newForm.serviciuId));
@@ -1266,7 +1277,7 @@ function CalendarContent() {
                 </div>
                 <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:6}}>
                   {[{label:t("editModal.phoneLabel"),key:"telefon"},{label:t("editModal.emailLabel"),key:"email"}].map(f=>(
-                    <div key={f.key} style={{background:"#f8fafc",border:"1.5px solid #e2e8f0",borderRadius:12,padding:"7px 10px"}}>
+                    <div key={f.key} id={f.key==="telefon"?"onboarding-prog-phone":"onboarding-prog-email"} style={{background:"#f8fafc",border:"1.5px solid #e2e8f0",borderRadius:12,padding:"7px 10px"}}>
                       <p style={{fontSize:7,fontWeight:700,color:"#94a3b8",textTransform:"uppercase",marginBottom:2}}>{f.label}</p>
                       <input style={{width:"100%",background:"transparent",border:"none",fontSize:11,fontWeight:700,color:"#1e293b",outline:"none"}} value={(editForm as any)[f.key]||""} onChange={e=>setEditForm(p=>p?{...p,[f.key]:e.target.value}:null)}/>
                     </div>
@@ -1344,7 +1355,6 @@ function CalendarContent() {
             <div style={{background:"#fffbeb",border:"1.5px solid #fcd34d",borderRadius:14,padding:"10px 14px"}}><p style={{fontSize:13,fontWeight:700,color:"#92400e",margin:0}}>📅 {newForm.date} · {newForm.time}</p></div>
             <div style={{background:"#f8fafc",border:"1.5px solid #e2e8f0",borderRadius:14,padding:"10px 14px"}}><p style={{fontSize:8,fontWeight:700,color:"#94a3b8",textTransform:"uppercase",marginBottom:4}}>{t("newModal.nameLabel")}</p><input style={{width:"100%",background:"transparent",border:"none",fontSize:14,fontWeight:700,color:"#1e293b",outline:"none"}} placeholder={t("newModal.namePlaceholder")} value={newForm.nume} onChange={e=>setNewForm(p=>p?{...p,nume:e.target.value}:null)}/></div>
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>{[{label:t("newModal.phoneLabel"),key:"telefon"},{label:t("newModal.emailLabel"),key:"email"}].map(f=>(<div key={f.key} style={{background:"#f8fafc",border:"1.5px solid #e2e8f0",borderRadius:14,padding:"10px 14px"}}><p style={{fontSize:8,fontWeight:700,color:"#94a3b8",textTransform:"uppercase",marginBottom:4}}>{f.label}</p><input style={{width:"100%",background:"transparent",border:"none",fontSize:12,fontWeight:700,color:"#1e293b",outline:"none"}} value={(newForm as any)[f.key]} onChange={e=>setNewForm(p=>p?{...p,[f.key]:e.target.value}:null)}/></div>))}</div>
-            {/* ✅ FIX: Specialist și Serviciu acum se filtrează reciproc, la fel ca în modalul de editare */}
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
               <div style={{background:"#0f172a",borderRadius:14,padding:"10px 14px"}}>
                 <p style={{fontSize:8,fontWeight:700,color:"#f59e0b",textTransform:"uppercase",marginBottom:4}}>{t("newModal.specialistLabel")}</p>
@@ -1413,7 +1423,7 @@ function CalendarContent() {
         <div className="hidden md:block" style={{flexShrink:0,padding:"5px 12px",background:"#f8fafc",borderRadius:10,border:"1.5px solid #e2e8f0"}}>
           <span style={{fontSize:11,fontWeight:700,color:"#334155",textTransform:"capitalize"}}>{dateTitles[viewMode]}</span>
         </div>
-        <div style={{flex:1,maxWidth:280,position:"relative"}}>
+        <div id="onboarding-calendar-search" style={{flex:1,maxWidth:280,position:"relative"}}>
           <span style={{position:"absolute",left:10,top:"50%",transform:"translateY(-50%)",fontSize:13,color:"#94a3b8"}}>🔍</span>
           <input type="text" placeholder={t("searchPlaceholder")} value={searchTerm}
             onChange={e=>{setSearchTerm(e.target.value);handleSearch(e.target.value);}}
@@ -1427,7 +1437,7 @@ function CalendarContent() {
             </div>
           )}
         </div>
-        <div style={{display:"flex",background:"#f1f5f9",padding:3,borderRadius:10,gap:2,marginLeft:"auto",flexShrink:0}}>
+        <div id="onboarding-calendar-view-toggle" style={{display:"flex",background:"#f1f5f9",padding:3,borderRadius:10,gap:2,marginLeft:"auto",flexShrink:0}}>
           {(["day","week","month","year"] as ViewMode[]).map(opt=>(
             <button key={opt} onClick={()=>setViewMode(opt)} style={btnStyle(viewMode===opt)}>
               {opt==="day"?t("viewDay"):opt==="week"?t("viewWeek"):opt==="month"?t("viewMonth"):t("viewYear")}

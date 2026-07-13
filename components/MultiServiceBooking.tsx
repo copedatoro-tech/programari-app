@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useMemo, useCallback, useEffect } from "react";
 import { supabase } from "@/lib/supabaseClient";
@@ -35,6 +35,7 @@ export interface MultiServiceBookingProps {
   pozaProfil?:       string | null;
   documenteAtasate?: any[];
   documente?:        any[];
+  presetDate?:       string | null;
   validateClientData: () => boolean;
   onSuccess?:        () => void;
   onCancel?:         () => void;
@@ -99,11 +100,13 @@ function SlotRow({
       : specialisti,
   [slot.serviciu_id, specialisti]);
 
-  // Serviciile pe care le oferă specialistul ales
+  // Serviciile pe care le oferă specialistul ales — filtrare strictă, simetrică
+  // cu cea de mai sus (nu mai există fallback "arată tot" dacă specialistul
+  // nu are servicii asociate — dacă nu are, lista rămâne goală, cu mesaj explicativ)
   const filteredSvc = useMemo(() => {
     if (!slot.specialist_id) return servicii;
     const sp = specialisti.find((s) => s.id === slot.specialist_id);
-    return sp?.services?.length ? servicii.filter((s) => sp.services.includes(s.id)) : servicii;
+    return servicii.filter((s) => sp?.services?.includes(s.id));
   }, [slot.specialist_id, servicii, specialisti]);
 
   const handleSpecialistChange = useCallback((specialistId: string) => {
@@ -212,6 +215,9 @@ function SlotRow({
                 </option>
               ))}
             </select>
+            {slot.specialist_id && filteredSvc.length === 0 && (
+              <p className="text-[9px] font-bold text-amber-600 italic ml-4">{t("noServicesForSpecialist")}</p>
+            )}
           </div>
         </div>
 
@@ -265,7 +271,7 @@ function SlotRow({
 // ─── Componenta principală ────────────────────────────────────────────────────
 export default function MultiServiceBooking({
   adminId, servicii, specialisti, adminWorkingHours, adminManualBlocks,
-  clientData, validateClientData, onSuccess, onCancel, documente,
+  clientData, pozaProfil, presetDate, validateClientData, onSuccess, onCancel, documente,
 }: MultiServiceBookingProps) {
   const t = useTranslations("multiServiceBooking");
   const localeCode = t("localeCode");
@@ -324,6 +330,23 @@ export default function MultiServiceBooking({
     slots.forEach((s) => fetchAppt(s.data, s.specialist_id));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // ✅ NOU: când vine o dată presetată din panoul de calendar (dashboard),
+  // o aplicăm pe primul slot — doar dacă acesta nu are deja o oră aleasă,
+  // ca să nu stricăm un formular pe care utilizatorul l-a completat deja.
+  useEffect(() => {
+    if (!presetDate) return;
+    setSlots((prev) => {
+      if (prev.length === 0) return prev;
+      const first = prev[0];
+      if (first.data === presetDate) return prev;
+      const updated = [...prev];
+      updated[0] = { ...first, data: presetDate, ora: "00:00" };
+      fetchAppt(presetDate, first.specialist_id);
+      return updated;
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [presetDate]);
 
   const completedSlots = slots.filter((s) => s.serviciu_id && s.data && s.ora && s.ora !== "00:00");
 
@@ -435,12 +458,13 @@ export default function MultiServiceBooking({
           date:        s.data,
           time:        s.ora,
           duration:    svc?.duration || 0,
-          details:     `Serviciu: ${svc?.nume_serviciu || t("naFallback")}${clientData.detalii ? ` | Notă: ${clientData.detalii}` : ""} | Rezervare multiplă`,
+          details:     `Serviciu: ${svc?.nume_serviciu || t("naFallback")}${clientData.detalii ? ` | Notă: ${clientData.detalii}` : ""}${slots.length > 1 ? " | Rezervare multiplă" : ""}`,
           specialist:  spec?.name || t("firstAvailFallback"),
           angajat_id:  s.specialist_id || null,
           serviciu_id: s.serviciu_id || null,
           status:      "pending",
           is_client_booking: false,
+          ...(pozaProfil ? { file_url: pozaProfil, poza: pozaProfil } : {}),
           ...(documente?.length ? { documente } : {}),
         };
       });

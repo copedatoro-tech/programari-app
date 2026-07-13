@@ -1,5 +1,15 @@
 import { Resend } from 'resend';
 import { NextResponse } from 'next/server';
+import { supabaseAdmin } from '@/lib/supabaseAdmin';
+
+function escapeHtml(value: unknown) {
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
 
 export async function POST(request: Request) {
   // Inițializare securizată în interiorul rutei
@@ -14,6 +24,28 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Eroare Configurare: API Key Resend lipsește din server." }, { status: 500 });
     }
     const manageUrl = appointmentId ? `${process.env.NEXT_PUBLIC_BASE_URL}/gestioneaza/${appointmentId}` : null;
+    let responsiblePhone = "";
+    if (appointmentId) {
+      const { data: appointment } = await supabaseAdmin
+        .from("appointments")
+        .select("user_id")
+        .eq("id", appointmentId)
+        .maybeSingle();
+
+      if (appointment?.user_id) {
+        const { data: profile } = await supabaseAdmin
+          .from("profiles")
+          .select("phone")
+          .eq("id", appointment.user_id)
+          .maybeSingle();
+        responsiblePhone = profile?.phone || "";
+      }
+    }
+
+    const safeName = escapeHtml(nume);
+    const safeDate = escapeHtml(data);
+    const safeTime = escapeHtml(ora);
+    const safeResponsiblePhone = escapeHtml(responsiblePhone);
     // Trimiterea e-mailului cu branding Chronos
     const dataMail = await resend.emails.send({
       from: 'Chronos <onboarding@resend.dev>', // Notă: După ce configurezi domeniul, schimbă aici
@@ -29,13 +61,13 @@ export async function POST(request: Request) {
           </h1>
           
           <div style="background-color: #ffffff; padding: 32px; border-radius: 20px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
-            <h2 style="font-size: 18px; font-weight: 800; margin-top: 0; color: #1e293b; font-style: italic; text-transform: uppercase;">Salut, ${nume}!</h2>
+            <h2 style="font-size: 18px; font-weight: 800; margin-top: 0; color: #1e293b; font-style: italic; text-transform: uppercase;">Salut, ${safeName}!</h2>
             <p style="font-size: 14px; line-height: 1.6; color: #64748b;">Vă confirmăm că programarea dumneavoastră a fost înregistrată cu succes în sistemul nostru.</p>
             
             <div style="margin: 24px 0; padding: 20px; background-color: #fef3c7; border-radius: 16px; border-left: 4px solid #f59e0b;">
               <p style="margin: 0; font-size: 12px; font-weight: 900; text-transform: uppercase; color: #92400e; letter-spacing: 0.1em;">Detalii Programare</p>
-              <p style="margin: 8px 0 0 0; font-size: 16px; font-weight: 700; color: #0f172a;">📅 Data: ${data}</p>
-              <p style="margin: 4px 0 0 0; font-size: 16px; font-weight: 700; color: #0f172a;">⏰ Ora: ${ora}</p>
+              <p style="margin: 8px 0 0 0; font-size: 16px; font-weight: 700; color: #0f172a;">📅 Data: ${safeDate}</p>
+              <p style="margin: 4px 0 0 0; font-size: 16px; font-weight: 700; color: #0f172a;">⏰ Ora: ${safeTime}</p>
             </div>
             
             <p style="font-size: 13px; font-weight: 600; font-style: italic; color: #475569; margin-bottom: 0;">Vă așteptăm cu drag!</p>
@@ -46,6 +78,12 @@ export async function POST(request: Request) {
                 Gestionează Programarea
               </a>
               <p style="font-size: 10px; color: #94a3b8; margin-top: 10px;">Poți anula sau reprograma oricând, direct de aici.</p>
+            </div>
+            ` : ""}
+            ${safeResponsiblePhone ? `
+            <div style="margin-top: 22px; padding: 16px; background-color: #f8fafc; border-radius: 16px; border: 1px solid #e2e8f0;">
+              <p style="margin: 0; font-size: 11px; font-weight: 900; text-transform: uppercase; color: #475569; letter-spacing: 0.08em;">Contact rapid</p>
+              <p style="margin: 6px 0 0 0; font-size: 13px; line-height: 1.5; color: #64748b;">Pentru modificări urgente, contactează persoana responsabilă la <strong style="color:#0f172a;">${safeResponsiblePhone}</strong>.</p>
             </div>
             ` : ""}
           </div>

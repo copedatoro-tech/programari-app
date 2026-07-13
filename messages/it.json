@@ -97,7 +97,8 @@
       "cookies": "Cookie",
       "premium": "CHRONOS PREMIUM",
       "management": "GESTIONE",
-      "secured": "PROTETTO"
+      "secured": "PROTETTO",
+      "reviewTour": "Rivedi il Tour"
     },
     "loading": "Sincronizzazione Chronos...",
     "onboarding": {
@@ -222,6 +223,96 @@
           "👤 Puoi salvare qui anche i dati della persona responsabile dell'app per un contatto rapido in caso di emergenza"
         ],
         "tip": "I contatti utili sono per i tuoi fornitori e partner professionali — non per i clienti! I clienti vengono salvati automaticamente dagli appuntamenti nella loro pagina dedicata."
+      },
+      "welcomeTitle": "Benvenuto in Chronos!",
+      "welcomeSubtitle": "Ti guidiamo passo dopo passo attraverso le pagine importanti, in modo che la tua app sia 100% funzionale.",
+      "welcomeInfoNote": "Questo e un tour informativo, da fare una sola volta. Ti consigliamo di seguirlo attentamente — ti aiutera a usare Chronos nelle migliori condizioni, senza perdere tempo in seguito a cercare dove si trova ogni cosa.",
+      "welcomeListIntro": "Percorrerai:",
+      "startTourBtn": "Inizia il Tour Guidato 🚀",
+      "skipTourBtn": "Salta — conosco gia l'app",
+      "stepCounter": "Passaggio {current} di {total}",
+      "prevBtn": "← Indietro",
+      "nextBtn": "Avanti →",
+      "finishBtn": "Termina e Attiva Prova 🎁",
+      "activatingTitle": "Attivazione della prova...",
+      "activatingSubtitle": "Un momento, stiamo preparando il piano Chronos Team per te.",
+      "finalTitle": "Tutto pronto!",
+      "finalSubtitle": "Hai completato la configurazione iniziale e la prova Chronos Team e attiva.",
+      "finalTrialLine": "10 giorni gratuiti di accesso completo — senza carta, senza obblighi.",
+      "goToDashboardBtn": "Vai agli Appuntamenti →",
+      "tryItBtn": "Clicca sul pulsante evidenziato qui sotto per vedere come funziona.",
+      "skipStepBtn": "Salta questo passaggio →",
+      "highlights": {
+        "profil": {
+          "avatar": {
+            "title": "Foto / Logo",
+            "desc": "Carica una foto o il logo della tua attivita. Appare nella pagina pubblica di prenotazione e aiuta i clienti a riconoscerti facilmente."
+          },
+          "businessName": {
+            "title": "Nome Attivita",
+            "desc": "Inserisci il nome della tua attivita. Viene mostrato ai clienti e puo generare automaticamente il tuo indirizzo unico se non l'hai ancora impostato."
+          },
+          "phone": {
+            "title": "Telefono di Contatto",
+            "desc": "Aggiungi il numero di telefono della persona responsabile. Utile per un contatto rapido in situazioni urgenti."
+          },
+          "slug": {
+            "title": "Indirizzo Unico (Slug)",
+            "desc": "Qui vedi e puoi modificare il tuo indirizzo unico di prenotazione — parte essenziale del tuo link pubblico."
+          },
+          "slugButton": {
+            "title": "Riserva Indirizzo",
+            "desc": "Clicca questo pulsante per salvare il tuo indirizzo unico. Una volta riservato, evita di cambiarlo per non invalidare i codici QR gia condivisi."
+          },
+          "saveButton": {
+            "title": "Salva Modifiche",
+            "desc": "Clicca qui per salvare tutti i dati inseriti sopra."
+          }
+        },
+        "settings": {
+          "workingHours": {
+            "title": "Orario di Lavoro",
+            "desc": "Clicca su qualsiasi giorno in questo calendario per impostare orari di lavoro e blocchi. Senza un orario impostato, tutte le ore appaiono disponibili."
+          },
+          "notifications": {
+            "title": "Notifiche",
+            "desc": "Scegli come vuoi essere avvisato delle nuove prenotazioni online — popup, suono o notifica di sistema."
+          },
+          "stripe": {
+            "title": "Pagamenti Online (Stripe)",
+            "desc": "Collega Stripe per accettare pagamenti online direttamente alla prenotazione — il denaro va direttamente sul tuo conto, con una commissione trasparente dell'1%."
+          }
+        },
+        "resurse": {
+          "duration": {
+            "title": "Durata del Servizio",
+            "desc": "Inserisci quanto dura ogni servizio — il sistema usa questo valore per bloccare automaticamente l'intervallo corretto nel calendario ad ogni prenotazione."
+          },
+          "price": {
+            "title": "Prezzo del Servizio",
+            "desc": "Il prezzo viene mostrato al cliente durante la prenotazione online e, se hai attivato il pagamento online, e l'importo esatto addebitato automaticamente alla prenotazione."
+          },
+          "addStaff": {
+            "title": "Aggiungi Specialista",
+            "desc": "Clicca questo pulsante per aggiungere un nuovo membro al team. Potrai poi assegnargli i servizi che offre e il suo orario di lavoro."
+          }
+        },
+        "programari": {
+          "email": {
+            "title": "Email del Cliente",
+            "desc": "Aggiungi l'email del cliente — la conferma della prenotazione e il promemoria del giorno prima vengono inviati automaticamente li."
+          },
+          "phone": {
+            "title": "Telefono del Cliente",
+            "desc": "Aggiungi il numero di telefono — i messaggi di conferma e promemoria vengono inviati automaticamente via WhatsApp, se hai il piano Elite o Team."
+          }
+        },
+        "abonamente": {
+          "activateTrial": {
+            "title": "Attiva la Prova",
+            "desc": "Hai finito la configurazione? Clicca questo pulsante per attivare 10 giorni gratuiti di accesso completo al piano Team — senza carta, senza obblighi."
+          }
+        }
       }
     },
     "trialSuffix": " (PROVA)"
@@ -694,7 +785,55 @@
     "addIntervalBtn": "+ Aggiungi intervallo",
     "removeIntervalBtn": "Rimuovi",
     "techErrorBannerMsg": "Problema tecnico temporaneo, indipendente da noi — in fase di risoluzione.",
-    "techErrorRetryBtn": "🔄 Riprova"
+    "techErrorRetryBtn": "🔄 Riprova",
+    "staffPortal": {
+      "inviteBtn": "📱 Invita all'Account",
+      "activeAccountBadge": "✅ Account Attivo",
+      "portalLabel": "Portale Specialista",
+      "inviteTitle": "Invita {name}",
+      "inviteIntro": "Creiamo il suo account personale, con una password temporanea. Gli invii tu questi dati — potrà accedere separatamente, al portale specialista, per vedere i propri appuntamenti e notifiche.",
+      "emailLabel": "Email dello Specialista",
+      "passwordLabel": "Password Temporanea",
+      "regeneratePasswordTitle": "Generane un'altra",
+      "creatingBtn": "Creazione...",
+      "createAccountBtn": "Crea Account",
+      "successTitle": "Account creato con successo!",
+      "successSubtitle": "Invia queste informazioni allo specialista in modo che possa accedere.",
+      "linkLabel": "Link",
+      "emailFieldLabel": "Email",
+      "tempPasswordLabel": "Password Temporanea",
+      "sendWhatsappBtn": "📲 Invia via WhatsApp",
+      "sendEmailBtn": "✉️ Invia via Email",
+      "copyCredentialsBtn": "📋 Copia Dati di Accesso",
+      "closeBtn": "Chiudi",
+      "copiedToast": "Dati di accesso copiati!",
+      "noPhoneError": "Lo specialista non ha un numero di telefono valido salvato.",
+      "waMessageTemplate": "Ciao {name}! Hai accesso al tuo portale Chronos, per vedere i tuoi appuntamenti:\n\n🔗 {link}\n📧 Email: {email}\n🔑 Password: {password}\n\nTi consigliamo di cambiare la password dopo il primo accesso.",
+      "emailSubject": "Accesso Chronos — Portale Specialista",
+      "emailBodyTemplate": "Ciao {name}!\n\nHai accesso al tuo portale Chronos, per vedere i tuoi appuntamenti:\n\nLink: {link}\nEmail: {email}\nPassword: {password}\n\nTi consigliamo di cambiare la password dopo il primo accesso.",
+      "copyTemplate": "Accesso Chronos — Portale Specialista\nLink: {link}\nEmail: {email}\nPassword: {password}",
+      "manageTitle": "Account: {name}",
+      "correctEmailLabel": "Correggi l'email",
+      "newPasswordOptionalLabel": "Nuova password (opzionale)",
+      "newPasswordPlaceholder": "Lascia vuoto se non cambi la password",
+      "generateNewPasswordTitle": "Genera una nuova password",
+      "savingBtn": "Salvataggio...",
+      "saveChangesBtn": "Salva Modifiche",
+      "deactivateIntro": "Ha lasciato il team? Puoi disattivare completamente il suo accesso.",
+      "deactivateBtn": "🚫 Disattiva Account",
+      "confirmDeactivateTitle": "Sei sicuro di voler disattivare questo account?",
+      "confirmDeactivateText": "{name} non potrà più accedere al portale specialista. Potrai invitarlo di nuovo in seguito, se necessario.",
+      "cancelBtn": "Annulla",
+      "yesDeactivateBtn": "Sì, disattiva",
+      "deactivatedToast": "L'account è stato disattivato.",
+      "nothingChangedError": "Non hai cambiato nulla.",
+      "sessionExpiredError": "Sessione scaduta. Ricarica la pagina.",
+      "connectionError": "Errore di connessione.",
+      "updateError": "Errore durante l'aggiornamento.",
+      "updateSuccess": "Aggiornato con successo!",
+      "deactivateError": "Errore durante la disattivazione.",
+      "phoneHint": "Facoltativo, ma necessario se vuoi inviare i dati di accesso via WhatsApp."
+    }
   },
   "sugestii": {
     "checkingAccess": "Verifica dell'accesso...",
@@ -823,7 +962,24 @@
     "connectionPending": "Completa la compilazione dei tuoi dati nella finestra Stripe per attivare i pagamenti.",
     "refreshStatusBtn": "🔄 Verifica di nuovo",
     "techErrorBannerMsg": "Problema tecnico temporaneo, indipendente da noi — in fase di risoluzione.",
-    "techErrorRetryBtn": "🔄 Riprova"
+    "techErrorRetryBtn": "🔄 Riprova",
+    "notifications": {
+      "title": "Notifiche",
+      "subtitle": "Scegli come vuoi essere avvisato quando ricevi una nuova prenotazione online.",
+      "inAppLabel": "Popup nell'app",
+      "inAppDesc": "Appare direttamente sullo schermo, mentre hai Chronos aperto in una scheda attiva.",
+      "systemLabel": "Notifica di sistema",
+      "systemDesc": "Appare anche con un'altra scheda attiva o il browser ridotto a icona. Richiede il permesso del browser.",
+      "systemUnsupported": "Il tuo browser non supporta le notifiche di sistema.",
+      "systemPermissionDenied": "Le notifiche sono bloccate nelle impostazioni del browser. Puoi attivarle manualmente.",
+      "systemTestMessage": "Le notifiche di sistema sono attive!",
+      "soundLabel": "Suono",
+      "volumeLabel": "Volume",
+      "statusOnSuffix": "Attivo",
+      "statusOffSuffix": "Disattivato",
+      "activateBtn": "Attiva",
+      "deactivateBtn": "Disattiva"
+    }
   },
   "calendarPage": {
     "dayShort": [
@@ -1017,7 +1173,10 @@
       "teamLoadLowSuggestion": "C'è spazio per più appuntamenti — potresti investire in promozione per attirare nuovi clienti.",
       "gettingStartedTitle": "Raccolta dati",
       "gettingStartedText": "Hai ancora pochi appuntamenti registrati. Man mano che ne aggiungi altri, i suggerimenti diventeranno più precisi."
-    }
+    },
+    "aiInsightsUpsellTitle": "🤖 AI Insights — Solo Chronos Team",
+    "aiInsightsUpsellText": "Analisi automatiche generate dall'IA, disponibili esclusivamente nel piano Team.",
+    "aiInsightsUpsellBtn": "Vedi Piano Team"
   },
   "chronosPickers": {
     "localeCode": "it-IT",
@@ -1089,6 +1248,7 @@
     "successText": "Tutti i tuoi appuntamenti sono stati registrati.",
     "retryBtn": "Fai una nuova prenotazione",
     "leaveReviewTitle": "LASCIA UNA RECENSIONE",
+    "starAriaLabel": "Dai {n} stelle",
     "yourNamePlaceholder": "IL TUO NOME",
     "commentPlaceholder": "COMMENTO",
     "sendingBtn": "INVIO IN CORSO...",
@@ -1170,7 +1330,17 @@
     "noNotesFallback": "Nessuna osservazione.",
     "attachedFilesPopupLabel": "File allegati",
     "documentFallback": "Documento",
-    "viewBtn": "VEDI"
+    "viewBtn": "VEDI",
+    "calendarPanel": {
+      "todayLabel": "Oggi",
+      "apptsForLabel": "Appuntamenti —",
+      "noApptsLabel": "Nessun appuntamento in questo giorno",
+      "totalSuffix": "totale",
+      "onlineSuffix": "online",
+      "receptionSuffix": "reception",
+      "onlineBadge": "🌐 Online",
+      "receptionBadge": "🏠 Reception"
+    }
   },
   "multiServiceBooking": {
     "localeCode": "it-IT",
@@ -1203,7 +1373,8 @@
     "chosenSpecialistFallback": "lo specialista scelto",
     "saveErrorPrefix": "Errore: ",
     "saveErrorDefault": "Impossibile salvare.",
-    "naFallback": "N/D"
+    "naFallback": "N/D",
+    "noServicesForSpecialist": "Questo specialista non ha servizi associati — aggiungine dalla pagina Risorse."
   },
   "abonamente": {
     "header": {
@@ -1324,27 +1495,28 @@
             "highlight": "500"
           },
           {
-            "text": "5 specialisti",
+            "text": "5 specialisti + portale individuale",
             "available": true,
             "highlight": "5"
           },
           {
-            "text": "Servizi illimitati",
+            "text": "50 servizi",
             "available": true,
-            "highlight": "illimitati"
+            "highlight": "50"
           },
           {
-            "text": "Report avanzati & AI Insights",
+            "text": "Report Avanzati",
             "available": true,
-            "highlight": "AI Insights"
+            "highlight": "Avanzati"
           },
           {
             "text": "Recensioni clienti & pagina pubblica",
             "available": true
           },
           {
-            "text": "Notifiche WhatsApp",
-            "available": true
+            "text": "Conferme e Promemoria WhatsApp (300/mese)",
+            "available": true,
+            "highlight": "300/mese"
           }
         ]
       },
@@ -1360,7 +1532,7 @@
             "highlight": "illimitati"
           },
           {
-            "text": "50 specialisti",
+            "text": "50 specialisti + portale individuale",
             "available": true,
             "highlight": "50"
           },
@@ -1370,17 +1542,18 @@
             "highlight": "illimitati"
           },
           {
-            "text": "Report & performance del team",
+            "text": "Report IA & Performance del Team",
             "available": true,
-            "highlight": "performance del team"
+            "highlight": "IA"
           },
           {
             "text": "Recensioni clienti & pagina pubblica",
             "available": true
           },
           {
-            "text": "Notifiche WhatsApp",
-            "available": true
+            "text": "Conferme e Promemoria WhatsApp Illimitati",
+            "available": true,
+            "highlight": "Illimitati"
           }
         ]
       }
@@ -1570,5 +1743,61 @@
     "statusExpired": "⏱️ Scaduto",
     "removeBtn": "Rimuovi",
     "confirmRemove": "Sei sicuro di voler rimuovere questo cliente dalla lista?"
+  },
+  "specialistPortal": {
+    "login": {
+      "title": "Portale",
+      "titleHighlight": "Specialista",
+      "subtitle": "Accesso solo per il team",
+      "emailPlaceholder": "EMAIL",
+      "passwordPlaceholder": "PASSWORD",
+      "wrongCredentials": "Email o password errati.",
+      "notSpecialistAccount": "Questo account non è associato a uno specialista.",
+      "connectionError": "Errore di connessione. Riprova.",
+      "checkingBtn": "Verifica...",
+      "loginBtn": "Accedi",
+      "noAccessFooter": "Non hai ricevuto i dati di accesso? Contatta l'amministratore del salone."
+    },
+    "dashboard": {
+      "loading": "Caricamento...",
+      "greeting": "Ciao,",
+      "subtitle": "I tuoi appuntamenti",
+      "logoutBtn": "Esci",
+      "notificationsTitle": "Le tue Notifiche",
+      "popupLabel": "Popup",
+      "soundLabel": "Suono",
+      "activeStatus": "Attivo",
+      "offStatus": "Disattivato",
+      "volumeLabel": "Volume:",
+      "todayTitle": "Oggi",
+      "noApptsToday": "Nessun appuntamento oggi",
+      "upcomingTitle": "Prossimi Giorni",
+      "onlineBadge": "🌐 Online",
+      "newBookingToastPrefix": "📅 Nuova prenotazione:",
+      "soundChoiceLabel": "Scegli il suono di notifica",
+      "previewSoundTitle": "Ascolta",
+      "serviceLabel": "Servizio",
+      "phoneLabel": "Telefono Cliente",
+      "emailLabel": "Email Cliente",
+      "noteLabel": "Nota",
+      "noSelectionHint": "Passa il mouse su un appuntamento per un'anteprima rapida, o clicca per fissarlo sullo schermo",
+      "noExtraDetails": "Nessuna informazione aggiuntiva per questo appuntamento",
+      "statusOnSuffix": "Attivo",
+      "statusOffSuffix": "Disattivato",
+      "activateBtn": "Attiva",
+      "deactivateBtn": "Disattiva",
+      "systemLabel": "Notifica di Sistema",
+      "systemDesc": "Appare come una normale notifica Windows/Mac, anche se navighi su un'altra pagina o il browser è ridotto a icona.",
+      "systemUnsupported": "Il tuo browser non supporta le notifiche di sistema.",
+      "systemPermissionDenied": "Le notifiche sono bloccate nelle impostazioni del browser. Puoi attivarle manualmente.",
+      "systemTestMessage": "Le notifiche di sistema sono attive!",
+      "pinnedLabel": "Fissato",
+      "unpinTitle": "Rimuovi fissaggio",
+      "qrTitle": "Il Tuo Codice QR di Prenotazione",
+      "qrDesc": "Mostra questo codice al cliente — lo scansiona e arriva direttamente alla pagina di prenotazione, con te già selezionato come specialista. Sceglie solo data e ora.",
+      "qrCopyBtn": "📋 Copia Link",
+      "qrCopiedBtn": "✓ Copiato!",
+      "qrNoSlugHint": "Il tuo salone non ha ancora un indirizzo pubblico di prenotazione configurato — chiedi all'amministratore di attivarlo dal Profilo."
+    }
   }
 }

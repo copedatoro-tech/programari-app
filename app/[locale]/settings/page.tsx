@@ -8,8 +8,10 @@ import { QRCodeSVG } from "qrcode.react";
 import { showToast } from "@/lib/toast";
 
 type ManualBlocksMap = Record<string, string[]>;
+type NotificationSettings = { in_app_enabled: boolean; system_enabled: boolean; sound_enabled: boolean; volume: number };
 
 const CURRENCY_OPTIONS = ["RON", "EUR", "USD", "GBP", "HUF", "PLN"];
+const DEFAULT_NOTIF_SETTINGS: NotificationSettings = { in_app_enabled: true, system_enabled: false, sound_enabled: true, volume: 75 };
 
 function SettingsContent() {
   const t = useTranslations("settings");
@@ -49,6 +51,10 @@ function SettingsContent() {
   const [currency, setCurrency] = useState("RON");
   const [connectingStripe, setConnectingStripe] = useState(false);
 
+  // ✅ Notificări
+  const [notifSettings, setNotifSettings] = useState<NotificationSettings>(DEFAULT_NOTIF_SETTINGS);
+  const [browserPermission, setBrowserPermission] = useState<NotificationPermission | "unsupported">("default");
+
   const localeCode = t("localeCode");
   const weekdaysShort = t.raw("weekdaysShort") as string[];
   const weekdayLetters = t.raw("weekdayLetters") as string[];
@@ -58,7 +64,11 @@ function SettingsContent() {
   }, [userPlan]);
 
   useEffect(() => {
-    if (typeof window !== "undefined") setBaseUrl(window.location.origin);
+    if (typeof window !== "undefined") {
+      setBaseUrl(window.location.origin);
+      if ("Notification" in window) setBrowserPermission(Notification.permission);
+      else setBrowserPermission("unsupported");
+    }
     const handleClickOutside = (event: MouseEvent) => {
       if (modalRef.current && !modalRef.current.contains(event.target as Node)) {
         setShowDayModal(false);
@@ -110,8 +120,6 @@ function SettingsContent() {
         .select('*')
         .eq('id', currentUid)
         .maybeSingle();
-      // ✅ maybeSingle() nu dă eroare când nu găsește nimic — dacă totuși
-      // apare o eroare aici, e o problemă tehnică reală de conectivitate
       if (profileError) { setTechnicalError(true); return; }
       if (profile) {
       setUserPlan(profile.plan_type?.toUpperCase() || "CHRONOS FREE");
@@ -120,6 +128,9 @@ function SettingsContent() {
       setStripeAccountId(profile.stripe_account_id || null);
       setRequirePayment(!!profile.require_payment_at_booking);
       setCurrency(profile.currency || "RON");
+      if (profile.notification_settings && typeof profile.notification_settings === "object") {
+        setNotifSettings({ ...DEFAULT_NOTIF_SETTINGS, ...profile.notification_settings });
+      }
       const savedSlug = profile.slug || "";
       if (savedSlug) {
         setSlug(savedSlug);
@@ -158,7 +169,6 @@ function SettingsContent() {
     initAdmin();
   }, [supabase, router, currentMonth, fetchMonthlyAppointments, loadProfile]);
 
-  // ✅ Când ne întoarcem de la Stripe după conectare, reîncărcăm profilul
   useEffect(() => {
     if (searchParams.get("stripe") === "connected" && userId) {
       loadProfile(userId).then(() => {
@@ -212,6 +222,54 @@ function SettingsContent() {
     setCurrency(newCurrency);
     await supabase.from('profiles').update({ currency: newCurrency }).eq('id', userId);
     await showToast({ message: t("toastSavedMsg"), type: "success" });
+  };
+
+  // ✅ Notificări — salvare generică
+  const saveNotifSettings = async (next: NotificationSettings) => {
+    setNotifSettings(next);
+    if (!userId) return;
+    await supabase.from('profiles').update({ notification_settings: next }).eq('id', userId);
+  };
+
+  const handleToggleInApp = () => {
+    saveNotifSettings({ ...notifSettings, in_app_enabled: !notifSettings.in_app_enabled });
+  };
+
+  const handleToggleSound = () => {
+    saveNotifSettings({ ...notifSettings, sound_enabled: !notifSettings.sound_enabled });
+  };
+
+  const handleVolumeChange = (v: number) => {
+    saveNotifSettings({ ...notifSettings, volume: v });
+  };
+
+  const handleToggleSystem = async () => {
+    if (browserPermission === "unsupported") {
+      await showToast({ message: t("notifications.systemUnsupported"), type: "info" });
+      return;
+    }
+    if (notifSettings.system_enabled) {
+      // dezactivăm — nu putem revoca permisiunea browserului programatic, doar oprim trimiterea
+      saveNotifSettings({ ...notifSettings, system_enabled: false });
+      return;
+    }
+    if (Notification.permission === "granted") {
+      saveNotifSettings({ ...notifSettings, system_enabled: true });
+      return;
+    }
+    if (Notification.permission === "denied") {
+      setBrowserPermission("denied");
+      await showToast({ message: t("notifications.systemPermissionDenied"), type: "error" });
+      return;
+    }
+    const perm = await Notification.requestPermission();
+    setBrowserPermission(perm);
+    if (perm === "granted") {
+      saveNotifSettings({ ...notifSettings, system_enabled: true });
+      new Notification("Chronos", { body: t("notifications.systemTestMessage") });
+    } else {
+      await showToast({ message: t("notifications.systemPermissionDenied"), type: "error" });
+    }
   };
 
   const saveSettings = async (blocksToSave: ManualBlocksMap = manualBlocks) => {
@@ -491,7 +549,7 @@ function SettingsContent() {
         </section>
 
         {/* ✅ SECTIUNE PLATA ONLINE - PROTEJATA (Elite/Team) */}
-        <section className="relative bg-white rounded-[30px] p-6 md:p-8 mb-8 shadow-xl border border-slate-100 overflow-hidden">
+        <section id="onboarding-stripe-connect" className="relative bg-white rounded-[30px] p-6 md:p-8 mb-8 shadow-xl border border-slate-100 overflow-hidden">
           {!isEliteOrTeam && (
              <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-white/80 backdrop-blur-md p-6 text-center">
                 <div className="bg-amber-500 text-black px-4 py-1 rounded-full font-black text-[10px] uppercase mb-2">{t("premiumBadge")}</div>
@@ -512,7 +570,6 @@ function SettingsContent() {
             <p className="text-slate-500 text-[11px] font-bold mb-6">{t("paymentSectionSubtitle")}</p>
 
             <div className="flex flex-col md:flex-row items-stretch gap-4 mb-6">
-              {/* Status conectare Stripe */}
               <div className="flex-1 bg-slate-50 border-2 border-slate-100 rounded-[22px] p-5 flex flex-col justify-between">
                 <div className="flex items-center gap-2 mb-3">
                   <span className={`w-2.5 h-2.5 rounded-full ${stripeOnboarded ? 'bg-green-500' : 'bg-slate-300'}`}></span>
@@ -543,7 +600,6 @@ function SettingsContent() {
                 )}
               </div>
 
-              {/* Comutator plată obligatorie */}
               <div className="flex-1 bg-slate-50 border-2 border-slate-100 rounded-[22px] p-5 flex flex-col justify-between">
                 <span className="text-[10px] font-black uppercase text-slate-500 italic mb-3 block">{t("requirePaymentLabel")}</span>
                 <button
@@ -556,7 +612,6 @@ function SettingsContent() {
                 </button>
               </div>
 
-              {/* Valuta */}
               <div className="flex-1 bg-slate-50 border-2 border-slate-100 rounded-[22px] p-5 flex flex-col justify-between">
                 <span className="text-[10px] font-black uppercase text-slate-500 italic mb-3 block">{t("currencyLabel")}</span>
                 <select
@@ -569,11 +624,100 @@ function SettingsContent() {
               </div>
             </div>
 
-            {/* Transparență comision */}
             <div className="bg-amber-50 border-2 border-amber-200 rounded-[22px] p-5">
               <p className="text-[10px] font-black uppercase text-amber-800 italic mb-2">{t("commissionNoticeTitle")}</p>
               <p className="text-[11px] font-bold text-amber-900 leading-relaxed">{t("commissionNoticeText")}</p>
             </div>
+          </div>
+        </section>
+
+        {/* ✅ SECTIUNE NOTIFICĂRI — NOUĂ — PROTEJATĂ (Elite/Team) */}
+        <section className="relative bg-white rounded-[30px] p-6 md:p-8 mb-8 shadow-xl border border-slate-100 overflow-hidden">
+          {!isEliteOrTeam && (
+             <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-white/80 backdrop-blur-md p-6 text-center">
+                <div className="bg-amber-500 text-black px-4 py-1 rounded-full font-black text-[10px] uppercase mb-2">{t("premiumBadge")}</div>
+                <h3 className="text-slate-900 font-black uppercase italic text-lg tracking-tighter">{t("notifications.title")}</h3>
+                <p className="text-slate-500 text-[10px] font-bold uppercase max-w-md mt-1">
+                  {t("paymentPremiumTextBefore")}<span className="text-amber-600">{t("premiumElite")}</span>{t("premiumOr")}<span className="text-amber-600">{t("premiumTeam")}</span>
+                </p>
+                <Link href="/upgrade" className="mt-4 px-6 py-2 bg-slate-900 text-white rounded-lg font-black uppercase text-[9px] italic hover:bg-amber-500 hover:text-black transition-all">
+                  {t("upgradeBtn")}
+                </Link>
+             </div>
+          )}
+
+          <div className={`transition-all ${!isEliteOrTeam ? 'blur-sm grayscale opacity-30 pointer-events-none' : ''}`}>
+          <h2 className="text-lg md:text-xl font-black uppercase italic text-slate-900 tracking-tighter mb-2 border-l-4 border-amber-500 pl-3">
+            {t("notifications.title")}
+          </h2>
+          <p className="text-slate-500 text-[11px] font-bold mb-6">{t("notifications.subtitle")}</p>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            {/* Popup în aplicație */}
+            <div className="bg-slate-50 border-2 border-slate-100 rounded-[22px] p-5 flex flex-col justify-between">
+              <div className="mb-3">
+                <span className={`text-[10px] font-black uppercase italic block mb-1 ${notifSettings.in_app_enabled ? "text-emerald-600" : "text-slate-400"}`}>
+                  {t("notifications.inAppLabel")} {notifSettings.in_app_enabled ? t("notifications.statusOnSuffix") : t("notifications.statusOffSuffix")}
+                </span>
+                <p className="text-[9px] text-slate-400 font-bold leading-relaxed">{t("notifications.inAppDesc")}</p>
+              </div>
+              <button
+                type="button"
+                onClick={handleToggleInApp}
+                className={`w-full py-3 rounded-xl font-black text-[10px] uppercase italic transition-all shadow-md ${notifSettings.in_app_enabled ? "bg-red-50 text-red-500 hover:bg-red-500 hover:text-white" : "bg-emerald-500 text-white hover:bg-emerald-600"}`}
+              >
+                {notifSettings.in_app_enabled ? t("notifications.deactivateBtn") : t("notifications.activateBtn")}
+              </button>
+            </div>
+
+            {/* Notificare de sistem */}
+            <div className="bg-slate-50 border-2 border-slate-100 rounded-[22px] p-5 flex flex-col justify-between">
+              <div className="mb-3">
+                <span className={`text-[10px] font-black uppercase italic block mb-1 ${notifSettings.system_enabled ? "text-emerald-600" : "text-slate-400"}`}>
+                  {t("notifications.systemLabel")} {notifSettings.system_enabled ? t("notifications.statusOnSuffix") : t("notifications.statusOffSuffix")}
+                </span>
+                <p className="text-[9px] text-slate-400 font-bold leading-relaxed">{t("notifications.systemDesc")}</p>
+              </div>
+              <button
+                type="button"
+                onClick={handleToggleSystem}
+                disabled={browserPermission === "unsupported"}
+                className={`w-full py-3 rounded-xl font-black text-[10px] uppercase italic transition-all shadow-md disabled:opacity-40 ${notifSettings.system_enabled ? "bg-red-50 text-red-500 hover:bg-red-500 hover:text-white" : "bg-emerald-500 text-white hover:bg-emerald-600"}`}
+              >
+                {notifSettings.system_enabled ? t("notifications.deactivateBtn") : t("notifications.activateBtn")}
+              </button>
+              {browserPermission === "denied" && (
+                <p className="text-[8px] font-bold text-red-500 italic mt-2">{t("notifications.systemPermissionDenied")}</p>
+              )}
+            </div>
+
+            {/* Sunet + Volum */}
+            <div className="bg-slate-50 border-2 border-slate-100 rounded-[22px] p-5 flex flex-col justify-between">
+              <div className="mb-3 flex items-center justify-between">
+                <span className={`text-[10px] font-black uppercase italic ${notifSettings.sound_enabled ? "text-emerald-600" : "text-slate-400"}`}>
+                  {t("notifications.soundLabel")} {notifSettings.sound_enabled ? t("notifications.statusOnSuffix") : t("notifications.statusOffSuffix")}
+                </span>
+                <button
+                  type="button"
+                  onClick={handleToggleSound}
+                  className={`px-3 py-1.5 rounded-lg font-black text-[9px] uppercase italic transition-all ${notifSettings.sound_enabled ? "bg-red-50 text-red-500 hover:bg-red-500 hover:text-white" : "bg-emerald-500 text-white hover:bg-emerald-600"}`}
+                >
+                  {notifSettings.sound_enabled ? t("notifications.deactivateBtn") : t("notifications.activateBtn")}
+                </button>
+              </div>
+              <div className={`transition-opacity ${!notifSettings.sound_enabled ? 'opacity-30 pointer-events-none' : ''}`}>
+                <span className="text-[9px] font-bold text-slate-400 block mb-1">{t("notifications.volumeLabel")}: {notifSettings.volume}%</span>
+                <input
+                  type="range"
+                  min={0}
+                  max={100}
+                  value={notifSettings.volume}
+                  onChange={(e) => handleVolumeChange(Number(e.target.value))}
+                  className="w-full accent-amber-500"
+                />
+              </div>
+            </div>
+          </div>
           </div>
         </section>
 
@@ -590,7 +734,7 @@ function SettingsContent() {
         )}
 
         {/* CALENDAR - DISPONIBIL TUTUROR */}
-        <div className="bg-white p-5 md:p-8 rounded-[40px] shadow-2xl border border-slate-100 mb-10">
+        <div id="onboarding-orar" className="bg-white p-5 md:p-8 rounded-[40px] shadow-2xl border border-slate-100 mb-10">
           <div className="flex flex-col md:flex-row items-center justify-between mb-6 gap-4">
             <div className="flex flex-col">
               <h2 className="text-2xl md:text-3xl font-black uppercase italic text-slate-900 tracking-tighter leading-none">

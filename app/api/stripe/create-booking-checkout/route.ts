@@ -49,7 +49,24 @@ export async function POST(request: Request) {
     const totalAmount = lineItems.reduce((sum: number, item: any) => sum + item.price_data.unit_amount, 0);
     const applicationFee = Math.round(totalAmount * (PLATFORM_FEE_PERCENT / 100));
 
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+    // ✅ FIX: dacă NEXT_PUBLIC_BASE_URL lipsește din .env, calculăm automat
+    // adresa din cererea primită (origin), ca să nu mai crape niciodată din
+    // cauza unei variabile de mediu uitate — funcționează atât local cât și
+    // pe orice domeniu de producție/preview, fără configurare suplimentară.
+    let baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+    if (!baseUrl) {
+      const origin = request.headers.get("origin") || request.headers.get("referer");
+      if (origin) {
+        baseUrl = new URL(origin).origin;
+      } else {
+        const host = request.headers.get("host");
+        const protocol = host?.includes("localhost") ? "http" : "https";
+        baseUrl = host ? `${protocol}://${host}` : null as any;
+      }
+    }
+    if (!baseUrl) {
+      return NextResponse.json({ error: "Nu am putut determina adresa site-ului (NEXT_PUBLIC_BASE_URL lipsă și nu am putut-o deduce)." }, { status: 500 });
+    }
 
     const session = await stripe.checkout.sessions.create({
       mode: "payment",

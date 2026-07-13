@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect, Suspense, useCallback, useMemo, useRef } from "react";
 import { useParams, useSearchParams } from "next/navigation";
@@ -7,15 +7,17 @@ import { supabase } from "@/lib/supabaseClient";
 import { useTranslations } from "next-intl";
 import LocaleSwitcher from "@/components/LocaleSwitcher";
 import { ChronosTimePicker, ChronosDatePicker } from "@/components/ChronosDateTimePickers";
+import { CalendarDays, Clock3, Star } from "lucide-react";
 
 interface StaffRow { id: string; name: string; services: string[]; working_hours?: any }
 interface ServiceRow { id: string; nume_serviciu: string; price: number; duration: number }
 interface ExistingAppointment { time: string; duration: number }
 interface WorkingHourEntry { day: string; start: string; end: string; closed: boolean }
+interface AdminProfile { full_name: string | null; avatar_url: string | null; phone: string | null; email: string | null }
 
-// ⚠️ FIX (nu tradus): zilele stocate în baza de date (working_hours.day) sunt salvate
-// întotdeauna în română, indiferent de limba interfeței. Acest array e folosit DOAR
-// pentru a verifica disponibilitatea din baza de date, deci trebuie să rămână fix.
+// FIX (nu tradus): zilele stocate in baza de date (working_hours.day) sunt salvate
+// intotdeauna in romana, indiferent de limba interfetei. Acest array e folosit DOAR
+// pentru a verifica disponibilitatea din baza de date, deci trebuie sa ramana fix.
 const DAY_NAMES_LONG = ["Duminică", "Luni", "Marți", "Miercuri", "Joi", "Vineri", "Sâmbătă"];
 
 type LimitReason = "plan_limit" | "hour_blocked" | "day_closed" | "outside_hours" | "service_overlap" | "already_booked";
@@ -42,6 +44,14 @@ function timeToMinutes(t: string): number {
   return h * 60 + (m || 0);
 }
 
+// ✅ Normalizează numărul de telefon pentru link-uri wa.me (fără spații, fără "+",
+// cu prefix de țară — presupunem România dacă numărul începe cu "0")
+function toWaLink(phone: string): string {
+  const digits = phone.replace(/\D/g, "");
+  const withCountryCode = digits.startsWith("0") ? "4" + digits : digits;
+  return `https://wa.me/${withCountryCode}`;
+}
+
 function parseWH(whData: any): WorkingHourEntry[] {
   if (!whData) return [];
   if (typeof whData === "string") {
@@ -49,13 +59,13 @@ function parseWH(whData: any): WorkingHourEntry[] {
   }
   return Array.isArray(whData) ? whData : [];
 }
-// ✅ Cheie compusă dată+specialist — ca să blocăm orele DOAR pentru specialistul ales,
-// nu pentru toți specialiștii (specialiști diferiți pot fi ocupați la ore diferite)
+// Cheie compusa data+specialist - ca sa blocam orele DOAR pentru specialistul ales,
+// nu pentru toti specialistii (specialisti diferiti pot fi ocupati la ore diferite)
 function mkKey(date: string, specialistId: string) {
   return `${date}|${specialistId || ""}`;
 }
 
-// ─── POPUPS ──────────────────────────────────────────────────────────────────────
+// ─── POPUPS ────────────────────────────────────────────────────────────────
 function ChronosPopup({ icon, title, message, onClose }: { icon: string; title: string; message: string; onClose: () => void }) {
   const t = useTranslations("rezervare");
   return (
@@ -77,7 +87,7 @@ function SuccessPopup({ onClose }: { onClose: () => void }) {
     <div className="fixed inset-0 bg-slate-950/60 backdrop-blur-md z-[800] flex items-center justify-center p-6" onClick={onClose}>
       <div className="bg-white w-full max-w-[380px] rounded-[40px] p-10 text-center shadow-2xl border-[4px] border-amber-500 relative" onClick={(e) => e.stopPropagation()}>
         <button onClick={onClose} className="absolute top-4 right-6 text-slate-300 hover:text-red-500 text-xl font-black transition-colors">✕</button>
-        <div className="text-5xl mb-4">⭐</div>
+        <Star className="w-12 h-12 mx-auto mb-4 text-amber-500" fill="currentColor" strokeWidth={2.5} />
         <h3 className="text-amber-500 font-black uppercase italic text-2xl mb-2">{t("thanksTitle")}</h3>
         <p className="text-slate-700 font-bold italic">{t("thanksText")}</p>
       </div>
@@ -85,7 +95,7 @@ function SuccessPopup({ onClose }: { onClose: () => void }) {
   );
 }
 
-// ─── MAIN COMPONENT ───────────────────────────────────────────────────────────────
+// ─── MAIN COMPONENT ──────────────────────────────────────────────────────────
 function RezervareContent() {
   const t = useTranslations("rezervare");
   const tWaitlist = useTranslations("waitlist");
@@ -102,8 +112,8 @@ function RezervareContent() {
   const configChannelRef = useRef<any>(null);
 
   const [adminWorkingHours, setAdminWorkingHours] = useState<WorkingHourEntry[]>([]);
+  const [adminProfile, setAdminProfile] = useState<AdminProfile | null>(null);
   const [adminManualBlocks, setAdminManualBlocks] = useState<Record<string, string[]>>({});
-  // ✅ Plată online la rezervare
   const [paymentConfig, setPaymentConfig] = useState<{ required: boolean; onboarded: boolean; slug: string | null }>({
     required: false, onboarded: false, slug: null,
   });
@@ -149,7 +159,6 @@ function RezervareContent() {
     if (!adminId || !date) return;
     const key = mkKey(date, specialistId || "");
     if (!specialistId) {
-      // Fără specialist ales ("prima disponibilitate") — nu blocăm nicio oră
       setAppointmentsByDate(prev => ({ ...prev, [key]: [] }));
       return;
     }
@@ -198,13 +207,11 @@ function RezervareContent() {
     try {
       const { data, error } = await supabase.from("profiles").select("id").eq("slug", slug).single();
       if (error) {
-        if (error.code !== "PGRST116") setTechnicalError(true); // orice altceva decât "niciun rezultat" = problemă reală
+        if (error.code !== "PGRST116") setTechnicalError(true);
         return null;
       }
       return data?.id || null;
     } catch {
-      // O eroare aruncată (nu doar un răspuns "gol") înseamnă de obicei o
-      // problemă reală de conectivitate (Supabase indisponibil), nu un salon inexistent
       setTechnicalError(true);
       return null;
     }
@@ -217,12 +224,8 @@ function RezervareContent() {
       const [staffRes, servicesRes, profileRes] = await Promise.all([
         supabase.from("staff").select("*").eq("user_id", adminId).order("created_at", { ascending: false }),
         supabase.from("services").select("*").eq("user_id", adminId).order("created_at", { ascending: false }),
-        supabase.from("profiles").select("working_hours, manual_blocks, stripe_account_id, stripe_onboarded, currency, require_payment_at_booking, slug").eq("id", adminId).single(),
+        supabase.from("profiles").select("working_hours, manual_blocks, stripe_account_id, stripe_onboarded, currency, require_payment_at_booking, slug, avatar_url, full_name, phone, email").eq("id", adminId).single(),
       ]);
-      // ✅ Unele erori de rețea/conectivitate NU aruncă o excepție — Supabase le
-      // returnează liniștit ca obiect "error", fără să oprească execuția codului.
-      // "PGRST116" e codul normal pentru "niciun rând găsit" (salon inexistent) — restul
-      // codurilor de eroare (rețea, 5xx, CORS) înseamnă o problemă tehnică reală.
       const hasTechnicalIssue =
         (staffRes.error && staffRes.error.code !== "PGRST116") ||
         (servicesRes.error && servicesRes.error.code !== "PGRST116") ||
@@ -235,6 +238,12 @@ function RezervareContent() {
       if (staffRes.data) setSpecialisti(staffRes.data);
       if (servicesRes.data) setServicii(servicesRes.data);
       if (profileRes.data) {
+        setAdminProfile({
+          full_name: profileRes.data.full_name || null,
+          avatar_url: profileRes.data.avatar_url || null,
+          phone: profileRes.data.phone || null,
+          email: profileRes.data.email || null,
+        });
         setAdminWorkingHours(parseWH(profileRes.data.working_hours));
         if (profileRes.data.manual_blocks && typeof profileRes.data.manual_blocks === "object") {
           setAdminManualBlocks(profileRes.data.manual_blocks as Record<string, string[]>);
@@ -273,8 +282,6 @@ function RezervareContent() {
     if (saved) { try { setSavedUserProfiles(JSON.parse(saved)); } catch {} }
   }, [initSlug]);
 
-  // ✅ Reîncercare automată, în fundal, cât timp există o eroare tehnică —
-  // clientul nu trebuie să apese nimic; mesajul dispare singur când revine conexiunea
   useEffect(() => {
     if (!technicalError) return;
     const retryInterval = setInterval(() => {
@@ -293,9 +300,24 @@ function RezervareContent() {
     if (adminId) fetchAppointmentsForDate(today, "");
   }, [adminId, today, fetchAppointmentsForDate]);
 
-  // ✅ Clientul se întoarce de la Stripe după plată — arătăm doar un mesaj
-  // de confirmare, apoi curățăm adresa, ca să rămână direct pe formular,
-  // gata pentru o nouă rezervare, fără să ceară vreun buton apăsat.
+  // ✅ Cod QR / link personal de specialist — dacă URL-ul conține ?specialist=ID,
+  // preselectăm automat acel specialist la primul serviciu, imediat ce lista de
+  // specialiști e încărcată. Clientul alege doar data și ora.
+  useEffect(() => {
+    const presetSpecialistId = searchParams.get("specialist");
+    if (!presetSpecialistId || specialisti.length === 0) return;
+    const exists = specialisti.some((sp) => sp.id === presetSpecialistId);
+    if (!exists) return;
+    setBookings((prev) => {
+      if (prev[0]?.specialist_id === presetSpecialistId) return prev;
+      const updated = [...prev];
+      updated[0] = { ...updated[0], specialist_id: presetSpecialistId };
+      return updated;
+    });
+    fetchAppointmentsForDate(today, presetSpecialistId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [specialisti]);
+
   useEffect(() => {
     const platit = searchParams.get("platit");
     if (platit === "success") {
@@ -320,6 +342,12 @@ function RezervareContent() {
           const newData = payload.new as any;
           if (newData?.working_hours) setAdminWorkingHours(parseWH(newData.working_hours));
           if (newData?.manual_blocks) setAdminManualBlocks(newData.manual_blocks as Record<string, string[]>);
+          setAdminProfile((prev) => ({
+            full_name: newData?.full_name ?? prev?.full_name ?? null,
+            avatar_url: newData?.avatar_url ?? prev?.avatar_url ?? null,
+            phone: newData?.phone ?? prev?.phone ?? null,
+            email: newData?.email ?? prev?.email ?? null,
+          }));
         }
       )
       .on("postgres_changes",
@@ -443,8 +471,6 @@ function RezervareContent() {
         }
       }
 
-      // ✅ Dacă salonul cere plată online la rezervare, redirecționăm către Stripe
-      // și NU mai salvăm programarea direct — se salvează abia după plata confirmată (webhook).
       if (paymentConfig.required && paymentConfig.onboarded) {
         const res = await fetch("/api/stripe/create-booking-checkout", {
           method: "POST",
@@ -497,7 +523,6 @@ function RezervareContent() {
         };
         const { data: inserted, error } = await supabase.from("appointments").insert([payload]).select("id").single();
         if (error) throw error;
-        // ✅ Trimitem email de confirmare, cu link de auto-gestionare (anulare/reprogramare)
         if (inserted?.id) {
           fetch("/api/send", {
             method: "POST",
@@ -509,7 +534,22 @@ function RezervareContent() {
               ora: b.ora,
               appointmentId: inserted.id,
             }),
-          }).catch(() => {}); // eșecul trimiterii email-ului nu trebuie să blocheze rezervarea
+          }).catch(() => {});
+        }
+        // Trimitem si confirmare pe WhatsApp, in paralel - foloseste sablonul
+        // "confirmare_programare" aprobat de Meta. Esecul nu blocheaza rezervarea.
+        if (clientInfo.telefon) {
+          fetch("/api/send-whatsapp-confirmation", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              phone: clientInfo.telefon,
+              nume: clientInfo.nume.trim(),
+              data: b.data,
+              ora: b.ora,
+              adminId,
+            }),
+          }).catch(() => {});
         }
       }
 
@@ -545,7 +585,6 @@ function RezervareContent() {
   const activeBookingAppts: ExistingAppointment[] = activeBooking
     ? (appointmentsByDate[mkKey(activeBooking.data, activeBooking.specialist_id)] || [])
     : [];
-  // ✅ Program efectiv: al specialistului ales, dacă are unul setat — altfel, cel general al salonului
   const effectiveWorkingHours = useMemo(() => {
     if (!activeBooking?.specialist_id) return adminWorkingHours;
     const staffMember = specialisti.find(s => s.id === activeBooking.specialist_id);
@@ -556,6 +595,7 @@ function RezervareContent() {
   const avgRating = feedbacks.length > 0
     ? (feedbacks.reduce((sum, f) => sum + (f.stele || 0), 0) / feedbacks.length)
     : 0;
+  const starAriaBase = localeCode.startsWith("ro") ? "stele" : "stars";
 
   if (technicalError) {
     return (
@@ -597,11 +637,16 @@ function RezervareContent() {
   return (
     <main className="min-h-screen relative bg-gradient-to-br from-slate-50 via-white to-amber-50/40 flex flex-col items-center p-4 md:p-10 text-slate-900 overflow-x-hidden" onClick={() => setShowSuggestions(false)}>
 
-      {/* Decor de fundal — subtil, nu distrage atenția */}
       <div className="fixed -top-40 -left-40 w-96 h-96 bg-amber-200/20 rounded-full blur-3xl pointer-events-none" />
       <div className="fixed top-1/3 -right-40 w-[500px] h-[500px] bg-slate-300/20 rounded-full blur-3xl pointer-events-none" />
 
-      {/* Selector de limbă — vizibil pe toată pagina publică de rezervare */}
+      <div className="fixed top-4 left-4 z-[700] flex items-center gap-2 rounded-2xl bg-white/85 px-3 py-2 shadow-lg border border-white/70 backdrop-blur" onClick={(e) => e.stopPropagation()}>
+        <div className="relative h-7 w-7">
+          <Image src="/logo-chronos.png" alt="Chronos" fill className="object-contain" priority />
+        </div>
+        <span className="hidden sm:inline text-[9px] font-black uppercase italic tracking-widest text-slate-700">Chronos</span>
+      </div>
+
       <div className="fixed top-4 right-4 z-[700]" onClick={(e) => e.stopPropagation()}>
         <LocaleSwitcher />
       </div>
@@ -694,19 +739,32 @@ function RezervareContent() {
         <div className="w-full max-w-6xl mb-14 relative z-10">
           <div className="grid lg:grid-cols-[1.35fr_1fr] gap-8 items-start">
 
-            {/* ── COLOANA 1: FORMULAR DE REZERVARE ─────────────────────────── */}
             <div className="bg-white rounded-[55px] shadow-2xl border border-slate-100 overflow-hidden">
               <div className="bg-slate-900 p-12 text-white text-center flex flex-col items-center relative">
                 <div className="absolute top-0 left-0 w-full h-1.5 bg-amber-500"></div>
-                <div className="mb-6 relative w-24 h-24">
-                  <Image src="/logo-chronos.png" alt="Logo" fill className="object-contain" priority />
+                <div className="mb-6 relative w-32 h-32 rounded-[36px] overflow-hidden bg-white/10 border border-white/10 shadow-2xl flex items-center justify-center">
+                  {adminProfile?.avatar_url
+                    ? <Image src={adminProfile.avatar_url} alt={adminProfile.full_name || "Logo"} fill className="object-cover" priority />
+                    : <span className="text-5xl font-black text-amber-500 uppercase italic">{(adminProfile?.full_name || t("brandLine1") || "C").slice(0, 1)}</span>}
                 </div>
                 <h1 className="text-4xl font-black uppercase italic tracking-tighter">
-                  {t("brandLine1")} <span className="text-amber-500">{t("brandLine2")}</span>
+                  {adminProfile?.full_name || <>{t("brandLine1")} <span className="text-amber-500">{t("brandLine2")}</span></>}
                 </h1>
+                {(adminProfile?.phone || adminProfile?.email) && (
+                  <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
+                    {adminProfile?.phone && (
+                      <a href={toWaLink(adminProfile.phone)} target="_blank" rel="noopener noreferrer" className="px-4 py-2 bg-white/10 hover:bg-[#25D366] hover:text-white rounded-full text-[10px] font-black uppercase italic transition-colors flex items-center gap-1.5">
+                        <span>💬</span> {adminProfile.phone}
+                      </a>
+                    )}
+                    {adminProfile?.email && (
+                      <a href={`mailto:${adminProfile.email}`} className="px-4 py-2 bg-white/10 hover:bg-amber-500 hover:text-slate-900 rounded-full text-[10px] font-black uppercase italic transition-colors">{adminProfile.email}</a>
+                    )}
+                  </div>
+                )}
                 {feedbacks.length > 0 ? (
                   <div className="mt-4 flex items-center gap-2 bg-white/10 px-5 py-2 rounded-full">
-                    <span className="text-amber-500 text-sm">⭐</span>
+                    <Star className="w-4 h-4 text-amber-500" fill="currentColor" strokeWidth={2.5} />
                     <span className="text-white font-black text-sm">{avgRating.toFixed(1)}</span>
                     <span className="text-white/40 text-[10px] font-bold uppercase">
                       · {feedbacks.length}{t("reviewsCountSuffix")}
@@ -800,8 +858,9 @@ function RezervareContent() {
                         <div className="space-y-2">
                           <label className="text-[10px] font-black uppercase italic text-slate-400 ml-4">{t("dateLabel")}</label>
                           <button type="button" onClick={() => setPickerControl({ type: "date", bookingId: b.id })}
-                            className="w-full bg-slate-900 text-white rounded-[25px] py-4 px-6 font-black text-[15px] uppercase italic hover:text-amber-500 transition-all text-center">
-                            📅 {new Date(b.data + "T00:00:00").toLocaleDateString(localeCode, { day: "2-digit", month: "2-digit", year: "numeric" })}
+                            className="w-full bg-slate-900 text-white rounded-[25px] py-4 px-6 font-black text-[15px] uppercase italic hover:text-amber-500 transition-all flex items-center justify-center gap-2">
+                            <CalendarDays className="w-4 h-4 shrink-0" strokeWidth={2.6} />
+                            <span>{new Date(b.data + "T00:00:00").toLocaleDateString(localeCode, { day: "2-digit", month: "2-digit", year: "numeric" })}</span>
                           </button>
                         </div>
                         <div className="space-y-2">
@@ -819,8 +878,9 @@ function RezervareContent() {
                               b.ora !== "00:00"
                                 ? "bg-amber-500 text-white hover:bg-amber-600"
                                 : "bg-slate-900 text-white hover:text-amber-500"
-                            }`}>
-                            🕒 {b.ora === "00:00" ? t("chooseTimeOpt") : b.ora}
+                            } flex items-center justify-center gap-2`}>
+                            <Clock3 className="w-4 h-4 shrink-0" strokeWidth={2.6} />
+                            <span>{b.ora === "00:00" ? t("chooseTimeOpt") : b.ora}</span>
                           </button>
                         </div>
                       </div>
@@ -870,13 +930,14 @@ function RezervareContent() {
               </button>
             </form>
           </div>
-          {/* ── COLOANA 2: LASĂ O RECENZIE — alături de formular, nu jos de tot ── */}
           <div className="bg-white p-10 rounded-[45px] shadow-xl border border-slate-100 lg:sticky lg:top-6">
             <h3 className="text-xl font-black uppercase italic mb-6 border-l-8 border-amber-500 pl-4">{t("leaveReviewTitle")}</h3>
             <div className="flex justify-center gap-2 mb-6">
               {[1, 2, 3, 4, 5].map((s) => (
-                <button key={s} onMouseEnter={() => setHover(s)} onMouseLeave={() => setHover(0)} onClick={() => setRating(s)}
-                  className={`text-3xl transition-transform hover:scale-125 ${s <= (hover || rating) ? "" : "grayscale opacity-20"}`}>⭐</button>
+                <button key={s} type="button" onMouseEnter={() => setHover(s)} onMouseLeave={() => setHover(0)} onClick={() => setRating(s)}
+                  className={`transition-transform hover:scale-125 ${s <= (hover || rating) ? "text-amber-500" : "text-slate-300"}`} aria-label={`${s} ${starAriaBase}`}>
+                  <Star className="w-8 h-8" fill="currentColor" strokeWidth={2.5} />
+                </button>
               ))}
             </div>
             <input type="text" placeholder={t("yourNamePlaceholder")}
@@ -894,7 +955,6 @@ function RezervareContent() {
         </div>
       )}
 
-      {/* ── RECENZII — pe toată lățimea, sub formular ─────────────────────── */}
       <div className="w-full max-w-6xl mb-10 relative z-10">
         <h3 className="text-2xl font-black uppercase italic mb-8 border-l-8 border-amber-500 pl-4">{t("recentReviewsTitle")}</h3>
         {feedbacks.length > 0 ? (
@@ -902,7 +962,7 @@ function RezervareContent() {
             {feedbacks.map((f) => (
               <div key={f.id} className="break-inside-avoid bg-white p-8 rounded-[40px] shadow-md border border-slate-50 hover:border-amber-200 hover:shadow-lg transition-all flex flex-col gap-4">
                 <div>
-                  <div className="flex gap-1 mb-2">{Array.from({ length: f.stele }).map((_, i) => <span key={i}>⭐</span>)}</div>
+                  <div className="flex gap-1 mb-2">{Array.from({ length: f.stele }).map((_, i) => <Star key={i} className="w-4 h-4 text-amber-500" fill="currentColor" strokeWidth={2.5} />)}</div>
                   <p className="font-black text-[12px] text-amber-500 uppercase mb-2">{f.nume_client}</p>
                   <p className="font-bold italic text-slate-700">"{f.comentariu}"</p>
                 </div>

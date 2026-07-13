@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect, useRef, useMemo, useCallback, Suspense } from "react";
 import { QueryClient, QueryClientProvider, useQuery } from "@tanstack/react-query";
@@ -8,6 +8,8 @@ import Image from "next/image";
 import debounce from "lodash/debounce";
 import { useTranslations } from "next-intl";
 import MultiServiceBooking from "@/components/MultiServiceBooking";
+import ProgramariCalendarPanel from "@/components/ProgramariCalendarPanel";
+import { CalendarDays, CheckCircle2, FileText, Gift, X } from "lucide-react";
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { staleTime: 1000 * 60 * 5, refetchOnWindowFocus: false } },
@@ -29,31 +31,34 @@ function parseWH(d: any): WorkingHourEntry[] {
   return Array.isArray(d) ? d : [];
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────
 function ProgramariContent() {
   const t = useTranslations("programariPage");
   const today = new Date().toISOString().split("T")[0];
 
-  // ── Date client (partajate cu MultiServiceBooking) ─────────────────────────
+  // ── Date client (partajate cu MultiServiceBooking) ─────────────────────────────
   const [clientData, setClientData] = useState({ nume: "", telefon: "", email: "", detalii: "" });
   const [clientErrors, setClientErrors] = useState<Record<string, boolean>>({});
   const [poza, setPoza] = useState<string | null>(null);
 
-  // ── Fișiere ────────────────────────────────────────────────────────────────
+  // ── Fișiere ────────────────────────────────────────────────────────────────────
   const [documente, setDocumente] = useState<DocumentAttachment[]>([]);
 
-  // ── Succes multi ───────────────────────────────────────────────────────────
+  // ── Succes multi ──────────────────────────────────────────────────────────────
   const [multiSuccess, setMultiSuccess] = useState(false);
 
-  // ── Popup programare ───────────────────────────────────────────────────────
+  // ── Popup programare ─────────────────────────────────────────────────────────
   const [popupProgramare, setPopupProgramare] = useState<any | null>(null);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [filteredClients, setFilteredClients] = useState<any[]>([]);
 
+  // ── Dată presetată din panoul de calendar (dashboard) ──────────────────────────
+  const [presetDate, setPresetDate] = useState<string | null>(null);
+
   const suggestionsRef = useRef<HTMLDivElement>(null);
   const popupRef = useRef<HTMLDivElement>(null);
 
-  // ── Session query (înlocuiește useState + useEffect pentru userId) ──────────
+  // ── Session query (înlocuiește useState + useEffect pentru userId) ────────────
   const { data: session } = useQuery({
     queryKey: ["session"],
     queryFn: async () => {
@@ -64,14 +69,14 @@ function ProgramariContent() {
 
   const userId = session?.user?.id ?? "";
 
-  // ── Queries ────────────────────────────────────────────────────────────────
+  // ── Queries ───────────────────────────────────────────────────────────────────
   const { data: programari } = useQuery({
     queryKey: ["programari"],
     queryFn: async () => {
       if (!userId) return [];
       const dl = new Date(); dl.setDate(dl.getDate() - 30);
       const { data } = await supabase.from("appointments")
-        .select("id, title, date, time, details, phone, email, file_url, is_client_booking, angajat_id, serviciu_id, documente, nume_serviciu, duration")
+        .select("id, title, date, time, details, phone, email, file_url, poza, is_client_booking, angajat_id, serviciu_id, documente, nume_serviciu, duration")
         .eq("user_id", userId).gte("date", dl.toISOString().split("T")[0]).order("date", { ascending: false });
       return data || [];
     },
@@ -109,7 +114,7 @@ function ProgramariContent() {
     enabled: !!userId,
   });
 
-  // ── Derived ────────────────────────────────────────────────────────────────
+  // ── Derived ───────────────────────────────────────────────────────────────────
   const userPlan   = profileData?.plan_type?.toLowerCase() || "chronos free";
   const isTrialing = !!profileData?.trial_started_at;
 
@@ -143,7 +148,7 @@ function ProgramariContent() {
 
   const limitaCurenta = isTrialing ? 999999 : LIMITE_ABONAMENTE[userPlan] || 30;
 
-  // ── Validare client ────────────────────────────────────────────────────────
+  // ── Validare client ───────────────────────────────────────────────────────────
   const validateClientData = useCallback((): boolean => {
     const e: Record<string, boolean> = {};
     if (!clientData.nume.trim())    e.nume = true;
@@ -153,11 +158,13 @@ function ProgramariContent() {
     return Object.keys(e).length === 0;
   }, [clientData]);
 
-  // ── Autocomplete ───────────────────────────────────────────────────────────
-  const handleNumeChange = useCallback(
+  // ── Autocomplete ─────────────────────────────────────────────────────────────
+  // ✅ FIX: actualizarea input-ului trebuie să fie IMEDIATĂ (nu în debounce),
+  // altfel React resetează câmpul la valoarea veche la fiecare literă tastată
+  // (input controlat + setState întârziat = "mănâncă" primele litere).
+  // Doar căutarea de sugestii rămâne debounced, ca să nu filtrăm la fiecare tastă.
+  const debouncedSearch = useCallback(
     debounce((val: string) => {
-      setClientData((prev) => ({ ...prev, nume: val }));
-      setClientErrors((prev) => ({ ...prev, nume: false }));
       if (val.length > 1 && programari) {
         const unique = Array.from(
           new Map((programari as any[]).filter((x) => x.title).map((x) => [x.title.toLowerCase(), x])).values()
@@ -165,21 +172,42 @@ function ProgramariContent() {
         const filtered = unique.filter((c: any) => c.title.toLowerCase().includes(val.toLowerCase())).slice(0, 5);
         setFilteredClients(filtered);
         setShowSuggestions(filtered.length > 0);
+      } else if (val.length === 0) {
+        showRecentClients();
       } else {
         setShowSuggestions(false);
       }
-    }, 300),
+    }, 250),
     [programari]
   );
 
+  const handleNumeChange = (val: string) => {
+    setClientData((prev) => ({ ...prev, nume: val }));
+    setClientErrors((prev) => ({ ...prev, nume: false }));
+    debouncedSearch(val);
+  };
+
+  // ✅ NOU: la click/focus pe câmpul gol, arată direct ultimii clienți, fără să
+  // trebuiască să tastezi ceva
+  const showRecentClients = useCallback(() => {
+    if (!programari) return;
+    const unique = Array.from(
+      new Map((programari as any[]).filter((x) => x.title).map((x) => [x.title.toLowerCase(), x])).values()
+    ).slice(0, 5);
+    if (unique.length > 0) {
+      setFilteredClients(unique);
+      setShowSuggestions(true);
+    }
+  }, [programari]);
+
   const selecteazaClient = (c: any) => {
     setClientData((prev) => ({ ...prev, nume: c.title, telefon: c.phone || "", email: c.email || "" }));
-    setPoza(c.file_url || null);
+    setPoza(c.file_url || c.poza || null);
     setClientErrors({});
     setShowSuggestions(false);
   };
 
-  // ── Upload fișiere ─────────────────────────────────────────────────────────
+  // ── Upload fișiere ───────────────────────────────────────────────────────────
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
     const docs = [...documente];
@@ -216,12 +244,14 @@ function ProgramariContent() {
     return () => document.removeEventListener("mousedown", h);
   }, []);
 
-  // ── Ecran succes ───────────────────────────────────────────────────────────
+  // ── Ecran succes ──────────────────────────────────────────────────────────────
   if (multiSuccess) {
     return (
       <main className="min-h-screen bg-slate-50 flex items-center justify-center p-6">
         <div className="w-full max-w-lg bg-white rounded-[55px] p-16 text-center shadow-2xl border-t-8 border-amber-500">
-          <div className="text-6xl mb-6">✅</div>
+          <div className="w-16 h-16 mx-auto mb-6 rounded-3xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+            <CheckCircle2 className="w-9 h-9" strokeWidth={2.7} />
+          </div>
           <h2 className="text-2xl font-black uppercase italic mb-4">{t("successTitle")}</h2>
           <p className="text-slate-500 font-bold mb-8">{t("successText")}</p>
           <button
@@ -236,13 +266,15 @@ function ProgramariContent() {
 
   return (
     <main className="min-h-screen bg-slate-50 p-4 md:p-12 text-slate-900 font-sans">
-      <div className="max-w-6xl mx-auto">
+      <div className="max-w-[1600px] mx-auto">
 
         {/* Banner Trial */}
         {isTrialing && daysLeft !== null && (
           <div className="mb-10 bg-slate-900 border-l-[10px] border-amber-500 p-6 rounded-[35px] shadow-xl flex flex-col md:flex-row items-center justify-between overflow-hidden relative border border-white/5">
             <div className="flex items-center gap-5 relative z-10">
-              <div className="w-14 h-14 bg-amber-500 rounded-2xl flex items-center justify-center text-2xl shadow-lg animate-pulse">🎁</div>
+              <div className="w-14 h-14 bg-amber-500 rounded-2xl flex items-center justify-center shadow-lg animate-pulse">
+                <Gift className="w-7 h-7 text-slate-950" strokeWidth={2.7} />
+              </div>
               <div>
                 <h4 className="text-white font-black uppercase italic tracking-tighter text-xl">{t("trialTitle")}</h4>
                 <p className="text-amber-500 text-[9px] font-black uppercase tracking-[0.3em] mt-1">{t("trialSubtitle", { n: daysLeft })}</p>
@@ -263,204 +295,225 @@ function ProgramariContent() {
               {t("headingPrefix")} <span className="text-amber-600">{t("headingHighlight")}</span>
             </h1>
             <p className="text-[10px] font-black uppercase italic text-slate-400 mt-2">
-              {t("planLabel")}<span className="text-amber-600">{userPlan.toUpperCase()}</span> •{" "}
-              {countLunaCurenta} / {isTrialing ? "∞" : limitaCurenta}{t("monthCountSuffix")}
+              {t("planLabel")}<span className="text-amber-600">{userPlan.toUpperCase()}</span>{" - "}
+              {countLunaCurenta} / {isTrialing ? "nelimitat" : limitaCurenta}{t("monthCountSuffix")}
             </p>
           </div>
           <div className="flex flex-col gap-2 items-end">
             <div className="bg-white px-6 py-3 rounded-2xl shadow-sm border border-amber-100 flex items-center gap-3">
               <span className="w-3 h-3 bg-amber-500 rounded-full animate-pulse"></span>
               <p className="text-[11px] font-black uppercase italic text-slate-600">
-                {t("todayLabel")}<span className="text-amber-600">{statsAzi.total}{t("totalSuffix")}</span> •{" "}
+                {t("todayLabel")}<span className="text-amber-600">{statsAzi.total}{t("totalSuffix")}</span>{" - "}
                 <span className="text-blue-500">{statsAzi.online}{t("onlineSuffix")}</span>
               </p>
             </div>
             <Link href="/programari/calendar"
               className="bg-white px-6 py-3 rounded-2xl shadow-sm border border-slate-200 flex items-center gap-3 hover:bg-slate-50 transition-all active:scale-95">
-              <span className="text-xs">📅</span>
+              <CalendarDays className="w-4 h-4 text-slate-500" strokeWidth={2.6} />
               <p className="text-[11px] font-black uppercase italic text-slate-600">{t("calendarLink")}</p>
             </Link>
           </div>
         </div>
 
-        {/* ── FORMULAR ────────────────────────────────────────────────────── */}
-        <section className="bg-white rounded-[50px] p-8 md:p-14 shadow-2xl border border-slate-100 mb-16">
+        {/* ── LAYOUT DASHBOARD: stânga formular, dreapta calendar+agendă ─────── */}
+        <div className="grid grid-cols-1 xl:grid-cols-[1.4fr_1fr] gap-8 items-start">
 
-          {/* ── SECȚIUNEA CLIENT (sus) ──────────────────────────────────────── */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 mb-10">
+          {/* ── COLOANA STÂNGA ─────────────────────────────────────────────── */}
+          <div>
+            {/* ── FORMULAR ──────────────────────────────────────────────────── */}
+            <section className="bg-white rounded-[50px] p-8 md:p-14 shadow-2xl border border-slate-100 mb-16">
 
-            {/* Poza client */}
-            <div className="lg:col-span-3 flex flex-col items-center">
-              <div className="w-44 h-44 bg-slate-50 rounded-[45px] overflow-hidden border-8 border-white shadow-xl relative flex items-center justify-center mb-6">
-                {poza
-                  ? <img src={poza} className="w-full h-full object-cover" alt="Client" />
-                  : <div className="w-full h-full relative flex items-center justify-center bg-slate-50">
-                      <Image src="/logo-chronos.png" alt="Chronos" fill sizes="176px" style={{ objectFit: "contain", padding: "16px" }} priority />
-                    </div>
-                }
-                <input type="file" id="f-pick" className="hidden" accept="image/*"
-                  onChange={(e) => {
-                    if (e.target.files?.[0]) {
-                      const r = new FileReader();
-                      r.onload = () => setPoza(r.result as string);
-                      r.readAsDataURL(e.target.files![0]);
+              {/* ── SECȚIUNEA CLIENT (sus) ──────────────────────────────────────── */}
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 mb-10">
+
+                {/* Poza client */}
+                <div className="lg:col-span-3 flex flex-col items-center">
+                  <div className="w-44 h-44 bg-slate-50 rounded-[45px] overflow-hidden border-8 border-white shadow-xl relative flex items-center justify-center mb-6">
+                    {poza
+                      ? <img src={poza} className="w-full h-full object-cover" alt="Client" />
+                      : <div className="w-full h-full relative flex items-center justify-center bg-slate-50">
+                          <Image src="/logo-chronos.png" alt="Chronos" fill sizes="176px" style={{ objectFit: "contain", padding: "16px" }} priority />
+                        </div>
                     }
-                  }} />
-                <label htmlFor="f-pick" className="absolute inset-0 cursor-pointer z-10" />
+                    <input type="file" id="f-pick" className="hidden" accept="image/*"
+                      onChange={(e) => {
+                        if (e.target.files?.[0]) {
+                          const r = new FileReader();
+                          r.onload = () => setPoza(r.result as string);
+                          r.readAsDataURL(e.target.files![0]);
+                        }
+                      }} />
+                    <label htmlFor="f-pick" className="absolute inset-0 cursor-pointer z-10" />
+                  </div>
+                  <p className="text-[10px] font-black uppercase italic text-slate-400">{t("clientPhotoLabel")}</p>
+                </div>
+
+                {/* Câmpuri client */}
+                <div className="lg:col-span-9 grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                  {/* Nume cu autocomplete */}
+                  <div className="md:col-span-2 flex flex-col gap-2 relative">
+                    <label className="text-[10px] font-black uppercase ml-4 text-slate-400 italic">{t("nameLabel")}</label>
+                    <input
+                      type="text" placeholder={t("namePlaceholder")}
+                      className={`p-5 bg-slate-50 rounded-[25px] border-2 ${clientErrors.nume ? "border-red-500" : "border-transparent focus:border-amber-500"} font-bold text-lg outline-none shadow-inner transition-all`}
+                      value={clientData.nume}
+                      onFocus={() => { if (!clientData.nume) showRecentClients(); }}
+                      onChange={(e) => handleNumeChange(e.target.value)}
+                    />
+                    {showSuggestions && (
+                      <div ref={suggestionsRef} className="absolute top-full left-0 right-0 mt-2 bg-white border border-slate-100 rounded-[20px] shadow-xl z-50 overflow-hidden">
+                        {filteredClients.map((c, i) => (
+                          <button key={i} onClick={() => selecteazaClient(c)}
+                            className="w-full px-6 py-3 text-left hover:bg-amber-50 text-sm font-bold text-slate-700 transition-colors">
+                            {c.title} - {c.phone}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  <div id="onboarding-prog-email" className="flex flex-col gap-2">
+                    <label className="text-[10px] font-black uppercase ml-4 text-slate-400 italic">{t("emailLabel")}</label>
+                    <input type="email" placeholder={t("emailPlaceholder")}
+                      className={`p-5 bg-slate-50 rounded-[25px] border-2 ${clientErrors.email ? "border-red-500" : "border-transparent focus:border-amber-500"} font-bold text-lg outline-none shadow-inner transition-all`}
+                      value={clientData.email}
+                      onChange={(e) => { setClientData({ ...clientData, email: e.target.value }); setClientErrors({ ...clientErrors, email: false }); }} />
+                  </div>
+
+                  <div id="onboarding-prog-phone" className="flex flex-col gap-2">
+                    <label className="text-[10px] font-black uppercase ml-4 text-slate-400 italic">{t("phoneLabel")}</label>
+                    <input type="tel" placeholder={t("phonePlaceholder")}
+                      className={`p-5 bg-slate-50 rounded-[25px] border-2 ${clientErrors.telefon ? "border-red-500" : "border-transparent focus:border-amber-500"} font-bold text-lg outline-none shadow-inner transition-all`}
+                      value={clientData.telefon}
+                      onChange={(e) => { setClientData({ ...clientData, telefon: e.target.value }); setClientErrors({ ...clientErrors, telefon: false }); }} />
+                  </div>
+
+                  <div className="md:col-span-2 flex flex-col gap-2">
+                    <label className="text-[10px] font-black uppercase ml-4 text-slate-400 italic">{t("notesLabel")}</label>
+                    <textarea placeholder={t("notesPlaceholder")}
+                      className="p-5 bg-slate-50 rounded-[25px] border-2 border-transparent focus:border-amber-500 font-bold text-lg h-16 resize-none outline-none shadow-inner"
+                      value={clientData.detalii}
+                      onChange={(e) => setClientData({ ...clientData, detalii: e.target.value })} />
+                  </div>
+                </div>
               </div>
-              <p className="text-[10px] font-black uppercase italic text-slate-400">{t("clientPhotoLabel")}</p>
-            </div>
 
-            {/* Câmpuri client */}
-            <div className="lg:col-span-9 grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* ── Separator ──────────────────────────────────────────────────── */}
+              <div className="flex items-center gap-4 mb-8">
+                <div className="h-px flex-1 bg-slate-200" />
+                <span className="text-[10px] font-black text-slate-400 uppercase italic tracking-widest bg-slate-50 px-4 py-2 rounded-full border border-slate-200">
+                  {t("separatorLabel")}
+                </span>
+                <div className="h-px flex-1 bg-slate-200" />
+              </div>
 
-              {/* Nume cu autocomplete */}
-              <div className="md:col-span-2 flex flex-col gap-2 relative">
-                <label className="text-[10px] font-black uppercase ml-4 text-slate-400 italic">{t("nameLabel")}</label>
-                <input
-                  type="text" placeholder={t("namePlaceholder")}
-                  className={`p-5 bg-slate-50 rounded-[25px] border-2 ${clientErrors.nume ? "border-red-500" : "border-transparent focus:border-amber-500"} font-bold text-lg outline-none shadow-inner transition-all`}
-                  value={clientData.nume}
-                  onChange={(e) => handleNumeChange(e.target.value)}
+              {/* ── MULTI SERVICE BOOKING ──────────────────────────────────────── */}
+              {userId ? (
+                <MultiServiceBooking
+                  adminId={userId}
+                  servicii={(servicii as ServiceRow[]) || []}
+                  specialisti={(angajati as StaffRow[]) || []}
+                  adminWorkingHours={adminWorkingHours}
+                  adminManualBlocks={adminManualBlocks}
+                  clientData={clientData}
+                  validateClientData={validateClientData}
+                  pozaProfil={poza}
+                  onSuccess={() => setMultiSuccess(true)}
+                  documente={documente}
+                  presetDate={presetDate}
                 />
-                {showSuggestions && (
-                  <div ref={suggestionsRef} className="absolute top-full left-0 right-0 mt-2 bg-white border border-slate-100 rounded-[20px] shadow-xl z-50 overflow-hidden">
-                    {filteredClients.map((c, i) => (
-                      <button key={i} onClick={() => selecteazaClient(c)}
-                        className="w-full px-6 py-3 text-left hover:bg-amber-50 text-sm font-bold text-slate-700 transition-colors">
-                        {c.title} — {c.phone}
-                      </button>
+              ) : (
+                <div className="flex items-center justify-center py-10">
+                  <div className="w-6 h-6 border-4 border-amber-500 border-t-transparent rounded-full animate-spin" />
+                </div>
+              )}
+
+              {/* ── Fișiere ────────────────────────────────────────────────────── */}
+              <div className="mt-8 pt-8 border-t border-slate-100">
+                <div className="flex-1 w-full bg-slate-100/50 p-4 rounded-[30px] border border-slate-200">
+                  <div className="flex items-center justify-between mb-3 px-2">
+                    <span className="text-[9px] font-black uppercase text-slate-500 italic">
+                      {t("filesAttachedLabel")} ({documente.length})
+                    </span>
+                    <input type="file" id="doc-upload" className="hidden" multiple accept="*" onChange={handleFileUpload} />
+                    <label htmlFor="doc-upload"
+                      className="bg-slate-900 text-white px-5 py-2.5 rounded-xl font-black text-[10px] uppercase italic cursor-pointer hover:bg-amber-600 transition-colors shadow-sm active:scale-95">
+                      {t("addFileBtn")}
+                    </label>
+                  </div>
+                  <div className="flex flex-wrap gap-2 max-h-32 overflow-y-auto p-1">
+                    {documente.length === 0 && (
+                      <p className="text-[9px] font-bold text-slate-300 italic uppercase px-2">{t("noFilesAdded")}</p>
+                    )}
+                    {documente.map((doc) => (
+                      <div key={doc.id} className="relative flex items-center gap-2 w-auto max-w-[180px] h-10 pr-8 pl-2 bg-white border border-slate-200 rounded-xl shadow-sm">
+                        <span className="text-[10px]">📄</span>
+                        <span className="text-[8px] font-black text-slate-600 truncate uppercase italic">{doc.name}</span>
+                        <button onClick={() => eliminaDoc(doc.id)}
+                          className="absolute right-1.5 w-5 h-5 bg-red-50 text-red-500 rounded-lg flex items-center justify-center text-[10px] font-black hover:bg-red-500 hover:text-white transition-all active:scale-90">
+                          ✕
+                        </button>
+                      </div>
                     ))}
                   </div>
-                )}
+                </div>
               </div>
+            </section>
 
-              <div className="flex flex-col gap-2">
-                <label className="text-[10px] font-black uppercase ml-4 text-slate-400 italic">{t("emailLabel")}</label>
-                <input type="email" placeholder={t("emailPlaceholder")}
-                  className={`p-5 bg-slate-50 rounded-[25px] border-2 ${clientErrors.email ? "border-red-500" : "border-transparent focus:border-amber-500"} font-bold text-lg outline-none shadow-inner transition-all`}
-                  value={clientData.email}
-                  onChange={(e) => { setClientData({ ...clientData, email: e.target.value }); setClientErrors({ ...clientErrors, email: false }); }} />
-              </div>
-
-              <div className="flex flex-col gap-2">
-                <label className="text-[10px] font-black uppercase ml-4 text-slate-400 italic">{t("phoneLabel")}</label>
-                <input type="tel" placeholder={t("phonePlaceholder")}
-                  className={`p-5 bg-slate-50 rounded-[25px] border-2 ${clientErrors.telefon ? "border-red-500" : "border-transparent focus:border-amber-500"} font-bold text-lg outline-none shadow-inner transition-all`}
-                  value={clientData.telefon}
-                  onChange={(e) => { setClientData({ ...clientData, telefon: e.target.value }); setClientErrors({ ...clientErrors, telefon: false }); }} />
-              </div>
-
-              <div className="md:col-span-2 flex flex-col gap-2">
-                <label className="text-[10px] font-black uppercase ml-4 text-slate-400 italic">{t("notesLabel")}</label>
-                <textarea placeholder={t("notesPlaceholder")}
-                  className="p-5 bg-slate-50 rounded-[25px] border-2 border-transparent focus:border-amber-500 font-bold text-lg h-16 resize-none outline-none shadow-inner"
-                  value={clientData.detalii}
-                  onChange={(e) => setClientData({ ...clientData, detalii: e.target.value })} />
-              </div>
+            {/* ── Lista programări azi ──────────────────────────────────────────── */}
+            <div className="mb-6">
+              <h2 className="text-sm font-black uppercase italic tracking-tighter text-slate-400">{t("todayApptsTitle")}</h2>
             </div>
-          </div>
-
-          {/* ── Separator ──────────────────────────────────────────────────── */}
-          <div className="flex items-center gap-4 mb-8">
-            <div className="h-px flex-1 bg-slate-200" />
-            <span className="text-[10px] font-black text-slate-400 uppercase italic tracking-widest bg-slate-50 px-4 py-2 rounded-full border border-slate-200">
-              {t("separatorLabel")}
-            </span>
-            <div className="h-px flex-1 bg-slate-200" />
-          </div>
-
-          {/* ── MULTI SERVICE BOOKING ──────────────────────────────────────── */}
-          {userId ? (
-            <MultiServiceBooking
-              adminId={userId}
-              servicii={(servicii as ServiceRow[]) || []}
-              specialisti={(angajati as StaffRow[]) || []}
-              adminWorkingHours={adminWorkingHours}
-              adminManualBlocks={adminManualBlocks}
-              clientData={clientData}
-              validateClientData={validateClientData}
-              onSuccess={() => setMultiSuccess(true)}
-              documente={documente}
-            />
-          ) : (
-            <div className="flex items-center justify-center py-10">
-              <div className="w-6 h-6 border-4 border-amber-500 border-t-transparent rounded-full animate-spin" />
-            </div>
-          )}
-
-          {/* ── Fișiere ────────────────────────────────────────────────────── */}
-          <div className="mt-8 pt-8 border-t border-slate-100">
-            <div className="flex-1 w-full bg-slate-100/50 p-4 rounded-[30px] border border-slate-200">
-              <div className="flex items-center justify-between mb-3 px-2">
-                <span className="text-[9px] font-black uppercase text-slate-500 italic">
-                  {t("filesAttachedLabel")} ({documente.length})
-                </span>
-                <input type="file" id="doc-upload" className="hidden" multiple accept="*" onChange={handleFileUpload} />
-                <label htmlFor="doc-upload"
-                  className="bg-slate-900 text-white px-5 py-2.5 rounded-xl font-black text-[10px] uppercase italic cursor-pointer hover:bg-amber-600 transition-colors shadow-sm active:scale-95">
-                  {t("addFileBtn")}
-                </label>
-              </div>
-              <div className="flex flex-wrap gap-2 max-h-32 overflow-y-auto p-1">
-                {documente.length === 0 && (
-                  <p className="text-[9px] font-bold text-slate-300 italic uppercase px-2">{t("noFilesAdded")}</p>
-                )}
-                {documente.map((doc) => (
-                  <div key={doc.id} className="relative flex items-center gap-2 w-auto max-w-[180px] h-10 pr-8 pl-2 bg-white border border-slate-200 rounded-xl shadow-sm">
-                    <span className="text-[10px]">📄</span>
-                    <span className="text-[8px] font-black text-slate-600 truncate uppercase italic">{doc.name}</span>
-                    <button onClick={() => eliminaDoc(doc.id)}
-                      className="absolute right-1.5 w-5 h-5 bg-red-50 text-red-500 rounded-lg flex items-center justify-center text-[10px] font-black hover:bg-red-500 hover:text-white transition-all active:scale-90">
-                      ✕
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pb-10">
+              {programariAzi.length === 0 ? (
+                <div className="col-span-full py-12 text-center bg-white rounded-[35px] border-2 border-dashed border-slate-100">
+                  <p className="text-[10px] font-black uppercase italic text-slate-300">{t("noApptsToday")}</p>
+                </div>
+              ) : (
+                programariAzi.map((p: any) => (
+                  <div key={p.id}
+                    className="relative bg-white p-5 rounded-[35px] shadow-sm border border-amber-200 ring-2 ring-amber-100 transition-all cursor-pointer hover:shadow-lg hover:scale-[1.02] active:scale-95"
+                    onClick={() => setPopupProgramare(p)}>
+                    <button onClick={(e) => eliminaProgramare(p.id, e)}
+                      className="absolute top-4 right-4 text-red-500 font-black text-[10px] z-10 hover:scale-125 transition-transform active:scale-90">
+                      <X className="w-4 h-4" strokeWidth={3} />
                     </button>
+                    <div className="flex gap-3 items-center mb-4 pr-6">
+                      <div className="w-12 h-12 rounded-[18px] bg-slate-50 overflow-hidden border-2 border-white shadow-inner flex items-center justify-center relative">
+                        {(p.file_url || p.poza)
+                          ? <img src={p.file_url || p.poza} className="w-full h-full object-cover" alt={p.title} />
+                          : <Image src="/logo-chronos.png" alt="logo" fill sizes="48px" style={{ objectFit: "contain", padding: "4px" }} />}
+                      </div>
+                      <div className="overflow-hidden flex-1">
+                        <h4 className="font-black text-slate-800 uppercase text-[11px] truncate italic leading-tight">{p.title}</h4>
+                        <p className="text-[9px] font-black text-amber-600 uppercase italic">
+                          {p.time} - {(angajati as StaffRow[] | undefined)?.find((a) => a.id === p.angajat_id)?.name || t("generalFallback")}
+                        </p>
+                        <p className="text-[9px] font-bold text-slate-400 italic uppercase">{p.nume_serviciu || t("procedureFallback")}</p>
+                      </div>
+                    </div>
+                    <div className="bg-slate-50 p-2 rounded-xl">
+                      <p className="text-[8px] font-black text-slate-400 uppercase italic truncate">{p.details || t("noDetailsFallback")}</p>
+                    </div>
                   </div>
-                ))}
-              </div>
+                ))
+              )}
             </div>
           </div>
-        </section>
 
-        {/* ── Lista programări azi ──────────────────────────────────────────── */}
-        <div className="mb-6">
-          <h2 className="text-sm font-black uppercase italic tracking-tighter text-slate-400">{t("todayApptsTitle")}</h2>
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 pb-40">
-          {programariAzi.length === 0 ? (
-            <div className="col-span-full py-12 text-center bg-white rounded-[35px] border-2 border-dashed border-slate-100">
-              <p className="text-[10px] font-black uppercase italic text-slate-300">{t("noApptsToday")}</p>
-            </div>
-          ) : (
-            programariAzi.map((p: any) => (
-              <div key={p.id}
-                className="relative bg-white p-5 rounded-[35px] shadow-sm border border-amber-200 ring-2 ring-amber-100 transition-all cursor-pointer hover:shadow-lg hover:scale-[1.02] active:scale-95"
-                onClick={() => setPopupProgramare(p)}>
-                <button onClick={(e) => eliminaProgramare(p.id, e)}
-                  className="absolute top-4 right-4 text-red-500 font-black text-[10px] z-10 hover:scale-125 transition-transform active:scale-90">✕</button>
-                <div className="flex gap-3 items-center mb-4 pr-6">
-                  <div className="w-12 h-12 rounded-[18px] bg-slate-50 overflow-hidden border-2 border-white shadow-inner flex items-center justify-center relative">
-                    {p.file_url
-                      ? <img src={p.file_url} className="w-full h-full object-cover" alt={p.title} />
-                      : <Image src="/logo-chronos.png" alt="logo" fill sizes="48px" style={{ objectFit: "contain", padding: "4px" }} />}
-                  </div>
-                  <div className="overflow-hidden flex-1">
-                    <h4 className="font-black text-slate-800 uppercase text-[11px] truncate italic leading-tight">{p.title}</h4>
-                    <p className="text-[9px] font-black text-amber-600 uppercase italic">
-                      {p.time} • {(angajati as StaffRow[] | undefined)?.find((a) => a.id === p.angajat_id)?.name || t("generalFallback")}
-                    </p>
-                    <p className="text-[9px] font-bold text-slate-400 italic uppercase">{p.nume_serviciu || t("procedureFallback")}</p>
-                  </div>
-                </div>
-                <div className="bg-slate-50 p-2 rounded-xl">
-                  <p className="text-[8px] font-black text-slate-400 uppercase italic truncate">{p.details || t("noDetailsFallback")}</p>
-                </div>
-              </div>
-            ))
-          )}
+          {/* ── COLOANA DREAPTA — Calendar + agendă zi ────────────────────────── */}
+          <div className="xl:sticky xl:top-6">
+            <ProgramariCalendarPanel
+              programari={(programari as any[]) || []}
+              angajati={(angajati as StaffRow[]) || []}
+              onSelectDate={(dateStr) => setPresetDate(dateStr)}
+            />
+          </div>
         </div>
       </div>
 
-      {/* ── Popup detalii programare ─────────────────────────────────────────── */}
+      {/* ── Popup detalii programare ──────────────────────────────────────── */}
       {popupProgramare && (
         <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-[200] flex items-center justify-center p-4"
           onClick={() => setPopupProgramare(null)}>
@@ -468,12 +521,14 @@ function ProgramariContent() {
             className="bg-white w-full max-w-lg rounded-[50px] overflow-hidden shadow-2xl border border-slate-100 relative"
             onClick={(e) => e.stopPropagation()}>
             <button onClick={() => setPopupProgramare(null)}
-              className="absolute top-8 right-8 w-10 h-10 bg-slate-50 rounded-2xl flex items-center justify-center font-black text-slate-400 hover:bg-red-50 hover:text-red-500 transition-all z-10 active:scale-90">✕</button>
+              className="absolute top-8 right-8 w-10 h-10 bg-slate-50 rounded-2xl flex items-center justify-center font-black text-slate-400 hover:bg-red-50 hover:text-red-500 transition-all z-10 active:scale-90">
+              <X className="w-4 h-4" strokeWidth={3} />
+            </button>
             <div className="h-32 bg-slate-900 relative">
               <div className="absolute -bottom-12 left-10 w-24 h-24 rounded-[30px] bg-white p-2 shadow-xl border border-slate-50">
                 <div className="w-full h-full rounded-[22px] bg-slate-50 overflow-hidden relative flex items-center justify-center">
-                  {popupProgramare.file_url
-                    ? <img src={popupProgramare.file_url} className="w-full h-full object-cover" alt={popupProgramare.title} />
+                  {(popupProgramare.file_url || popupProgramare.poza)
+                    ? <img src={popupProgramare.file_url || popupProgramare.poza} className="w-full h-full object-cover" alt={popupProgramare.title} />
                     : <Image src="/logo-chronos.png" alt="logo" fill sizes="80px" style={{ objectFit: "contain", padding: "8px" }} />}
                 </div>
               </div>
@@ -510,7 +565,7 @@ function ProgramariContent() {
                       <a key={idx} href={doc.url} target="_blank" rel="noopener noreferrer"
                         className="flex items-center justify-between p-3 bg-white rounded-2xl border border-slate-100 hover:border-amber-500 transition-all group">
                         <div className="flex items-center gap-3 overflow-hidden">
-                          <span className="text-lg">📄</span>
+                          <FileText className="w-5 h-5 text-slate-400 shrink-0" strokeWidth={2.5} />
                           <p className="text-[10px] font-black text-slate-700 truncate italic uppercase">{doc.name || t("documentFallback")}</p>
                         </div>
                         <span className="text-[10px] font-black text-amber-600 opacity-0 group-hover:opacity-100 transition-opacity italic">{t("viewBtn")}</span>

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
+import { checkAndConsumeWhatsAppQuota } from "@/lib/whatsappQuota";
 
 // ℹ️ Acest e-mail e trimis automat, fără context de utilizator logat —
 // nu avem limba aleasă de client la momentul rezervării, deci folosim
@@ -38,6 +39,74 @@ function buildReminderHtml(nume: string, data: string, ora: string, appointmentI
   `;
 }
 
+// 📱 Normalizează numărul de telefon la formatul cerut de WhatsApp Graph API
+// (fără spații, fără liniuțe, fără "+", dar cu codul de țară).
+// Exemple acceptate din DB: "0770833473", "+40770833473", "40 770 833 473"
+function normalizePhone(raw: string): string | null {
+  if (!raw) return null;
+  let digits = raw.replace(/[^\d]/g, "");
+  if (digits.startsWith("00")) digits = digits.slice(2);
+  if (digits.startsWith("0")) digits = "40" + digits.slice(1); // presupunem România dacă începe cu 0
+  if (!digits.startsWith("40") && digits.length === 9) digits = "40" + digits; // fallback pt. numere fără prefix
+  return digits.length >= 10 ? digits : null;
+}
+
+// 📲 Trimite reamintirea prin WhatsApp folosind un Message Template aprobat de Meta.
+// Returnează { ok: true } sau { ok: false, error }.
+async function sendWhatsAppReminder(phone: string, nume: string, data: string, ora: string) {
+  const phoneNumberId = process.env.WHATSAPP_PHONE_NUMBER_ID;
+  const accessToken = process.env.WHATSAPP_ACCESS_TOKEN;
+
+  if (!phoneNumberId || !accessToken) {
+    return { ok: false, error: "WHATSAPP_PHONE_NUMBER_ID sau WHATSAPP_ACCESS_TOKEN lipsesc din .env" };
+  }
+
+  const to = normalizePhone(phone);
+  if (!to) {
+    return { ok: false, error: `Număr de telefon invalid: "${phone}"` };
+  }
+
+  try {
+    const res = await fetch(`https://graph.facebook.com/v23.0/${phoneNumberId}/messages`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify({
+        messaging_product: "whatsapp",
+        to,
+        type: "template",
+        template: {
+          name: "reminder_programare",
+          language: { code: "ro" },
+          components: [
+            {
+              type: "body",
+              parameters: [
+                { type: "text", text: nume },
+                { type: "text", text: data },
+                { type: "text", text: ora },
+              ],
+            },
+          ],
+        },
+      }),
+    });
+
+    const json = await res.json();
+
+    if (!res.ok) {
+      const errMsg = json?.error?.message || `HTTP ${res.status}`;
+      return { ok: false, error: errMsg };
+    }
+
+    return { ok: true };
+  } catch (e: any) {
+    return { ok: false, error: e?.message || "eroare de rețea necunoscută" };
+  }
+}
+
 export async function GET(request: Request) {
   // ✅ Verificare de securitate — doar Vercel Cron (cu secretul corect) poate declanșa asta
   const authHeader = request.headers.get("authorization");
@@ -57,11 +126,10 @@ export async function GET(request: Request) {
 
   const { data: appointments, error } = await supabaseAdmin
     .from("appointments")
-    .select("id, title, prenume, nume, email, date, time, serviciu_id")
+    .select("id, title, prenume, nume, email, phone, date, time, serviciu_id, reminder_sent, reminder_whatsapp_sent, user_id")
     .eq("date", tomorrowStr)
-    .eq("reminder_sent", false)
     .neq("status", "cancelled")
-    .not("email", "is", null);
+    .or("reminder_sent.eq.false,reminder_whatsapp_sent.eq.false");
 
   if (error) {
     console.error("Eroare la citirea programărilor:", error.message);
@@ -69,31 +137,66 @@ export async function GET(request: Request) {
   }
 
   if (!appointments || appointments.length === 0) {
-    return NextResponse.json({ sent: 0, message: "Nicio programare de reamintit." });
+    return NextResponse.json({ sentEmail: 0, sentWhatsapp: 0, message: "Nicio programare de reamintit." });
   }
 
-  let sent = 0;
+  // ✅ Reamintirile WhatsApp sunt disponibile doar pentru planurile Elite și Team —
+  // aducem planul fiecărui cont, o singură dată, pentru toți userii implicați
+  const userIds = Array.from(new Set(appointments.map((a) => a.user_id).filter(Boolean)));
+  const { data: profiles } = await supabaseAdmin
+    .from("profiles")
+    .select("id, plan_type")
+    .in("id", userIds);
+  const planByUser: Record<string, string> = {};
+  (profiles || []).forEach((p) => { planByUser[p.id] = (p.plan_type || "").toUpperCase(); });
+  const hasWhatsAppAccess = (userId: string) => {
+    const plan = planByUser[userId] || "";
+    return plan.includes("ELITE") || plan.includes("TEAM");
+  };
+
+  let sentEmail = 0;
+  let sentWhatsapp = 0;
   const errors: string[] = [];
 
   for (const appt of appointments) {
     const clientName = appt.title || appt.prenume || appt.nume || "Client";
-    try {
-      const result = await resend.emails.send({
-        from: "Chronos <onboarding@resend.dev>",
-        to: [appt.email as string],
-        subject: "Reamintire Programare • Chronos System",
-        html: buildReminderHtml(clientName, appt.date, appt.time, appt.id),
-      });
-      if (result.error) {
-        errors.push(`${appt.id}: ${result.error.message}`);
+
+    // --- EMAIL (neschimbat față de logica existentă) ---
+    if (!appt.reminder_sent && appt.email) {
+      try {
+        const result = await resend.emails.send({
+          from: "Chronos <onboarding@resend.dev>",
+          to: [appt.email as string],
+          subject: "Reamintire Programare • Chronos System",
+          html: buildReminderHtml(clientName, appt.date, appt.time, appt.id),
+        });
+        if (result.error) {
+          errors.push(`[email] ${appt.id}: ${result.error.message}`);
+        } else {
+          await supabaseAdmin.from("appointments").update({ reminder_sent: true }).eq("id", appt.id);
+          sentEmail++;
+        }
+      } catch (e: any) {
+        errors.push(`[email] ${appt.id}: ${e?.message || "eroare necunoscută"}`);
+      }
+    }
+
+    // --- WHATSAPP (nou) — doar pentru conturi Elite/Team, cu respectarea cotei lunare ---
+    if (!appt.reminder_whatsapp_sent && appt.phone && hasWhatsAppAccess(appt.user_id)) {
+      const quota = await checkAndConsumeWhatsAppQuota(appt.user_id, planByUser[appt.user_id] || "");
+      if (!quota.allowed) {
+        errors.push(`[whatsapp] ${appt.id}: cotă lunară epuizată (${quota.reason})`);
         continue;
       }
-      await supabaseAdmin.from("appointments").update({ reminder_sent: true }).eq("id", appt.id);
-      sent++;
-    } catch (e: any) {
-      errors.push(`${appt.id}: ${e?.message || "eroare necunoscută"}`);
+      const waResult = await sendWhatsAppReminder(appt.phone, clientName, appt.date, appt.time);
+      if (waResult.ok) {
+        await supabaseAdmin.from("appointments").update({ reminder_whatsapp_sent: true }).eq("id", appt.id);
+        sentWhatsapp++;
+      } else {
+        errors.push(`[whatsapp] ${appt.id}: ${waResult.error}`);
+      }
     }
   }
 
-  return NextResponse.json({ sent, total: appointments.length, errors });
+  return NextResponse.json({ sentEmail, sentWhatsapp, total: appointments.length, errors });
 }

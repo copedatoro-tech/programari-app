@@ -1,179 +1,45 @@
 "use client";
 
-import { useEffect, useState, useRef, useCallback } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useTranslations } from "next-intl";
 import { Link, usePathname, useRouter } from "@/i18n/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import Image from "next/image";
-import { ShieldCheck } from "lucide-react";
+import { Crown, Gem, ShieldCheck, Zap } from "lucide-react";
 
 import GDPRModal from "@/components/GDPRModal";
 import TermeniModal from "@/components/TermeniModal";
 import CookiesModal from "@/components/CookiesModal";
 import LocaleSwitcher from "@/components/LocaleSwitcher";
-import { getActivePlan } from "@/app/[locale]/abonamente/page";
-
-// ─── Onboarding Modal ──────────────────────────────────────────────────────
-function OnboardingModal({
-  path,
-  onClose,
-  t,
-}: {
-  path: string;
-  onClose: () => void;
-  t: ReturnType<typeof useTranslations>;
-}) {
-  // Mapăm calea curentă la cheia din JSON-ul de traduceri
-  const KEY_BY_PATH: Record<string, string> = {
-    "/profil": "profil",
-    "/settings": "settings",
-    "/resurse": "resurse",
-    "/programari": "programari",
-    "/programari/calendar": "calendar",
-    "/clienti": "clienti",
-    "/abonamente": "abonamente",
-    "/rapoarte": "rapoarte",
-    "/sugestii": "sugestii",
-    "/contacte-utile": "contacteUtile",
-  };
-  const key = KEY_BY_PATH[path];
-  if (!key) return null;
-
-  const ICONS: Record<string, string> = {
-    profil: "👤", settings: "⚙️", resurse: "📦", programari: "📅",
-    calendar: "🗓️", clienti: "👥", abonamente: "💎", rapoarte: "📊",
-    sugestii: "⭐", contacteUtile: "📞",
-  };
-
-  const titlu = t(`onboarding.${key}.titlu`);
-  const subtitlu = t(`onboarding.${key}.subtitlu`);
-  const tip = t(`onboarding.${key}.tip`);
-  const pasi = t.raw(`onboarding.${key}.pasi`) as string[];
-
-  return (
-    <div
-      style={{
-        position: "fixed", inset: 0, zIndex: 9999,
-        background: "rgba(15,23,42,0.85)",
-        backdropFilter: "blur(8px)",
-        display: "flex", alignItems: "center", justifyContent: "center",
-        padding: 16,
-        animation: "fadeIn 0.2s ease",
-      }}
-      onClick={onClose}
-    >
-      <style>{`
-        @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
-        @keyframes slideUp { from { opacity:0; transform:translateY(24px) scale(0.97); } to { opacity:1; transform:translateY(0) scale(1); } }
-      `}</style>
-      <div
-        onClick={(e) => e.stopPropagation()}
-        style={{
-          background: "#fff", borderRadius: 28, overflow: "hidden",
-          width: "100%", maxWidth: 480, maxHeight: "90vh",
-          boxShadow: "0 32px 80px rgba(0,0,0,0.3)",
-          animation: "slideUp 0.25s ease",
-          display: "flex", flexDirection: "column",
-        }}
-      >
-        {/* Header */}
-        <div style={{ background: "#0f172a", padding: "20px 22px 16px", flexShrink: 0 }}>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-              <div style={{ width: 40, height: 40, borderRadius: 12, background: "#f59e0b", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>
-                {ICONS[key]}
-              </div>
-              <div>
-                <p style={{ fontSize: 8, fontWeight: 700, color: "#f59e0b", textTransform: "uppercase", letterSpacing: "0.12em", margin: 0 }}>
-                  {t("onboarding.badge")}
-                </p>
-                <h2 style={{ fontSize: 16, fontWeight: 700, color: "#fff", margin: 0, fontStyle: "italic", textTransform: "uppercase" }}>{titlu}</h2>
-              </div>
-            </div>
-            <button onClick={onClose} style={{ width: 30, height: 30, borderRadius: 9, background: "rgba(255,255,255,0.1)", border: "none", cursor: "pointer", fontSize: 13, fontWeight: 700, color: "#94a3b8", display: "flex", alignItems: "center", justifyContent: "center" }}
-              className="hover:bg-red-500 hover:text-white transition-all">✕</button>
-          </div>
-          <p style={{ fontSize: 11, color: "#94a3b8", margin: 0, fontWeight: 600 }}>{subtitlu}</p>
-        </div>
-
-        {/* Body */}
-        <div style={{ padding: "16px 20px", overflowY: "auto", flex: 1 }}>
-          <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 14 }}>
-            {pasi.map((pas, i) => (
-              <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 10, background: "#f8fafc", borderRadius: 12, padding: "10px 12px", border: "1.5px solid #e2e8f0" }}>
-                <span style={{ width: 22, height: 22, borderRadius: 7, background: "#0f172a", color: "#f59e0b", fontSize: 10, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginTop: 1 }}>{i + 1}</span>
-                <p style={{ fontSize: 12, color: "#334155", fontWeight: 600, margin: 0, lineHeight: 1.5 }}>{pas}</p>
-              </div>
-            ))}
-          </div>
-
-          {tip && (
-            <div style={{ background: "#fffbeb", border: "1.5px solid #fcd34d", borderRadius: 12, padding: "10px 14px", display: "flex", alignItems: "flex-start", gap: 8 }}>
-              <span style={{ fontSize: 16, flexShrink: 0 }}>💡</span>
-              <p style={{ fontSize: 11, color: "#92400e", fontWeight: 700, margin: 0, lineHeight: 1.5 }}>{tip}</p>
-            </div>
-          )}
-        </div>
-
-        {/* Footer */}
-        <div style={{ padding: "12px 20px", borderTop: "1.5px solid #f1f5f9", flexShrink: 0, display: "flex", gap: 8 }}>
-          <button onClick={onClose} style={{ flex: 1, padding: "10px", background: "#0f172a", border: "none", borderRadius: 14, fontSize: 12, fontWeight: 700, color: "#fff", cursor: "pointer", textTransform: "uppercase", fontStyle: "italic" }}
-            className="hover:bg-amber-600 transition-all">
-            {t("onboarding.understood")}
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
+import OnboardingTour from "@/components/OnboardingTour";
+import { getActivePlan } from "@/lib/getActivePlan";
 
 // ─── RootLayoutClient ──────────────────────────────────────────────────────
 export default function RootLayoutClient({ children }: { children: React.ReactNode }) {
   const t = useTranslations("layout");
-  const path = usePathname(); // fără prefixul de limbă, datorită @/i18n/navigation
+  const path = usePathname();
   const router = useRouter();
 
   const [authLoaded, setAuthLoaded] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [authCheckFailed, setAuthCheckFailed] = useState(false);
+  const [userId, setUserId] = useState<string | null>(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [activePlan, setActivePlan] = useState<string>("CHRONOS FREE");
-  const [showOnboarding, setShowOnboarding] = useState(false);
+  const [tourKey, setTourKey] = useState(0);
 
   const menuRef = useRef<HTMLDivElement>(null);
   const [modalOpen, setModalOpen] = useState({ gdpr: false, termeni: false, cookies: false });
-
-  const ONBOARDING_PATHS = [
-    "/profil", "/settings", "/resurse", "/programari", "/programari/calendar",
-    "/clienti", "/abonamente", "/rapoarte", "/sugestii", "/contacte-utile",
-  ];
 
   const isPublicPage =
     path === "/login" ||
     path === "/" ||
     path === "/register" ||
     path === "/forgot-password" ||
-    (path && path.startsWith("/rezervare"));
+    (path && path.startsWith("/rezervare")) ||
+    (path && path.startsWith("/specialist"));
 
-  // ─── Onboarding: verificăm dacă pagina curentă a fost văzută ────────────
-  useEffect(() => {
-    if (!isLoggedIn || isPublicPage || !path) return;
-    if (!ONBOARDING_PATHS.includes(path)) return;
-
-    const key = `chronos_onboarding_${path.replace(/\//g, "_")}`;
-    const seen = localStorage.getItem(key);
-    if (!seen) {
-      const timer = setTimeout(() => setShowOnboarding(true), 600);
-      return () => clearTimeout(timer);
-    }
-  }, [path, isLoggedIn, isPublicPage]);
-
-  const closeOnboarding = useCallback(() => {
-    setShowOnboarding(false);
-    const key = `chronos_onboarding_${path.replace(/\//g, "_")}`;
-    localStorage.setItem(key, "1");
-  }, [path]);
-
-  const getPageTitle = useCallback(() => {
+  const getPageTitle = () => {
     switch (path) {
       case "/programari":          return t("pageTitles.programari");
       case "/programari/calendar": return t("pageTitles.calendar");
@@ -188,7 +54,7 @@ export default function RootLayoutClient({ children }: { children: React.ReactNo
       case "/contacte-utile":      return t("pageTitles.contacteUtile");
       default:                     return t("pageTitles.dashboard");
     }
-  }, [path, t]);
+  };
 
   useEffect(() => {
     if (isPublicPage) { setAuthLoaded(true); return; }
@@ -198,15 +64,19 @@ export default function RootLayoutClient({ children }: { children: React.ReactNo
         const { data: { session } } = await supabase.auth.getSession();
         if (!mounted) return;
         if (session?.user) {
+          setAuthCheckFailed(false);
           setIsLoggedIn(true);
+          setUserId(session.user.id);
           getActivePlan(supabase, session.user.id)
             .then((plan) => { if (mounted) setActivePlan(plan); })
             .catch(() => {});
         } else {
+          setAuthCheckFailed(false);
           setIsLoggedIn(false);
+          setUserId(null);
         }
       } catch {
-        // ignorăm
+        if (mounted) setAuthCheckFailed(true);
       } finally {
         if (mounted) setAuthLoaded(true);
       }
@@ -215,7 +85,9 @@ export default function RootLayoutClient({ children }: { children: React.ReactNo
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (_event, session) => {
         if (!mounted) return;
+        setAuthCheckFailed(false);
         setIsLoggedIn(!!session);
+        setUserId(session?.user?.id ?? null);
         setAuthLoaded(true);
         if (session?.user) {
           getActivePlan(supabase, session.user.id)
@@ -225,11 +97,22 @@ export default function RootLayoutClient({ children }: { children: React.ReactNo
       }
     );
     return () => { mounted = false; subscription?.unsubscribe(); };
-  }, [path]);
+    // ✅ FIX: nu mai depinde de "path" — se re-declanșa la fiecare navigare,
+    // refăcând complet verificarea sesiunii, ceea ce crea o cursă (race condition):
+    // exact la login → redirect spre Programări, sesiunea nu apuca să fie confirmată
+    // la timp, și utilizatorul era aruncat instant înapoi la /login. Acum abonamentul
+    // la schimbările de sesiune (onAuthStateChange) rămâne activ continuu, fără să
+    // se refacă la fiecare click.
+  }, [isPublicPage]);
 
   useEffect(() => {
-    if (authLoaded && !isLoggedIn && !isPublicPage) router.replace("/login");
-  }, [authLoaded, isLoggedIn, isPublicPage, router]);
+    if (!authLoaded || authCheckFailed || isLoggedIn || isPublicPage) return;
+    // ✅ Mică întârziere înainte de redirect — plasă de siguranță suplimentară,
+    // ca o stare tranzitorie de o fracțiune de secundă să nu declanșeze un
+    // redirect fals către login
+    const timer = setTimeout(() => router.replace("/login"), 350);
+    return () => clearTimeout(timer);
+  }, [authLoaded, authCheckFailed, isLoggedIn, isPublicPage, router]);
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -244,6 +127,28 @@ export default function RootLayoutClient({ children }: { children: React.ReactNo
     try { await supabase.auth.signOut(); } catch {}
     finally { localStorage.removeItem("chronos_demo"); window.location.href = "/login"; }
   };
+
+  // ✅ Revezi Turul — resetează flag-ul din profil și remontează turul fără reload complet.
+  const handleReviewTour = async () => {
+    if (!userId) return;
+    try {
+      await supabase.from("profiles").update({ onboarding_completed: false }).eq("id", userId);
+    } catch {
+      // ignorăm — dacă update-ul eșuează, măcar redirecționăm
+    } finally {
+      router.push("/profil" as any);
+      setTourKey((key) => key + 1);
+    }
+  };
+
+  const planVisual = (() => {
+    const plan = activePlan.toUpperCase();
+    if (plan.includes("TEAM")) return { Icon: Crown, color: "text-violet-600", bg: "bg-violet-50", border: "border-violet-100" };
+    if (plan.includes("ELITE")) return { Icon: Gem, color: "text-sky-600", bg: "bg-sky-50", border: "border-sky-100" };
+    if (plan.includes("PRO")) return { Icon: Zap, color: "text-amber-600", bg: "bg-amber-50", border: "border-amber-100" };
+    return { Icon: ShieldCheck, color: "text-slate-700", bg: "bg-slate-100", border: "border-slate-200" };
+  })();
+  const ActivePlanIcon = planVisual.Icon;
 
   const menuItems = [
     { href: "/programari",          icon: "📅", label: t("nav.programari") },
@@ -261,9 +166,8 @@ export default function RootLayoutClient({ children }: { children: React.ReactNo
 
   return authLoaded ? (
     <>
-      {/* ── Onboarding modal per pagină ─────────────────────────────── */}
-      {false && showOnboarding && isLoggedIn && (
-        <OnboardingModal path={path} onClose={closeOnboarding} t={t} />
+      {isLoggedIn && !isPublicPage && userId && (
+        <OnboardingTour key={tourKey} userId={userId} />
       )}
 
       {!isPublicPage && (
@@ -290,9 +194,14 @@ export default function RootLayoutClient({ children }: { children: React.ReactNo
               <LocaleSwitcher />
 
               <Link href="/abonamente"
-                className="hidden md:flex flex-col items-end px-4 py-1.5 rounded-[15px] bg-slate-50 border border-slate-100 hover:border-amber-500 transition-all group">
-                <span className="text-[7px] font-black uppercase tracking-tighter text-slate-400 group-hover:text-amber-600 transition-colors">{t("header.abonamentActiv")}</span>
-                <span className="text-[10px] font-black italic uppercase text-slate-900 group-hover:text-amber-500 transition-colors">{activePlan}</span>
+                className="hidden md:flex items-center gap-3 px-4 py-1.5 rounded-[15px] bg-slate-50 border border-slate-100 hover:border-amber-500 transition-all group">
+                <div className={`w-8 h-8 rounded-xl ${planVisual.bg} border ${planVisual.border} flex items-center justify-center shrink-0`}>
+                  <ActivePlanIcon className={`w-4 h-4 ${planVisual.color}`} strokeWidth={2.7} />
+                </div>
+                <div className="flex flex-col items-end min-w-0">
+                  <span className="text-[7px] font-black uppercase tracking-tighter text-slate-400 group-hover:text-amber-600 transition-colors">{t("header.abonamentActiv")}</span>
+                  <span className="text-[10px] font-black italic uppercase text-slate-900 group-hover:text-amber-500 transition-colors truncate max-w-[150px]">{activePlan}</span>
+                </div>
               </Link>
 
               <div className="relative" ref={menuRef}>
@@ -333,7 +242,6 @@ export default function RootLayoutClient({ children }: { children: React.ReactNo
         <footer className="w-full bg-white border-t-2 border-slate-100 py-5 px-8 mt-auto">
           <div className="max-w-7xl w-full mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
 
-            {/* Stânga: Logo + Contact */}
             <div className="flex items-center gap-4">
               <Image src="/logo-chronos.png" alt="Logo Footer" width={52} height={52} priority className="object-contain" />
               <div className="flex flex-col">
@@ -348,8 +256,13 @@ export default function RootLayoutClient({ children }: { children: React.ReactNo
               </div>
             </div>
 
-            {/* Centru: Legal */}
-            <div className="flex items-center gap-6">
+            <div className="flex items-center gap-6 flex-wrap justify-center">
+              {isLoggedIn && (
+                <button onClick={handleReviewTour}
+                  className="text-[11px] font-black uppercase italic text-amber-600 hover:text-slate-900 transition-colors flex items-center gap-1.5">
+                  <span>🔄</span> {t("footer.reviewTour")}
+                </button>
+              )}
               <button onClick={() => setModalOpen({ ...modalOpen, termeni: true })}
                 className="text-[11px] font-black uppercase italic text-slate-500 hover:text-amber-500 transition-colors">
                 {t("footer.termeni")}
@@ -364,7 +277,6 @@ export default function RootLayoutClient({ children }: { children: React.ReactNo
               </button>
             </div>
 
-            {/* Dreapta: Brand + Secured */}
             <div className="flex items-center gap-4">
               <div className="text-right hidden sm:block">
                 <p className="text-[11px] font-black text-slate-900 uppercase italic leading-tight">

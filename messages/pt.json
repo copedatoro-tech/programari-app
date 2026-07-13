@@ -97,7 +97,8 @@
       "cookies": "Cookies",
       "premium": "CHRONOS PREMIUM",
       "management": "GESTÃO",
-      "secured": "SEGURO"
+      "secured": "SEGURO",
+      "reviewTour": "Rever o Tour"
     },
     "loading": "A sincronizar Chronos...",
     "onboarding": {
@@ -222,6 +223,96 @@
           "👤 Podes também guardar aqui os dados da pessoa responsável pela aplicação para contacto rápido em caso de emergência"
         ],
         "tip": "Os contactos úteis são para os teus fornecedores e parceiros profissionais — não para clientes! Os clientes são guardados automaticamente a partir das marcações na sua página dedicada."
+      },
+      "welcomeTitle": "Bem-vindo ao Chronos!",
+      "welcomeSubtitle": "Vamos guia-lo passo a passo pelas paginas importantes, para que a sua aplicacao fique 100% funcional.",
+      "welcomeInfoNote": "Este e um tour informativo, feito apenas uma vez. Recomendamos segui-lo com atencao — vai ajuda-lo a usar o Chronos nas melhores condicoes, sem perder tempo depois a procura de onde esta cada coisa.",
+      "welcomeListIntro": "Vai percorrer:",
+      "startTourBtn": "Iniciar Tour Guiado 🚀",
+      "skipTourBtn": "Saltar — ja conheco a aplicacao",
+      "stepCounter": "Passo {current} de {total}",
+      "prevBtn": "← Voltar",
+      "nextBtn": "Seguinte →",
+      "finishBtn": "Concluir e Ativar Teste 🎁",
+      "activatingTitle": "A ativar o teste...",
+      "activatingSubtitle": "Um momento, estamos a preparar o plano Chronos Team para si.",
+      "finalTitle": "Tudo pronto!",
+      "finalSubtitle": "Concluiu a configuracao inicial e o teste Chronos Team esta ativo.",
+      "finalTrialLine": "10 dias gratis de acesso completo — sem cartao, sem compromissos.",
+      "goToDashboardBtn": "Ir para Marcacoes →",
+      "tryItBtn": "Clique no botao destacado abaixo para ver como funciona.",
+      "skipStepBtn": "Saltar este passo →",
+      "highlights": {
+        "profil": {
+          "avatar": {
+            "title": "Foto / Logotipo",
+            "desc": "Carregue uma foto ou o logotipo da sua empresa. Aparece na pagina publica de marcacoes e ajuda os clientes a reconhece-lo facilmente."
+          },
+          "businessName": {
+            "title": "Nome da Empresa",
+            "desc": "Preencha o nome da sua empresa. E mostrado aos clientes e pode gerar automaticamente o seu endereco unico caso ainda nao o tenha definido."
+          },
+          "phone": {
+            "title": "Telefone de Contacto",
+            "desc": "Adicione o numero de telefone da pessoa responsavel. Util para contacto rapido em situacoes urgentes."
+          },
+          "slug": {
+            "title": "Endereco Unico (Slug)",
+            "desc": "Aqui ve e pode editar o seu endereco unico de marcacao — parte essencial do seu link publico."
+          },
+          "slugButton": {
+            "title": "Reservar Endereco",
+            "desc": "Clique neste botao para guardar o seu endereco unico. Depois de reservado, evite altera-lo, para nao invalidar codigos QR ja partilhados."
+          },
+          "saveButton": {
+            "title": "Guardar Alteracoes",
+            "desc": "Clique aqui para guardar todos os dados preenchidos acima."
+          }
+        },
+        "settings": {
+          "workingHours": {
+            "title": "Horario de Funcionamento",
+            "desc": "Clique em qualquer dia neste calendario para definir horarios de trabalho e bloqueios. Sem um horario definido, todas as horas aparecem disponiveis."
+          },
+          "notifications": {
+            "title": "Notificacoes",
+            "desc": "Escolha como quer ser notificado sobre novas marcacoes online — popup, som ou notificacao do sistema."
+          },
+          "stripe": {
+            "title": "Pagamentos Online (Stripe)",
+            "desc": "Ligue o Stripe para aceitar pagamentos online diretamente na marcacao — o dinheiro vai diretamente para a sua conta, com uma comissao transparente de 1%."
+          }
+        },
+        "resurse": {
+          "duration": {
+            "title": "Duracao do Servico",
+            "desc": "Preencha quanto tempo demora cada servico — o sistema usa este valor para bloquear automaticamente o intervalo correto no calendario em cada marcacao."
+          },
+          "price": {
+            "title": "Preco do Servico",
+            "desc": "O preco e mostrado ao cliente ao marcar online e, se tiver ativado o pagamento online, e o valor exato cobrado automaticamente na marcacao."
+          },
+          "addStaff": {
+            "title": "Adicionar Especialista",
+            "desc": "Clique neste botao para adicionar um novo membro a equipa. Podera depois atribuir-lhe os servicos que oferece e o seu horario de trabalho."
+          }
+        },
+        "programari": {
+          "email": {
+            "title": "Email do Cliente",
+            "desc": "Adicione o email do cliente — a confirmacao da marcacao e o lembrete enviado no dia anterior sao enviados automaticamente para ele."
+          },
+          "phone": {
+            "title": "Telefone do Cliente",
+            "desc": "Adicione o numero de telefone — as mensagens de confirmacao e lembrete sao enviadas automaticamente via WhatsApp, se tiver o plano Elite ou Team."
+          }
+        },
+        "abonamente": {
+          "activateTrial": {
+            "title": "Ativar o Teste",
+            "desc": "Terminou a configuração? Clique neste botão para ativar 10 dias grátis de acesso completo ao plano Team — sem cartão, sem compromissos."
+          }
+        }
       }
     },
     "trialSuffix": " (TESTE)"
@@ -694,7 +785,55 @@
     "addIntervalBtn": "+ Adicionar intervalo",
     "removeIntervalBtn": "Remover",
     "techErrorBannerMsg": "Problema técnico temporário, alheio a nós — já estamos a trabalhar nisso.",
-    "techErrorRetryBtn": "🔄 Tentar novamente"
+    "techErrorRetryBtn": "🔄 Tentar novamente",
+    "staffPortal": {
+      "inviteBtn": "📱 Convidar para Conta",
+      "activeAccountBadge": "✅ Conta Ativa",
+      "portalLabel": "Portal do Especialista",
+      "inviteTitle": "Convidar {name}",
+      "inviteIntro": "Criamos a sua própria conta, com uma palavra-passe temporária. Envia-lhe estes dados — ele poderá iniciar sessão separadamente, no portal do especialista, para ver as suas próprias marcações e notificações.",
+      "emailLabel": "Email do Especialista",
+      "passwordLabel": "Palavra-passe Temporária",
+      "regeneratePasswordTitle": "Gerar outra",
+      "creatingBtn": "A criar...",
+      "createAccountBtn": "Criar Conta",
+      "successTitle": "Conta criada com sucesso!",
+      "successSubtitle": "Envie esta informação ao especialista para que possa iniciar sessão.",
+      "linkLabel": "Link",
+      "emailFieldLabel": "Email",
+      "tempPasswordLabel": "Palavra-passe Temporária",
+      "sendWhatsappBtn": "📲 Enviar via WhatsApp",
+      "sendEmailBtn": "✉️ Enviar por Email",
+      "copyCredentialsBtn": "📋 Copiar Dados de Acesso",
+      "closeBtn": "Fechar",
+      "copiedToast": "Dados de acesso copiados!",
+      "noPhoneError": "O especialista não tem um número de telefone válido guardado.",
+      "waMessageTemplate": "Olá {name}! Tens acesso ao teu portal Chronos, para veres as tuas marcações:\n\n🔗 {link}\n📧 Email: {email}\n🔑 Palavra-passe: {password}\n\nRecomendamos alterar a palavra-passe após o primeiro início de sessão.",
+      "emailSubject": "Acesso Chronos — Portal do Especialista",
+      "emailBodyTemplate": "Olá {name}!\n\nTens acesso ao teu portal Chronos, para veres as tuas marcações:\n\nLink: {link}\nEmail: {email}\nPalavra-passe: {password}\n\nRecomendamos alterar a palavra-passe após o primeiro início de sessão.",
+      "copyTemplate": "Acesso Chronos — Portal do Especialista\nLink: {link}\nEmail: {email}\nPalavra-passe: {password}",
+      "manageTitle": "Conta: {name}",
+      "correctEmailLabel": "Corrigir o email",
+      "newPasswordOptionalLabel": "Nova palavra-passe (opcional)",
+      "newPasswordPlaceholder": "Deixe vazio se não alterar a palavra-passe",
+      "generateNewPasswordTitle": "Gerar uma nova palavra-passe",
+      "savingBtn": "A guardar...",
+      "saveChangesBtn": "Guardar Alterações",
+      "deactivateIntro": "Saiu da equipa? Pode desativar completamente o seu acesso.",
+      "deactivateBtn": "🚫 Desativar Conta",
+      "confirmDeactivateTitle": "Tem a certeza que quer desativar esta conta?",
+      "confirmDeactivateText": "{name} não poderá mais iniciar sessão no portal do especialista. Pode convidá-lo novamente mais tarde, se necessário.",
+      "cancelBtn": "Cancelar",
+      "yesDeactivateBtn": "Sim, desativar",
+      "deactivatedToast": "A conta foi desativada.",
+      "nothingChangedError": "Não alterou nada.",
+      "sessionExpiredError": "Sessão expirada. Recarregue a página.",
+      "connectionError": "Erro de conexão.",
+      "updateError": "Erro ao atualizar.",
+      "updateSuccess": "Atualizado com sucesso!",
+      "deactivateError": "Erro ao desativar.",
+      "phoneHint": "Opcional, mas necessário se quiser enviar os dados de acesso via WhatsApp."
+    }
   },
   "sugestii": {
     "checkingAccess": "A verificar o acesso...",
@@ -823,7 +962,24 @@
     "connectionPending": "Termina de preencher os teus dados na janela da Stripe para ativar os pagamentos.",
     "refreshStatusBtn": "🔄 Verificar novamente",
     "techErrorBannerMsg": "Problema técnico temporário, alheio a nós — já estamos a trabalhar nisso.",
-    "techErrorRetryBtn": "🔄 Tentar novamente"
+    "techErrorRetryBtn": "🔄 Tentar novamente",
+    "notifications": {
+      "title": "Notificacoes",
+      "subtitle": "Escolha como quer ser avisado quando receber uma nova marcacao online.",
+      "inAppLabel": "Popup na aplicacao",
+      "inAppDesc": "Aparece diretamente no ecra, enquanto tiver o Chronos aberto num separador ativo.",
+      "systemLabel": "Notificacao do sistema",
+      "systemDesc": "Aparece mesmo com outro separador ativo ou o navegador minimizado. Requer permissao do navegador.",
+      "systemUnsupported": "O seu navegador nao suporta notificacoes do sistema.",
+      "systemPermissionDenied": "As notificacoes estao bloqueadas nas definicoes do navegador. Pode ativa-las manualmente.",
+      "systemTestMessage": "As notificacoes do sistema estao ativas!",
+      "soundLabel": "Som",
+      "volumeLabel": "Volume",
+      "statusOnSuffix": "Ativo",
+      "statusOffSuffix": "Desativado",
+      "activateBtn": "Ativar",
+      "deactivateBtn": "Desativar"
+    }
   },
   "calendarPage": {
     "dayShort": [
@@ -1017,7 +1173,10 @@
       "teamLoadLowSuggestion": "Há espaço para mais marcações — podes investir em promoção para atrair novos clientes.",
       "gettingStartedTitle": "A recolher dados",
       "gettingStartedText": "Ainda tens poucas marcações registadas. À medida que adicionas mais, as recomendações tornam-se mais precisas."
-    }
+    },
+    "aiInsightsUpsellTitle": "🤖 AI Insights — Apenas Chronos Team",
+    "aiInsightsUpsellText": "Análises automáticas geradas por IA, disponíveis exclusivamente no plano Team.",
+    "aiInsightsUpsellBtn": "Ver Plano Team"
   },
   "chronosPickers": {
     "localeCode": "pt-PT",
@@ -1089,6 +1248,7 @@
     "successText": "Todas as tuas marcações foram registadas.",
     "retryBtn": "Fazer uma nova marcação",
     "leaveReviewTitle": "DEIXA UMA AVALIAÇÃO",
+    "starAriaLabel": "Dar {n} estrelas",
     "yourNamePlaceholder": "O TEU NOME",
     "commentPlaceholder": "COMENTÁRIO",
     "sendingBtn": "A ENVIAR...",
@@ -1170,7 +1330,17 @@
     "noNotesFallback": "Sem observações.",
     "attachedFilesPopupLabel": "Ficheiros anexados",
     "documentFallback": "Documento",
-    "viewBtn": "VER"
+    "viewBtn": "VER",
+    "calendarPanel": {
+      "todayLabel": "Hoje",
+      "apptsForLabel": "Marcações —",
+      "noApptsLabel": "Sem marcações neste dia",
+      "totalSuffix": "total",
+      "onlineSuffix": "online",
+      "receptionSuffix": "recepção",
+      "onlineBadge": "🌐 Online",
+      "receptionBadge": "🏠 Recepção"
+    }
   },
   "multiServiceBooking": {
     "localeCode": "pt-PT",
@@ -1203,7 +1373,8 @@
     "chosenSpecialistFallback": "o especialista escolhido",
     "saveErrorPrefix": "Erro: ",
     "saveErrorDefault": "Não foi possível guardar.",
-    "naFallback": "N/D"
+    "naFallback": "N/D",
+    "noServicesForSpecialist": "Este especialista não tem serviços associados — adicione-os na página Recursos."
   },
   "abonamente": {
     "header": {
@@ -1324,27 +1495,28 @@
             "highlight": "500"
           },
           {
-            "text": "5 especialistas",
+            "text": "5 especialistas + portal individual",
             "available": true,
             "highlight": "5"
           },
           {
-            "text": "Serviços ilimitados",
+            "text": "50 serviços",
             "available": true,
-            "highlight": "ilimitados"
+            "highlight": "50"
           },
           {
-            "text": "Relatórios avançados & AI Insights",
+            "text": "Relatórios Avançados",
             "available": true,
-            "highlight": "AI Insights"
+            "highlight": "Avançados"
           },
           {
             "text": "Avaliações de clientes & página pública",
             "available": true
           },
           {
-            "text": "Notificações WhatsApp",
-            "available": true
+            "text": "Confirmações & Lembretes WhatsApp (300/mês)",
+            "available": true,
+            "highlight": "300/mês"
           }
         ]
       },
@@ -1360,7 +1532,7 @@
             "highlight": "ilimitadas"
           },
           {
-            "text": "50 especialistas",
+            "text": "50 especialistas + portal individual",
             "available": true,
             "highlight": "50"
           },
@@ -1370,17 +1542,18 @@
             "highlight": "ilimitados"
           },
           {
-            "text": "Relatórios & desempenho da equipa",
+            "text": "Relatórios IA & Desempenho da Equipa",
             "available": true,
-            "highlight": "desempenho da equipa"
+            "highlight": "IA"
           },
           {
             "text": "Avaliações de clientes & página pública",
             "available": true
           },
           {
-            "text": "Notificações WhatsApp",
-            "available": true
+            "text": "Confirmações & Lembretes WhatsApp Ilimitados",
+            "available": true,
+            "highlight": "Ilimitados"
           }
         ]
       }
@@ -1570,5 +1743,61 @@
     "statusExpired": "⏱️ Expirado",
     "removeBtn": "Remover",
     "confirmRemove": "Tens a certeza que queres remover este cliente da lista?"
+  },
+  "specialistPortal": {
+    "login": {
+      "title": "Portal",
+      "titleHighlight": "Especialista",
+      "subtitle": "Acesso apenas para a equipa",
+      "emailPlaceholder": "EMAIL",
+      "passwordPlaceholder": "PALAVRA-PASSE",
+      "wrongCredentials": "Email ou palavra-passe incorretos.",
+      "notSpecialistAccount": "Esta conta não está associada a um especialista.",
+      "connectionError": "Erro de conexão. Tente novamente.",
+      "checkingBtn": "A verificar...",
+      "loginBtn": "Iniciar Sessão",
+      "noAccessFooter": "Não recebeu os dados de acesso? Contacte o administrador do salão."
+    },
+    "dashboard": {
+      "loading": "A carregar...",
+      "greeting": "Olá,",
+      "subtitle": "As tuas marcações",
+      "logoutBtn": "Sair",
+      "notificationsTitle": "As Tuas Notificações",
+      "popupLabel": "Popup",
+      "soundLabel": "Som",
+      "activeStatus": "Ativo",
+      "offStatus": "Desativado",
+      "volumeLabel": "Volume:",
+      "todayTitle": "Hoje",
+      "noApptsToday": "Sem marcações hoje",
+      "upcomingTitle": "Próximos Dias",
+      "onlineBadge": "🌐 Online",
+      "newBookingToastPrefix": "📅 Nova marcação:",
+      "soundChoiceLabel": "Escolha o som de notificação",
+      "previewSoundTitle": "Ouvir",
+      "serviceLabel": "Serviço",
+      "phoneLabel": "Telefone do Cliente",
+      "emailLabel": "Email do Cliente",
+      "noteLabel": "Nota",
+      "noSelectionHint": "Passe o rato sobre uma marcação para uma pré-visualização rápida, ou clique para a fixar no ecrã",
+      "noExtraDetails": "Sem informação adicional para esta marcação",
+      "statusOnSuffix": "Ativo",
+      "statusOffSuffix": "Desativado",
+      "activateBtn": "Ativar",
+      "deactivateBtn": "Desativar",
+      "systemLabel": "Notificação do Sistema",
+      "systemDesc": "Aparece como uma notificação normal do Windows/Mac, mesmo que esteja a navegar noutra página ou o navegador esteja minimizado.",
+      "systemUnsupported": "O seu navegador não suporta notificações do sistema.",
+      "systemPermissionDenied": "As notificações estão bloqueadas nas definições do navegador. Pode ativá-las manualmente.",
+      "systemTestMessage": "As notificações do sistema estão ativas!",
+      "pinnedLabel": "Fixado",
+      "unpinTitle": "Desafixar",
+      "qrTitle": "O Teu Código QR de Marcação",
+      "qrDesc": "Mostra este código ao cliente — ele digitaliza e chega diretamente à página de marcação, contigo já selecionado como especialista. Escolhe apenas a data e a hora.",
+      "qrCopyBtn": "📋 Copiar Link",
+      "qrCopiedBtn": "✓ Copiado!",
+      "qrNoSlugHint": "O teu salão ainda não tem um endereço público de marcação configurado — pede ao administrador para o ativar no Perfil."
+    }
   }
 }
