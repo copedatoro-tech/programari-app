@@ -70,7 +70,12 @@ export async function middleware(req: NextRequest) {
     const { data, error } = await supabase.auth.getUser()
     if (!error) user = data.user
   } catch {
-    return res
+    // ✅ FIX SECURITATE: dacă verificarea sesiunii eșuează dintr-un motiv
+    // tehnic (cookie-uri lipsă/corupte, cum se întâmplă des în fereastră
+    // privată), blocăm accesul (redirect spre login), NU îl permitem.
+    // Înainte, orice eroare aici lăsa cererea să treacă nesecurizat.
+    url.pathname = withLocale('/login')
+    return NextResponse.redirect(url)
   }
 
   if (!user) {
