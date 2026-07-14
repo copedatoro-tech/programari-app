@@ -312,10 +312,61 @@
             "title": "Activează Trial-ul",
             "desc": "Ai terminat configurarea? Apasă acest buton ca să activezi 10 zile gratuite de acces complet la planul Team — fără card, fără obligații."
           }
+        },
+        "clienti": {
+          "search": {
+            "title": "Căutare Rapidă",
+            "desc": "Caută orice client după nume, telefon sau email — util când ai o bază mare de clienți."
+          },
+          "autoSync": {
+            "title": "Sincronizare Automată",
+            "desc": "Clienții se salvează automat aici, din fiecare programare — nu trebuie să-i adaugi manual niciodată."
+          }
+        },
+        "rapoarte": {
+          "stats": {
+            "title": "Statistici Rapide",
+            "desc": "Vezi dintr-o privire total rezervări, venituri, valoare medie și rata de revenire a clienților."
+          },
+          "exportBtn": {
+            "title": "Exportă Raportul",
+            "desc": "Apasă aici ca să salvezi sau printezi raportul curent, util pentru evidențe contabile."
+          }
+        },
+        "contacteUtile": {
+          "addForm": {
+            "title": "Adaugă Contact",
+            "desc": "Salvează aici furnizori, tehnicieni sau parteneri — nu clienți, aceștia se salvează automat pe pagina lor."
+          },
+          "newFolder": {
+            "title": "Organizează pe Foldere",
+            "desc": "Creează foldere colorate, ca să-ți organizezi contactele pe categorii (furnizori, tehnicieni, etc.)."
+          }
+        },
+        "calendar": {
+          "viewToggle": {
+            "title": "Comutator Vizualizare",
+            "desc": "Comută între Zi, Săptămână, Lună sau An — fiecare vizualizare are avantajele ei pentru organizarea programărilor."
+          },
+          "search": {
+            "title": "Căutare Rapidă",
+            "desc": "Caută un client după nume sau telefon, direct din calendar — util când ai mulți clienți și vrei să găsești rapid o programare."
+          }
+        },
+        "sugestii": {
+          "viewBookings": {
+            "title": "Vezi Pagina Publică",
+            "desc": "Acesta e link-ul pe care-l văd clienții tăi când fac o programare online — util ca să verifici cum arată."
+          },
+          "manualForm": {
+            "title": "Adaugă Recenzie Manual",
+            "desc": "Poți adăuga aici recenzii de la clienți fideli care nu au lăsat feedback online, direct de la recepție."
+          }
         }
       }
     },
-    "trialSuffix": " (PERIOADĂ PROBĂ)"
+    "trialSuffix": " (PERIOADĂ PROBĂ)",
+    "newBookingToastPrefix": "Programare nouă:"
   },
   "landing": {
     "nav": {
@@ -1042,7 +1093,8 @@
       "deactivateError": "Eroare la dezactivare.",
       "phoneHint": "Opțional, dar necesar dacă vrei să trimiți datele de acces pe WhatsApp.",
       "teamOnlyBadge": "Doar Team",
-      "teamOnlyHint": "Portalul de specialist e disponibil doar pe planul Chronos Team. Apasă pentru a face upgrade."
+      "teamOnlyHint": "Portalul de specialist e disponibil doar pe planul Chronos Team. Apasă pentru a face upgrade.",
+      "phoneLabel": "Telefon Specialist"
     }
   },
   "sugestii": {

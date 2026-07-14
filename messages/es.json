@@ -312,10 +312,61 @@
             "title": "Activar la Prueba",
             "desc": "¿Terminaste la configuración? Haz clic en este botón para activar 10 días gratis de acceso completo al plan Team — sin tarjeta, sin compromisos."
           }
+        },
+        "clienti": {
+          "search": {
+            "title": "Búsqueda Rápida",
+            "desc": "Busca cualquier cliente por nombre, teléfono o email — útil con una gran base de clientes."
+          },
+          "autoSync": {
+            "title": "Sincronización Automática",
+            "desc": "Los clientes se guardan aquí automáticamente, en cada cita — nunca necesitas añadirlos manualmente."
+          }
+        },
+        "rapoarte": {
+          "stats": {
+            "title": "Estadísticas Rápidas",
+            "desc": "Ve de un vistazo el total de reservas, ingresos, valor medio y tasa de retorno de clientes."
+          },
+          "exportBtn": {
+            "title": "Exportar el Informe",
+            "desc": "Haz clic aquí para guardar o imprimir el informe actual, útil para contabilidad."
+          }
+        },
+        "contacteUtile": {
+          "addForm": {
+            "title": "Añadir Contacto",
+            "desc": "Guarda proveedores, técnicos o socios aquí — no clientes, se guardan automáticamente en su página."
+          },
+          "newFolder": {
+            "title": "Organizar en Carpetas",
+            "desc": "Crea carpetas de colores para organizar tus contactos por categoría (proveedores, técnicos, etc.)."
+          }
+        },
+        "calendar": {
+          "viewToggle": {
+            "title": "Selector de Vista",
+            "desc": "Cambia entre Día, Semana, Mes o Año — cada vista tiene sus ventajas para organizar las citas."
+          },
+          "search": {
+            "title": "Búsqueda Rápida",
+            "desc": "Busca un cliente por nombre o teléfono, directamente desde el calendario — útil cuando tienes muchos clientes."
+          }
+        },
+        "sugestii": {
+          "viewBookings": {
+            "title": "Ver Página Pública",
+            "desc": "Este es el enlace que ven tus clientes al reservar online — útil para comprobar cómo se ve."
+          },
+          "manualForm": {
+            "title": "Añadir Reseña Manualmente",
+            "desc": "Puedes añadir aquí reseñas de clientes fieles que no dejaron comentarios online, directamente desde recepción."
+          }
         }
       }
     },
-    "trialSuffix": " (PRUEBA)"
+    "trialSuffix": " (PRUEBA)",
+    "newBookingToastPrefix": "Nueva reserva:"
   },
   "landing": {
     "nav": {
@@ -860,7 +911,8 @@
       "deactivateError": "Error al desactivar.",
       "phoneHint": "Opcional, pero necesario si quieres enviar los datos de acceso por WhatsApp.",
       "teamOnlyBadge": "Solo Team",
-      "teamOnlyHint": "El portal del especialista solo está disponible en el plan Chronos Team. Haz clic para actualizar."
+      "teamOnlyHint": "El portal del especialista solo está disponible en el plan Chronos Team. Haz clic para actualizar.",
+      "phoneLabel": "Teléfono del Especialista"
     }
   },
   "sugestii": {

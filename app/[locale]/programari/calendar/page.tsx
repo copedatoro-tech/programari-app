@@ -515,7 +515,7 @@ function SummaryBar({ programari, rawServices, selectedDate, selectedExpert, sel
       </div>
       {items.map(it=>{
         const c=SVC_C[it.ci%SVC_C.length];const isSel=selectedServiciu===it.id;
-        return <button key={it.id} onClick={()=>onSelectServiciu(isSel?"":it.id)} style={{display:"flex",alignItems:"center",gap:5,padding:"3px 10px",borderRadius:999,border:`1.5px solid ${isSel?it.text:c.border}`,background:c.bg,color:c.text,fontSize:10,fontWeight:700,cursor:"pointer",flexShrink:0,transition:"all 0.15s"}}>{it.nume_serviciu} <span style={{fontWeight:800}}>×{it.total}</span>{it.online>0&&<span style={{fontSize:9,opacity:0.7}}>({it.online}🌐)</span>}</button>;
+        return <button key={it.id} onClick={()=>onSelectServiciu(isSel?"":it.id)} style={{display:"flex",alignItems:"center",gap:5,padding:"3px 10px",borderRadius:999,border:`1.5px solid ${isSel?c.text:c.border}`,background:c.bg,color:c.text,fontSize:10,fontWeight:700,cursor:"pointer",flexShrink:0,transition:"all 0.15s"}}>{it.nume_serviciu} <span style={{fontWeight:800}}>×{it.total}</span>{it.online>0&&<span style={{fontSize:9,opacity:0.7}}>({it.online}🌐)</span>}</button>;
       })}
     </div>
   );

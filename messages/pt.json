@@ -312,10 +312,61 @@
             "title": "Ativar o Teste",
             "desc": "Terminou a configuração? Clique neste botão para ativar 10 dias grátis de acesso completo ao plano Team — sem cartão, sem compromissos."
           }
+        },
+        "clienti": {
+          "search": {
+            "title": "Pesquisa Rápida",
+            "desc": "Pesquise qualquer cliente por nome, telefone ou email — útil com uma grande base de clientes."
+          },
+          "autoSync": {
+            "title": "Sincronização Automática",
+            "desc": "Os clientes são guardados aqui automaticamente, em cada marcação — nunca precisa de os adicionar manualmente."
+          }
+        },
+        "rapoarte": {
+          "stats": {
+            "title": "Estatísticas Rápidas",
+            "desc": "Veja rapidamente o total de marcações, receita, valor médio e taxa de retorno de clientes."
+          },
+          "exportBtn": {
+            "title": "Exportar o Relatório",
+            "desc": "Clique aqui para guardar ou imprimir o relatório atual, útil para contabilidade."
+          }
+        },
+        "contacteUtile": {
+          "addForm": {
+            "title": "Adicionar Contacto",
+            "desc": "Guarde fornecedores, técnicos ou parceiros aqui — não clientes, esses são guardados automaticamente."
+          },
+          "newFolder": {
+            "title": "Organizar em Pastas",
+            "desc": "Crie pastas coloridas para organizar os seus contactos por categoria (fornecedores, técnicos, etc.)."
+          }
+        },
+        "calendar": {
+          "viewToggle": {
+            "title": "Alternador de Vista",
+            "desc": "Alterne entre Dia, Semana, Mês ou Ano — cada vista tem as suas vantagens para organizar as marcações."
+          },
+          "search": {
+            "title": "Pesquisa Rápida",
+            "desc": "Pesquise um cliente por nome ou telefone, diretamente do calendário — útil quando tem muitos clientes."
+          }
+        },
+        "sugestii": {
+          "viewBookings": {
+            "title": "Ver Página Pública",
+            "desc": "Este é o link que os seus clientes veem ao marcar online — útil para verificar o aspeto."
+          },
+          "manualForm": {
+            "title": "Adicionar Avaliação Manualmente",
+            "desc": "Pode adicionar aqui avaliações de clientes fiéis que não deixaram feedback online, diretamente da receção."
+          }
         }
       }
     },
-    "trialSuffix": " (TESTE)"
+    "trialSuffix": " (TESTE)",
+    "newBookingToastPrefix": "Nova marcação:"
   },
   "landing": {
     "nav": {
@@ -860,7 +911,8 @@
       "deactivateError": "Erro ao desativar.",
       "phoneHint": "Opcional, mas necessário se quiser enviar os dados de acesso via WhatsApp.",
       "teamOnlyBadge": "Apenas Team",
-      "teamOnlyHint": "O portal do especialista só está disponível no plano Chronos Team. Clique para atualizar."
+      "teamOnlyHint": "O portal do especialista só está disponível no plano Chronos Team. Clique para atualizar.",
+      "phoneLabel": "Telefone do Especialista"
     }
   },
   "sugestii": {

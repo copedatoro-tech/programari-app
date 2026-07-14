@@ -312,10 +312,61 @@
             "title": "Próbaidőszak Aktiválása",
             "desc": "Befejezte a beállítást? Kattintson erre a gombra, hogy aktiválja a 10 napos ingyenes, teljes hozzáférést a Team csomaghoz — kártya nélkül, kötelezettség nélkül."
           }
+        },
+        "clienti": {
+          "search": {
+            "title": "Gyors Keresés",
+            "desc": "Keressen bármely ügyfelet név, telefon vagy email alapján — hasznos nagy ügyfélkör esetén."
+          },
+          "autoSync": {
+            "title": "Automatikus Szinkronizálás",
+            "desc": "Az ügyfelek automatikusan mentésre kerülnek itt, minden foglaláskor — sosem kell manuálisan hozzáadni."
+          }
+        },
+        "rapoarte": {
+          "stats": {
+            "title": "Gyors Statisztikák",
+            "desc": "Egy pillantással lássa a foglalások összesítését, bevételt, átlagértéket és ügyfél-visszatérési arányt."
+          },
+          "exportBtn": {
+            "title": "Jelentés Exportálása",
+            "desc": "Kattintson ide az aktuális jelentés mentéséhez vagy nyomtatásához, hasznos könyveléshez."
+          }
+        },
+        "contacteUtile": {
+          "addForm": {
+            "title": "Kapcsolat Hozzáadása",
+            "desc": "Itt mentse a beszállítókat, technikusokat vagy partnereket — nem ügyfeleket, azok automatikusan mentődnek."
+          },
+          "newFolder": {
+            "title": "Rendszerezés Mappákba",
+            "desc": "Hozzon létre színes mappákat, hogy kategóriák szerint rendszerezze kapcsolatait."
+          }
+        },
+        "calendar": {
+          "viewToggle": {
+            "title": "Nézet Váltó",
+            "desc": "Váltson Nap, Hét, Hónap vagy Év nézet között — mindegyiknek megvannak az előnyei a foglalások rendszerezéséhez."
+          },
+          "search": {
+            "title": "Gyors Keresés",
+            "desc": "Keressen egy ügyfelet név vagy telefon alapján, közvetlenül a naptárból — hasznos, ha sok ügyfele van."
+          }
+        },
+        "sugestii": {
+          "viewBookings": {
+            "title": "Nyilvános Oldal Megtekintése",
+            "desc": "Ez az a link, amelyet ügyfelei online foglaláskor látnak — hasznos ellenőrizni, hogyan néz ki."
+          },
+          "manualForm": {
+            "title": "Vélemény Kézi Hozzáadása",
+            "desc": "Itt hozzáadhat véleményeket hűséges ügyfelektől, akik nem hagytak online visszajelzést, közvetlenül a recepcióról."
+          }
         }
       }
     },
-    "trialSuffix": " (PRÓBA)"
+    "trialSuffix": " (PRÓBA)",
+    "newBookingToastPrefix": "Új foglalás:"
   },
   "landing": {
     "nav": {
@@ -860,7 +911,8 @@
       "deactivateError": "Hiba a letiltás során.",
       "phoneHint": "Opcionális, de szükséges, ha WhatsAppon szeretné elküldeni a hozzáférési adatokat.",
       "teamOnlyBadge": "Csak Team",
-      "teamOnlyHint": "A szakember portál csak a Chronos Team csomagban érhető el. Kattintson a frissítéshez."
+      "teamOnlyHint": "A szakember portál csak a Chronos Team csomagban érhető el. Kattintson a frissítéshez.",
+      "phoneLabel": "Szakember Telefonszáma"
     }
   },
   "sugestii": {

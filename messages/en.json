@@ -312,10 +312,61 @@
             "title": "Activate the Trial",
             "desc": "Finished setting up? Click this button to activate 10 free days of full access to the Team plan — no card, no obligations."
           }
+        },
+        "clienti": {
+          "search": {
+            "title": "Quick Search",
+            "desc": "Search any client by name, phone or email — useful when you have a large client base."
+          },
+          "autoSync": {
+            "title": "Automatic Sync",
+            "desc": "Clients are saved here automatically, from every appointment — you never need to add them manually."
+          }
+        },
+        "rapoarte": {
+          "stats": {
+            "title": "Quick Stats",
+            "desc": "See at a glance total bookings, revenue, average value and client return rate."
+          },
+          "exportBtn": {
+            "title": "Export the Report",
+            "desc": "Click here to save or print the current report, useful for accounting records."
+          }
+        },
+        "contacteUtile": {
+          "addForm": {
+            "title": "Add Contact",
+            "desc": "Save suppliers, technicians or partners here — not clients, they're saved automatically on their own page."
+          },
+          "newFolder": {
+            "title": "Organize into Folders",
+            "desc": "Create colored folders to organize your contacts by category (suppliers, technicians, etc.)."
+          }
+        },
+        "calendar": {
+          "viewToggle": {
+            "title": "View Switcher",
+            "desc": "Switch between Day, Week, Month or Year — each view has its own advantages for organizing appointments."
+          },
+          "search": {
+            "title": "Quick Search",
+            "desc": "Search for a client by name or phone, directly from the calendar — useful when you have many clients and want to quickly find an appointment."
+          }
+        },
+        "sugestii": {
+          "viewBookings": {
+            "title": "View Public Page",
+            "desc": "This is the link your clients see when booking online — useful to check how it looks."
+          },
+          "manualForm": {
+            "title": "Add Review Manually",
+            "desc": "You can add reviews here from loyal clients who haven't left online feedback, directly from the front desk."
+          }
         }
       }
     },
-    "trialSuffix": " (TRIAL)"
+    "trialSuffix": " (TRIAL)",
+    "newBookingToastPrefix": "New booking:"
   },
   "landing": {
     "nav": {
@@ -860,7 +911,8 @@
       "deactivateError": "Error deactivating.",
       "phoneHint": "Optional, but required if you want to send the access details via WhatsApp.",
       "teamOnlyBadge": "Team Only",
-      "teamOnlyHint": "The specialist portal is only available on the Chronos Team plan. Click to upgrade."
+      "teamOnlyHint": "The specialist portal is only available on the Chronos Team plan. Click to upgrade.",
+      "phoneLabel": "Specialist Phone"
     }
   },
   "sugestii": {

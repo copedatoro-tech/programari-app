@@ -424,7 +424,7 @@ export default function ContacteUtilePage() {
         </div>
       </div>
 
-      <section className="bg-white p-6 md:p-8 rounded-[40px] shadow-2xl border border-slate-100 mb-6 relative overflow-hidden group">
+      <section id="onboarding-contacte-form" className="bg-white p-6 md:p-8 rounded-[40px] shadow-2xl border border-slate-100 mb-6 relative overflow-hidden group">
         <div className="absolute top-0 left-0 w-2 h-full bg-amber-500 group-hover:w-3 transition-all" />
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -558,6 +558,7 @@ export default function ContacteUtilePage() {
 
         <div className="w-px h-5 bg-slate-200 mx-1" />
         <button
+          id="onboarding-contacte-new-folder"
           onClick={() => setShowModalFolder(true)}
           className="flex items-center gap-1.5 px-4 py-2 rounded-[12px] text-[10px] font-black uppercase italic transition-all border-2 border-dashed border-amber-300 text-amber-600 bg-amber-50 hover:bg-amber-100 hover:border-amber-400"
         >
@@ -731,7 +732,6 @@ export default function ContacteUtilePage() {
           folder={folderEditat}
           onSalveaza={actualizeazaFolder}
           onClose={() => setFolderEditat(null)}
-          onSterge={() => stergeFolder(folderEditat.id)}
           t={t}
         />
       )}

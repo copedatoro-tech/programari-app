@@ -177,7 +177,7 @@ export default function RootLayoutClient({ children }: { children: React.ReactNo
 
           if (adminNotifSettings.in_app_enabled) {
             if (adminToastTimerRef.current) clearTimeout(adminToastTimerRef.current);
-            setAdminToast(`📅 ${t("newBookingToastPrefix", { defaultValue: "Programare nouă:" })} ${nume} — ${ora}`);
+            setAdminToast(`📅 ${t("newBookingToastPrefix")} ${nume} — ${ora}`);
             adminToastTimerRef.current = setTimeout(() => setAdminToast(null), 6000);
           }
 

@@ -201,13 +201,13 @@ export default function BazaDateClienti() {
                 {t("titleHighlight")}
               </span>
             </h1>
-            <p className="text-slate-400 font-bold text-[10px] uppercase mt-4 tracking-[0.3em] flex items-center gap-2">
+            <p id="onboarding-clienti-sync" className="text-slate-400 font-bold text-[10px] uppercase mt-4 tracking-[0.3em] flex items-center gap-2">
               <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
               {t("profilesFound", { count: dosare.length })}
             </p>
           </div>
 
-          <div className="relative w-full md:w-96">
+          <div id="onboarding-clienti-search" className="relative w-full md:w-96">
             <input
               type="text"
               placeholder={t("searchPlaceholder")}

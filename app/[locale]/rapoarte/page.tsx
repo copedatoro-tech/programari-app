@@ -332,11 +332,11 @@ function RapoarteContent() {
             </div>
             <div className="flex gap-3 no-print">
               <Link href="/programari" className="bg-slate-100 text-slate-900 px-8 py-4 rounded-[15px] font-black text-[10px] uppercase italic hover:bg-slate-200 transition-all">{t("backBtn")}</Link>
-              <button onClick={handleExport} className="bg-slate-900 text-white px-8 py-4 rounded-[15px] font-black text-[10px] uppercase italic border-b-4 border-slate-700 hover:scale-105 transition-all">{t("exportBtn")}</button>
+              <button id="onboarding-rapoarte-export" onClick={handleExport} className="bg-slate-900 text-white px-8 py-4 rounded-[15px] font-black text-[10px] uppercase italic border-b-4 border-slate-700 hover:scale-105 transition-all">{t("exportBtn")}</button>
             </div>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-12">
+          <div id="onboarding-rapoarte-stats" className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-12">
             {dashboardStats.map((stat, i) => (
               <div key={i} className={`bg-white p-5 rounded-[30px] shadow-sm border border-slate-100 transition-all ${!stat.access ? 'opacity-40 grayscale' : ''}`}>
                 <p className="text-[9px] font-black text-slate-400 uppercase italic mb-2 tracking-widest">{stat.label}</p>

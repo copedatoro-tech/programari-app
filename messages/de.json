@@ -312,10 +312,61 @@
             "title": "Testversion Aktivieren",
             "desc": "Einrichtung abgeschlossen? Klicken Sie auf diese Schaltfläche, um 10 kostenlose Tage vollen Zugriff auf den Team-Plan zu aktivieren — keine Karte, keine Verpflichtungen."
           }
+        },
+        "clienti": {
+          "search": {
+            "title": "Schnellsuche",
+            "desc": "Suchen Sie jeden Kunden nach Name, Telefon oder E-Mail — nützlich bei einer großen Kundendatenbank."
+          },
+          "autoSync": {
+            "title": "Automatische Synchronisierung",
+            "desc": "Kunden werden hier automatisch gespeichert, bei jedem Termin — nie manuell hinzufügen."
+          }
+        },
+        "rapoarte": {
+          "stats": {
+            "title": "Schnellstatistiken",
+            "desc": "Sehen Sie auf einen Blick Gesamtbuchungen, Umsatz, Durchschnittswert und Kundenrückkehrrate."
+          },
+          "exportBtn": {
+            "title": "Bericht Exportieren",
+            "desc": "Klicken Sie hier, um den aktuellen Bericht zu speichern oder zu drucken, nützlich für die Buchhaltung."
+          }
+        },
+        "contacteUtile": {
+          "addForm": {
+            "title": "Kontakt Hinzufügen",
+            "desc": "Speichern Sie hier Lieferanten, Techniker oder Partner — keine Kunden, diese werden automatisch gespeichert."
+          },
+          "newFolder": {
+            "title": "In Ordnern Organisieren",
+            "desc": "Erstellen Sie farbige Ordner, um Ihre Kontakte nach Kategorien zu organisieren."
+          }
+        },
+        "calendar": {
+          "viewToggle": {
+            "title": "Ansicht Wechseln",
+            "desc": "Wechseln Sie zwischen Tag, Woche, Monat oder Jahr — jede Ansicht hat ihre eigenen Vorteile zur Terminorganisation."
+          },
+          "search": {
+            "title": "Schnellsuche",
+            "desc": "Suchen Sie einen Kunden nach Name oder Telefon direkt im Kalender — nützlich bei vielen Kunden."
+          }
+        },
+        "sugestii": {
+          "viewBookings": {
+            "title": "Öffentliche Seite Ansehen",
+            "desc": "Dies ist der Link, den Ihre Kunden bei der Online-Buchung sehen — nützlich, um zu prüfen, wie er aussieht."
+          },
+          "manualForm": {
+            "title": "Bewertung Manuell Hinzufügen",
+            "desc": "Hier können Sie Bewertungen treuer Kunden hinzufügen, die kein Online-Feedback hinterlassen haben, direkt von der Rezeption."
+          }
         }
       }
     },
-    "trialSuffix": " (TESTPHASE)"
+    "trialSuffix": " (TESTPHASE)",
+    "newBookingToastPrefix": "Neuer Termin:"
   },
   "landing": {
     "nav": {
@@ -860,7 +911,8 @@
       "deactivateError": "Fehler bei der Deaktivierung.",
       "phoneHint": "Optional, aber erforderlich, wenn Sie die Zugangsdaten per WhatsApp senden möchten.",
       "teamOnlyBadge": "Nur Team",
-      "teamOnlyHint": "Das Spezialisten-Portal ist nur im Chronos Team Plan verfügbar. Klicken Sie zum Upgrade."
+      "teamOnlyHint": "Das Spezialisten-Portal ist nur im Chronos Team Plan verfügbar. Klicken Sie zum Upgrade.",
+      "phoneLabel": "Telefon des Spezialisten"
     }
   },
   "sugestii": {

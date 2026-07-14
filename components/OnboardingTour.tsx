@@ -59,6 +59,18 @@ const PAGE_HIGHLIGHTS: Record<string, Highlight[]> = {
   abonamente: [
     { targetId: "onboarding-activate-trial-btn", key: "activateTrial", actionable: true },
   ],
+  clienti: [
+    { targetId: "onboarding-clienti-search", key: "search" },
+    { targetId: "onboarding-clienti-sync", key: "autoSync" },
+  ],
+  rapoarte: [
+    { targetId: "onboarding-rapoarte-stats", key: "stats" },
+    { targetId: "onboarding-rapoarte-export", key: "exportBtn", actionable: true },
+  ],
+  contacteUtile: [
+    { targetId: "onboarding-contacte-form", key: "addForm" },
+    { targetId: "onboarding-contacte-new-folder", key: "newFolder", actionable: true },
+  ],
 };
 type Status = "loading" | "hidden" | "welcome" | "touring" | "activating" | "done";
 function TourStyles() {
