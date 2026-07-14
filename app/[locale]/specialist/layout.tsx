@@ -86,7 +86,6 @@ export default function SpecialistLayout({ children }: { children: React.ReactNo
       .on("postgres_changes",
         { event: "INSERT", schema: "public", table: "appointments", filter: `angajat_id=eq.${staffId}` },
         (payload: any) => {
-          console.log("🔔 [DEBUG] Eveniment realtime primit:", payload);
           const nume = payload.new?.title || "—";
           const ora = payload.new?.time || "";
           if (notifSettings.sound_enabled) playNotificationSound(notifSettings.volume, notifSettings.sound_id);
@@ -101,9 +100,7 @@ export default function SpecialistLayout({ children }: { children: React.ReactNo
           fetchAppointments(staffId);
         }
       )
-      .subscribe((status: string) => {
-        console.log("🔔 [DEBUG] Status canal realtime specialist:", status);
-      });
+      .subscribe();
     return () => { if (channelRef.current) supabase.removeChannel(channelRef.current); };
   }, [staffId, notifSettings, fetchAppointments]);
 

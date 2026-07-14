@@ -28,6 +28,14 @@ export default function RootLayoutClient({ children }: { children: React.ReactNo
   const [activePlan, setActivePlan] = useState<string>("CHRONOS FREE");
   const [tourKey, setTourKey] = useState(0);
 
+  // ✅ Notificări în timp real pentru administrator (popup + sunet + sistem),
+  // la fel ca la specialist — dar niciodată conectate până acum la un
+  // ascultător real. Comutatoarele din Settings existau, dar nu declanșau nimic.
+  const [adminNotifSettings, setAdminNotifSettings] = useState({ in_app_enabled: true, sound_enabled: true, system_enabled: false, volume: 75 });
+  const [adminToast, setAdminToast] = useState<string | null>(null);
+  const adminToastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const adminChannelRef = useRef<any>(null);
+
   const menuRef = useRef<HTMLDivElement>(null);
   const [modalOpen, setModalOpen] = useState({ gdpr: false, termeni: false, cookies: false });
 
@@ -114,6 +122,75 @@ export default function RootLayoutClient({ children }: { children: React.ReactNo
     return () => clearTimeout(timer);
   }, [authLoaded, authCheckFailed, isLoggedIn, isPublicPage, router]);
 
+  // ✅ Ascultător real pentru programări noi — încarcă preferințele admin-ului
+  // și se abonează la evenimente live pe tabela appointments, filtrat strict
+  // la propriile programări (user_id = admin curent)
+  useEffect(() => {
+    if (!userId || isPublicPage) return;
+    let mounted = true;
+
+    const loadNotifSettings = async () => {
+      const { data } = await supabase.from("profiles").select("notification_settings").eq("id", userId).maybeSingle();
+      if (mounted && data?.notification_settings && typeof data.notification_settings === "object") {
+        setAdminNotifSettings((prev) => ({ ...prev, ...data.notification_settings }));
+      }
+    };
+    loadNotifSettings();
+
+    return () => { mounted = false; };
+  }, [userId, isPublicPage]);
+
+  useEffect(() => {
+    if (!userId || isPublicPage) return;
+
+    adminChannelRef.current = supabase
+      .channel(`admin-appointments-${userId}`)
+      .on("postgres_changes",
+        { event: "INSERT", schema: "public", table: "appointments", filter: `user_id=eq.${userId}` },
+        (payload: any) => {
+          const nume = payload.new?.title || "—";
+          const ora = payload.new?.time || "";
+
+          if (adminNotifSettings.sound_enabled) {
+            try {
+              const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+              if (AudioCtx) {
+                const ctx = new AudioCtx();
+                const peakGain = 0.18 * Math.max(0, Math.min(100, adminNotifSettings.volume)) / 100;
+                const beep = (freq: number, start: number, dur: number) => {
+                  const osc = ctx.createOscillator();
+                  const gain = ctx.createGain();
+                  osc.connect(gain); gain.connect(ctx.destination);
+                  osc.type = "sine";
+                  osc.frequency.setValueAtTime(freq, ctx.currentTime + start);
+                  gain.gain.setValueAtTime(0.001, ctx.currentTime + start);
+                  gain.gain.exponentialRampToValueAtTime(Math.max(peakGain, 0.001), ctx.currentTime + start + 0.02);
+                  gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + start + dur);
+                  osc.start(ctx.currentTime + start);
+                  osc.stop(ctx.currentTime + start + dur);
+                };
+                beep(880, 0, 0.22);
+                beep(1175, 0.16, 0.28);
+              }
+            } catch {}
+          }
+
+          if (adminNotifSettings.in_app_enabled) {
+            if (adminToastTimerRef.current) clearTimeout(adminToastTimerRef.current);
+            setAdminToast(`📅 ${t("newBookingToastPrefix", { defaultValue: "Programare nouă:" })} ${nume} — ${ora}`);
+            adminToastTimerRef.current = setTimeout(() => setAdminToast(null), 6000);
+          }
+
+          if (adminNotifSettings.system_enabled && typeof window !== "undefined" && "Notification" in window && Notification.permission === "granted") {
+            try { new Notification("Chronos — Programare nouă", { body: `${nume} — ${ora}`, icon: "/logo-chronos.png" }); } catch {}
+          }
+        }
+      )
+      .subscribe();
+
+    return () => { if (adminChannelRef.current) supabase.removeChannel(adminChannelRef.current); };
+  }, [userId, isPublicPage, adminNotifSettings, t]);
+
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(e.target as Node)) setIsMenuOpen(false);
@@ -168,6 +245,13 @@ export default function RootLayoutClient({ children }: { children: React.ReactNo
     <>
       {isLoggedIn && !isPublicPage && userId && (
         <OnboardingTour key={tourKey} userId={userId} />
+      )}
+
+      {/* ✅ Toast persistent — programare nouă, pentru administrator */}
+      {adminToast && !isPublicPage && (
+        <div className="fixed bottom-6 right-6 z-[999] bg-slate-900 text-white px-6 py-4 rounded-2xl shadow-2xl border-l-4 border-amber-500 max-w-xs">
+          <p className="font-black text-[12px] italic">{adminToast}</p>
+        </div>
       )}
 
       {!isPublicPage && (
