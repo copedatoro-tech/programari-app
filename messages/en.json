@@ -378,39 +378,39 @@
       "items": [
         {
           "titlu": "Smart Calendar",
-          "desc": "Day, Week, Month and Year views. Working hours are visually distinct from off-hours. Closed days appear with a different background. Filter by specialist or service."
+          "desc": "Day, Week, Month or Year view, with each specialist's appointments displayed clearly, sorted chronologically."
         },
         {
-          "titlu": "Online Bookings",
-          "desc": "A unique personal link and QR code for your business. Clients pick their own available time. The system automatically blocks busy hours per specialist. No overlaps, no confusion."
+          "titlu": "24/7 Online Bookings",
+          "desc": "Clients book themselves, anytime, from their phone — no calls, no waiting."
+        },
+        {
+          "titlu": "Individual Specialist Portal",
+          "desc": "Every staff member has their own account — they only see their own appointments, with their own notifications, popup, sound and system alerts."
+        },
+        {
+          "titlu": "Services & Pricing Management",
+          "desc": "Configure services, durations and prices, per specialist — everything updates automatically in the calendar."
+        },
+        {
+          "titlu": "Reports & AI Insights",
+          "desc": "Automatic, AI-generated performance analysis — busy days, slow days, trends."
         },
         {
           "titlu": "Client Database",
-          "desc": "A complete file for every client: appointment history, work performed, per-job profit calculator, attached files (images, video, audio, PDF documents). Updates automatically."
+          "desc": "Complete history per client, saved automatically from every appointment, with attached files and documents."
         },
         {
-          "titlu": "Services & Specialists Management",
-          "desc": "Define services with price and duration. Link each specialist to the services they offer. When booking, the system automatically filters options and locks the right calendar slot."
+          "titlu": "Reviews & Public Page",
+          "desc": "Clients leave reviews directly on your public booking page, building your online reputation."
         },
         {
-          "titlu": "Reports & Analytics",
-          "desc": "Track the number of appointments, revenue and profit per specialist and service. Identify the hours and days with the highest activity. The more complete the data, the more precise the reports."
+          "titlu": "WhatsApp Confirmations & Reminders",
+          "desc": "Automatic messages, sent directly via WhatsApp — booking confirmations, reminders a day in advance."
         },
         {
-          "titlu": "Documents per Appointment",
-          "desc": "Attach any file type to each appointment: PDF, images, audio, video. Documents sync automatically to the client's file. Useful for prescriptions, technical specs, notes or visual references."
-        },
-        {
-          "titlu": "Customer Reviews",
-          "desc": "Clients can leave reviews through the public booking page. You can manually add reviews from loyal clients. The average score is visible on your public page and builds trust with new clients."
-        },
-        {
-          "titlu": "Useful Contacts",
-          "desc": "A separate directory for suppliers, partners and collaborators. Quick access to important numbers in emergencies. Completely separate from the client database."
-        },
-        {
-          "titlu": "WhatsApp Notifications",
-          "desc": "Available on the Elite and Team plans. Send automatic confirmations and reminders to clients on WhatsApp. Straight from the app, with one click, personalized with the client's name and appointment details."
+          "titlu": "Quick Booking QR Code",
+          "desc": "Each specialist has their own QR code — the client scans, picks only the date and time, everything else is already filled in."
         }
       ]
     },
@@ -561,6 +561,32 @@
       "loginBtn": "Log Into My Account",
       "copyright": "© 2026 CHRONOS. All rights reserved.",
       "secured": "Secured with Supabase"
+    },
+    "personalValue": {
+      "heading1": "Your time,",
+      "heading2": "belongs to you again.",
+      "subtitle": "While you're living your life, Chronos is working for you.",
+      "scenarios": [
+        {
+          "emoji": "🏃",
+          "situation": "You're out for a morning run, phone left at home",
+          "notifTitle": "Booking confirmed automatically",
+          "notifDesc": "Maria — tomorrow, 2:00 PM"
+        },
+        {
+          "emoji": "☕",
+          "situation": "You're having coffee with friends",
+          "notifTitle": "Reminder sent via WhatsApp",
+          "notifDesc": "Client notified automatically, a day in advance"
+        },
+        {
+          "emoji": "🎬",
+          "situation": "You're at the movies, not thinking about the schedule",
+          "notifTitle": "The specialist checks their own agenda",
+          "notifDesc": "Individual portal — every staff member, their own bookings"
+        }
+      ],
+      "closingText": "You're no longer the front desk. Chronos is."
     }
   },
   "clienti": {

@@ -347,6 +347,58 @@ export default function LandingPage() {
         </motion.div>
       </section>
 
+      {/* ── VALOARE PERSONALĂ — timp liber recâștigat ───────────────────── */}
+      <section className="bg-slate-950 py-24 px-6 overflow-hidden relative">
+        <div className="absolute top-0 right-0 w-96 h-96 bg-amber-500/10 rounded-full blur-[120px]" />
+        <div className="absolute bottom-0 left-0 w-96 h-96 bg-blue-500/10 rounded-full blur-[120px]" />
+
+        <div className="max-w-6xl mx-auto relative">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-5xl font-black italic uppercase tracking-tighter text-white mb-4">
+              {t("personalValue.heading1")} <span className="text-amber-500">{t("personalValue.heading2")}</span>
+            </h2>
+            <p className="text-slate-400 text-xs font-bold uppercase italic max-w-xl mx-auto">{t("personalValue.subtitle")}</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {[0, 1, 2].map((i) => (
+              <motion.div key={i}
+                initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.15 }}
+                className="bg-slate-900 border border-white/5 rounded-[30px] p-6 relative overflow-hidden">
+                <div className="text-4xl mb-4">{t(`personalValue.scenarios.${i}.emoji`)}</div>
+                <p className="text-slate-400 text-[11px] font-bold uppercase italic mb-6 leading-relaxed">
+                  {t(`personalValue.scenarios.${i}.situation`)}
+                </p>
+
+                {/* Card de notificare stilizat — fără poze, doar UI */}
+                <motion.div
+                  animate={{ y: [0, -4, 0] }}
+                  transition={{ repeat: Infinity, duration: 3 + i * 0.4 }}
+                  className="bg-white rounded-2xl p-4 shadow-2xl flex items-start gap-3"
+                >
+                  <div className="w-9 h-9 bg-amber-500 rounded-xl flex items-center justify-center shrink-0">
+                    <BellRing className="w-4 h-4 text-white" />
+                  </div>
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-1.5 mb-0.5">
+                      <span className="w-3 h-3 rounded-full bg-emerald-500 flex items-center justify-center text-[6px]">●</span>
+                      <span className="text-[8px] font-black uppercase text-slate-400">CHRONOS</span>
+                    </div>
+                    <p className="text-[10px] font-black text-slate-900 leading-tight">{t(`personalValue.scenarios.${i}.notifTitle`)}</p>
+                    <p className="text-[9px] font-bold text-slate-500 mt-0.5">{t(`personalValue.scenarios.${i}.notifDesc`)}</p>
+                  </div>
+                </motion.div>
+              </motion.div>
+            ))}
+          </div>
+
+          <motion.p initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}
+            className="text-center text-amber-500 font-black italic uppercase text-sm md:text-base tracking-widest mt-14">
+            {t("personalValue.closingText")}
+          </motion.p>
+        </div>
+      </section>
+
       {/* ── CE CONȚINE CHRONOS ────────────────────────────────────────────── */}
       <section className="bg-white py-24 px-6 border-y border-slate-100">
         <div className="max-w-7xl mx-auto">

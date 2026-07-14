@@ -378,39 +378,39 @@
       "items": [
         {
           "titlu": "Intelligenter Kalender",
-          "desc": "Tages-, Wochen-, Monats- und Jahresansicht. Arbeitszeiten sind visuell von arbeitsfreien Zeiten unterscheidbar. Geschlossene Tage erscheinen mit anderem Hintergrund. Filterung nach Fachkraft oder Leistung."
+          "desc": "Tages-, Wochen-, Monats- oder Jahresansicht, mit den Terminen jedes Spezialisten klar und chronologisch dargestellt."
         },
         {
-          "titlu": "Online-Buchungen",
-          "desc": "Einzigartiger persönlicher Link und QR-Code für dein Unternehmen. Kunden wählen selbst die verfügbare Zeit. Das System blockiert automatisch belegte Stunden je Fachkraft. Keine Überschneidungen, keine Verwirrung."
+          "titlu": "Online-Buchungen 24/7",
+          "desc": "Kunden buchen selbst, jederzeit, vom Telefon aus — keine Anrufe, kein Warten."
+        },
+        {
+          "titlu": "Individuelles Spezialisten-Portal",
+          "desc": "Jeder Mitarbeiter hat sein eigenes Konto — er sieht nur seine eigenen Termine, mit eigenen Benachrichtigungen, Popup, Ton und System."
+        },
+        {
+          "titlu": "Dienstleistungs- & Preisverwaltung",
+          "desc": "Konfigurieren Sie Dienstleistungen, Dauer und Preise, pro Spezialist — alles wird automatisch im Kalender aktualisiert."
+        },
+        {
+          "titlu": "Berichte & KI-Insights",
+          "desc": "Automatische, KI-generierte Leistungsanalysen — geschäftige Tage, ruhige Tage, Trends."
         },
         {
           "titlu": "Kundendatenbank",
-          "desc": "Die vollständige Akte jedes Kunden: Terminverlauf, durchgeführte Arbeiten, Gewinnrechner je Auftrag, angehängte Dateien (Bilder, Video, Audio, PDF-Dokumente). Aktualisiert sich automatisch."
+          "desc": "Vollständige Historie pro Kunde, automatisch bei jedem Termin gespeichert, mit angehängten Dateien und Dokumenten."
         },
         {
-          "titlu": "Verwaltung von Leistungen & Fachkräften",
-          "desc": "Definiere Leistungen mit Preis und Dauer. Verknüpfe jede Fachkraft mit den von ihr angebotenen Leistungen. Bei der Buchung filtert das System automatisch die Optionen und blockiert den richtigen Kalenderslot."
+          "titlu": "Bewertungen & Öffentliche Seite",
+          "desc": "Kunden hinterlassen Bewertungen direkt auf Ihrer öffentlichen Buchungsseite und bauen Ihren Online-Ruf auf."
         },
         {
-          "titlu": "Berichte & Analysen",
-          "desc": "Verfolge die Anzahl der Termine, den Umsatz und den Gewinn je Fachkraft und Leistung. Identifiziere die Stunden und Tage mit der höchsten Aktivität. Je vollständiger die Daten, desto präziser die Berichte."
+          "titlu": "WhatsApp Bestätigungen & Erinnerungen",
+          "desc": "Automatische Nachrichten, direkt per WhatsApp gesendet — Buchungsbestätigungen, Erinnerungen einen Tag im Voraus."
         },
         {
-          "titlu": "Dokumente pro Termin",
-          "desc": "Füge jedem Termin beliebige Dateitypen hinzu: PDF, Bilder, Audio, Video. Dokumente synchronisieren sich automatisch mit der Kundenakte. Nützlich für Rezepte, technische Spezifikationen, Notizen oder visuelle Referenzen."
-        },
-        {
-          "titlu": "Kundenbewertungen",
-          "desc": "Kunden können über die öffentliche Buchungsseite Bewertungen hinterlassen. Du kannst manuell Bewertungen treuer Kunden hinzufügen. Der Durchschnittswert ist auf deiner öffentlichen Seite sichtbar und stärkt das Vertrauen neuer Kunden."
-        },
-        {
-          "titlu": "Nützliche Kontakte",
-          "desc": "Separates Verzeichnis für Lieferanten, Partner und Mitarbeiter. Schneller Zugriff auf wichtige Nummern in Notfällen. Vollständig getrennt von der Kundendatenbank."
-        },
-        {
-          "titlu": "WhatsApp-Benachrichtigungen",
-          "desc": "Verfügbar in den Plänen Elite und Team. Sende automatische Bestätigungen und Erinnerungen an Kunden per WhatsApp. Direkt aus der App, mit einem Klick, personalisiert mit Kundenname und Termindetails."
+          "titlu": "Schnellbuchungs-QR-Code",
+          "desc": "Jeder Spezialist hat seinen eigenen QR-Code — der Kunde scannt, wählt nur Datum und Uhrzeit, der Rest ist bereits ausgefüllt."
         }
       ]
     },
@@ -561,6 +561,32 @@
       "loginBtn": "In mein Konto einloggen",
       "copyright": "© 2026 CHRONOS. Alle Rechte vorbehalten.",
       "secured": "Gesichert mit Supabase"
+    },
+    "personalValue": {
+      "heading1": "Ihre Zeit,",
+      "heading2": "gehört wieder Ihnen.",
+      "subtitle": "Während Sie Ihr Leben leben, arbeitet Chronos für Sie.",
+      "scenarios": [
+        {
+          "emoji": "🏃",
+          "situation": "Sie joggen morgens, Handy zu Hause gelassen",
+          "notifTitle": "Termin automatisch bestätigt",
+          "notifDesc": "Maria — morgen, 14:00 Uhr"
+        },
+        {
+          "emoji": "☕",
+          "situation": "Sie trinken Kaffee mit Freunden",
+          "notifTitle": "Erinnerung per WhatsApp gesendet",
+          "notifDesc": "Kunde automatisch benachrichtigt, einen Tag im Voraus"
+        },
+        {
+          "emoji": "🎬",
+          "situation": "Sie sind im Kino, ohne an den Terminplan zu denken",
+          "notifTitle": "Der Spezialist sieht seinen eigenen Terminplan",
+          "notifDesc": "Individuelles Portal — jeder Mitarbeiter, seine eigenen Termine"
+        }
+      ],
+      "closingText": "Sie sind nicht mehr die Rezeption. Chronos ist es."
     }
   },
   "clienti": {

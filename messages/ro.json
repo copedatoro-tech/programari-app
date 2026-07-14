@@ -378,39 +378,39 @@
       "items": [
         {
           "titlu": "Calendar Inteligent",
-          "desc": "Vizualizare pe Zi, Săptămână, Lună și An. Orele din programul de lucru sunt distincte vizual față de cele în afara programului. Zilele închise apar cu fond diferit. Filtrare per specialist sau serviciu."
+          "desc": "Vizualizare Zi, Săptămână, Lună sau An, cu programările fiecărui specialist afișate clar, ordonate cronologic."
         },
         {
-          "titlu": "Rezervări Online",
-          "desc": "Link personal și cod QR unice pentru afacerea ta. Clienții își aleg singuri ora disponibilă. Sistemul blochează automat orele ocupate per specialist. Fără suprapuneri, fără confuzii."
+          "titlu": "Rezervări Online 24/7",
+          "desc": "Clienții își fac singuri programări, oricând, de pe telefon — fără telefoane, fără așteptare."
         },
         {
-          "titlu": "Bază Date Clienți",
-          "desc": "Dosarul complet al fiecărui client: istoric programări, lucrări efectuate, calculator profit per lucrare, fișiere atașate (imagini, video, audio, documente PDF). Se actualizează automat."
+          "titlu": "Portal Individual pentru Specialiști",
+          "desc": "Fiecare angajat are propriul cont — își vede doar programările lui, cu notificări proprii, popup, sunet și sistem."
         },
         {
-          "titlu": "Gestiune Servicii & Specialiști",
-          "desc": "Definești serviciile cu preț și durată. Asociezi fiecare specialist cu serviciile pe care le oferă. La programare, sistemul filtrează automat opțiunile și blochează slotul corect în calendar."
+          "titlu": "Gestiune Servicii & Prețuri",
+          "desc": "Configurează servicii, durate și prețuri, per specialist — totul actualizat automat în calendar."
         },
         {
-          "titlu": "Rapoarte & Analiză",
-          "desc": "Monitorizează numărul de programări, veniturile și profitul per specialist și serviciu. Identifică orele și zilele cu cea mai mare activitate. Cu cât datele sunt mai complete, cu atât rapoartele sunt mai precise."
+          "titlu": "Rapoarte & AI Insights",
+          "desc": "Analize automate despre performanță, generate de inteligență artificială — zilele aglomerate, cele slabe, tendințe."
         },
         {
-          "titlu": "Documente per Programare",
-          "desc": "Atașează orice tip de fișier la fiecare programare: PDF, imagini, audio, video. Documentele se sincronizează automat cu dosarul clientului. Utile pentru rețete, specificații tehnice, note sau referințe vizuale."
+          "titlu": "Bază de Date Clienți",
+          "desc": "Istoric complet per client, salvat automat din fiecare programare, cu fișiere și documente atașate."
         },
         {
-          "titlu": "Recenzii Clienți",
-          "desc": "Clienții pot lăsa recenzii prin pagina publică de rezervări. Poți adăuga manual recenzii de la clienți fideli. Scorul mediu este vizibil pe pagina ta publică și influențează încrederea clienților noi."
+          "titlu": "Recenzii & Pagină Publică",
+          "desc": "Clienții lasă recenzii direct pe pagina ta publică de rezervare, care-ți construiește reputația online."
         },
         {
-          "titlu": "Contacte Utile",
-          "desc": "Agenda separată pentru furnizori, parteneri și colaboratori. Acces rapid la numerele importante în situații de urgență. Complet separată de baza de date a clienților."
+          "titlu": "Confirmări & Reamintiri WhatsApp",
+          "desc": "Mesaje automate, trimise direct pe WhatsApp — confirmări la rezervare, reamintiri cu o zi înainte."
         },
         {
-          "titlu": "Notificări WhatsApp",
-          "desc": "Disponibil în planurile Elite și Team. Trimite confirmări și remindere automate clienților pe WhatsApp. Direct din aplicație, cu un singur click, personalizat cu numele clientului și detaliile programării."
+          "titlu": "Cod QR de Rezervare Rapidă",
+          "desc": "Fiecare specialist are propriul cod QR — clientul scanează, alege doar data și ora, restul e deja completat."
         }
       ]
     },
@@ -561,6 +561,32 @@
       "loginBtn": "Intră în Contul Meu",
       "copyright": "© 2026 CHRONOS. Toate drepturile rezervate.",
       "secured": "Securizat prin Supabase"
+    },
+    "personalValue": {
+      "heading1": "Timpul tău,",
+      "heading2": "îți aparține din nou.",
+      "subtitle": "Cât timp tu trăiești, Chronos lucrează pentru tine.",
+      "scenarios": [
+        {
+          "emoji": "🏃",
+          "situation": "Alergi dimineața, fără telefonul lângă tine",
+          "notifTitle": "Programare confirmată automat",
+          "notifDesc": "Maria — mâine, 14:00"
+        },
+        {
+          "emoji": "☕",
+          "situation": "Ești la o cafea cu prietenii",
+          "notifTitle": "Reamintire trimisă pe WhatsApp",
+          "notifDesc": "Clientul a fost anunțat automat, cu o zi înainte"
+        },
+        {
+          "emoji": "🎬",
+          "situation": "Ești la film, fără să te gândești la program",
+          "notifTitle": "Specialistul își vede singur agenda",
+          "notifDesc": "Portal individual — fiecare angajat, propriile programări"
+        }
+      ],
+      "closingText": "Nu mai ești tu recepția. Chronos e."
     }
   },
   "abonamente": {

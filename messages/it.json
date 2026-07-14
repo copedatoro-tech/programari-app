@@ -377,40 +377,40 @@
       "subtitle": "Ogni modulo è stato pensato per attività reali",
       "items": [
         {
-          "titlu": "Calendario intelligente",
-          "desc": "Vista per Giorno, Settimana, Mese e Anno. Le ore dell'orario di lavoro sono visivamente distinte da quelle fuori orario. I giorni di chiusura appaiono con uno sfondo diverso. Filtro per specialista o servizio."
+          "titlu": "Calendario Intelligente",
+          "desc": "Vista Giorno, Settimana, Mese o Anno, con gli appuntamenti di ogni specialista mostrati chiaramente, in ordine cronologico."
         },
         {
-          "titlu": "Prenotazioni online",
-          "desc": "Link personale e codice QR unici per la tua attività. I clienti scelgono da soli l'orario disponibile. Il sistema blocca automaticamente le ore occupate per specialista. Nessuna sovrapposizione, nessuna confusione."
+          "titlu": "Prenotazioni Online 24/7",
+          "desc": "I clienti prenotano da soli, in qualsiasi momento, dal telefono — senza chiamate, senza attese."
         },
         {
-          "titlu": "Database clienti",
-          "desc": "La scheda completa di ogni cliente: storico appuntamenti, lavori effettuati, calcolatore di profitto per lavoro, file allegati (immagini, video, audio, documenti PDF). Si aggiorna automaticamente."
+          "titlu": "Portale Individuale per Specialisti",
+          "desc": "Ogni dipendente ha il proprio account — vede solo i propri appuntamenti, con notifiche proprie, popup, suono e sistema."
         },
         {
-          "titlu": "Gestione servizi e specialisti",
-          "desc": "Definisci i servizi con prezzo e durata. Associa ogni specialista ai servizi che offre. Alla prenotazione, il sistema filtra automaticamente le opzioni e blocca lo slot corretto nel calendario."
+          "titlu": "Gestione Servizi & Prezzi",
+          "desc": "Configura servizi, durate e prezzi, per specialista — tutto si aggiorna automaticamente nel calendario."
         },
         {
-          "titlu": "Report e analisi",
-          "desc": "Monitora il numero di appuntamenti, le entrate e il profitto per specialista e servizio. Identifica le ore e i giorni con maggiore attività. Più i dati sono completi, più i report sono precisi."
+          "titlu": "Report & AI Insights",
+          "desc": "Analisi automatiche delle prestazioni, generate dall'IA — giorni intensi, giorni calmi, tendenze."
         },
         {
-          "titlu": "Documenti per appuntamento",
-          "desc": "Allega qualsiasi tipo di file a ogni appuntamento: PDF, immagini, audio, video. I documenti si sincronizzano automaticamente con la scheda cliente. Utile per ricette, specifiche tecniche, note o riferimenti visivi."
+          "titlu": "Database Clienti",
+          "desc": "Storico completo per cliente, salvato automaticamente ad ogni appuntamento, con file e documenti allegati."
         },
         {
-          "titlu": "Recensioni clienti",
-          "desc": "I clienti possono lasciare recensioni tramite la pagina pubblica di prenotazione. Puoi aggiungere manualmente recensioni di clienti fedeli. Il punteggio medio è visibile sulla tua pagina pubblica e rafforza la fiducia dei nuovi clienti."
+          "titlu": "Recensioni & Pagina Pubblica",
+          "desc": "I clienti lasciano recensioni direttamente sulla tua pagina pubblica di prenotazione, costruendo la tua reputazione online."
         },
         {
-          "titlu": "Contatti utili",
-          "desc": "Rubrica separata per fornitori, partner e collaboratori. Accesso rapido ai numeri importanti in caso di emergenza. Completamente separata dal database clienti."
+          "titlu": "Conferme & Promemoria WhatsApp",
+          "desc": "Messaggi automatici, inviati direttamente via WhatsApp — conferme di prenotazione, promemoria un giorno prima."
         },
         {
-          "titlu": "Notifiche WhatsApp",
-          "desc": "Disponibile nei piani Elite e Team. Invia conferme e promemoria automatici ai clienti su WhatsApp. Direttamente dall'app, con un clic, personalizzato con il nome del cliente e i dettagli dell'appuntamento."
+          "titlu": "Codice QR di Prenotazione Rapida",
+          "desc": "Ogni specialista ha il proprio codice QR — il cliente scansiona, sceglie solo data e ora, il resto è già compilato."
         }
       ]
     },
@@ -561,6 +561,32 @@
       "loginBtn": "Accedi al mio account",
       "copyright": "© 2026 CHRONOS. Tutti i diritti riservati.",
       "secured": "Protetto con Supabase"
+    },
+    "personalValue": {
+      "heading1": "Il tuo tempo,",
+      "heading2": "torna a essere tuo.",
+      "subtitle": "Mentre tu vivi la tua vita, Chronos lavora per te.",
+      "scenarios": [
+        {
+          "emoji": "🏃",
+          "situation": "Stai correndo al mattino, senza telefono con te",
+          "notifTitle": "Prenotazione confermata automaticamente",
+          "notifDesc": "Maria — domani, ore 14:00"
+        },
+        {
+          "emoji": "☕",
+          "situation": "Sei al caffè con gli amici",
+          "notifTitle": "Promemoria inviato su WhatsApp",
+          "notifDesc": "Cliente avvisato automaticamente, un giorno prima"
+        },
+        {
+          "emoji": "🎬",
+          "situation": "Sei al cinema, senza pensare all'agenda",
+          "notifTitle": "Lo specialista consulta la propria agenda",
+          "notifDesc": "Portale individuale — ogni dipendente, i propri appuntamenti"
+        }
+      ],
+      "closingText": "Non sei più tu la reception. È Chronos."
     }
   },
   "clienti": {

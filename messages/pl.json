@@ -377,40 +377,40 @@
       "subtitle": "Każdy moduł został zaprojektowany dla prawdziwych firm",
       "items": [
         {
-          "titlu": "Inteligentny kalendarz",
-          "desc": "Widok Dzień, Tydzień, Miesiąc i Rok. Godziny w ramach godzin pracy są wizualnie odróżnione od godzin poza nimi. Dni zamknięte pojawiają się z innym tłem. Filtrowanie według specjalisty lub usługi."
+          "titlu": "Inteligentny Kalendarz",
+          "desc": "Widok Dnia, Tygodnia, Miesiąca lub Roku, z wizytami każdego specjalisty wyświetlonymi wyraźnie, w porządku chronologicznym."
         },
         {
-          "titlu": "Rezerwacje online",
-          "desc": "Unikalny osobisty link i kod QR dla Twojej firmy. Klienci sami wybierają dostępną godzinę. System automatycznie blokuje zajęte godziny dla każdego specjalisty. Bez nakładania się, bez pomyłek."
+          "titlu": "Rezerwacje Online 24/7",
+          "desc": "Klienci rezerwują sami, o dowolnej porze, z telefonu — bez telefonów, bez czekania."
         },
         {
-          "titlu": "Baza danych klientów",
-          "desc": "Pełna karta każdego klienta: historia wizyt, wykonane prace, kalkulator zysku na zlecenie, załączone pliki (zdjęcia, wideo, audio, dokumenty PDF). Aktualizuje się automatycznie."
+          "titlu": "Indywidualny Portal Specjalisty",
+          "desc": "Każdy pracownik ma własne konto — widzi tylko swoje wizyty, z własnymi powiadomieniami, wyskakującym okienkiem, dźwiękiem i systemem."
         },
         {
-          "titlu": "Zarządzanie usługami i specjalistami",
-          "desc": "Definiujesz usługi z ceną i czasem trwania. Przypisujesz każdego specjalistę do usług, które oferuje. Przy rezerwacji system automatycznie filtruje opcje i blokuje właściwy slot w kalendarzu."
+          "titlu": "Zarządzanie Usługami & Cenami",
+          "desc": "Skonfiguruj usługi, czasy trwania i ceny, dla każdego specjalisty — wszystko aktualizuje się automatycznie w kalendarzu."
         },
         {
-          "titlu": "Raporty i analizy",
-          "desc": "Śledzisz liczbę wizyt, przychody i zysk według specjalisty i usługi. Identyfikujesz godziny i dni z największą aktywnością. Im pełniejsze dane, tym dokładniejsze raporty."
+          "titlu": "Raporty & AI Insights",
+          "desc": "Automatyczne analizy wydajności, generowane przez AI — ruchliwe dni, spokojne dni, trendy."
         },
         {
-          "titlu": "Dokumenty do wizyty",
-          "desc": "Dołączasz dowolny typ pliku do każdej wizyty: PDF, zdjęcia, audio, wideo. Dokumenty synchronizują się automatycznie z kartą klienta. Przydatne do recept, specyfikacji technicznych, notatek lub odniesień wizualnych."
+          "titlu": "Baza Danych Klientów",
+          "desc": "Pełna historia dla każdego klienta, zapisywana automatycznie przy każdej wizycie, z załączonymi plikami i dokumentami."
         },
         {
-          "titlu": "Opinie klientów",
-          "desc": "Klienci mogą zostawiać opinie za pośrednictwem publicznej strony rezerwacji. Możesz ręcznie dodawać opinie od lojalnych klientów. Średnia ocena jest widoczna na Twojej publicznej stronie i buduje zaufanie nowych klientów."
+          "titlu": "Opinie & Strona Publiczna",
+          "desc": "Klienci zostawiają opinie bezpośrednio na Twojej publicznej stronie rezerwacji, budując Twoją reputację online."
         },
         {
-          "titlu": "Przydatne kontakty",
-          "desc": "Osobna książka kontaktów dla dostawców, partnerów i współpracowników. Szybki dostęp do ważnych numerów w sytuacjach awaryjnych. Całkowicie oddzielona od bazy danych klientów."
+          "titlu": "Potwierdzenia & Przypomnienia WhatsApp",
+          "desc": "Automatyczne wiadomości, wysyłane bezpośrednio przez WhatsApp — potwierdzenia rezerwacji, przypomnienia dzień wcześniej."
         },
         {
-          "titlu": "Powiadomienia WhatsApp",
-          "desc": "Dostępne w planach Elite i Zespół. Wysyłaj automatyczne potwierdzenia i przypomnienia klientom przez WhatsApp. Bezpośrednio z aplikacji, jednym kliknięciem, spersonalizowane imieniem klienta i szczegółami wizyty."
+          "titlu": "Kod QR do Szybkiej Rezerwacji",
+          "desc": "Każdy specjalista ma własny kod QR — klient skanuje, wybiera tylko datę i godzinę, reszta jest już wypełniona."
         }
       ]
     },
@@ -561,6 +561,32 @@
       "loginBtn": "Zaloguj się do konta",
       "copyright": "© 2026 CHRONOS. Wszelkie prawa zastrzeżone.",
       "secured": "Zabezpieczone przez Supabase"
+    },
+    "personalValue": {
+      "heading1": "Twój czas,",
+      "heading2": "znowu należy do Ciebie.",
+      "subtitle": "Podczas gdy Ty żyjesz swoim życiem, Chronos pracuje dla Ciebie.",
+      "scenarios": [
+        {
+          "emoji": "🏃",
+          "situation": "Biegasz rano, bez telefonu przy sobie",
+          "notifTitle": "Wizyta potwierdzona automatycznie",
+          "notifDesc": "Maria — jutro, 14:00"
+        },
+        {
+          "emoji": "☕",
+          "situation": "Pijesz kawę ze znajomymi",
+          "notifTitle": "Przypomnienie wysłane przez WhatsApp",
+          "notifDesc": "Klient powiadomiony automatycznie, dzień wcześniej"
+        },
+        {
+          "emoji": "🎬",
+          "situation": "Jesteś w kinie, nie myślisz o grafiku",
+          "notifTitle": "Specjalista sprawdza swój własny grafik",
+          "notifDesc": "Indywidualny portal — każdy pracownik, własne wizyty"
+        }
+      ],
+      "closingText": "To już nie Ty jesteś recepcją. To Chronos."
     }
   },
   "clienti": {

@@ -377,40 +377,40 @@
       "subtitle": "Chaque module a été pensé pour de vraies entreprises",
       "items": [
         {
-          "titlu": "Calendrier intelligent",
-          "desc": "Vue par Jour, Semaine, Mois et Année. Les heures d'ouverture sont visuellement distinctes des heures hors service. Les jours fermés apparaissent avec un fond différent. Filtrage par spécialiste ou service."
+          "titlu": "Calendrier Intelligent",
+          "desc": "Vue Jour, Semaine, Mois ou Année, avec les rendez-vous de chaque spécialiste affichés clairement, triés chronologiquement."
         },
         {
-          "titlu": "Réservations en ligne",
-          "desc": "Lien personnel et code QR uniques pour ton entreprise. Les clients choisissent eux-mêmes l'heure disponible. Le système bloque automatiquement les heures occupées par spécialiste. Sans chevauchement, sans confusion."
+          "titlu": "Réservations en Ligne 24/7",
+          "desc": "Les clients réservent seuls, à tout moment, depuis leur téléphone — sans appels, sans attente."
         },
         {
-          "titlu": "Base de données clients",
-          "desc": "Le dossier complet de chaque client : historique des rendez-vous, travaux effectués, calculateur de profit par intervention, fichiers joints (images, vidéo, audio, documents PDF). Mise à jour automatique."
+          "titlu": "Portail Individuel pour Spécialistes",
+          "desc": "Chaque employé a son propre compte — il ne voit que ses propres rendez-vous, avec ses propres notifications, popup, son et système."
         },
         {
-          "titlu": "Gestion des services et spécialistes",
-          "desc": "Définis les services avec prix et durée. Associe chaque spécialiste aux services qu'il propose. Lors de la réservation, le système filtre automatiquement les options et bloque le bon créneau dans le calendrier."
+          "titlu": "Gestion Services & Tarifs",
+          "desc": "Configurez services, durées et prix, par spécialiste — tout se met à jour automatiquement dans le calendrier."
         },
         {
-          "titlu": "Rapports & Analyses",
-          "desc": "Suis le nombre de rendez-vous, les revenus et le profit par spécialiste et par service. Identifie les heures et jours de plus forte activité. Plus les données sont complètes, plus les rapports sont précis."
+          "titlu": "Rapports & AI Insights",
+          "desc": "Analyses automatiques de performance, générées par IA — jours chargés, jours calmes, tendances."
         },
         {
-          "titlu": "Documents par rendez-vous",
-          "desc": "Joins n'importe quel type de fichier à chaque rendez-vous : PDF, images, audio, vidéo. Les documents se synchronisent automatiquement avec le dossier client. Utile pour les ordonnances, spécifications techniques, notes ou références visuelles."
+          "titlu": "Base de Données Clients",
+          "desc": "Historique complet par client, enregistré automatiquement à chaque rendez-vous, avec fichiers et documents joints."
         },
         {
-          "titlu": "Avis clients",
-          "desc": "Les clients peuvent laisser des avis via la page publique de réservation. Tu peux ajouter manuellement des avis de clients fidèles. La note moyenne est visible sur ta page publique et renforce la confiance des nouveaux clients."
+          "titlu": "Avis & Page Publique",
+          "desc": "Les clients laissent des avis directement sur votre page publique de réservation, construisant votre réputation en ligne."
         },
         {
-          "titlu": "Contacts utiles",
-          "desc": "Répertoire séparé pour fournisseurs, partenaires et collaborateurs. Accès rapide aux numéros importants en cas d'urgence. Complètement séparé de la base de données clients."
+          "titlu": "Confirmations & Rappels WhatsApp",
+          "desc": "Messages automatiques, envoyés directement via WhatsApp — confirmations de réservation, rappels la veille."
         },
         {
-          "titlu": "Notifications WhatsApp",
-          "desc": "Disponible dans les forfaits Elite et Équipe. Envoie des confirmations et rappels automatiques aux clients sur WhatsApp. Directement depuis l'application, en un clic, personnalisé avec le nom du client et les détails du rendez-vous."
+          "titlu": "Code QR de Réservation Rapide",
+          "desc": "Chaque spécialiste a son propre code QR — le client scanne, choisit seulement la date et l'heure, le reste est déjà rempli."
         }
       ]
     },
@@ -561,6 +561,32 @@
       "loginBtn": "Accéder à mon compte",
       "copyright": "© 2026 CHRONOS. Tous droits réservés.",
       "secured": "Sécurisé par Supabase"
+    },
+    "personalValue": {
+      "heading1": "Votre temps,",
+      "heading2": "vous appartient à nouveau.",
+      "subtitle": "Pendant que vous vivez votre vie, Chronos travaille pour vous.",
+      "scenarios": [
+        {
+          "emoji": "🏃",
+          "situation": "Vous courez le matin, sans téléphone sur vous",
+          "notifTitle": "Réservation confirmée automatiquement",
+          "notifDesc": "Maria — demain, 14h00"
+        },
+        {
+          "emoji": "☕",
+          "situation": "Vous prenez un café entre amis",
+          "notifTitle": "Rappel envoyé via WhatsApp",
+          "notifDesc": "Client averti automatiquement, la veille"
+        },
+        {
+          "emoji": "🎬",
+          "situation": "Vous êtes au cinéma, sans penser au planning",
+          "notifTitle": "Le spécialiste consulte son propre agenda",
+          "notifDesc": "Portail individuel — chaque employé, ses propres rendez-vous"
+        }
+      ],
+      "closingText": "Vous n'êtes plus la réception. Chronos l'est."
     }
   },
   "clienti": {

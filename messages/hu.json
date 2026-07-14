@@ -377,40 +377,40 @@
       "subtitle": "Minden modult valós vállalkozások számára terveztünk",
       "items": [
         {
-          "titlu": "Intelligens naptár",
-          "desc": "Nap, Hét, Hónap és Év nézet. A munkaidőn belüli órák vizuálisan elkülönülnek a munkaidőn kívüliektől. A zárva tartó napok más háttérrel jelennek meg. Szűrés szakember vagy szolgáltatás szerint."
+          "titlu": "Intelligens Naptár",
+          "desc": "Nap, Hét, Hónap vagy Év nézet, minden szakember foglalásaival tisztán, időrendben megjelenítve."
         },
         {
-          "titlu": "Online foglalás",
-          "desc": "Egyedi személyes link és QR-kód a vállalkozásodhoz. Az ügyfelek maguk választják ki az elérhető időpontot. A rendszer automatikusan letiltja a foglalt órákat szakemberenként. Nincs átfedés, nincs zavar."
+          "titlu": "Online Foglalások 24/7",
+          "desc": "Az ügyfelek maguk foglalnak, bármikor, telefonról — hívások és várakozás nélkül."
         },
         {
-          "titlu": "Ügyféladatbázis",
-          "desc": "Minden ügyfél teljes dossziéja: időpont-előzmények, elvégzett munkák, munkánkénti profitkalkulátor, csatolt fájlok (képek, videó, hang, PDF dokumentumok). Automatikusan frissül."
+          "titlu": "Egyéni Szakember Portál",
+          "desc": "Minden alkalmazottnak saját fiókja van — csak a saját foglalásait látja, saját értesítésekkel, felugró ablakkal, hanggal és rendszerrel."
         },
         {
-          "titlu": "Szolgáltatások és szakemberek kezelése",
-          "desc": "Határozd meg a szolgáltatásokat árral és időtartammal. Rendeld hozzá minden szakembert az általa nyújtott szolgáltatásokhoz. Foglaláskor a rendszer automatikusan szűri az opciókat és lezárja a megfelelő naptári időpontot."
+          "titlu": "Szolgáltatás- & Árkezelés",
+          "desc": "Állítsa be a szolgáltatásokat, időtartamokat és árakat, szakemberenként — minden automatikusan frissül a naptárban."
         },
         {
-          "titlu": "Riportok és elemzés",
-          "desc": "Kövesd az időpontok számát, a bevételt és a profitot szakemberenként és szolgáltatásonként. Azonosítsd a legnagyobb aktivitású órákat és napokat. Minél teljesebbek az adatok, annál pontosabbak a riportok."
+          "titlu": "Jelentések & AI Insights",
+          "desc": "Automatikus, MI által generált teljesítményelemzés — forgalmas napok, csendes napok, trendek."
         },
         {
-          "titlu": "Dokumentumok időpontonként",
-          "desc": "Csatolj bármilyen fájltípust minden időponthoz: PDF, képek, hang, videó. A dokumentumok automatikusan szinkronizálódnak az ügyfél dossziéjával. Hasznos receptekhez, műszaki specifikációkhoz, jegyzetekhez vagy vizuális referenciákhoz."
+          "titlu": "Ügyfél Adatbázis",
+          "desc": "Teljes előzmény ügyfelenként, automatikusan mentve minden foglaláskor, csatolt fájlokkal és dokumentumokkal."
         },
         {
-          "titlu": "Ügyfélvélemények",
-          "desc": "Az ügyfelek véleményt hagyhatnak a nyilvános foglalási oldalon keresztül. Manuálisan is hozzáadhatsz véleményeket hűséges ügyfelektől. Az átlagos pontszám látható a nyilvános oldaladon, és növeli az új ügyfelek bizalmát."
+          "titlu": "Vélemények & Nyilvános Oldal",
+          "desc": "Az ügyfelek közvetlenül a nyilvános foglalási oldaladon hagynak véleményt, felépítve online hírnevedet."
         },
         {
-          "titlu": "Hasznos kapcsolatok",
-          "desc": "Külön névjegyzék beszállítóknak, partnereknek és közreműködőknek. Gyors hozzáférés a fontos számokhoz vészhelyzetben. Teljesen elkülönítve az ügyféladatbázistól."
+          "titlu": "WhatsApp Visszaigazolások & Emlékeztetők",
+          "desc": "Automatikus üzenetek, közvetlenül WhatsAppon küldve — foglalás-visszaigazolások, emlékeztetők egy nappal korábban."
         },
         {
-          "titlu": "WhatsApp értesítések",
-          "desc": "Elérhető az Elite és Csapat csomagokban. Küldj automatikus megerősítéseket és emlékeztetőket az ügyfeleknek WhatsAppon. Közvetlenül az alkalmazásból, egy kattintással, az ügyfél nevével és az időpont részleteivel személyre szabva."
+          "titlu": "Gyors Foglalási QR-kód",
+          "desc": "Minden szakembernek saját QR-kódja van — az ügyfél beolvassa, csak a dátumot és időpontot választja, a többi már ki van töltve."
         }
       ]
     },
@@ -561,6 +561,32 @@
       "loginBtn": "Belépés a fiókomba",
       "copyright": "© 2026 CHRONOS. Minden jog fenntartva.",
       "secured": "Supabase-szel védve"
+    },
+    "personalValue": {
+      "heading1": "Az idődet,",
+      "heading2": "visszakapod.",
+      "subtitle": "Amíg te élsz, a Chronos dolgozik helyetted.",
+      "scenarios": [
+        {
+          "emoji": "🏃",
+          "situation": "Reggel futsz, telefon nélkül",
+          "notifTitle": "Foglalás automatikusan visszaigazolva",
+          "notifDesc": "Maria — holnap, 14:00"
+        },
+        {
+          "emoji": "☕",
+          "situation": "Kávézol a barátaiddal",
+          "notifTitle": "Emlékeztető elküldve WhatsAppon",
+          "notifDesc": "Az ügyfél automatikusan értesítve, egy nappal korábban"
+        },
+        {
+          "emoji": "🎬",
+          "situation": "Moziban vagy, nem gondolsz a beosztásra",
+          "notifTitle": "A szakember megnézi a saját naptárát",
+          "notifDesc": "Egyéni portál — minden alkalmazott a saját foglalásaival"
+        }
+      ],
+      "closingText": "Már nem te vagy a recepció. A Chronos az."
     }
   },
   "clienti": {

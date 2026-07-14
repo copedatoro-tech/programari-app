@@ -377,40 +377,40 @@
       "subtitle": "Cada módulo foi pensado para negócios reais",
       "items": [
         {
-          "titlu": "Calendário inteligente",
-          "desc": "Vista por Dia, Semana, Mês e Ano. As horas do horário de trabalho são visualmente distintas das horas fora do horário. Os dias de encerramento aparecem com um fundo diferente. Filtragem por especialista ou serviço."
+          "titlu": "Calendário Inteligente",
+          "desc": "Vista de Dia, Semana, Mês ou Ano, com as marcações de cada especialista mostradas claramente, ordenadas cronologicamente."
         },
         {
-          "titlu": "Marcações online",
-          "desc": "Link pessoal e código QR únicos para o teu negócio. Os clientes escolhem eles próprios o horário disponível. O sistema bloqueia automaticamente as horas ocupadas por especialista. Sem sobreposições, sem confusão."
+          "titlu": "Marcações Online 24/7",
+          "desc": "Os clientes marcam sozinhos, a qualquer hora, pelo telemóvel — sem chamadas, sem espera."
         },
         {
-          "titlu": "Base de dados de clientes",
-          "desc": "O dossiê completo de cada cliente: histórico de marcações, trabalhos realizados, calculadora de lucro por trabalho, ficheiros anexados (imagens, vídeo, áudio, documentos PDF). Atualiza-se automaticamente."
+          "titlu": "Portal Individual para Especialistas",
+          "desc": "Cada colaborador tem a sua própria conta — vê apenas as suas marcações, com notificações próprias, popup, som e sistema."
         },
         {
-          "titlu": "Gestão de serviços e especialistas",
-          "desc": "Define os serviços com preço e duração. Associa cada especialista aos serviços que oferece. Ao marcar, o sistema filtra automaticamente as opções e bloqueia o horário correto no calendário."
+          "titlu": "Gestão de Serviços & Preços",
+          "desc": "Configure serviços, durações e preços, por especialista — tudo atualizado automaticamente no calendário."
         },
         {
-          "titlu": "Relatórios e análise",
-          "desc": "Monitoriza o número de marcações, a receita e o lucro por especialista e serviço. Identifica as horas e dias com maior atividade. Quanto mais completos forem os dados, mais precisos são os relatórios."
+          "titlu": "Relatórios & AI Insights",
+          "desc": "Análises automáticas de desempenho, geradas por IA — dias movimentados, dias calmos, tendências."
         },
         {
-          "titlu": "Documentos por marcação",
-          "desc": "Anexa qualquer tipo de ficheiro a cada marcação: PDF, imagens, áudio, vídeo. Os documentos sincronizam-se automaticamente com o dossiê do cliente. Útil para receitas, especificações técnicas, notas ou referências visuais."
+          "titlu": "Base de Dados de Clientes",
+          "desc": "Histórico completo por cliente, guardado automaticamente em cada marcação, com ficheiros e documentos anexados."
         },
         {
-          "titlu": "Avaliações de clientes",
-          "desc": "Os clientes podem deixar avaliações através da página pública de marcações. Podes adicionar manualmente avaliações de clientes fiéis. A pontuação média é visível na tua página pública e reforça a confiança de novos clientes."
+          "titlu": "Avaliações & Página Pública",
+          "desc": "Os clientes deixam avaliações diretamente na tua página pública de marcação, construindo a tua reputação online."
         },
         {
-          "titlu": "Contactos úteis",
-          "desc": "Diretório separado para fornecedores, parceiros e colaboradores. Acesso rápido a números importantes em emergências. Completamente separado da base de dados de clientes."
+          "titlu": "Confirmações & Lembretes WhatsApp",
+          "desc": "Mensagens automáticas, enviadas diretamente via WhatsApp — confirmações de marcação, lembretes um dia antes."
         },
         {
-          "titlu": "Notificações WhatsApp",
-          "desc": "Disponível nos planos Elite e Equipa. Envia confirmações e lembretes automáticos aos clientes via WhatsApp. Diretamente da aplicação, com um clique, personalizado com o nome do cliente e os detalhes da marcação."
+          "titlu": "Código QR de Marcação Rápida",
+          "desc": "Cada especialista tem o seu próprio código QR — o cliente digitaliza, escolhe apenas a data e a hora, o resto já está preenchido."
         }
       ]
     },
@@ -561,6 +561,32 @@
       "loginBtn": "Entrar na minha conta",
       "copyright": "© 2026 CHRONOS. Todos os direitos reservados.",
       "secured": "Protegido com Supabase"
+    },
+    "personalValue": {
+      "heading1": "O teu tempo,",
+      "heading2": "volta a ser teu.",
+      "subtitle": "Enquanto tu vives a tua vida, o Chronos trabalha por ti.",
+      "scenarios": [
+        {
+          "emoji": "🏃",
+          "situation": "Sais para correr de manhã, sem telemóvel contigo",
+          "notifTitle": "Marcação confirmada automaticamente",
+          "notifDesc": "Maria — amanhã, 14:00"
+        },
+        {
+          "emoji": "☕",
+          "situation": "Estás a tomar um café com amigos",
+          "notifTitle": "Lembrete enviado via WhatsApp",
+          "notifDesc": "Cliente avisado automaticamente, um dia antes"
+        },
+        {
+          "emoji": "🎬",
+          "situation": "Estás no cinema, sem pensar na agenda",
+          "notifTitle": "O especialista consulta a sua própria agenda",
+          "notifDesc": "Portal individual — cada colaborador, as suas próprias marcações"
+        }
+      ],
+      "closingText": "Já não és tu a receção. É o Chronos."
     }
   },
   "clienti": {
