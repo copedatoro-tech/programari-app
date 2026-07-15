@@ -1457,7 +1457,11 @@
     },
     "aiInsightsUpsellTitle": "🤖 AI Insights — Doar Chronos Team",
     "aiInsightsUpsellText": "Analize automate, generate de inteligență artificială, disponibile exclusiv pe planul Team.",
-    "aiInsightsUpsellBtn": "Vezi Planul Team"
+    "aiInsightsUpsellBtn": "Vezi Planul Team",
+    "exportExcelBtn": "📊 Export Excel",
+    "exportSheetSummary": "Sumar",
+    "exportSheetServices": "Top Servicii",
+    "exportSheetStaff": "Performanță Echipă"
   },
   "chronosPickers": {
     "localeCode": "ro-RO",

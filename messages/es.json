@@ -1275,7 +1275,11 @@
     },
     "aiInsightsUpsellTitle": "🤖 AI Insights — Solo Chronos Team",
     "aiInsightsUpsellText": "Análisis automáticos generados por IA, disponibles exclusivamente en el plan Team.",
-    "aiInsightsUpsellBtn": "Ver Plan Team"
+    "aiInsightsUpsellBtn": "Ver Plan Team",
+    "exportExcelBtn": "📊 Exportar Excel",
+    "exportSheetSummary": "Resumen",
+    "exportSheetServices": "Mejores Servicios",
+    "exportSheetStaff": "Rendimiento del Equipo"
   },
   "chronosPickers": {
     "localeCode": "es-ES",

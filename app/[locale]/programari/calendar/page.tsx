@@ -1262,6 +1262,8 @@ function CalendarContent() {
                 <div style={{flex:1,minWidth:0}}>
                   <h2 style={{fontSize:14,fontWeight:700,color:"#fff",margin:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{editForm.nume}</h2>
                   <p style={{fontSize:10,color:"#64748b",margin:0}}>{editForm.data} · {editForm.ora}{editForm.isOnline?" 🌐":""}</p>
+                  {editForm.paymentStatus==="deposit_paid"&&<span style={{display:"inline-block",marginTop:3,fontSize:9,fontWeight:800,color:"#fbbf24",background:"rgba(251,191,36,0.15)",padding:"2px 7px",borderRadius:6}}>💳 {t("depositPaidLabel",{paid:(editForm.amountPaid||0).toFixed(0),rest:((editForm.totalPrice||0)-(editForm.amountPaid||0)).toFixed(0)})}</span>}
+                  {editForm.paymentStatus==="fully_paid"&&<span style={{display:"inline-block",marginTop:3,fontSize:9,fontWeight:800,color:"#6ee7b7",background:"rgba(110,231,183,0.15)",padding:"2px 7px",borderRadius:6}}>✅ {t("fullyPaidLabel")}</span>}
                 </div>
               </div>
               <div style={{padding:"12px 14px",display:"flex",flexDirection:"column",gap:7,overflowY:"auto",flex:1}}>

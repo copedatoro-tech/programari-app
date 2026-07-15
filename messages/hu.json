@@ -1275,7 +1275,11 @@
     },
     "aiInsightsUpsellTitle": "🤖 AI Insights — Csak Chronos Team",
     "aiInsightsUpsellText": "Automatikus, MI által generált elemzések, kizárólag a Team csomagban elérhető.",
-    "aiInsightsUpsellBtn": "Team Csomag Megtekintése"
+    "aiInsightsUpsellBtn": "Team Csomag Megtekintése",
+    "exportExcelBtn": "📊 Excel Exportálása",
+    "exportSheetSummary": "Összegzés",
+    "exportSheetServices": "Legjobb Szolgáltatások",
+    "exportSheetStaff": "Csapatteljesítmény"
   },
   "chronosPickers": {
     "localeCode": "hu-HU",

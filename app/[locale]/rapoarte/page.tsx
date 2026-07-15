@@ -5,6 +5,7 @@ import { createBrowserClient } from '@supabase/ssr';
 import Image from "next/image";
 import { Link } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
+import * as XLSX from "xlsx";
 
 type Appointment = {
   id: string;
@@ -248,6 +249,50 @@ function RapoarteContent() {
 
   const handleExport = () => window.print();
 
+  // ✅ Export Excel real, cu date structurate — nu doar tipărire de pagină.
+  // Foaie de sumar general + top servicii, plus performanță echipă doar la Team.
+  const handleExportExcel = () => {
+    const wb = XLSX.utils.book_new();
+
+    const summaryData = [
+      [t("headingPrefix") + " " + (isTeam ? t("headingTeam") : isElite ? t("headingElite") : t("headingSummary"))],
+      [new Date().toLocaleDateString(localeCode)],
+      [],
+      [t("statTotalAppts"), stats.totalCount],
+      [t("statRevenue"), `${stats.totalRevenue} RON`],
+      [t("statAvgPerDay"), stats.mediePeZi],
+      [t("statAvgValue"), `${stats.valoareMedie} RON`],
+      [t("statUniqueClients"), stats.totalClientiUnici],
+      [t("statRetention"), `${stats.rataRevenire}%`],
+    ];
+    const ws1 = XLSX.utils.aoa_to_sheet(summaryData);
+    ws1["!cols"] = [{ wch: 28 }, { wch: 18 }];
+    XLSX.utils.book_append_sheet(wb, ws1, t("exportSheetSummary"));
+
+    if (stats.topServices.length > 0) {
+      const servicesData = [
+        [t("topServicesTitle"), t("tableRevenue")],
+        ...stats.topServices.map((s) => [s.nume, s.total]),
+      ];
+      const ws2 = XLSX.utils.aoa_to_sheet(servicesData);
+      ws2["!cols"] = [{ wch: 28 }, { wch: 16 }];
+      XLSX.utils.book_append_sheet(wb, ws2, t("exportSheetServices"));
+    }
+
+    if (isTeam && stats.staffStats.length > 0) {
+      const staffData = [
+        [t("tableStaff"), t("tableAppts"), t("tableRevenue")],
+        ...stats.staffStats.map((s) => [s.name, s.count, s.revenue]),
+      ];
+      const ws3 = XLSX.utils.aoa_to_sheet(staffData);
+      ws3["!cols"] = [{ wch: 22 }, { wch: 14 }, { wch: 16 }];
+      XLSX.utils.book_append_sheet(wb, ws3, t("exportSheetStaff"));
+    }
+
+    const fileName = `Chronos_Raport_${new Date().toISOString().split("T")[0]}.xlsx`;
+    XLSX.writeFile(wb, fileName);
+  };
+
   if (loading) return (
     <div className="min-h-screen flex items-center justify-center bg-[#fcfcfc]">
       <div className="font-black italic animate-pulse text-slate-900 uppercase text-[10px] tracking-widest">{t("loading")}</div>
@@ -333,6 +378,7 @@ function RapoarteContent() {
             <div className="flex gap-3 no-print">
               <Link href="/programari" className="bg-slate-100 text-slate-900 px-8 py-4 rounded-[15px] font-black text-[10px] uppercase italic hover:bg-slate-200 transition-all">{t("backBtn")}</Link>
               <button id="onboarding-rapoarte-export" onClick={handleExport} className="bg-slate-900 text-white px-8 py-4 rounded-[15px] font-black text-[10px] uppercase italic border-b-4 border-slate-700 hover:scale-105 transition-all">{t("exportBtn")}</button>
+              <button onClick={handleExportExcel} className="bg-emerald-600 text-white px-8 py-4 rounded-[15px] font-black text-[10px] uppercase italic border-b-4 border-emerald-800 hover:scale-105 transition-all no-print">{t("exportExcelBtn")}</button>
             </div>
           </div>
 
