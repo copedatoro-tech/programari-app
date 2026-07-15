@@ -11,6 +11,9 @@ interface MiniProg {
   angajat_id?: string;
   nume_serviciu?: string;
   is_client_booking?: boolean;
+  total_price?: number;
+  amount_paid?: number;
+  payment_status?: string;
 }
 interface StaffRow { id: string; name: string }
 
@@ -169,6 +172,16 @@ export default function ProgramariCalendarPanel({ programari, angajati, onSelect
                     <p className="text-[9px] font-bold text-slate-400 uppercase italic truncate">
                       {spec?.name || t("generalFallback")}{p.nume_serviciu ? ` · ${p.nume_serviciu}` : ""}
                     </p>
+                    {p.payment_status === "deposit_paid" && (
+                      <p className="text-[8px] font-black uppercase text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded inline-block mt-1">
+                        💳 {t("calendarPanel.depositPaid", { paid: (p.amount_paid || 0).toFixed(0), rest: ((p.total_price || 0) - (p.amount_paid || 0)).toFixed(0) })}
+                      </p>
+                    )}
+                    {p.payment_status === "fully_paid" && (
+                      <p className="text-[8px] font-black uppercase text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded inline-block mt-1">
+                        ✅ {t("calendarPanel.fullyPaid")}
+                      </p>
+                    )}
                   </div>
                 </div>
               );

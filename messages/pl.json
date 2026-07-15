@@ -1032,7 +1032,7 @@
     "connectingBtn": "Łączenie...",
     "stripeConnectedLabel": "✅ Konto Stripe połączone",
     "stripeNotConnectedLabel": "Konto Stripe niepołączone",
-    "requirePaymentLabel": "Wymagaj pełnej płatności przy rezerwacji",
+    "requirePaymentLabel": "Płatność przy Rezerwacji",
     "requirePaymentOn": "Włączone",
     "requirePaymentOff": "Wyłączone",
     "currencyLabel": "Waluta rozliczeniowa",
@@ -1059,6 +1059,23 @@
       "statusOffSuffix": "Wyłączone",
       "activateBtn": "Aktywuj",
       "deactivateBtn": "Wyłącz"
+    },
+    "rebooking": {
+      "title": "Przypomnienia o Powrocie",
+      "subtitle": "Automatycznie sprowadza klientów z powrotem, przez WhatsApp, bez narzucania stałej godziny.",
+      "label": "Automatyczne Przypomnienia",
+      "desc": "Każdy klient automatycznie otrzymuje wiadomość WhatsApp w odpowiednim momencie na powrót — obliczonym na podstawie jego rzeczywistego wzorca wizyt, a nie stałej daty dla wszystkich.",
+      "daysLabel": "Domyślny interwał (nowi klienci, brak jeszcze wzorca)",
+      "daysHint": "dni od ostatniej wizyty"
+    },
+    "depositLabel": "Procent Zaliczki",
+    "depositFullHint": "Klient płaci pełną cenę przy rezerwacji.",
+    "depositPartialHint": "Klient płaci {percent}% teraz, resztę w salonie.",
+    "reminder2h": {
+      "title": "Dodatkowe Przypomnienie (2 godziny wcześniej)",
+      "subtitle": "Ostatnie przypomnienie, w dniu wizyty, oprócz przypomnienia z dnia poprzedniego.",
+      "label": "Przypomnienie 2 Godziny Wcześniej",
+      "desc": "Opcjonalne. Wysyła krótką wiadomość WhatsApp około 2 godziny przed wizytą — przydatne dla zapracowanych klientów, którzy łatwo zapominają."
     }
   },
   "calendarPage": {
@@ -1188,7 +1205,9 @@
     "noResultsFound": "Brak wyników",
     "specialistConflictError": "Wybrany specjalista ma już rezerwację w tym przedziale czasowym.",
     "techErrorBannerMsg": "Tymczasowy problem techniczny, niezależny od nas — trwają prace nad rozwiązaniem.",
-    "techErrorRetryBtn": "🔄 Spróbuj ponownie"
+    "techErrorRetryBtn": "🔄 Spróbuj ponownie",
+    "depositPaidLabel": "Zaliczka {paid} RON · pozostało {rest} RON",
+    "fullyPaidLabel": "Zapłacone w całości"
   },
   "rapoarte": {
     "localeCode": "pl-PL",
@@ -1419,7 +1438,9 @@
       "onlineSuffix": "online",
       "receptionSuffix": "recepcja",
       "onlineBadge": "🌐 Online",
-      "receptionBadge": "🏠 Recepcja"
+      "receptionBadge": "🏠 Recepcja",
+      "depositPaid": "Zaliczka {paid} RON · pozostało {rest} RON",
+      "fullyPaid": "Zapłacone w Całości"
     }
   },
   "multiServiceBooking": {

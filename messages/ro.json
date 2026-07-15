@@ -1214,7 +1214,7 @@
     "connectingBtn": "Se conectează...",
     "stripeConnectedLabel": "✅ Cont Stripe Conectat",
     "stripeNotConnectedLabel": "Cont Stripe neconectat",
-    "requirePaymentLabel": "Cere plată completă la rezervare",
+    "requirePaymentLabel": "Plată la Rezervare",
     "requirePaymentOn": "Activat",
     "requirePaymentOff": "Dezactivat",
     "currencyLabel": "Valută de încasare",
@@ -1241,6 +1241,23 @@
       "statusOffSuffix": "Dezactivat",
       "activateBtn": "Activează",
       "deactivateBtn": "Dezactivează"
+    },
+    "rebooking": {
+      "title": "Reamintiri de Revenire",
+      "subtitle": "Aduce automat clienții înapoi, pe WhatsApp, fără să le impui o oră fixă.",
+      "label": "Reamintiri Automate",
+      "desc": "Fiecare client primește automat un mesaj WhatsApp când e momentul potrivit pentru el să revină — calculat din tiparul lui real de vizite, nu o dată fixă pentru toți.",
+      "daysLabel": "Interval implicit (pentru clienți noi, fără tipar încă)",
+      "daysHint": "zile de la ultima vizită"
+    },
+    "depositLabel": "Procent Avans",
+    "depositFullHint": "Clientul plătește prețul integral la rezervare.",
+    "depositPartialHint": "Clientul plătește {percent}% acum, restul la salon.",
+    "reminder2h": {
+      "title": "Reamintire Suplimentară (2 ore înainte)",
+      "subtitle": "Un ultim impuls, chiar în ziua programării, pe lângă reamintirea de o zi înainte.",
+      "label": "Reamintire 2 Ore Înainte",
+      "desc": "Opțional. Trimite un mesaj scurt pe WhatsApp cu aproximativ 2 ore înainte de programare — util pentru clienți ocupați, care uită ușor."
     }
   },
   "calendarPage": {
@@ -1370,7 +1387,9 @@
     "noResultsFound": "Niciun rezultat",
     "specialistConflictError": "Specialistul ales are deja o programare în acest interval.",
     "techErrorBannerMsg": "Problemă tehnică temporară, independentă de noi — se lucrează la rezolvare.",
-    "techErrorRetryBtn": "🔄 Reîncearcă"
+    "techErrorRetryBtn": "🔄 Reîncearcă",
+    "depositPaidLabel": "Avans {paid} RON · rest {rest} RON",
+    "fullyPaidLabel": "Plătit integral"
   },
   "rapoarte": {
     "localeCode": "ro-RO",
@@ -1601,7 +1620,9 @@
       "onlineSuffix": "online",
       "receptionSuffix": "recepție",
       "onlineBadge": "🌐 Online",
-      "receptionBadge": "🏠 Recepție"
+      "receptionBadge": "🏠 Recepție",
+      "depositPaid": "Avans {paid} RON · rest {rest} RON",
+      "fullyPaid": "Plătit Integral"
     }
   },
   "multiServiceBooking": {

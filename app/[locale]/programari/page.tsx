@@ -76,7 +76,7 @@ function ProgramariContent() {
       if (!userId) return [];
       const dl = new Date(); dl.setDate(dl.getDate() - 30);
       const { data } = await supabase.from("appointments")
-        .select("id, title, date, time, details, phone, email, file_url, poza, is_client_booking, angajat_id, serviciu_id, documente, nume_serviciu, duration")
+        .select("id, title, date, time, details, phone, email, file_url, poza, is_client_booking, angajat_id, serviciu_id, documente, nume_serviciu, duration, total_price, amount_paid, payment_status")
         .eq("user_id", userId).gte("date", dl.toISOString().split("T")[0]).order("date", { ascending: false });
       return data || [];
     },

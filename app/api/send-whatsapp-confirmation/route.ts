@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server";
+import { supabaseAdmin } from "@/lib/supabaseAdmin";
+import { checkAndConsumeWhatsAppQuota } from "@/lib/whatsappQuota";
 
 function normalizePhone(raw: string): string | null {
   if (!raw) return null;
@@ -11,10 +13,32 @@ function normalizePhone(raw: string): string | null {
 
 export async function POST(request: Request) {
   try {
-    const { phone, nume, data, ora } = await request.json();
+    const { phone, nume, data, ora, adminId, paymentStatus, amountRemaining } = await request.json();
 
-    if (!phone || !nume || !data || !ora) {
+    if (!phone || !nume || !data || !ora || !adminId) {
       return NextResponse.json({ error: "Date lipsă." }, { status: 400 });
+    }
+
+    // ✅ Confirmarea WhatsApp e disponibilă doar pentru planurile Elite și Team
+    const { data: profile } = await supabaseAdmin
+      .from("profiles")
+      .select("plan_type")
+      .eq("id", adminId)
+      .maybeSingle();
+
+    const plan = (profile?.plan_type || "").toUpperCase();
+    const hasAccess = plan.includes("ELITE") || plan.includes("TEAM");
+
+    if (!hasAccess) {
+      // Nu e o eroare reală — doar salonul nu are planul necesar. Răspundem
+      // liniștit, ca să nu declanșăm alarme false în consola clientului.
+      return NextResponse.json({ skipped: true, reason: "plan_not_eligible" });
+    }
+
+    // ✅ Team = nelimitat. Elite = plafon lunar de 300 mesaje (reamintiri + confirmări, combinate)
+    const quota = await checkAndConsumeWhatsAppQuota(adminId, plan);
+    if (!quota.allowed) {
+      return NextResponse.json({ skipped: true, reason: quota.reason });
     }
 
     const phoneNumberId = process.env.WHATSAPP_PHONE_NUMBER_ID;
@@ -29,6 +53,30 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: `Număr de telefon invalid: "${phone}"` }, { status: 400 });
     }
 
+    // ✅ Dacă rezervarea a fost plătită doar parțial (avans), folosim un șablon
+    // diferit, care include și suma rămasă de plătit la salon. Pentru plată
+    // integrală sau fără plată online, folosim șablonul obișnuit, neschimbat.
+    const isDeposit = paymentStatus === "deposit_paid" && amountRemaining > 0;
+
+    const template = isDeposit
+      ? {
+          name: "confirmare_programare_avans",
+          parameters: [
+            { type: "text", text: nume },
+            { type: "text", text: data },
+            { type: "text", text: ora },
+            { type: "text", text: String(amountRemaining) },
+          ],
+        }
+      : {
+          name: "confirmare_programare",
+          parameters: [
+            { type: "text", text: nume },
+            { type: "text", text: data },
+            { type: "text", text: ora },
+          ],
+        };
+
     const res = await fetch(`https://graph.facebook.com/v23.0/${phoneNumberId}/messages`, {
       method: "POST",
       headers: {
@@ -40,18 +88,9 @@ export async function POST(request: Request) {
         to,
         type: "template",
         template: {
-          name: "confirmare_programare",
+          name: template.name,
           language: { code: "ro" },
-          components: [
-            {
-              type: "body",
-              parameters: [
-                { type: "text", text: nume },
-                { type: "text", text: data },
-                { type: "text", text: ora },
-              ],
-            },
-          ],
+          components: [{ type: "body", parameters: template.parameters }],
         },
       }),
     });

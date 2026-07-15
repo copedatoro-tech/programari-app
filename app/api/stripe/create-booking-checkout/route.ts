@@ -17,7 +17,7 @@ export async function POST(request: Request) {
 
     const { data: profile } = await supabaseAdmin
       .from("profiles")
-      .select("stripe_account_id, stripe_onboarded, currency, require_payment_at_booking, slug")
+      .select("stripe_account_id, stripe_onboarded, currency, require_payment_at_booking, deposit_percent, slug")
       .eq("id", adminId)
       .single();
 
@@ -33,14 +33,29 @@ export async function POST(request: Request) {
 
     const currency = (profile.currency || "RON").toLowerCase();
 
+    // ✅ Procentul de avans — 100 = plată integrală (comportament vechi, neschimbat),
+    // orice valoare mai mică = client plătește doar acel procent acum, restul la salon
+    const depositPercent = Math.min(100, Math.max(10, profile.deposit_percent || 100));
+    const isDeposit = depositPercent < 100;
+
+    let totalFullPrice = 0; // prețul complet real al serviciilor, pentru evidență
+    let totalRemaining = 0; // ✅ suma totală rămasă de plătit la salon, pentru mesajul de sub buton
     const lineItems = bookings.map((b: any) => {
       const svc = services?.find((s) => s.id === b.serviciu_id);
-      const price = svc?.price || 0;
+      const fullPrice = svc?.price || 0;
+      totalFullPrice += fullPrice;
+      const chargedAmount = Math.round(fullPrice * (depositPercent / 100));
+      const remaining = fullPrice - chargedAmount;
+      totalRemaining += remaining;
       return {
         price_data: {
           currency,
-          product_data: { name: svc?.nume_serviciu || "Serviciu" },
-          unit_amount: Math.round(price * 100), // Stripe lucrează în bani (subunități), nu în unități întregi
+          product_data: {
+            name: isDeposit
+              ? `${svc?.nume_serviciu || "Serviciu"} — Avans ${depositPercent}% (rest ${remaining} ${currency.toUpperCase()})`
+              : svc?.nume_serviciu || "Serviciu",
+          },
+          unit_amount: Math.round(chargedAmount * 100), // Stripe lucrează în bani (subunități)
         },
         quantity: 1,
       };
@@ -49,10 +64,8 @@ export async function POST(request: Request) {
     const totalAmount = lineItems.reduce((sum: number, item: any) => sum + item.price_data.unit_amount, 0);
     const applicationFee = Math.round(totalAmount * (PLATFORM_FEE_PERCENT / 100));
 
-    // ✅ FIX: dacă NEXT_PUBLIC_BASE_URL lipsește din .env, calculăm automat
-    // adresa din cererea primită (origin), ca să nu mai crape niciodată din
-    // cauza unei variabile de mediu uitate — funcționează atât local cât și
-    // pe orice domeniu de producție/preview, fără configurare suplimentară.
+    // ✅ Calculăm automat adresa site-ului din cererea primită, dacă variabila
+    // de mediu NEXT_PUBLIC_BASE_URL lipsește — evită eroarea "Invalid URL"
     let baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
     if (!baseUrl) {
       const origin = request.headers.get("origin") || request.headers.get("referer");
@@ -65,7 +78,7 @@ export async function POST(request: Request) {
       }
     }
     if (!baseUrl) {
-      return NextResponse.json({ error: "Nu am putut determina adresa site-ului (NEXT_PUBLIC_BASE_URL lipsă și nu am putut-o deduce)." }, { status: 500 });
+      return NextResponse.json({ error: "Nu am putut determina adresa site-ului." }, { status: 500 });
     }
 
     const session = await stripe.checkout.sessions.create({
@@ -76,6 +89,12 @@ export async function POST(request: Request) {
         application_fee_amount: applicationFee,
         transfer_data: { destination: profile.stripe_account_id },
       },
+      // ✅ Mesaj clar, chiar deasupra butonului de plată, cu totalul rămas la salon
+      ...(isDeposit && totalRemaining > 0 ? {
+        custom_text: {
+          submit: { message: `Astăzi plătești avansul. Rest de plată la salon, în ziua programării: ${totalRemaining} ${currency.toUpperCase()}.` },
+        },
+      } : {}),
       success_url: `${baseUrl}/rezervare/${profile.slug}?platit=success`,
       cancel_url: `${baseUrl}/rezervare/${profile.slug}?platit=anulat`,
       metadata: {
@@ -85,6 +104,12 @@ export async function POST(request: Request) {
         clientEmail: clientInfo.email,
         clientDetalii: clientInfo.detalii || "",
         bookings: JSON.stringify(bookings),
+        // ✅ Metadate noi, necesare la crearea programării după plată, ca să știm
+        // exact cât s-a plătit acum (avans sau integral) și cât mai rămâne
+        totalFullPrice: totalFullPrice.toString(),
+        amountPaid: (totalAmount / 100).toString(),
+        depositPercent: depositPercent.toString(),
+        paymentStatus: isDeposit ? "deposit_paid" : "fully_paid",
       },
     });
 

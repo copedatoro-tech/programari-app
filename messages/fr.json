@@ -1032,7 +1032,7 @@
     "connectingBtn": "Connexion en cours...",
     "stripeConnectedLabel": "✅ Compte Stripe connecté",
     "stripeNotConnectedLabel": "Compte Stripe non connecté",
-    "requirePaymentLabel": "Exiger le paiement complet à la réservation",
+    "requirePaymentLabel": "Paiement à la Réservation",
     "requirePaymentOn": "Activé",
     "requirePaymentOff": "Désactivé",
     "currencyLabel": "Devise d'encaissement",
@@ -1059,6 +1059,23 @@
       "statusOffSuffix": "Désactivé",
       "activateBtn": "Activer",
       "deactivateBtn": "Désactiver"
+    },
+    "rebooking": {
+      "title": "Rappels de Retour",
+      "subtitle": "Ramène automatiquement les clients, via WhatsApp, sans imposer une heure fixe.",
+      "label": "Rappels Automatiques",
+      "desc": "Chaque client reçoit automatiquement un message WhatsApp au bon moment pour revenir — calculé à partir de son propre rythme de visites, pas une date fixe pour tous.",
+      "daysLabel": "Intervalle par défaut (nouveaux clients, sans historique)",
+      "daysHint": "jours depuis la dernière visite"
+    },
+    "depositLabel": "Pourcentage d'Acompte",
+    "depositFullHint": "Le client paie le prix intégral à la réservation.",
+    "depositPartialHint": "Le client paie {percent}% maintenant, le reste sur place.",
+    "reminder2h": {
+      "title": "Rappel Supplémentaire (2 heures avant)",
+      "subtitle": "Un dernier rappel, le jour même du rendez-vous, en plus du rappel de la veille.",
+      "label": "Rappel 2 Heures Avant",
+      "desc": "Facultatif. Envoie un court message WhatsApp environ 2 heures avant le rendez-vous — utile pour les clients occupés qui oublient facilement."
     }
   },
   "calendarPage": {
@@ -1188,7 +1205,9 @@
     "noResultsFound": "Aucun résultat",
     "specialistConflictError": "Le spécialiste choisi a déjà une réservation sur ce créneau.",
     "techErrorBannerMsg": "Problème technique temporaire, indépendant de nous — en cours de résolution.",
-    "techErrorRetryBtn": "🔄 Réessayer"
+    "techErrorRetryBtn": "🔄 Réessayer",
+    "depositPaidLabel": "Acompte {paid} RON · reste {rest} RON",
+    "fullyPaidLabel": "Payé intégralement"
   },
   "rapoarte": {
     "localeCode": "fr-FR",
@@ -1419,7 +1438,9 @@
       "onlineSuffix": "en ligne",
       "receptionSuffix": "réception",
       "onlineBadge": "🌐 En ligne",
-      "receptionBadge": "🏠 Réception"
+      "receptionBadge": "🏠 Réception",
+      "depositPaid": "Acompte {paid} RON · reste {rest} RON",
+      "fullyPaid": "Payé Intégralement"
     }
   },
   "multiServiceBooking": {

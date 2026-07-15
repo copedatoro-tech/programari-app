@@ -49,6 +49,11 @@ function SettingsContent() {
   const [stripeAccountId, setStripeAccountId] = useState<string | null>(null);
   const [requirePayment, setRequirePayment] = useState(false);
   const [currency, setCurrency] = useState("RON");
+  const [rebookingEnabled, setRebookingEnabled] = useState(false);
+  const [rebookingDays, setRebookingDays] = useState(30);
+  const [rebookingSaving, setRebookingSaving] = useState(false);
+  const [depositPercent, setDepositPercent] = useState(100);
+  const [reminder2hEnabled, setReminder2hEnabled] = useState(false);
   const [connectingStripe, setConnectingStripe] = useState(false);
 
   // ✅ Notificări
@@ -128,6 +133,10 @@ function SettingsContent() {
       setStripeAccountId(profile.stripe_account_id || null);
       setRequirePayment(!!profile.require_payment_at_booking);
       setCurrency(profile.currency || "RON");
+      setRebookingEnabled(!!profile.rebooking_reminder_enabled);
+      setRebookingDays(profile.rebooking_reminder_days || 30);
+      setDepositPercent(profile.deposit_percent || 100);
+      setReminder2hEnabled(!!profile.reminder_2h_enabled);
       if (profile.notification_settings && typeof profile.notification_settings === "object") {
         setNotifSettings({ ...DEFAULT_NOTIF_SETTINGS, ...profile.notification_settings });
       }
@@ -233,6 +242,34 @@ function SettingsContent() {
 
   const handleToggleInApp = () => {
     saveNotifSettings({ ...notifSettings, in_app_enabled: !notifSettings.in_app_enabled });
+  };
+
+  const handleToggleRebooking = async () => {
+    if (!userId) return;
+    setRebookingSaving(true);
+    const newVal = !rebookingEnabled;
+    setRebookingEnabled(newVal);
+    await supabase.from('profiles').update({ rebooking_reminder_enabled: newVal }).eq('id', userId);
+    setRebookingSaving(false);
+  };
+
+  const handleRebookingDaysChange = async (days: number) => {
+    if (!userId) return;
+    setRebookingDays(days);
+    await supabase.from('profiles').update({ rebooking_reminder_days: days }).eq('id', userId);
+  };
+
+  const handleDepositPercentChange = async (percent: number) => {
+    if (!userId) return;
+    setDepositPercent(percent);
+    await supabase.from('profiles').update({ deposit_percent: percent }).eq('id', userId);
+  };
+
+  const handleToggleReminder2h = async () => {
+    if (!userId) return;
+    const newVal = !reminder2hEnabled;
+    setReminder2hEnabled(newVal);
+    await supabase.from('profiles').update({ reminder_2h_enabled: newVal }).eq('id', userId);
   };
 
   const handleToggleSound = () => {
@@ -601,15 +638,38 @@ function SettingsContent() {
               </div>
 
               <div className="flex-1 bg-slate-50 border-2 border-slate-100 rounded-[22px] p-5 flex flex-col justify-between">
-                <span className="text-[10px] font-black uppercase text-slate-500 italic mb-3 block">{t("requirePaymentLabel")}</span>
+                <span className={`text-[10px] font-black uppercase italic mb-3 block ${requirePayment ? "text-emerald-600" : "text-slate-400"}`}>
+                  {t("requirePaymentLabel")} {requirePayment ? t("notifications.statusOnSuffix") : t("notifications.statusOffSuffix")}
+                </span>
                 <button
                   type="button"
                   onClick={handleToggleRequirePayment}
                   disabled={!stripeOnboarded}
-                  className={`w-full py-3 rounded-xl font-black text-[10px] uppercase italic transition-all shadow-md disabled:opacity-40 ${requirePayment ? 'bg-green-500 text-white' : 'bg-slate-200 text-slate-500'}`}
+                  className={`w-full py-3 rounded-xl font-black text-[10px] uppercase italic transition-all shadow-md disabled:opacity-40 ${requirePayment ? "bg-red-50 text-red-500 hover:bg-red-500 hover:text-white" : "bg-emerald-500 text-white hover:bg-emerald-600"}`}
                 >
-                  {requirePayment ? t("requirePaymentOn") : t("requirePaymentOff")}
+                  {requirePayment ? t("notifications.deactivateBtn") : t("notifications.activateBtn")}
                 </button>
+
+                {requirePayment && (
+                  <div className="mt-4 pt-4 border-t border-slate-200">
+                    <span className="text-[9px] font-black uppercase text-slate-400 italic mb-2 block">{t("depositLabel")}</span>
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="range"
+                        min={10}
+                        max={100}
+                        step={5}
+                        value={depositPercent}
+                        onChange={(e) => handleDepositPercentChange(Number(e.target.value))}
+                        className="flex-1 accent-amber-500"
+                      />
+                      <span className="text-sm font-black text-slate-900 w-14 text-right">{depositPercent}%</span>
+                    </div>
+                    <p className="text-[8px] font-bold text-slate-400 italic mt-2">
+                      {depositPercent === 100 ? t("depositFullHint") : t("depositPartialHint", { percent: depositPercent })}
+                    </p>
+                  </div>
+                )}
               </div>
 
               <div className="flex-1 bg-slate-50 border-2 border-slate-100 rounded-[22px] p-5 flex flex-col justify-between">
@@ -720,6 +780,68 @@ function SettingsContent() {
           </div>
           </div>
         </section>
+
+        {isEliteOrTeam && (
+          <section className="mb-8 bg-white rounded-[35px] p-8 shadow-sm border border-slate-100">
+            <h3 className="text-lg font-black uppercase italic tracking-tighter mb-2">{t("rebooking.title")}</h3>
+            <p className="text-slate-400 text-[10px] font-bold uppercase italic mb-6">{t("rebooking.subtitle")}</p>
+
+            <div className="bg-slate-50 border-2 border-slate-100 rounded-[22px] p-5 flex flex-col md:flex-row items-center justify-between gap-4">
+              <div className="flex-1">
+                <span className={`text-[10px] font-black uppercase italic block mb-1 ${rebookingEnabled ? "text-emerald-600" : "text-slate-400"}`}>
+                  {t("rebooking.label")} {rebookingEnabled ? t("notifications.statusOnSuffix") : t("notifications.statusOffSuffix")}
+                </span>
+                <p className="text-[9px] text-slate-400 font-bold leading-relaxed">{t("rebooking.desc")}</p>
+              </div>
+              <button
+                type="button"
+                onClick={handleToggleRebooking}
+                disabled={rebookingSaving}
+                className={`px-5 py-3 rounded-xl font-black text-[10px] uppercase italic transition-all shrink-0 disabled:opacity-50 ${rebookingEnabled ? "bg-red-50 text-red-500 hover:bg-red-500 hover:text-white" : "bg-emerald-500 text-white hover:bg-emerald-600"}`}
+              >
+                {rebookingEnabled ? t("notifications.deactivateBtn") : t("notifications.activateBtn")}
+              </button>
+            </div>
+
+            <div className={`mt-4 bg-slate-50 border-2 border-slate-100 rounded-[22px] p-5 transition-opacity ${!rebookingEnabled ? "opacity-40 pointer-events-none" : ""}`}>
+              <span className="text-[10px] font-black uppercase italic text-slate-600 block mb-2">{t("rebooking.daysLabel")}</span>
+              <div className="flex items-center gap-3">
+                <input
+                  type="number"
+                  min={7}
+                  max={365}
+                  value={rebookingDays}
+                  onChange={(e) => handleRebookingDaysChange(Number(e.target.value))}
+                  className="w-24 p-3 bg-white border-2 border-slate-200 rounded-xl font-black text-center outline-none focus:border-amber-500 transition-all"
+                />
+                <span className="text-[10px] font-bold text-slate-400 uppercase italic">{t("rebooking.daysHint")}</span>
+              </div>
+            </div>
+          </section>
+        )}
+
+        {isEliteOrTeam && (
+          <section className="mb-8 bg-white rounded-[35px] p-8 shadow-sm border border-slate-100">
+            <h3 className="text-lg font-black uppercase italic tracking-tighter mb-2">{t("reminder2h.title")}</h3>
+            <p className="text-slate-400 text-[10px] font-bold uppercase italic mb-6">{t("reminder2h.subtitle")}</p>
+
+            <div className="bg-slate-50 border-2 border-slate-100 rounded-[22px] p-5 flex flex-col md:flex-row items-center justify-between gap-4">
+              <div className="flex-1">
+                <span className={`text-[10px] font-black uppercase italic block mb-1 ${reminder2hEnabled ? "text-emerald-600" : "text-slate-400"}`}>
+                  {t("reminder2h.label")} {reminder2hEnabled ? t("notifications.statusOnSuffix") : t("notifications.statusOffSuffix")}
+                </span>
+                <p className="text-[9px] text-slate-400 font-bold leading-relaxed">{t("reminder2h.desc")}</p>
+              </div>
+              <button
+                type="button"
+                onClick={handleToggleReminder2h}
+                className={`px-5 py-3 rounded-xl font-black text-[10px] uppercase italic transition-all shrink-0 ${reminder2hEnabled ? "bg-red-50 text-red-500 hover:bg-red-500 hover:text-white" : "bg-emerald-500 text-white hover:bg-emerald-600"}`}
+              >
+                {reminder2hEnabled ? t("notifications.deactivateBtn") : t("notifications.activateBtn")}
+              </button>
+            </div>
+          </section>
+        )}
 
         {isEliteOrTeam && !slug && (
           <div className="mb-8 p-6 bg-red-50 border-2 border-red-200 rounded-[25px] flex flex-col md:flex-row items-center justify-between gap-4">

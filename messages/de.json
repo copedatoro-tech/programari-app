@@ -1032,7 +1032,7 @@
     "connectingBtn": "Verbindung wird hergestellt...",
     "stripeConnectedLabel": "✅ Stripe-Konto verbunden",
     "stripeNotConnectedLabel": "Stripe-Konto nicht verbunden",
-    "requirePaymentLabel": "Vollständige Zahlung bei Buchung verlangen",
+    "requirePaymentLabel": "Zahlung bei Buchung",
     "requirePaymentOn": "Aktiviert",
     "requirePaymentOff": "Deaktiviert",
     "currencyLabel": "Zahlungswährung",
@@ -1059,6 +1059,23 @@
       "statusOffSuffix": "Deaktiviert",
       "activateBtn": "Aktivieren",
       "deactivateBtn": "Deaktivieren"
+    },
+    "rebooking": {
+      "title": "Rückkehr-Erinnerungen",
+      "subtitle": "Bringt Kunden automatisch zurück, per WhatsApp, ohne eine feste Uhrzeit vorzugeben.",
+      "label": "Automatische Erinnerungen",
+      "desc": "Jeder Kunde erhält automatisch eine WhatsApp-Nachricht zum richtigen Zeitpunkt für die Rückkehr — berechnet aus seinem echten Besuchsmuster, kein fester Termin für alle.",
+      "daysLabel": "Standardintervall (für neue Kunden, noch kein Muster)",
+      "daysHint": "Tage seit dem letzten Besuch"
+    },
+    "depositLabel": "Anzahlungsprozentsatz",
+    "depositFullHint": "Der Kunde zahlt den vollen Preis bei der Buchung.",
+    "depositPartialHint": "Der Kunde zahlt jetzt {percent}%, den Rest vor Ort.",
+    "reminder2h": {
+      "title": "Zusätzliche Erinnerung (2 Stunden vorher)",
+      "subtitle": "Ein letzter Anstoß, am Tag des Termins, zusätzlich zur Erinnerung am Vortag.",
+      "label": "2-Stunden-Erinnerung",
+      "desc": "Optional. Sendet eine kurze WhatsApp-Nachricht etwa 2 Stunden vor dem Termin — nützlich für vielbeschäftigte Kunden, die leicht vergessen."
     }
   },
   "calendarPage": {
@@ -1188,7 +1205,9 @@
     "noResultsFound": "Keine Ergebnisse",
     "specialistConflictError": "Die gewählte Fachkraft hat bereits eine Buchung in diesem Zeitraum.",
     "techErrorBannerMsg": "Vorübergehendes technisches Problem, außerhalb unserer Kontrolle — wird bearbeitet.",
-    "techErrorRetryBtn": "🔄 Erneut versuchen"
+    "techErrorRetryBtn": "🔄 Erneut versuchen",
+    "depositPaidLabel": "Anzahlung {paid} RON · Rest {rest} RON",
+    "fullyPaidLabel": "Vollständig bezahlt"
   },
   "rapoarte": {
     "localeCode": "de-DE",
@@ -1419,7 +1438,9 @@
       "onlineSuffix": "online",
       "receptionSuffix": "Empfang",
       "onlineBadge": "🌐 Online",
-      "receptionBadge": "🏠 Empfang"
+      "receptionBadge": "🏠 Empfang",
+      "depositPaid": "Anzahlung {paid} RON · Rest {rest} RON",
+      "fullyPaid": "Vollständig Bezahlt"
     }
   },
   "multiServiceBooking": {

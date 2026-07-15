@@ -1032,7 +1032,7 @@
     "connectingBtn": "Connecting...",
     "stripeConnectedLabel": "✅ Stripe Account Connected",
     "stripeNotConnectedLabel": "Stripe account not connected",
-    "requirePaymentLabel": "Require full payment at booking",
+    "requirePaymentLabel": "Payment at Booking",
     "requirePaymentOn": "Enabled",
     "requirePaymentOff": "Disabled",
     "currencyLabel": "Payment currency",
@@ -1059,6 +1059,23 @@
       "statusOffSuffix": "Disabled",
       "activateBtn": "Activate",
       "deactivateBtn": "Deactivate"
+    },
+    "rebooking": {
+      "title": "Rebooking Reminders",
+      "subtitle": "Automatically brings clients back, via WhatsApp, without forcing a fixed time.",
+      "label": "Automatic Reminders",
+      "desc": "Each client automatically receives a WhatsApp message when it's the right time for them to come back — calculated from their real visit pattern, not one fixed date for everyone.",
+      "daysLabel": "Default interval (for new clients, no pattern yet)",
+      "daysHint": "days since last visit"
+    },
+    "depositLabel": "Deposit Percentage",
+    "depositFullHint": "The client pays the full price at booking.",
+    "depositPartialHint": "The client pays {percent}% now, the rest at the salon.",
+    "reminder2h": {
+      "title": "Extra Reminder (2 hours before)",
+      "subtitle": "One last nudge, on the day of the appointment, in addition to the day-before reminder.",
+      "label": "2-Hour Reminder",
+      "desc": "Optional. Sends a short WhatsApp message about 2 hours before the appointment — useful for busy clients who forget easily."
     }
   },
   "calendarPage": {
@@ -1188,7 +1205,9 @@
     "noResultsFound": "No results found",
     "specialistConflictError": "The chosen specialist already has a booking in this time slot.",
     "techErrorBannerMsg": "Temporary technical issue, outside our control — it's being worked on.",
-    "techErrorRetryBtn": "🔄 Retry"
+    "techErrorRetryBtn": "🔄 Retry",
+    "depositPaidLabel": "Deposit {paid} RON · remaining {rest} RON",
+    "fullyPaidLabel": "Fully paid"
   },
   "rapoarte": {
     "localeCode": "en-US",
@@ -1419,7 +1438,9 @@
       "onlineSuffix": "online",
       "receptionSuffix": "front desk",
       "onlineBadge": "🌐 Online",
-      "receptionBadge": "🏠 Front Desk"
+      "receptionBadge": "🏠 Front Desk",
+      "depositPaid": "Deposit {paid} RON · remaining {rest} RON",
+      "fullyPaid": "Fully Paid"
     }
   },
   "multiServiceBooking": {

@@ -101,6 +101,7 @@ type Prog = {
   id: any; nume: string; email?: string; data: string; ora: string;
   telefon?: string; motiv?: string; poza?: string; documente: DocAtt[];
   expertId?: string; serviciuId?: string; duration?: number; isOnline?: boolean;
+  totalPrice?: number; amountPaid?: number; paymentStatus?: string;
 };
 type ViewMode = "day"|"week"|"month"|"year";
 type ManualBlocks = Record<string, string[]>;
@@ -146,6 +147,7 @@ function mapRow(it: any): Prog {
     poza: it.poza??it.file_url??null, documente: normDocs(it.documente),
     expertId: it.angajat_id??"", serviciuId: it.serviciu_id??"",
     duration: it.duration??0, isOnline: it.is_client_booking??false,
+    totalPrice: it.total_price??0, amountPaid: it.amount_paid??0, paymentStatus: it.payment_status??"unpaid",
   };
 }
 // ─── Sanitizare nume fișier (diacritice RO + caractere speciale) ──────────────
@@ -222,6 +224,8 @@ function AppointmentHoverCard({ prog, anchorRect, serviceById, rawStaff, staffCo
         </div>
         <div style={{padding:"11px 15px",display:"flex",flexDirection:"column",gap:7}}>
           {svc&&<div style={{display:"flex",alignItems:"flex-start",gap:9}}><span style={{fontSize:13,color:"#94a3b8",flexShrink:0,marginTop:1}}>✂️</span><div><span style={{fontSize:12,fontWeight:700,color:"#334155"}}>{svc.nume_serviciu}</span>{svc.duration>0&&<span style={{fontSize:10,color:"#94a3b8",marginLeft:7}}>{svc.duration} min</span>}{svc.price>0&&<span style={{fontSize:10,fontWeight:700,color:"#059669",marginLeft:7}}>{svc.price} RON</span>}</div></div>}
+          {prog.paymentStatus==="deposit_paid"&&<div style={{background:"#fffbeb",borderRadius:9,padding:"7px 9px",border:"1px solid #fcd34d",display:"flex",alignItems:"center",gap:7}}><span style={{fontSize:13}}>💳</span><span style={{fontSize:11,fontWeight:700,color:"#92400e"}}>{t("depositPaidLabel",{paid:(prog.amountPaid||0).toFixed(0),rest:((prog.totalPrice||0)-(prog.amountPaid||0)).toFixed(0)})}</span></div>}
+          {prog.paymentStatus==="fully_paid"&&<div style={{background:"#ecfdf5",borderRadius:9,padding:"7px 9px",border:"1px solid #6ee7b7",display:"flex",alignItems:"center",gap:7}}><span style={{fontSize:13}}>✅</span><span style={{fontSize:11,fontWeight:700,color:"#065f46"}}>{t("fullyPaidLabel")}</span></div>}
           {staff&&<div style={{display:"flex",alignItems:"center",gap:9}}><span style={{fontSize:13,color:"#94a3b8",flexShrink:0}}>👤</span><span style={{fontSize:12,fontWeight:700,color:"#334155"}}>{staff.name}</span></div>}
           {prog.telefon&&<div style={{display:"flex",alignItems:"center",gap:9}}><span style={{fontSize:13,color:"#94a3b8",flexShrink:0}}>📞</span><span style={{fontSize:12,fontWeight:600,color:"#475569"}}>{prog.telefon}</span></div>}
           {prog.email&&<div style={{display:"flex",alignItems:"center",gap:9}}><span style={{fontSize:13,color:"#94a3b8",flexShrink:0}}>✉️</span><span style={{fontSize:11,color:"#475569",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{prog.email}</span></div>}
@@ -1136,7 +1140,7 @@ function CalendarContent() {
   const {data:programari=[],isLoading,refetch:refetchAppts} = useQuery<Prog[]>({
     queryKey:["appointments",userId,dateRange.start,dateRange.end],enabled:!!userId,staleTime:1000*60*2,
     queryFn:async()=>{
-      const{data,error}=await supabase.from("appointments").select("id,title,prenume,nume,email,date,time,details,phone,poza,file_url,documente,angajat_id,serviciu_id,duration,is_client_booking").eq("user_id",userId!).gte("date",dateRange.start).lte("date",dateRange.end).order("date",{ascending:true});
+      const{data,error}=await supabase.from("appointments").select("id,title,prenume,nume,email,date,time,details,phone,poza,file_url,documente,angajat_id,serviciu_id,duration,is_client_booking,total_price,amount_paid,payment_status").eq("user_id",userId!).gte("date",dateRange.start).lte("date",dateRange.end).order("date",{ascending:true});
       if(error)return[];return(data??[]).map(mapRow);
     },
   });

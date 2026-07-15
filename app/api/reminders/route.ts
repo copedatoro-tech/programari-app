@@ -52,8 +52,9 @@ function normalizePhone(raw: string): string | null {
 }
 
 // 📲 Trimite reamintirea prin WhatsApp folosind un Message Template aprobat de Meta.
-// Returnează { ok: true } sau { ok: false, error }.
-async function sendWhatsAppReminder(phone: string, nume: string, data: string, ora: string) {
+// Dacă rezervarea are un rest de plată (avans, nu integral), folosește un șablon
+// separat, care include și acea sumă. Returnează { ok: true } sau { ok: false, error }.
+async function sendWhatsAppReminder(phone: string, nume: string, data: string, ora: string, amountRemaining?: number) {
   const phoneNumberId = process.env.WHATSAPP_PHONE_NUMBER_ID;
   const accessToken = process.env.WHATSAPP_ACCESS_TOKEN;
 
@@ -65,6 +66,21 @@ async function sendWhatsAppReminder(phone: string, nume: string, data: string, o
   if (!to) {
     return { ok: false, error: `Număr de telefon invalid: "${phone}"` };
   }
+
+  const useDepositTemplate = amountRemaining && amountRemaining > 0;
+  const templateName = useDepositTemplate ? "reminder_programare_avans" : "reminder_programare";
+  const parameters = useDepositTemplate
+    ? [
+        { type: "text", text: nume },
+        { type: "text", text: data },
+        { type: "text", text: ora },
+        { type: "text", text: String(amountRemaining) },
+      ]
+    : [
+        { type: "text", text: nume },
+        { type: "text", text: data },
+        { type: "text", text: ora },
+      ];
 
   try {
     const res = await fetch(`https://graph.facebook.com/v23.0/${phoneNumberId}/messages`, {
@@ -78,18 +94,9 @@ async function sendWhatsAppReminder(phone: string, nume: string, data: string, o
         to,
         type: "template",
         template: {
-          name: "reminder_programare",
+          name: templateName,
           language: { code: "ro" },
-          components: [
-            {
-              type: "body",
-              parameters: [
-                { type: "text", text: nume },
-                { type: "text", text: data },
-                { type: "text", text: ora },
-              ],
-            },
-          ],
+          components: [{ type: "body", parameters }],
         },
       }),
     });
@@ -126,7 +133,7 @@ export async function GET(request: Request) {
 
   const { data: appointments, error } = await supabaseAdmin
     .from("appointments")
-    .select("id, title, prenume, nume, email, phone, date, time, serviciu_id, reminder_sent, reminder_whatsapp_sent, user_id")
+    .select("id, title, prenume, nume, email, phone, date, time, serviciu_id, reminder_sent, reminder_whatsapp_sent, user_id, total_price, amount_paid, payment_status")
     .eq("date", tomorrowStr)
     .neq("status", "cancelled")
     .or("reminder_sent.eq.false,reminder_whatsapp_sent.eq.false");
@@ -188,7 +195,10 @@ export async function GET(request: Request) {
         errors.push(`[whatsapp] ${appt.id}: cotă lunară epuizată (${quota.reason})`);
         continue;
       }
-      const waResult = await sendWhatsAppReminder(appt.phone, clientName, appt.date, appt.time);
+      const remaining = appt.payment_status === "deposit_paid"
+        ? Math.round(Math.max(0, (appt.total_price || 0) - (appt.amount_paid || 0)))
+        : 0;
+      const waResult = await sendWhatsAppReminder(appt.phone, clientName, appt.date, appt.time, remaining);
       if (waResult.ok) {
         await supabaseAdmin.from("appointments").update({ reminder_whatsapp_sent: true }).eq("id", appt.id);
         sentWhatsapp++;

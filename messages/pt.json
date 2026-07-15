@@ -1032,7 +1032,7 @@
     "connectingBtn": "A conectar...",
     "stripeConnectedLabel": "✅ Conta Stripe conectada",
     "stripeNotConnectedLabel": "Conta Stripe não conectada",
-    "requirePaymentLabel": "Exigir pagamento completo na marcação",
+    "requirePaymentLabel": "Pagamento na Marcação",
     "requirePaymentOn": "Ativado",
     "requirePaymentOff": "Desativado",
     "currencyLabel": "Moeda de cobrança",
@@ -1059,6 +1059,23 @@
       "statusOffSuffix": "Desativado",
       "activateBtn": "Ativar",
       "deactivateBtn": "Desativar"
+    },
+    "rebooking": {
+      "title": "Lembretes de Regresso",
+      "subtitle": "Traz automaticamente os clientes de volta, via WhatsApp, sem impor uma hora fixa.",
+      "label": "Lembretes Automáticos",
+      "desc": "Cada cliente recebe automaticamente uma mensagem WhatsApp no momento certo para regressar — calculado a partir do seu próprio padrão real de visitas, não uma data fixa para todos.",
+      "daysLabel": "Intervalo padrão (novos clientes, ainda sem padrão)",
+      "daysHint": "dias desde a última visita"
+    },
+    "depositLabel": "Percentagem de Sinal",
+    "depositFullHint": "O cliente paga o preço total na marcação.",
+    "depositPartialHint": "O cliente paga {percent}% agora, o resto no salão.",
+    "reminder2h": {
+      "title": "Lembrete Adicional (2 horas antes)",
+      "subtitle": "Um último aviso, no próprio dia da marcação, além do lembrete do dia anterior.",
+      "label": "Lembrete 2 Horas Antes",
+      "desc": "Opcional. Envia uma mensagem curta de WhatsApp cerca de 2 horas antes da marcação — útil para clientes ocupados que se esquecem facilmente."
     }
   },
   "calendarPage": {
@@ -1188,7 +1205,9 @@
     "noResultsFound": "Sem resultados",
     "specialistConflictError": "O especialista escolhido já tem uma marcação neste período.",
     "techErrorBannerMsg": "Problema técnico temporário, alheio a nós — já estamos a trabalhar nisso.",
-    "techErrorRetryBtn": "🔄 Tentar novamente"
+    "techErrorRetryBtn": "🔄 Tentar novamente",
+    "depositPaidLabel": "Sinal {paid} RON · resta {rest} RON",
+    "fullyPaidLabel": "Pago integralmente"
   },
   "rapoarte": {
     "localeCode": "pt-PT",
@@ -1419,7 +1438,9 @@
       "onlineSuffix": "online",
       "receptionSuffix": "recepção",
       "onlineBadge": "🌐 Online",
-      "receptionBadge": "🏠 Recepção"
+      "receptionBadge": "🏠 Recepção",
+      "depositPaid": "Sinal {paid} RON · resta {rest} RON",
+      "fullyPaid": "Pago Integralmente"
     }
   },
   "multiServiceBooking": {
