@@ -54,3 +54,5 @@ next-env.d.ts
 # Chronos Specific
 /public/temp/*
 .temp_auth_debug
+# Sentry Config File
+.env.sentry-build-plugin
