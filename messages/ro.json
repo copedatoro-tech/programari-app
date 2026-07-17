@@ -820,7 +820,8 @@
           }
         ]
       }
-    ]
+    ],
+    "manageSubscriptionBtn": "GESTIONEAZA ABONAMENTUL"
   },
   "clienti": {
     "title": "Bază Date",

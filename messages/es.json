@@ -1661,7 +1661,8 @@
           }
         ]
       }
-    ]
+    ],
+    "manageSubscriptionBtn": "GESTIONAR SUSCRIPCION"
   },
   "cookiesModal": {
     "title": "Política de",

@@ -236,6 +236,30 @@ export default function AbonamentePage() {
     }
   };
 
+  // ✅ Deschide Stripe Customer Portal — userul își gestionează singur
+  // abonamentul (schimbă cardul, vede facturi, anulează), fără să te contacteze
+  const handleManageSubscription = async () => {
+    setIsRedirecting(true);
+    try {
+      const res = await fetch("/api/stripe/create-portal-session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ locale }),
+      });
+      const data = await res.json();
+
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        await showToast({ message: data.error || t("errors.trialActivate"), type: "error", title: t("errors.errorTitle") });
+        setIsRedirecting(false);
+      }
+    } catch (err) {
+      await showToast({ message: t("errors.trialActivate"), type: "error", title: t("errors.errorTitle") });
+      setIsRedirecting(false);
+    }
+  };
+
   const handlePlanClick = (plan: any) => {
     if (plan.id === currentPlan) return;
     if (isTrialActive) {
@@ -305,6 +329,15 @@ export default function AbonamentePage() {
                     </div>
                   ))}
                 </div>
+              ) : currentPlan !== "CHRONOS FREE" ? (
+                // ✅ Plan plătit activ (nu trial, nu Free) — arătăm butonul de gestionare
+                <button
+                  onClick={handleManageSubscription}
+                  disabled={isRedirecting}
+                  className="bg-slate-100 text-slate-700 px-6 py-3 rounded-xl font-black italic uppercase text-[10px] hover:bg-slate-900 hover:text-white transition-all duration-300 disabled:opacity-50"
+                >
+                  {isRedirecting ? "..." : t("manageSubscriptionBtn")}
+                </button>
               ) : (
                 !trialUsed && (
                   <button

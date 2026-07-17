@@ -1661,7 +1661,8 @@
           }
         ]
       }
-    ]
+    ],
+    "manageSubscriptionBtn": "ELOFIZETES KEZELESE"
   },
   "cookiesModal": {
     "title": "Cookie-",
