@@ -4,12 +4,14 @@ import { createBrowserClient } from "@supabase/ssr";
 import { useTranslations, useLocale } from "next-intl";
 import { showToast, showConfirm } from "@/lib/toast";
 import { Crown, Gem, ShieldCheck, Zap } from "lucide-react";
-// --- METADATA STATICA PER PLAN (id-uri si link-uri Stripe - NU se traduc) ---
+// --- METADATA STATICA PER PLAN (id-uri Stripe - NU se traduc) ---
+// ✅ Am înlocuit stripeLink (Payment Link static) cu priceId, folosit acum
+// prin /api/checkout — permite identificarea userului (client_reference_id)
 const PLAN_META = [
-  { id: "CHRONOS FREE", stripeLink: "#", popular: false, Icon: ShieldCheck, accent: "text-slate-700", bg: "bg-slate-100", ring: "border-slate-200" },
-  { id: "CHRONOS PRO", stripeLink: "https://buy.stripe.com/8x2eV76Qg5EugHF8lG0RG04", popular: true, Icon: Zap, accent: "text-amber-600", bg: "bg-amber-50", ring: "border-amber-200" },
-  { id: "CHRONOS ELITE", stripeLink: "https://buy.stripe.com/28EaER6Qgff4bnl59u0RG02", popular: false, Icon: Gem, accent: "text-sky-600", bg: "bg-sky-50", ring: "border-sky-200" },
-  { id: "CHRONOS TEAM", stripeLink: "https://buy.stripe.com/8x2eV76QgaYO9fdeK40RG06", popular: false, Icon: Crown, accent: "text-violet-600", bg: "bg-violet-50", ring: "border-violet-200" },
+  { id: "CHRONOS FREE", priceId: null, popular: false, Icon: ShieldCheck, accent: "text-slate-700", bg: "bg-slate-100", ring: "border-slate-200" },
+  { id: "CHRONOS PRO", priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_PRO, popular: true, Icon: Zap, accent: "text-amber-600", bg: "bg-amber-50", ring: "border-amber-200" },
+  { id: "CHRONOS ELITE", priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_ELITE, popular: false, Icon: Gem, accent: "text-sky-600", bg: "bg-sky-50", ring: "border-sky-200" },
+  { id: "CHRONOS TEAM", priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_TEAM, popular: false, Icon: Crown, accent: "text-violet-600", bg: "bg-violet-50", ring: "border-violet-200" },
 ];
 // Curs fix aproximativ pentru afisare informativa (nu pentru facturare - plata ramane mereu in RON)
 const RON_TO_EUR = 5;
@@ -79,6 +81,8 @@ export default function AbonamentePage() {
   const [isTrialActive, setIsTrialActive] = useState(false);
   const [user, setUser] = useState<any>(null);
   const [showModal, setShowModal] = useState<any>(null);
+  // ✅ Stare nouă: evită dublu-click în timp ce așteptăm redirect către Stripe
+  const [isRedirecting, setIsRedirecting] = useState(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const plans = t.raw("plans") as {
     name: string; price: number; description: string;
@@ -187,12 +191,48 @@ export default function AbonamentePage() {
     else await showToast({ message: t("errors.trialActivate"), type: "error", title: t("errors.errorTitle") });
   };
 
-  const confirmPlanChange = (plan: any) => {
+  // ✅ Înlocuit complet: în loc de redirect direct către un Payment Link static,
+  // acum apelăm /api/checkout, care creează sesiunea cu client_reference_id
+  // (identifică userul) și ne întoarce URL-ul către care redirecționăm.
+  const confirmPlanChange = async (plan: any) => {
     if (plan.id === currentPlan) return;
-    if (plan.stripeLink && plan.stripeLink !== "#") {
-      window.location.href = plan.stripeLink;
-    } else if (plan.id === "CHRONOS FREE") {
+
+    if (plan.id === "CHRONOS FREE") {
       showToast({ message: t("errors.alreadyFree"), type: "info", title: t("errors.infoTitle") });
+      return;
+    }
+
+    if (!plan.priceId) {
+      console.error("Lipsește priceId pentru planul:", plan.id);
+      await showToast({ message: t("errors.trialActivate"), type: "error", title: t("errors.errorTitle") });
+      return;
+    }
+
+    if (!user) {
+      await showToast({ message: t("errors.trialActivate"), type: "error", title: t("errors.errorTitle") });
+      return;
+    }
+
+    setIsRedirecting(true);
+    try {
+      const res = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ priceId: plan.priceId, planName: plan.name, locale }),
+      });
+      const data = await res.json();
+
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        console.error("Eroare la crearea sesiunii de checkout:", data.error);
+        await showToast({ message: data.error || t("errors.trialActivate"), type: "error", title: t("errors.errorTitle") });
+        setIsRedirecting(false);
+      }
+    } catch (err) {
+      console.error("Eroare la apelul /api/checkout:", err);
+      await showToast({ message: t("errors.trialActivate"), type: "error", title: t("errors.errorTitle") });
+      setIsRedirecting(false);
     }
   };
 
@@ -347,15 +387,15 @@ export default function AbonamentePage() {
                 </div>
 
                 <button
-                  onClick={() => handlePlanClick({ id: meta.id, stripeLink: meta.stripeLink, name: plan.name })}
-                  disabled={isSelected}
+                  onClick={() => handlePlanClick({ id: meta.id, priceId: meta.priceId, name: plan.name })}
+                  disabled={isSelected || isRedirecting}
                   className={`w-full py-4 rounded-[20px] font-black italic uppercase text-[10px] tracking-widest transition-all duration-300 ${
                     isSelected
                       ? "bg-amber-500 text-black cursor-default border border-slate-200"
-                      : "bg-slate-900 text-white hover:bg-amber-500 hover:text-black shadow-lg shadow-slate-900/10 active:scale-95"
+                      : "bg-slate-900 text-white hover:bg-amber-500 hover:text-black shadow-lg shadow-slate-900/10 active:scale-95 disabled:opacity-50"
                   }`}
                 >
-                  {isSelected ? t("alreadyActiveBtn") : plan.buttonText}
+                  {isSelected ? t("alreadyActiveBtn") : isRedirecting ? "..." : plan.buttonText}
                 </button>
               </div>
             );

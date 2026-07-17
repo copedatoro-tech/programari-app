@@ -4,6 +4,15 @@ import { supabaseAdmin } from "@/lib/supabaseAdmin";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
+// ✅ Mapare Price ID → nume plan intern. Prețurile de lansare sunt cele
+// active acum; când decidem să trecem la prețurile normale, aici se schimbă
+// ID-urile (sau se adaugă logica de prag automat, într-o etapă viitoare).
+const PRICE_TO_PLAN: Record<string, string> = {
+  [process.env.NEXT_PUBLIC_STRIPE_PRICE_PRO || ""]: "CHRONOS PRO",
+  [process.env.NEXT_PUBLIC_STRIPE_PRICE_ELITE || ""]: "CHRONOS ELITE",
+  [process.env.NEXT_PUBLIC_STRIPE_PRICE_TEAM || ""]: "CHRONOS TEAM",
+};
+
 export async function POST(request: Request) {
   const body = await request.text();
   const signature = request.headers.get("stripe-signature");
@@ -21,19 +30,134 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Semnătură invalidă." }, { status: 400 });
   }
 
-  // ✅ Abia AICI, după ce Stripe confirmă că plata a reușit cu adevărat,
-  // salvăm efectiv programarea în calendar — nu mai devreme.
+  // ────────────────────────────────────────────────────────────
+  // ✅ ABONAMENTE CHRONOS — plată nouă (prima dată sau schimbare plan)
+  // ────────────────────────────────────────────────────────────
+  if (event.type === "checkout.session.completed") {
+    const session = event.data.object as Stripe.Checkout.Session;
+
+    // ✅ Distingem între cele două fluxuri care folosesc același eveniment:
+    // "subscription" = abonament Chronos, "payment" = rezervare client final
+    if (session.mode === "subscription") {
+      try {
+        const userId = session.client_reference_id || session.metadata?.userId;
+
+        if (!userId) {
+          console.error("Abonament plătit, dar fără userId în sesiune — nu pot actualiza planul.");
+        } else {
+          const subscriptionId = session.subscription as string;
+          const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+          const priceId = subscription.items.data[0]?.price.id;
+          const planName = PRICE_TO_PLAN[priceId] || "CHRONOS FREE";
+
+          const { error } = await supabaseAdmin
+            .from("profiles")
+            .update({
+              plan_type: planName,
+              stripe_customer_id: session.customer as string,
+              stripe_subscription_id: subscriptionId,
+              subscription_status: subscription.status,
+              subscription_current_period_end: new Date(
+                (subscription as any).current_period_end * 1000
+              ).toISOString(),
+              subscription_cancel_at_period_end: subscription.cancel_at_period_end,
+              // ✅ Un abonament plătit real oprește orice trial activ
+              trial_started_at: null,
+            })
+            .eq("id", userId);
+
+          if (error) {
+            console.error("Eroare la actualizarea planului după plată:", error.message);
+          } else {
+            console.log(`Plan actualizat: user ${userId} → ${planName}`);
+          }
+        }
+      } catch (e: any) {
+        console.error("Eroare la procesarea abonamentului nou:", e.message);
+      }
+
+      return NextResponse.json({ received: true });
+    }
+  }
+
+  // ────────────────────────────────────────────────────────────
+  // ✅ ABONAMENTE CHRONOS — actualizare (schimbare card, plată eșuată,
+  // programare anulare la finalul perioadei, reactivare etc.)
+  // ────────────────────────────────────────────────────────────
+  if (event.type === "customer.subscription.updated") {
+    const subscription = event.data.object as Stripe.Subscription;
+
+    try {
+      const priceId = subscription.items.data[0]?.price.id;
+      const planName = PRICE_TO_PLAN[priceId] || null;
+
+      const updateData: Record<string, any> = {
+        subscription_status: subscription.status,
+        subscription_current_period_end: new Date(
+          (subscription as any).current_period_end * 1000
+        ).toISOString(),
+        subscription_cancel_at_period_end: subscription.cancel_at_period_end,
+      };
+
+      // Doar dacă recunoaștem price-ul (poate rămâne pe planul vechi altfel)
+      if (planName) updateData.plan_type = planName;
+
+      const { error } = await supabaseAdmin
+        .from("profiles")
+        .update(updateData)
+        .eq("stripe_subscription_id", subscription.id);
+
+      if (error) {
+        console.error("Eroare la actualizarea abonamentului:", error.message);
+      }
+    } catch (e: any) {
+      console.error("Eroare la procesarea customer.subscription.updated:", e.message);
+    }
+
+    return NextResponse.json({ received: true });
+  }
+
+  // ────────────────────────────────────────────────────────────
+  // ✅ ABONAMENTE CHRONOS — anulare definitivă (perioada plătită a expirat
+  // complet) → revenire automată la planul gratuit
+  // ────────────────────────────────────────────────────────────
+  if (event.type === "customer.subscription.deleted") {
+    const subscription = event.data.object as Stripe.Subscription;
+
+    try {
+      const { error } = await supabaseAdmin
+        .from("profiles")
+        .update({
+          plan_type: "CHRONOS FREE",
+          subscription_status: "canceled",
+          subscription_cancel_at_period_end: false,
+        })
+        .eq("stripe_subscription_id", subscription.id);
+
+      if (error) {
+        console.error("Eroare la revenirea la plan gratuit:", error.message);
+      } else {
+        console.log(`Abonament expirat, revenit la CHRONOS FREE: subscription ${subscription.id}`);
+      }
+    } catch (e: any) {
+      console.error("Eroare la procesarea customer.subscription.deleted:", e.message);
+    }
+
+    return NextResponse.json({ received: true });
+  }
+
+  // ────────────────────────────────────────────────────────────
+  // REZERVĂRI CLIENȚI FINALI — logica existentă, neschimbată
+  // ────────────────────────────────────────────────────────────
   if (event.type === "checkout.session.completed") {
     const session = event.data.object as Stripe.Checkout.Session;
     const metadata = session.metadata;
 
-    if (metadata) {
+    if (metadata && metadata.bookings) {
       try {
         const bookings = JSON.parse(metadata.bookings || "[]");
         const adminId = metadata.adminId;
 
-        // ✅ Plată avans — procentul cu care s-a plătit acum (100 = integral,
-        // ca înainte; altfel doar acel procent, restul la salon)
         const depositPercent = Number(metadata.depositPercent) || 100;
         const paymentStatus = metadata.paymentStatus || "fully_paid";
 
@@ -46,8 +170,6 @@ export async function POST(request: Request) {
         const rows = bookings.map((b: any) => {
           const svc = services?.find((s) => s.id === b.serviciu_id);
           const fullPrice = svc?.price || 0;
-          // ✅ Calculăm individual, per serviciu, cât s-a plătit acum — mai
-          // precis decât să împărțim o sumă agregată la mai multe programări
           const amountPaidNow = Math.round(fullPrice * (depositPercent / 100));
 
           return {
@@ -67,8 +189,6 @@ export async function POST(request: Request) {
             is_client_booking: true,
             paid: true,
             stripe_payment_intent: session.payment_intent as string,
-            // ✅ Sumele, pentru afișare clară în Programări/Calendar — cât costă
-            // total, cât s-a plătit deja, și ce rămâne de încasat la salon
             total_price: fullPrice,
             amount_paid: amountPaidNow,
             payment_status: paymentStatus,
@@ -84,8 +204,6 @@ export async function POST(request: Request) {
         } else if (insertedRows && insertedRows.length > 0) {
           const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
 
-          // ✅ Email de confirmare, cu link de auto-gestionare — separat pentru
-          // fiecare programare, pentru că fiecare are propriul link de gestionare
           for (const row of insertedRows as any[]) {
             fetch(`${baseUrl}/api/send`, {
               method: "POST",
@@ -100,9 +218,6 @@ export async function POST(request: Request) {
             }).catch(() => {});
           }
 
-          // ✅ WhatsApp — UN SINGUR mesaj per rezervare, chiar dacă are mai multe
-          // servicii/programări (nu unul per fiecare, ca să nu bombardăm clientul).
-          // Suma rămasă e TOTALUL adunat din toate serviciile din acea rezervare.
           const firstRow = (insertedRows as any[])[0];
           if (firstRow.phone) {
             const totalRemaining = Math.round((insertedRows as any[]).reduce((sum, row) => {
