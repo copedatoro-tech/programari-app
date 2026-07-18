@@ -28,6 +28,26 @@ export default function RegisterPage() {
   const [showTermeniModal, setShowTermeniModal] = useState(false);
   const [showGDPRModal, setShowGDPRModal] = useState(false);
 
+  // ✅ Stare nouă: prefix de țară, ca numărul salvat să fie mereu în format
+  // internațional corect (necesar pentru ca notificările WhatsApp să funcționeze)
+  const [countryCode, setCountryCode] = useState("+40");
+
+  const COUNTRY_CODES = [
+    { code: "+40", label: "🇷🇴 România (+40)" },
+    { code: "+44", label: "🇬🇧 UK (+44)" },
+    { code: "+33", label: "🇫🇷 France (+33)" },
+    { code: "+49", label: "🇩🇪 Deutschland (+49)" },
+    { code: "+34", label: "🇪🇸 España (+34)" },
+    { code: "+39", label: "🇮🇹 Italia (+39)" },
+    { code: "+36", label: "🇭🇺 Magyarország (+36)" },
+    { code: "+351", label: "🇵🇹 Portugal (+351)" },
+    { code: "+48", label: "🇵🇱 Polska (+48)" },
+    { code: "+1", label: "🇺🇸 USA/Canada (+1)" },
+    { code: "other", label: t("otherCountry") },
+  ];
+
+  const [customCode, setCustomCode] = useState("");
+
   const supabase = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
@@ -64,6 +84,18 @@ export default function RegisterPage() {
       return;
     }
 
+    // ✅ Construim numărul final în format internațional (necesar pentru WhatsApp)
+    const prefix = countryCode === "other" ? customCode.trim() : countryCode;
+    const telefonCurat = form.telefon.replace(/\D/g, ""); // doar cifre
+    const telefonFinal = form.telefon
+      ? `${prefix}${telefonCurat.replace(/^0+/, "")}` // elimină zero-ul inițial redundant
+      : null;
+
+    if (form.telefon && countryCode === "other" && !customCode.trim()) {
+      setError(t("customCodeRequired"));
+      return;
+    }
+
     setLoading(true);
     setError("");
 
@@ -74,7 +106,7 @@ export default function RegisterPage() {
         options: {
           data: {
             full_name: form.nume,
-            phone: form.telefon || null
+            phone: telefonFinal
           }
         }
       });
@@ -89,7 +121,7 @@ export default function RegisterPage() {
         const { error: profileError } = await supabase.from('profiles').insert([{
           id: authData.user.id,
           full_name: form.nume,
-          phone: form.telefon || null,
+          phone: telefonFinal,
           email: form.email,
           plan_type: 'start (gratuit)',
           role: 'Administrator',
@@ -144,12 +176,32 @@ export default function RegisterPage() {
 
             <div className="space-y-2">
               <label className="text-[10px] font-black uppercase text-slate-400 ml-2 italic tracking-widest">{t("phone")}</label>
-              <input
-                type="tel"
-                className="input-chronos !py-4 text-[13px] uppercase italic tracking-wider font-bold"
-                placeholder={t("phonePlaceholder")} value={form.telefon}
-                onChange={(e) => setForm({...form, telefon: e.target.value})}
-              />
+              <div className="flex gap-2">
+                <select
+                  value={countryCode}
+                  onChange={(e) => setCountryCode(e.target.value)}
+                  className="input-chronos !py-4 text-[12px] font-bold w-[110px] flex-shrink-0"
+                >
+                  {COUNTRY_CODES.map((c) => (
+                    <option key={c.code} value={c.code}>{c.label}</option>
+                  ))}
+                </select>
+                {countryCode === "other" && (
+                  <input
+                    type="text"
+                    placeholder="+..."
+                    value={customCode}
+                    onChange={(e) => setCustomCode(e.target.value)}
+                    className="input-chronos !py-4 text-[13px] font-bold w-[70px] flex-shrink-0"
+                  />
+                )}
+                <input
+                  type="tel"
+                  className="input-chronos !py-4 text-[13px] uppercase italic tracking-wider font-bold flex-1"
+                  placeholder={t("phonePlaceholder")} value={form.telefon}
+                  onChange={(e) => setForm({...form, telefon: e.target.value})}
+                />
+              </div>
             </div>
           </div>
 

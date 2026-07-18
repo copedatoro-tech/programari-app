@@ -737,7 +737,9 @@
     "termsCheckboxPrefix": "Ich habe die",
     "termsLinkLabel": "AGB",
     "termsCheckboxAnd": "gelesen und akzeptiere sie sowie die",
-    "gdprLinkLabel": "DSGVO-Richtlinie"
+    "gdprLinkLabel": "DSGVO-Richtlinie",
+    "otherCountry": "🌍 Anderes Land",
+    "customCodeRequired": "Geben Sie die Landesvorwahl ein (z.B. +41)."
   },
   "forgotPasswordPage": {
     "title": "PASSWORT-",

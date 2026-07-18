@@ -737,7 +737,9 @@
     "termsCheckboxPrefix": "I have read and agree to the",
     "termsLinkLabel": "Terms and Conditions",
     "termsCheckboxAnd": "and the",
-    "gdprLinkLabel": "GDPR Policy"
+    "gdprLinkLabel": "GDPR Policy",
+    "otherCountry": "🌍 Other country",
+    "customCodeRequired": "Enter the country code (e.g. +41)."
   },
   "forgotPasswordPage": {
     "title": "PASSWORD",

@@ -737,7 +737,9 @@
     "termsCheckboxPrefix": "Przeczytalem i akceptuje",
     "termsLinkLabel": "Regulamin",
     "termsCheckboxAnd": "oraz",
-    "gdprLinkLabel": "Polityke RODO"
+    "gdprLinkLabel": "Polityke RODO",
+    "otherCountry": "🌍 Inny kraj",
+    "customCodeRequired": "Wprowadz numer kierunkowy kraju (np. +41)."
   },
   "forgotPasswordPage": {
     "title": "ODZYSKIWANIE",

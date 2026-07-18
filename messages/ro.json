@@ -920,7 +920,9 @@
     "termsCheckboxPrefix": "Am citit si sunt de acord cu",
     "termsLinkLabel": "Termenii si Conditiile",
     "termsCheckboxAnd": "si cu",
-    "gdprLinkLabel": "Politica GDPR"
+    "gdprLinkLabel": "Politica GDPR",
+    "otherCountry": "🌍 Alta tara",
+    "customCodeRequired": "Introdu codul de tara (ex: +41)."
   },
   "forgotPasswordPage": {
     "title": "RECUPERARE",

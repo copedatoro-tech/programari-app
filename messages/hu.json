@@ -737,7 +737,9 @@
     "termsCheckboxPrefix": "Elolvastam es elfogadom a",
     "termsLinkLabel": "Felhasznalasi Feltetelket",
     "termsCheckboxAnd": "es a",
-    "gdprLinkLabel": "GDPR Szabalyzatot"
+    "gdprLinkLabel": "GDPR Szabalyzatot",
+    "otherCountry": "🌍 Mas orszag",
+    "customCodeRequired": "Add meg az orszaghivo szamot (pl: +41)."
   },
   "forgotPasswordPage": {
     "title": "JELSZÓ",

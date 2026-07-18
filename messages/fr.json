@@ -737,7 +737,9 @@
     "termsCheckboxPrefix": "J'ai lu et j'accepte les",
     "termsLinkLabel": "Conditions Generales",
     "termsCheckboxAnd": "et la",
-    "gdprLinkLabel": "Politique RGPD"
+    "gdprLinkLabel": "Politique RGPD",
+    "otherCountry": "🌍 Autre pays",
+    "customCodeRequired": "Entrez l'indicatif du pays (ex: +41)."
   },
   "forgotPasswordPage": {
     "title": "RÉCUPÉRATION",
