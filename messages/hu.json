@@ -711,7 +711,11 @@
     "sessionExpired": "A munkamenet lejárt. Kérjük, próbáld újra.",
     "errorPrefix": "Hiba: ",
     "sessionNotCreated": "A munkamenetet nem sikerült létrehozni.",
-    "connectionError": "Kapcsolódási hiba."
+    "connectionError": "Kapcsolódási hiba.",
+    "mfaPrompt": "Add meg a kodot a hitelesito alkalmazasbol",
+    "mfaConfirmBtn": "Megerosites",
+    "mfaVerifying": "Ellenorzes...",
+    "mfaIncorrectCode": "Hibas kod. Probald ujra."
   },
   "registerPage": {
     "title": "FIÓK",
@@ -1911,5 +1915,21 @@
       "qrCopiedBtn": "✓ Másolva!",
       "qrNoSlugHint": "A szalonodnak még nincs beállított nyilvános foglalási címe — kérd meg az adminisztrátort, hogy aktiválja a Profilból."
     }
+  },
+  "twoFactor": {
+    "title": "Ketlepcsos azonositas",
+    "description": "Vedd biztonsagba a fiokodat egy Google Authenticator vagy Authy altal generalt koddal, a jelszo mellett.",
+    "activatedLabel": "Aktivalva",
+    "disableBtn": "Kikapcsolas",
+    "activateBtn": "2FA bekapcsolasa",
+    "scanInstructions": "Olvasd be a QR-kodot a hitelesito alkalmazassal, vagy add meg manualisan a kodot alant.",
+    "codePlaceholder": "6 jegyu kod",
+    "confirmBtn": "Megerosites",
+    "cancelBtn": "Megse",
+    "loading": "Betoltes...",
+    "successActivated": "A ketlepcsos azonositas sikeresen aktivalva.",
+    "successDisabled": "A ketlepcsos azonositas kikapcsolva.",
+    "incorrectCode": "Hibas kod. Probald ujra.",
+    "confirmDisableMsg": "Biztosan kikapcsolod a ketlepcsos azonositast?"
   }
 }

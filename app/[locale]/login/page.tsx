@@ -61,7 +61,7 @@ export default function LoginPage() {
       });
 
       if (verifyError) {
-        setMfaError("Cod incorect. Încearcă din nou.");
+        setMfaError(t("mfaIncorrectCode"));
         setLoading(false);
         return;
       }
@@ -162,7 +162,7 @@ export default function LoginPage() {
         {needsMfa ? (
           <form onSubmit={handleVerifyMfa} className="p-10 space-y-5 bg-white">
             <p className="text-center text-slate-500 text-sm font-medium mb-2">
-              Introdu codul din aplicația de autentificare
+              {t("mfaPrompt")}
             </p>
             <input
               type="text"
@@ -181,7 +181,7 @@ export default function LoginPage() {
               disabled={loading || mfaCode.length < 6}
               className="w-full bg-slate-900 text-white p-5 rounded-2xl font-black italic uppercase tracking-widest hover:bg-slate-800 transition-all text-xs disabled:opacity-60"
             >
-              {loading ? "Se verifică..." : "Confirmă"}
+              {loading ? t("mfaVerifying") : t("mfaConfirmBtn")}
             </button>
           </form>
         ) : (

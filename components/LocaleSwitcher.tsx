@@ -5,6 +5,7 @@ import { useLocale } from "next-intl";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { routing } from "@/i18n/routing";
 import { ChevronDown } from "lucide-react";
+import { createBrowserClient } from "@supabase/ssr";
 
 const LOCALE_INFO: Record<string, { label: string; flag: string }> = {
   ro: { label: "Română", flag: "🇷🇴" },
@@ -35,6 +36,23 @@ export default function LocaleSwitcher() {
 
   const current = LOCALE_INFO[locale] ?? { label: locale, flag: "🌐" };
 
+  // ✅ Salvăm limba aleasă în profiles, dacă userul e autentificat —
+  // folosită mai târziu pentru email-uri automate (ex. reamintiri abonament)
+  const savePreferredLocale = async (loc: string) => {
+    try {
+      const supabase = createBrowserClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+      );
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        await supabase.from("profiles").update({ preferred_locale: loc }).eq("id", user.id);
+      }
+    } catch {
+      // Eșec silențios — schimbarea limbii pe pagină nu trebuie blocată de asta
+    }
+  };
+
   return (
     <div className="relative" ref={ref}>
       <button
@@ -54,6 +72,7 @@ export default function LocaleSwitcher() {
                 key={loc}
                 onClick={() => {
                   setOpen(false);
+                  savePreferredLocale(loc);
                   // @ts-ignore
                   router.replace(pathname, { locale: loc });
                 }}

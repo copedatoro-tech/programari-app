@@ -711,7 +711,11 @@
     "sessionExpired": "Sesja wygasła. Spróbuj ponownie.",
     "errorPrefix": "Błąd: ",
     "sessionNotCreated": "Nie udało się utworzyć sesji.",
-    "connectionError": "Błąd połączenia."
+    "connectionError": "Błąd połączenia.",
+    "mfaPrompt": "Wprowadz kod z aplikacji uwierzytelniajacej",
+    "mfaConfirmBtn": "Potwierdz",
+    "mfaVerifying": "Weryfikacja...",
+    "mfaIncorrectCode": "Nieprawidlowy kod. Sprobuj ponownie."
   },
   "registerPage": {
     "title": "UTWÓRZ",
@@ -1911,5 +1915,21 @@
       "qrCopiedBtn": "✓ Skopiowano!",
       "qrNoSlugHint": "Twój salon nie ma jeszcze skonfigurowanego publicznego adresu rezerwacji — poproś administratora o aktywację w Profilu."
     }
+  },
+  "twoFactor": {
+    "title": "Uwierzytelnianie dwuetapowe",
+    "description": "Zabezpiecz swoje konto kodem generowanym przez aplikacje taka jak Google Authenticator lub Authy, oprocz hasla.",
+    "activatedLabel": "Wlaczone",
+    "disableBtn": "Wylacz",
+    "activateBtn": "Wlacz 2FA",
+    "scanInstructions": "Zeskanuj kod QR aplikacja uwierzytelniajaca lub wprowadz kod recznie ponizej.",
+    "codePlaceholder": "Kod 6-cyfrowy",
+    "confirmBtn": "Potwierdz",
+    "cancelBtn": "Anuluj",
+    "loading": "Ladowanie...",
+    "successActivated": "Uwierzytelnianie dwuetapowe zostalo pomyslnie wlaczone.",
+    "successDisabled": "Uwierzytelnianie dwuetapowe zostalo wylaczone.",
+    "incorrectCode": "Nieprawidlowy kod. Sprobuj ponownie.",
+    "confirmDisableMsg": "Czy na pewno chcesz wylaczyc uwierzytelnianie dwuetapowe?"
   }
 }

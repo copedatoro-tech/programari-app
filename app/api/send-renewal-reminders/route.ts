@@ -29,7 +29,7 @@ export async function GET(request: Request) {
 
     const { data: profiles, error } = await supabaseAdmin
       .from("profiles")
-      .select("id, email, full_name, plan_type, subscription_current_period_end, subscription_cancel_at_period_end")
+      .select("id, email, full_name, plan_type, subscription_current_period_end, subscription_cancel_at_period_end, preferred_locale")
       .gte("subscription_current_period_end", windowStart.toISOString())
       .lte("subscription_current_period_end", windowEnd.toISOString())
       .eq("subscription_cancel_at_period_end", false)
@@ -60,7 +60,8 @@ export async function GET(request: Request) {
             dataReinnoire: profile.subscription_current_period_end,
             suma,
             currency: "RON",
-            manageUrl: `${baseUrl}/ro/settings`,
+            manageUrl: `${baseUrl}/${profile.preferred_locale || "ro"}/settings`,
+            locale: profile.preferred_locale || "ro",
           }),
         });
 

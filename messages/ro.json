@@ -894,7 +894,11 @@
     "sessionExpired": "Sesiunea a expirat. Vă rugăm să încercați din nou.",
     "errorPrefix": "Eroare: ",
     "sessionNotCreated": "Sesiunea nu a putut fi creată.",
-    "connectionError": "Eroare de conexiune."
+    "connectionError": "Eroare de conexiune.",
+    "mfaPrompt": "Introdu codul din aplicatia de autentificare",
+    "mfaConfirmBtn": "Confirma",
+    "mfaVerifying": "Se verifica...",
+    "mfaIncorrectCode": "Cod incorect. Incearca din nou."
   },
   "registerPage": {
     "title": "CREARE",
@@ -1911,5 +1915,21 @@
       "qrCopiedBtn": "✓ Copiat!",
       "qrNoSlugHint": "Salonul tău nu are încă o adresă publică de rezervare configurată — cere administratorului s-o activeze din Profil."
     }
+  },
+  "twoFactor": {
+    "title": "Autentificare in 2 pasi",
+    "description": "Protejeaza-ti contul cu un cod generat de o aplicatie precum Google Authenticator sau Authy, pe langa parola.",
+    "activatedLabel": "Activata",
+    "disableBtn": "Dezactiveaza",
+    "activateBtn": "Activeaza 2FA",
+    "scanInstructions": "Scaneaza codul QR cu aplicatia de autentificare, sau introdu manual codul de mai jos.",
+    "codePlaceholder": "Cod din 6 cifre",
+    "confirmBtn": "Confirma",
+    "cancelBtn": "Anuleaza",
+    "loading": "Se incarca...",
+    "successActivated": "Autentificarea in 2 pasi a fost activata cu succes.",
+    "successDisabled": "Autentificarea in 2 pasi a fost dezactivata.",
+    "incorrectCode": "Cod incorect. Incearca din nou.",
+    "confirmDisableMsg": "Sigur vrei sa dezactivezi autentificarea in 2 pasi?"
   }
 }

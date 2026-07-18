@@ -711,7 +711,11 @@
     "sessionExpired": "Session expirée. Veuillez réessayer.",
     "errorPrefix": "Erreur : ",
     "sessionNotCreated": "La session n'a pas pu être créée.",
-    "connectionError": "Erreur de connexion."
+    "connectionError": "Erreur de connexion.",
+    "mfaPrompt": "Entrez le code de votre application d'authentification",
+    "mfaConfirmBtn": "Confirmer",
+    "mfaVerifying": "Verification...",
+    "mfaIncorrectCode": "Code incorrect. Veuillez reessayer."
   },
   "registerPage": {
     "title": "CRÉATION",
@@ -1911,5 +1915,21 @@
       "qrCopiedBtn": "✓ Copié !",
       "qrNoSlugHint": "Votre salon n'a pas encore d'adresse publique de réservation configurée — demandez à l'administrateur de l'activer depuis le Profil."
     }
+  },
+  "twoFactor": {
+    "title": "Authentification a deux facteurs",
+    "description": "Protegez votre compte avec un code genere par une application comme Google Authenticator ou Authy, en plus de votre mot de passe.",
+    "activatedLabel": "Activee",
+    "disableBtn": "Desactiver",
+    "activateBtn": "Activer 2FA",
+    "scanInstructions": "Scannez le code QR avec votre application d'authentification, ou saisissez le code ci-dessous manuellement.",
+    "codePlaceholder": "Code a 6 chiffres",
+    "confirmBtn": "Confirmer",
+    "cancelBtn": "Annuler",
+    "loading": "Chargement...",
+    "successActivated": "L'authentification a deux facteurs a ete activee avec succes.",
+    "successDisabled": "L'authentification a deux facteurs a ete desactivee.",
+    "incorrectCode": "Code incorrect. Veuillez reessayer.",
+    "confirmDisableMsg": "Etes-vous sur de vouloir desactiver l'authentification a deux facteurs?"
   }
 }

@@ -711,7 +711,11 @@
     "sessionExpired": "Sitzung abgelaufen. Bitte versuche es erneut.",
     "errorPrefix": "Fehler: ",
     "sessionNotCreated": "Sitzung konnte nicht erstellt werden.",
-    "connectionError": "Verbindungsfehler."
+    "connectionError": "Verbindungsfehler.",
+    "mfaPrompt": "Geben Sie den Code aus Ihrer Authenticator-App ein",
+    "mfaConfirmBtn": "Bestaetigen",
+    "mfaVerifying": "Wird ueberprueft...",
+    "mfaIncorrectCode": "Falscher Code. Bitte versuchen Sie es erneut."
   },
   "registerPage": {
     "title": "KONTO",
@@ -1911,5 +1915,21 @@
       "qrCopiedBtn": "✓ Kopiert!",
       "qrNoSlugHint": "Ihr Salon hat noch keine öffentliche Buchungsadresse eingerichtet — bitten Sie den Administrator, sie im Profil zu aktivieren."
     }
+  },
+  "twoFactor": {
+    "title": "Zwei-Faktor-Authentifizierung",
+    "description": "Schuetzen Sie Ihr Konto mit einem Code, der von einer App wie Google Authenticator oder Authy generiert wird, zusaetzlich zu Ihrem Passwort.",
+    "activatedLabel": "Aktiviert",
+    "disableBtn": "Deaktivieren",
+    "activateBtn": "2FA aktivieren",
+    "scanInstructions": "Scannen Sie den QR-Code mit Ihrer Authenticator-App oder geben Sie den Code unten manuell ein.",
+    "codePlaceholder": "6-stelliger Code",
+    "confirmBtn": "Bestaetigen",
+    "cancelBtn": "Abbrechen",
+    "loading": "Wird geladen...",
+    "successActivated": "Die Zwei-Faktor-Authentifizierung wurde erfolgreich aktiviert.",
+    "successDisabled": "Die Zwei-Faktor-Authentifizierung wurde deaktiviert.",
+    "incorrectCode": "Falscher Code. Bitte versuchen Sie es erneut.",
+    "confirmDisableMsg": "Moechten Sie die Zwei-Faktor-Authentifizierung wirklich deaktivieren?"
   }
 }

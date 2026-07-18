@@ -711,7 +711,11 @@
     "sessionExpired": "La sesión ha caducado. Inténtalo de nuevo.",
     "errorPrefix": "Error: ",
     "sessionNotCreated": "No se pudo crear la sesión.",
-    "connectionError": "Error de conexión."
+    "connectionError": "Error de conexión.",
+    "mfaPrompt": "Introduce el codigo de tu app de autenticacion",
+    "mfaConfirmBtn": "Confirmar",
+    "mfaVerifying": "Verificando...",
+    "mfaIncorrectCode": "Codigo incorrecto. Intentalo de nuevo."
   },
   "registerPage": {
     "title": "CREAR",
@@ -1911,5 +1915,21 @@
       "qrCopiedBtn": "✓ ¡Copiado!",
       "qrNoSlugHint": "Tu salón aún no tiene una dirección pública de reserva configurada — pide al administrador que la active desde el Perfil."
     }
+  },
+  "twoFactor": {
+    "title": "Autenticacion en dos pasos",
+    "description": "Protege tu cuenta con un codigo generado por una app como Google Authenticator o Authy, ademas de tu contrasena.",
+    "activatedLabel": "Activada",
+    "disableBtn": "Desactivar",
+    "activateBtn": "Activar 2FA",
+    "scanInstructions": "Escanea el codigo QR con tu app de autenticacion, o introduce el codigo manualmente abajo.",
+    "codePlaceholder": "Codigo de 6 digitos",
+    "confirmBtn": "Confirmar",
+    "cancelBtn": "Cancelar",
+    "loading": "Cargando...",
+    "successActivated": "La autenticacion en dos pasos se ha activado correctamente.",
+    "successDisabled": "La autenticacion en dos pasos ha sido desactivada.",
+    "incorrectCode": "Codigo incorrecto. Intentalo de nuevo.",
+    "confirmDisableMsg": "Seguro que quieres desactivar la autenticacion en dos pasos?"
   }
 }

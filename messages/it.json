@@ -711,7 +711,11 @@
     "sessionExpired": "Sessione scaduta. Riprova.",
     "errorPrefix": "Errore: ",
     "sessionNotCreated": "Impossibile creare la sessione.",
-    "connectionError": "Errore di connessione."
+    "connectionError": "Errore di connessione.",
+    "mfaPrompt": "Inserisci il codice dall'app di autenticazione",
+    "mfaConfirmBtn": "Conferma",
+    "mfaVerifying": "Verifica in corso...",
+    "mfaIncorrectCode": "Codice errato. Riprova."
   },
   "registerPage": {
     "title": "CREA",
@@ -1911,5 +1915,21 @@
       "qrCopiedBtn": "✓ Copiato!",
       "qrNoSlugHint": "Il tuo salone non ha ancora un indirizzo pubblico di prenotazione configurato — chiedi all'amministratore di attivarlo dal Profilo."
     }
+  },
+  "twoFactor": {
+    "title": "Autenticazione a due fattori",
+    "description": "Proteggi il tuo account con un codice generato da un app come Google Authenticator o Authy, oltre alla password.",
+    "activatedLabel": "Attivata",
+    "disableBtn": "Disattiva",
+    "activateBtn": "Attiva 2FA",
+    "scanInstructions": "Scansiona il codice QR con l'app di autenticazione, oppure inserisci manualmente il codice qui sotto.",
+    "codePlaceholder": "Codice a 6 cifre",
+    "confirmBtn": "Conferma",
+    "cancelBtn": "Annulla",
+    "loading": "Caricamento...",
+    "successActivated": "Autenticazione a due fattori attivata con successo.",
+    "successDisabled": "Autenticazione a due fattori disattivata.",
+    "incorrectCode": "Codice errato. Riprova.",
+    "confirmDisableMsg": "Sei sicuro di voler disattivare autenticazione a due fattori?"
   }
 }

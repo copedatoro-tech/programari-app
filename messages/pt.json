@@ -711,7 +711,11 @@
     "sessionExpired": "A sessão expirou. Tenta novamente.",
     "errorPrefix": "Erro: ",
     "sessionNotCreated": "Não foi possível criar a sessão.",
-    "connectionError": "Erro de ligação."
+    "connectionError": "Erro de ligação.",
+    "mfaPrompt": "Introduza o codigo da sua app de autenticacao",
+    "mfaConfirmBtn": "Confirmar",
+    "mfaVerifying": "A verificar...",
+    "mfaIncorrectCode": "Codigo incorreto. Tente novamente."
   },
   "registerPage": {
     "title": "CRIAR",
@@ -1911,5 +1915,21 @@
       "qrCopiedBtn": "✓ Copiado!",
       "qrNoSlugHint": "O teu salão ainda não tem um endereço público de marcação configurado — pede ao administrador para o ativar no Perfil."
     }
+  },
+  "twoFactor": {
+    "title": "Autenticacao em dois passos",
+    "description": "Proteja a sua conta com um codigo gerado por uma app como Google Authenticator ou Authy, alem da password.",
+    "activatedLabel": "Ativada",
+    "disableBtn": "Desativar",
+    "activateBtn": "Ativar 2FA",
+    "scanInstructions": "Digitalize o codigo QR com a sua app de autenticacao, ou introduza o codigo manualmente abaixo.",
+    "codePlaceholder": "Codigo de 6 digitos",
+    "confirmBtn": "Confirmar",
+    "cancelBtn": "Cancelar",
+    "loading": "A carregar...",
+    "successActivated": "Autenticacao em dois passos ativada com sucesso.",
+    "successDisabled": "Autenticacao em dois passos desativada.",
+    "incorrectCode": "Codigo incorreto. Tente novamente.",
+    "confirmDisableMsg": "Tem a certeza que deseja desativar a autenticacao em dois passos?"
   }
 }
