@@ -49,6 +49,22 @@ export default function RegisterPage() {
 
   const [customCode, setCustomCode] = useState("");
 
+  // ✅ Placeholder dinamic — arată clar userului că nu trebuie să scrie
+  // zero-ul inițial, fiindcă prefixul de țară îl înlocuiește deja
+  const PHONE_PLACEHOLDERS: Record<string, string> = {
+    "+40": "712 345 678",
+    "+44": "7911 123456",
+    "+33": "6 12 34 56 78",
+    "+49": "151 23456789",
+    "+34": "612 345 678",
+    "+39": "312 345 6789",
+    "+36": "20 123 4567",
+    "+351": "912 345 678",
+    "+48": "512 345 678",
+    "+1": "555 123 4567",
+  };
+  const currentPlaceholder = PHONE_PLACEHOLDERS[countryCode] || t("phonePlaceholder");
+
   const supabase = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
@@ -203,7 +219,7 @@ export default function RegisterPage() {
                 <input
                   type="tel"
                   className="input-chronos !py-4 text-[13px] uppercase italic tracking-wider font-bold flex-1"
-                  placeholder={t("phonePlaceholder")} value={form.telefon}
+                  placeholder={currentPlaceholder} value={form.telefon}
                   onChange={(e) => setForm({...form, telefon: e.target.value})}
                 />
               </div>
