@@ -9,7 +9,7 @@ import { Link, useRouter } from "@/i18n/navigation";
 // sunt în alt folder (ex. "@/components/modals/TermeniModal")
 import TermeniModal from "@/components/TermeniModal";
 import GDPRModal from "@/components/GDPRModal";
-import StandaloneLocaleSwitcher from "@/components/StandaloneLocaleSwitcher";
+import LocaleSwitcher from "@/components/LocaleSwitcher";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -146,7 +146,7 @@ export default function RegisterPage() {
   return (
     <main className="min-h-screen flex items-center justify-center p-6 bg-slate-50 font-sans text-slate-900">
       <div className="fixed top-6 right-6 z-50">
-        <StandaloneLocaleSwitcher />
+        <LocaleSwitcher />
       </div>
 
       <div ref={formRef} className="w-full max-w-2xl bg-white rounded-[40px] shadow-2xl border-4 border-white overflow-hidden transform hover:scale-[1.005] transition-all duration-500">

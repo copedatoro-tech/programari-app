@@ -5,7 +5,7 @@ import { createBrowserClient } from "@supabase/ssr";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { Link, useRouter } from "@/i18n/navigation";
-import StandaloneLocaleSwitcher from "@/components/StandaloneLocaleSwitcher";
+import LocaleSwitcher from "@/components/LocaleSwitcher";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -75,7 +75,7 @@ export default function LoginPage() {
   return (
     <main className="min-h-screen flex items-center justify-center p-6 bg-slate-50 font-sans text-slate-900">
       <div className="fixed top-6 right-6 z-50">
-        <StandaloneLocaleSwitcher />
+        <LocaleSwitcher />
       </div>
 
       <div className="w-full max-w-md bg-white rounded-[40px] shadow-2xl shadow-slate-200/60 border-4 border-white overflow-hidden transform hover:scale-[1.01] transition-all duration-500">
