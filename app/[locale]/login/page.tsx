@@ -20,6 +20,12 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
+  // ✅ Stare nouă: dacă userul are 2FA activ, cerem codul înainte de acces complet
+  const [needsMfa, setNeedsMfa] = useState(false);
+  const [mfaFactorId, setMfaFactorId] = useState<string | null>(null);
+  const [mfaCode, setMfaCode] = useState("");
+  const [mfaError, setMfaError] = useState("");
+
   useEffect(() => {
     const checkSession = async () => {
       const { error } = await supabase.auth.getSession();
@@ -31,6 +37,42 @@ export default function LoginPage() {
     };
     checkSession();
   }, [supabase, router]);
+
+  const handleVerifyMfa = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!mfaFactorId || mfaCode.length < 6) return;
+    setMfaError("");
+    setLoading(true);
+
+    try {
+      const { data: challengeData, error: challengeError } = await supabase.auth.mfa.challenge({
+        factorId: mfaFactorId,
+      });
+      if (challengeError) {
+        setMfaError(challengeError.message);
+        setLoading(false);
+        return;
+      }
+
+      const { error: verifyError } = await supabase.auth.mfa.verify({
+        factorId: mfaFactorId,
+        challengeId: challengeData.id,
+        code: mfaCode,
+      });
+
+      if (verifyError) {
+        setMfaError("Cod incorect. Încearcă din nou.");
+        setLoading(false);
+        return;
+      }
+
+      router.push("/programari");
+      router.refresh();
+    } catch (err) {
+      setMfaError("Eroare neașteptată.");
+      setLoading(false);
+    }
+  };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -59,6 +101,21 @@ export default function LoginPage() {
       }
 
       if (data.session) {
+        // ✅ Verificăm dacă acest cont are 2FA activ și necesită cod suplimentar
+        const { data: aalData } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+
+        if (aalData && aalData.nextLevel === "aal2" && aalData.currentLevel !== "aal2") {
+          const { data: factorsData } = await supabase.auth.mfa.listFactors();
+          const verifiedFactor = factorsData?.totp.find((f) => f.status === "verified");
+
+          if (verifiedFactor) {
+            setMfaFactorId(verifiedFactor.id);
+            setNeedsMfa(true);
+            setLoading(false);
+            return;
+          }
+        }
+
         router.push("/programari");
         router.refresh();
       } else {
@@ -102,6 +159,32 @@ export default function LoginPage() {
           </p>
         </div>
 
+        {needsMfa ? (
+          <form onSubmit={handleVerifyMfa} className="p-10 space-y-5 bg-white">
+            <p className="text-center text-slate-500 text-sm font-medium mb-2">
+              Introdu codul din aplicația de autentificare
+            </p>
+            <input
+              type="text"
+              maxLength={6}
+              autoFocus
+              placeholder="000000"
+              value={mfaCode}
+              onChange={(e) => setMfaCode(e.target.value.replace(/\D/g, ""))}
+              className="w-full p-5 bg-slate-50 border-2 border-slate-100 rounded-2xl font-black text-center text-2xl tracking-[0.5em] focus:border-amber-500 outline-none transition-all"
+            />
+            {mfaError && (
+              <p className="text-red-600 text-xs font-bold text-center">{mfaError}</p>
+            )}
+            <button
+              type="submit"
+              disabled={loading || mfaCode.length < 6}
+              className="w-full bg-slate-900 text-white p-5 rounded-2xl font-black italic uppercase tracking-widest hover:bg-slate-800 transition-all text-xs disabled:opacity-60"
+            >
+              {loading ? "Se verifică..." : "Confirmă"}
+            </button>
+          </form>
+        ) : (
         <form onSubmit={handleLogin} className="p-10 space-y-5 bg-white">
           <div className="space-y-4">
             <input
@@ -150,6 +233,7 @@ export default function LoginPage() {
             </Link>
           </div>
         </form>
+        )}
       </div>
     </main>
   );

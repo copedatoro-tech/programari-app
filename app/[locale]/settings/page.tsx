@@ -6,6 +6,7 @@ import { Link } from "@/i18n/navigation";
 import { useTranslations, useLocale } from "next-intl";
 import { QRCodeSVG } from "qrcode.react";
 import { showToast } from "@/lib/toast";
+import TwoFactorSetup from "@/components/TwoFactorSetup";
 
 type ManualBlocksMap = Record<string, string[]>;
 type NotificationSettings = { in_app_enabled: boolean; system_enabled: boolean; sound_enabled: boolean; volume: number };
@@ -546,6 +547,11 @@ function SettingsContent() {
             </button>
           </div>
         )}
+
+        {/* ✅ SECTIUNE SECURITATE CONT — NOUĂ — disponibilă tuturor planurilor */}
+        <section className="bg-white rounded-[30px] p-6 md:p-8 mb-8 shadow-xl border border-slate-100">
+          <TwoFactorSetup />
+        </section>
 
         {/* SECTIUNE LINK SI QR - PROTEJATA */}
         <section className="relative bg-slate-900 rounded-[30px] p-6 mb-4 shadow-xl overflow-hidden">
