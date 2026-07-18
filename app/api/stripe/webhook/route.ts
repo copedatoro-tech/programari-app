@@ -147,6 +147,49 @@ export async function POST(request: Request) {
   }
 
   // ────────────────────────────────────────────────────────────
+  // ✅ ABONAMENTE CHRONOS — reamintire înainte de reînnoirea automată
+  // ────────────────────────────────────────────────────────────
+  if (event.type === "invoice.upcoming") {
+    const invoice = event.data.object as Stripe.Invoice;
+
+    try {
+      const subscriptionId = (invoice as any).subscription as string;
+      if (!subscriptionId) return NextResponse.json({ received: true });
+
+      const { data: profile } = await supabaseAdmin
+        .from("profiles")
+        .select("email, full_name, subscription_cancel_at_period_end, plan_type")
+        .eq("stripe_subscription_id", subscriptionId)
+        .single();
+
+      // ✅ Nu trimitem reamintire dacă userul deja a programat anularea —
+      // în acel caz nu se mai reînnoiește nimic, mesajul ar fi derutant
+      if (profile && !profile.subscription_cancel_at_period_end && profile.email) {
+        const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+        const amount = ((invoice.amount_due || 0) / 100).toFixed(0);
+        const currency = (invoice.currency || "ron").toUpperCase();
+
+        await fetch(`${baseUrl}/api/send-renewal-reminder`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            email: profile.email,
+            nume: profile.full_name,
+            dataReinnoire: new Date((invoice.period_end || 0) * 1000).toISOString(),
+            suma: amount,
+            currency,
+            manageUrl: `${baseUrl}/ro/settings`,
+          }),
+        }).catch((e) => console.error("Eroare trimitere reamintire reinnoire:", e));
+      }
+    } catch (e: any) {
+      console.error("Eroare la procesarea invoice.upcoming:", e.message);
+    }
+
+    return NextResponse.json({ received: true });
+  }
+
+  // ────────────────────────────────────────────────────────────
   // REZERVĂRI CLIENȚI FINALI — logica existentă, neschimbată
   // ────────────────────────────────────────────────────────────
   if (event.type === "checkout.session.completed") {
