@@ -732,7 +732,12 @@
     "processing": "ELABORAZIONE...",
     "registerBtn": "REGISTRA NUOVO ACCOUNT",
     "haveAccount": "HAI GIÀ UN ACCOUNT?",
-    "loginLink": "ACCEDI"
+    "loginLink": "ACCEDI",
+    "termsRequired": "Devi accettare i Termini e la Politica GDPR per continuare.",
+    "termsCheckboxPrefix": "Ho letto e accetto i",
+    "termsLinkLabel": "Termini e Condizioni",
+    "termsCheckboxAnd": "e la",
+    "gdprLinkLabel": "Politica GDPR"
   },
   "forgotPasswordPage": {
     "title": "RECUPERO",

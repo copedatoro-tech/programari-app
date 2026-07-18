@@ -732,7 +732,12 @@
     "processing": "FELDOLGOZÁS...",
     "registerBtn": "ÚJ FIÓK REGISZTRÁLÁSA",
     "haveAccount": "MÁR VAN FIÓKOD?",
-    "loginLink": "JELENTKEZZ BE"
+    "loginLink": "JELENTKEZZ BE",
+    "termsRequired": "A folytatashoz el kell fogadnia a Felhasznalasi Feltetelaket es a GDPR Szabalyzatot.",
+    "termsCheckboxPrefix": "Elolvastam es elfogadom a",
+    "termsLinkLabel": "Felhasznalasi Feltetelket",
+    "termsCheckboxAnd": "es a",
+    "gdprLinkLabel": "GDPR Szabalyzatot"
   },
   "forgotPasswordPage": {
     "title": "JELSZÓ",

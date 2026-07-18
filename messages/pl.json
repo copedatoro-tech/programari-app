@@ -732,7 +732,12 @@
     "processing": "PRZETWARZANIE...",
     "registerBtn": "ZAREJESTRUJ NOWE KONTO",
     "haveAccount": "MASZ JUŻ KONTO?",
-    "loginLink": "ZALOGUJ SIĘ"
+    "loginLink": "ZALOGUJ SIĘ",
+    "termsRequired": "Musisz zaakceptowac Regulamin i Polityke RODO, aby kontynuowac.",
+    "termsCheckboxPrefix": "Przeczytalem i akceptuje",
+    "termsLinkLabel": "Regulamin",
+    "termsCheckboxAnd": "oraz",
+    "gdprLinkLabel": "Polityke RODO"
   },
   "forgotPasswordPage": {
     "title": "ODZYSKIWANIE",

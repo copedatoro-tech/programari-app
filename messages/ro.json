@@ -915,7 +915,12 @@
     "processing": "SE PROCESEAZĂ...",
     "registerBtn": "ÎNREGISTRARE CONT NOU",
     "haveAccount": "AI DEJA CONT?",
-    "loginLink": "LOGHEAZĂ-TE"
+    "loginLink": "LOGHEAZĂ-TE",
+    "termsRequired": "Trebuie sa accepti Termenii si Politica GDPR pentru a continua.",
+    "termsCheckboxPrefix": "Am citit si sunt de acord cu",
+    "termsLinkLabel": "Termenii si Conditiile",
+    "termsCheckboxAnd": "si cu",
+    "gdprLinkLabel": "Politica GDPR"
   },
   "forgotPasswordPage": {
     "title": "RECUPERARE",

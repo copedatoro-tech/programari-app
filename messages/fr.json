@@ -732,7 +732,12 @@
     "processing": "TRAITEMENT...",
     "registerBtn": "CRÉER UN NOUVEAU COMPTE",
     "haveAccount": "TU AS DÉJÀ UN COMPTE ?",
-    "loginLink": "CONNECTE-TOI"
+    "loginLink": "CONNECTE-TOI",
+    "termsRequired": "Vous devez accepter les Conditions et la Politique RGPD pour continuer.",
+    "termsCheckboxPrefix": "J'ai lu et j'accepte les",
+    "termsLinkLabel": "Conditions Generales",
+    "termsCheckboxAnd": "et la",
+    "gdprLinkLabel": "Politique RGPD"
   },
   "forgotPasswordPage": {
     "title": "RÉCUPÉRATION",

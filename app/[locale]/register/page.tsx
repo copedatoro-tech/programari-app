@@ -5,6 +5,10 @@ import { createBrowserClient } from "@supabase/ssr";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { Link, useRouter } from "@/i18n/navigation";
+// ⚠️ Verifică această cale de import — ajusteaz-o dacă modalele tale
+// sunt în alt folder (ex. "@/components/modals/TermeniModal")
+import TermeniModal from "@/components/TermeniModal";
+import GDPRModal from "@/components/GDPRModal";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -18,6 +22,11 @@ export default function RegisterPage() {
     parola: "",
     confirmParola: ""
   });
+
+  // ✅ Stare nouă: acceptarea obligatorie a Termenilor + GDPR
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [showTermeniModal, setShowTermeniModal] = useState(false);
+  const [showGDPRModal, setShowGDPRModal] = useState(false);
 
   const supabase = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -46,6 +55,12 @@ export default function RegisterPage() {
 
     if (form.parola.length < 6) {
       setError(t("passwordTooShort"));
+      return;
+    }
+
+    // ✅ Blocăm înregistrarea dacă nu a bifat acceptarea
+    if (!acceptedTerms) {
+      setError(t("termsRequired"));
       return;
     }
 
@@ -79,7 +94,9 @@ export default function RegisterPage() {
           plan_type: 'start (gratuit)',
           role: 'Administrator',
           staff: [],
-          services: []
+          services: [],
+          // ✅ Dovada consimțământului — data exactă a acceptării
+          terms_accepted_at: new Date().toISOString()
         }]);
 
         alert(t("accountCreated"));
@@ -168,6 +185,35 @@ export default function RegisterPage() {
             </div>
           </div>
 
+          {/* ✅ Checkbox obligatoriu de acceptare Termeni + GDPR */}
+          <div className="flex items-start gap-3 bg-slate-50 rounded-2xl p-4 border border-slate-100">
+            <input
+              type="checkbox"
+              id="accept-terms"
+              checked={acceptedTerms}
+              onChange={(e) => setAcceptedTerms(e.target.checked)}
+              className="mt-1 w-4 h-4 accent-amber-500 cursor-pointer flex-shrink-0"
+            />
+            <label htmlFor="accept-terms" className="text-[12px] font-medium text-slate-600 leading-relaxed cursor-pointer">
+              {t("termsCheckboxPrefix")}{" "}
+              <button
+                type="button"
+                onClick={(e) => { e.preventDefault(); setShowTermeniModal(true); }}
+                className="text-amber-600 font-bold underline hover:text-amber-700"
+              >
+                {t("termsLinkLabel")}
+              </button>
+              {" "}{t("termsCheckboxAnd")}{" "}
+              <button
+                type="button"
+                onClick={(e) => { e.preventDefault(); setShowGDPRModal(true); }}
+                className="text-amber-600 font-bold underline hover:text-amber-700"
+              >
+                {t("gdprLinkLabel")}
+              </button>
+            </label>
+          </div>
+
           {error && (
             <div className="p-4 bg-red-50 text-red-600 rounded-2xl text-[10px] font-black uppercase italic text-center border-l-8 border-red-500 animate-pulse">
               {error}
@@ -188,6 +234,9 @@ export default function RegisterPage() {
           </div>
         </form>
       </div>
+
+      <TermeniModal isOpen={showTermeniModal} onClose={() => setShowTermeniModal(false)} />
+      <GDPRModal isOpen={showGDPRModal} onClose={() => setShowGDPRModal(false)} />
     </main>
   );
 }

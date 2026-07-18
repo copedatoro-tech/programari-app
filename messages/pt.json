@@ -732,7 +732,12 @@
     "processing": "A PROCESSAR...",
     "registerBtn": "REGISTAR NOVA CONTA",
     "haveAccount": "JÁ TENS CONTA?",
-    "loginLink": "INICIA SESSÃO"
+    "loginLink": "INICIA SESSÃO",
+    "termsRequired": "Deve aceitar os Termos e a Politica RGPD para continuar.",
+    "termsCheckboxPrefix": "Li e concordo com os",
+    "termsLinkLabel": "Termos e Condicoes",
+    "termsCheckboxAnd": "e a",
+    "gdprLinkLabel": "Politica RGPD"
   },
   "forgotPasswordPage": {
     "title": "RECUPERAÇÃO",

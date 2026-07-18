@@ -732,7 +732,12 @@
     "processing": "PROCESSING...",
     "registerBtn": "REGISTER NEW ACCOUNT",
     "haveAccount": "ALREADY HAVE AN ACCOUNT?",
-    "loginLink": "LOG IN"
+    "loginLink": "LOG IN",
+    "termsRequired": "You must accept the Terms and GDPR Policy to continue.",
+    "termsCheckboxPrefix": "I have read and agree to the",
+    "termsLinkLabel": "Terms and Conditions",
+    "termsCheckboxAnd": "and the",
+    "gdprLinkLabel": "GDPR Policy"
   },
   "forgotPasswordPage": {
     "title": "PASSWORD",

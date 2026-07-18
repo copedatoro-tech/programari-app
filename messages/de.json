@@ -732,7 +732,12 @@
     "processing": "WIRD VERARBEITET...",
     "registerBtn": "NEUES KONTO REGISTRIEREN",
     "haveAccount": "BEREITS EIN KONTO?",
-    "loginLink": "ANMELDEN"
+    "loginLink": "ANMELDEN",
+    "termsRequired": "Sie muessen die AGB und die DSGVO-Richtlinie akzeptieren, um fortzufahren.",
+    "termsCheckboxPrefix": "Ich habe die",
+    "termsLinkLabel": "AGB",
+    "termsCheckboxAnd": "gelesen und akzeptiere sie sowie die",
+    "gdprLinkLabel": "DSGVO-Richtlinie"
   },
   "forgotPasswordPage": {
     "title": "PASSWORT-",
