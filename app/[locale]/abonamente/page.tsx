@@ -80,6 +80,10 @@ export default function AbonamentePage() {
   const [trialUsed, setTrialUsed] = useState(false);
   const [isTrialActive, setIsTrialActive] = useState(false);
   const [user, setUser] = useState<any>(null);
+  // ✅ Distingem un plan plătit real (are stripe_customer_id) de unul
+  // acordat manual din panoul de admin (fără nicio taxare Stripe)
+  const [hasRealSubscription, setHasRealSubscription] = useState(false);
+  const [manualGrantExpiresAt, setManualGrantExpiresAt] = useState<string | null>(null);
   const [showModal, setShowModal] = useState<any>(null);
   // ✅ Stare nouă: evită dublu-click în timp ce așteptăm redirect către Stripe
   const [isRedirecting, setIsRedirecting] = useState(false);
@@ -109,12 +113,14 @@ export default function AbonamentePage() {
 
         const { data: profile } = await supabase
           .from("profiles")
-          .select("plan_type, trial_started_at, trial_used")
+          .select("plan_type, trial_started_at, trial_used, stripe_customer_id, manual_grant_expires_at")
           .eq("id", authUser.id)
           .single();
 
         if (profile) {
           setTrialUsed(profile.trial_used || false);
+          setHasRealSubscription(!!profile.stripe_customer_id);
+          setManualGrantExpiresAt(profile.manual_grant_expires_at || null);
           const rawPlan = (profile.plan_type || "CHRONOS FREE").toUpperCase().trim();
           let dbPlan = "CHRONOS FREE";
           if (rawPlan.includes("TEAM")) dbPlan = "CHRONOS TEAM";
@@ -195,7 +201,7 @@ export default function AbonamentePage() {
   // acum apelăm /api/checkout, care creează sesiunea cu client_reference_id
   // (identifică userul) și ne întoarce URL-ul către care redirecționăm.
   const confirmPlanChange = async (plan: any) => {
-    if (plan.id === currentPlan) return;
+    if (plan.id === currentPlan && (hasRealSubscription || plan.id === "CHRONOS FREE")) return;
 
     if (plan.id === "CHRONOS FREE") {
       showToast({ message: t("errors.alreadyFree"), type: "info", title: t("errors.infoTitle") });
@@ -261,7 +267,7 @@ export default function AbonamentePage() {
   };
 
   const handlePlanClick = (plan: any) => {
-    if (plan.id === currentPlan) return;
+    if (plan.id === currentPlan && (hasRealSubscription || plan.id === "CHRONOS FREE")) return;
     if (isTrialActive) {
       setShowModal(plan);
     } else {
@@ -311,6 +317,21 @@ export default function AbonamentePage() {
                 {isTrialActive ? t("status.trialPlanName") : currentPlan}
               </h2>
               <p className="text-slate-400 text-[10px] font-bold uppercase tracking-tight">{user.email}</p>
+
+              {/* ✅ Plan acordat manual (fără plată reală) — clarificăm situația */}
+              {!isTrialActive && currentPlan !== "CHRONOS FREE" && !hasRealSubscription && (
+                <div className="mt-2 bg-emerald-50 border border-emerald-200 rounded-xl px-3 py-2">
+                  <p className="text-[9px] font-black uppercase text-emerald-700">
+                    🎁 Plan oferit, fără plată
+                  </p>
+                  <p className="text-[9px] text-emerald-600 font-medium mt-0.5">
+                    {manualGrantExpiresAt
+                      ? `Valabil până la ${new Date(manualGrantExpiresAt).toLocaleDateString("ro-RO")}. `
+                      : "Fără dată de expirare. "}
+                    Dacă vrei să continui cu acest plan pe termen lung, îl poți plăti oricând.
+                  </p>
+                </div>
+              )}
               </div>
             </div>
 
@@ -421,14 +442,18 @@ export default function AbonamentePage() {
 
                 <button
                   onClick={() => handlePlanClick({ id: meta.id, priceId: meta.priceId, name: plan.name })}
-                  disabled={isSelected || isRedirecting}
+                  disabled={(isSelected && (hasRealSubscription || meta.id === "CHRONOS FREE")) || isRedirecting}
                   className={`w-full py-4 rounded-[20px] font-black italic uppercase text-[10px] tracking-widest transition-all duration-300 ${
                     isSelected
                       ? "bg-amber-500 text-black cursor-default border border-slate-200"
                       : "bg-slate-900 text-white hover:bg-amber-500 hover:text-black shadow-lg shadow-slate-900/10 active:scale-95 disabled:opacity-50"
                   }`}
                 >
-                  {isSelected ? t("alreadyActiveBtn") : isRedirecting ? "..." : plan.buttonText}
+                  {isSelected && hasRealSubscription
+                    ? t("alreadyActiveBtn")
+                    : isSelected && !hasRealSubscription
+                    ? (isRedirecting ? "..." : "Plătește acest plan")
+                    : isRedirecting ? "..." : plan.buttonText}
                 </button>
               </div>
             );
