@@ -280,6 +280,17 @@ export default function ProfilPage() {
           </div>
 
           <div className="flex flex-col gap-4 z-10">
+            {/* ✅ Vizibil doar pentru contul de admin — protecția reală e server-side,
+                acest check e doar cosmetic, ca să nu apară butonul la ceilalți useri */}
+            {!isDemo && user?.email === process.env.NEXT_PUBLIC_ADMIN_EMAIL && (
+              <button
+                title="Panou Admin"
+                onClick={() => router.push('/admin' as any)}
+                className="px-10 py-4 bg-violet-600 text-white text-[11px] font-black rounded-2xl uppercase italic border-b-8 border-violet-800 hover:bg-violet-500 transition-all"
+              >
+                🛠️ Panou Admin
+              </button>
+            )}
             <button
               id="onboarding-save-btn"
               title={t("save")}
