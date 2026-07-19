@@ -115,6 +115,13 @@ export default function ProfilPage() {
 
           setAvatarUrl(profile?.avatar_url || "");
 
+          // ✅ Completare automată, silențioasă — dacă profilul are emailul
+          // gol (conturi vechi/create pe alte căi), îl sincronizăm din
+          // auth.users (sursa de adevăr), fără să depindă de un click manual
+          if (!profile?.email && u.email) {
+            supabase.from('profiles').update({ email: u.email }).eq('id', u.id).then(() => {});
+          }
+
           // ✅ Trial activ = în fereastra de 10 zile de la trial_started_at,
           // exact aceeași logică folosită în Abonamente și RootLayoutClient —
           // câmpul "trial_activated" nu reflectă corect starea reală
@@ -149,6 +156,7 @@ export default function ProfilPage() {
           avatar_url: avatarUrl,
           phone: telefon,
           role: functie,
+          email: user.email,
           updated_at: new Date().toISOString(),
         }, { onConflict: 'id' });
 
