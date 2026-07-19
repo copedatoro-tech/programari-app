@@ -10,6 +10,7 @@ import { Crown, Gem, ShieldCheck, Zap } from "lucide-react";
 import GDPRModal from "@/components/GDPRModal";
 import TermeniModal from "@/components/TermeniModal";
 import CookiesModal from "@/components/CookiesModal";
+import CookieConsentBanner from "@/components/CookieConsentBanner";
 import LocaleSwitcher from "@/components/LocaleSwitcher";
 import OnboardingTour from "@/components/OnboardingTour";
 import { getActivePlan } from "@/lib/getActivePlan";
@@ -243,6 +244,11 @@ export default function RootLayoutClient({ children }: { children: React.ReactNo
 
   return authLoaded ? (
     <>
+      {/* ✅ Banner de consimțământ cookie-uri — afișat peste tot, inclusiv pe
+          paginile publice (login, register, rezervare), fiindcă acordul se cere
+          oricărui vizitator, nu doar userilor autentificați */}
+      <CookieConsentBanner />
+
       {isLoggedIn && !isPublicPage && userId && (
         <OnboardingTour key={tourKey} userId={userId} />
       )}

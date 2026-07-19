@@ -92,9 +92,9 @@
     "logout": "KIJELENTKEZÉS",
     "footer": {
       "contact": "Chronos kapcsolat",
-      "termeni": "Feltételek",
-      "confidentialitate": "Adatvédelem",
-      "cookies": "Sütik",
+      "termeni": "Felhasznalasi Feltetelek",
+      "confidentialitate": "Adatvedelmi Szabalyzat",
+      "cookies": "Suti Szabalyzat",
       "premium": "CHRONOS PREMIUM",
       "management": "KEZELÉS",
       "secured": "VÉDETT",
@@ -1687,22 +1687,27 @@
   "termeniModal": {
     "title": "Felhasználási ",
     "titleHighlight": "feltételek",
-    "text1": "A Chronos platform használatával elfogadod a működési szabályainkat.",
-    "text2": "A rendszer az idő és a szakmai erőforrások hatékony kezelésére szolgál.",
-    "text3": "A felhasználó felelős a naptárba beírt adatok pontosságáért.",
-    "text4": "Fenntartjuk a jogot e feltételek frissítésére; a platform további használata a módosítások után azok elfogadását jelenti.",
+    "text1": "A Chronos platform hasznalataval elfogadod a kovetkezo mukodesi szabalyokat.",
+    "text2": "A rendszer a vallalkozasod idejenek es szakmai eroforrasainak hatekony kezelesere szolgal.",
+    "text3": "A felhasznalo felelos a naptarba bevitt informaciok pontossagaert es a fiokja bejelentkezesi adatainak titkossagaert.",
+    "text4": "Fenntartjuk a jogot e feltetelek frissitesere; a platform tovabbi hasznalata a valtoztatasok utan azok elfogadasat jelenti.",
     "contactLabel": "Kérdésed van a feltételekről? Írj nekünk: ",
-    "acceptBtn": "ELFOGADOM"
+    "acceptBtn": "ELFOGADOM",
+    "text5": "Ezt a szolgaltatast az EXPLORE WORLD S.R.L. uzemelteti, adoszam 45995975, szekhelye Kolozsvar, Gruia utca, 58. szam, 17. lakas, Kolozs megye, Romania. Barmilyen jogvitat a roman jog szerint, Romania illetekes birosagai oldanak meg.",
+    "lastUpdated": "Utolso frissites: 2026. julius 18."
   },
   "gdprModal": {
     "title": "Adatvédelmi",
     "titleHighlight": "szabályzat",
-    "text1": "Az adataid védelme prioritás a Chronos rendszerben.",
-    "text2": "Csak a foglalási szolgáltatás működéséhez és a fiókod biztonságához szükséges minimális adatokat gyűjtjük.",
-    "text3": "Nem adjuk el az adataidat, és biztonságos infrastruktúrát használunk a tároláshoz.",
-    "text4": "Bármikor jogod van kérni a személyes adataidhoz való hozzáférést, azok helyesbítését vagy törlését.",
+    "text1": "A szemelyes adatok kezeloje az EXPLORE WORLD S.R.L., szekhelye Kolozsvar, Gruia utca, 58. szam, 17. lakas, Kolozs megye, Romania, adoszama 45995975.",
+    "text2": "A foglalasi szolgaltatas mukodesehez es fiokod biztonsagahoz szukseges minimalis adatokat gyujtjuk: nev, email, telefonszam, es szamlazasi adatok, ha alkalmazhato.",
+    "text3": "Az adatkezeles a veled kotott szerzodes teljesitesen es kifejezett hozzajarulasodon alapul. Nem adjuk el adataidat harmadik feleknek, es biztonsagos infrastrukturat hasznalunk a tarolashoz.",
+    "text4": "A platform mukodtetesehez az alabbi adatfeldolgozokkal dolgozunk egyutt, akik kizarolag a nevunkben jarnak el: Stripe (fizetesek), Supabase (adatbazis es hitelesites), Meta/WhatsApp Business (ertesitesek), es Resend (tranzakcios emailek).",
     "contactLabel": "Személyes adatokkal kapcsolatos kérésekért írj nekünk: ",
-    "understoodBtn": "ÉRTETTEM"
+    "understoodBtn": "ÉRTETTEM",
+    "text5": "Adataidat addig oriztuk meg, amig fiokod aktiv, plusz egy esszeru ideig azutan, a torvenyes szamviteli es ado kotelezettsegeknek megfeleloen. Barmikor kerhetit a szemelyes adataidhoz valo hozzaferest, azok helyesbiteset, hordozhatosagat vagy torleset.",
+    "text6": "Jogodban all panaszt tenni a Szemelyes Adatok Feldolgozasat Felugyelo Nemzeti Hatosagnal (ANSPDCP) Romaniaban, ha ugy gondolod, hogy adatvedelmi jogaidat megsertettek.",
+    "lastUpdated": "Utolso frissites: 2026. julius 18."
   },
   "resetPasswordPage": {
     "checkingSecurity": "Biztonsági ellenőrzés...",
@@ -1931,5 +1936,10 @@
     "successDisabled": "A ketlepcsos azonositas kikapcsolva.",
     "incorrectCode": "Hibas kod. Probald ujra.",
     "confirmDisableMsg": "Biztosan kikapcsolod a ketlepcsos azonositast?"
+  },
+  "cookieConsent": {
+    "message": "Alapveto technikai sutiket hasznalunk a fiokod mukodesehez. Kivalaszthatod, mely opciokat fogadod el.",
+    "essentialOnlyBtn": "Csak alapvetok",
+    "acceptAllBtn": "Osszes elfogadasa"
   }
 }

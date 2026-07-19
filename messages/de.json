@@ -92,9 +92,9 @@
     "logout": "ABMELDEN",
     "footer": {
       "contact": "Chronos-Kontakt",
-      "termeni": "AGB",
-      "confidentialitate": "Datenschutz",
-      "cookies": "Cookies",
+      "termeni": "Allgemeine Geschaftsbedingungen",
+      "confidentialitate": "Datenschutzrichtlinie",
+      "cookies": "Cookie-Richtlinie",
       "premium": "CHRONOS PREMIUM",
       "management": "VERWALTUNG",
       "secured": "GESICHERT",
@@ -1687,22 +1687,27 @@
   "termeniModal": {
     "title": "Allgemeine ",
     "titleHighlight": "Geschäftsbedingungen",
-    "text1": "Durch die Nutzung der Chronos-Plattform stimmst du unseren Betriebsregeln zu.",
-    "text2": "Das System dient der effizienten Verwaltung von Zeit und beruflichen Ressourcen.",
-    "text3": "Der Nutzer ist für die Richtigkeit der im Kalender eingegebenen Informationen verantwortlich.",
-    "text4": "Wir behalten uns das Recht vor, diese Bedingungen zu aktualisieren; die weitere Nutzung der Plattform nach Änderungen gilt als Zustimmung.",
+    "text1": "Durch die Nutzung der Chronos-Plattform stimmen Sie den folgenden Nutzungsregeln zu.",
+    "text2": "Das System dient der effizienten Verwaltung von Zeit und beruflichen Ressourcen Ihres Unternehmens.",
+    "text3": "Der Nutzer ist verantwortlich fuer die Richtigkeit der im Kalender eingegebenen Informationen sowie fuer die Vertraulichkeit der Anmeldedaten seines Kontos.",
+    "text4": "Wir behalten uns das Recht vor, diese Bedingungen zu aktualisieren; die weitere Nutzung der Plattform nach Aenderungen gilt als deren Annahme.",
     "contactLabel": "Fragen zu den Bedingungen? Schreib uns an ",
-    "acceptBtn": "AKZEPTIEREN"
+    "acceptBtn": "AKZEPTIEREN",
+    "text5": "Dieser Dienst wird betrieben von EXPLORE WORLD S.R.L., Steuernummer 45995975, mit Sitz in Cluj-Napoca, Str. Gruia, Nr. 58, Ap. 17, Kreis Cluj, Rumaenien. Streitigkeiten werden nach rumaenischem Recht vor den zustaendigen Gerichten Rumaeniens entschieden.",
+    "lastUpdated": "Letzte Aktualisierung: 18. Juli 2026"
   },
   "gdprModal": {
     "title": "Datenschutz-",
     "titleHighlight": "Richtlinie",
-    "text1": "Der Schutz deiner Daten hat im Chronos-System oberste Priorität.",
-    "text2": "Wir erheben nur die minimal notwendigen Daten für den Betrieb des Buchungsdienstes und die Sicherheit deines Kontos.",
-    "text3": "Wir verkaufen deine Daten nicht und verwenden eine sichere Infrastruktur zur Speicherung.",
-    "text4": "Du hast jederzeit das Recht, Zugang zu, Berichtigung oder Löschung deiner personenbezogenen Daten zu verlangen.",
+    "text1": "Der Verantwortliche fuer die Verarbeitung personenbezogener Daten ist EXPLORE WORLD S.R.L., mit Sitz in Cluj-Napoca, Str. Gruia, Nr. 58, Ap. 17, Kreis Cluj, Rumaenien, Steuernummer 45995975.",
+    "text2": "Wir erheben die minimal notwendigen Daten fuer den Betrieb des Buchungsdienstes und die Sicherheit Ihres Kontos: Name, E-Mail, Telefonnummer und gegebenenfalls Rechnungsdaten.",
+    "text3": "Die Verarbeitung basiert auf der Erfuellung unseres Vertrags mit Ihnen sowie auf Ihrer ausdruecklichen Einwilligung. Wir verkaufen Ihre Daten nicht an Dritte und nutzen sichere Infrastruktur zur Speicherung.",
+    "text4": "Zum Betrieb der Plattform arbeiten wir mit folgenden Auftragsverarbeitern zusammen, die ausschliesslich in unserem Namen handeln: Stripe (Zahlungsabwicklung), Supabase (Datenbank und Authentifizierung), Meta/WhatsApp Business (Benachrichtigungen) und Resend (Transaktions-E-Mails).",
     "contactLabel": "Für Anfragen zu personenbezogenen Daten schreib uns an ",
-    "understoodBtn": "VERSTANDEN"
+    "understoodBtn": "VERSTANDEN",
+    "text5": "Wir speichern Ihre Daten, solange Ihr Konto aktiv ist, sowie danach fuer einen angemessenen Zeitraum gemaess gesetzlicher Buchhaltungs- und Steuerpflichten. Sie koennen jederzeit Zugriff, Berichtigung, Uebertragbarkeit oder Loeschung Ihrer personenbezogenen Daten verlangen.",
+    "text6": "Sie haben zudem das Recht, eine Beschwerde bei der rumaenischen Nationalen Aufsichtsbehoerde fuer die Verarbeitung personenbezogener Daten (ANSPDCP) einzureichen, wenn Sie der Ansicht sind, dass Ihre Datenschutzrechte verletzt wurden.",
+    "lastUpdated": "Letzte Aktualisierung: 18. Juli 2026"
   },
   "resetPasswordPage": {
     "checkingSecurity": "Sicherheitsprüfung...",
@@ -1931,5 +1936,10 @@
     "successDisabled": "Die Zwei-Faktor-Authentifizierung wurde deaktiviert.",
     "incorrectCode": "Falscher Code. Bitte versuchen Sie es erneut.",
     "confirmDisableMsg": "Moechten Sie die Zwei-Faktor-Authentifizierung wirklich deaktivieren?"
+  },
+  "cookieConsent": {
+    "message": "Wir verwenden essentielle technische Cookies, damit Ihr Konto funktioniert. Sie koennen waehlen, welche Optionen Sie akzeptieren.",
+    "essentialOnlyBtn": "Nur essentielle",
+    "acceptAllBtn": "Alle akzeptieren"
   }
 }

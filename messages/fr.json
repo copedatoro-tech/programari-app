@@ -92,9 +92,9 @@
     "logout": "DÉCONNEXION",
     "footer": {
       "contact": "Contact Chronos",
-      "termeni": "Conditions",
-      "confidentialitate": "Confidentialité",
-      "cookies": "Cookies",
+      "termeni": "Conditions Generales",
+      "confidentialitate": "Politique de Confidentialite",
+      "cookies": "Politique de Cookies",
       "premium": "CHRONOS PREMIUM",
       "management": "GESTION",
       "secured": "SÉCURISÉ",
@@ -1687,22 +1687,27 @@
   "termeniModal": {
     "title": "Conditions ",
     "titleHighlight": "générales",
-    "text1": "En utilisant la plateforme Chronos, tu acceptes nos règles de fonctionnement.",
-    "text2": "Le système est conçu pour la gestion efficace du temps et des ressources professionnelles.",
-    "text3": "L'utilisateur est responsable de l'exactitude des informations saisies dans le calendrier.",
-    "text4": "Nous nous réservons le droit de mettre à jour ces conditions ; l'utilisation continue de la plateforme après des modifications vaut acceptation.",
+    "text1": "En utilisant la plateforme Chronos, vous acceptez les regles de fonctionnement suivantes.",
+    "text2": "Le systeme est concu pour la gestion efficace du temps et des ressources professionnelles de votre entreprise.",
+    "text3": "L'utilisateur est responsable de l'exactitude des informations saisies dans le calendrier et de la confidentialite des identifiants de connexion de son compte.",
+    "text4": "Nous nous reservons le droit de mettre a jour ces conditions; la poursuite de l'utilisation de la plateforme apres modification vaut acceptation.",
     "contactLabel": "Des questions sur les conditions ? Écris-nous à ",
-    "acceptBtn": "ACCEPTER"
+    "acceptBtn": "ACCEPTER",
+    "text5": "Ce service est exploite par EXPLORE WORLD S.R.L., numero fiscal 45995975, dont le siege social est situe a Cluj-Napoca, Str. Gruia, No. 58, Ap. 17, departement de Cluj, Roumanie. Tout litige sera resolu conformement au droit roumain, par les tribunaux competents de Roumanie.",
+    "lastUpdated": "Derniere mise a jour: 18 juillet 2026"
   },
   "gdprModal": {
     "title": "Politique de",
     "titleHighlight": "confidentialité",
-    "text1": "La protection de tes données est une priorité dans le système Chronos.",
-    "text2": "Nous collectons uniquement les données minimales nécessaires au fonctionnement du service de réservation et à la sécurité de ton compte.",
-    "text3": "Nous ne vendons pas tes données et utilisons une infrastructure sécurisée pour le stockage.",
-    "text4": "Tu as le droit de demander l'accès, la rectification ou la suppression de tes données personnelles à tout moment.",
+    "text1": "Le responsable du traitement des donnees personnelles est EXPLORE WORLD S.R.L., dont le siege social est situe a Cluj-Napoca, Str. Gruia, No. 58, Ap. 17, departement de Cluj, Roumanie, immatricule sous le numero fiscal 45995975.",
+    "text2": "Nous collectons les donnees minimales necessaires au fonctionnement du service de reservation et a la securite de votre compte: nom, email, telephone, et donnees de facturation le cas echeant.",
+    "text3": "Le traitement repose sur l'execution de notre contrat avec vous et sur votre consentement explicite. Nous ne vendons pas vos donnees a des tiers et utilisons une infrastructure securisee pour le stockage.",
+    "text4": "Pour faire fonctionner la plateforme, nous collaborons avec les sous-traitants suivants, agissant exclusivement en notre nom: Stripe (paiements), Supabase (base de donnees et authentification), Meta/WhatsApp Business (notifications), et Resend (emails transactionnels).",
     "contactLabel": "Pour toute demande concernant tes données personnelles, écris-nous à ",
-    "understoodBtn": "COMPRIS"
+    "understoodBtn": "COMPRIS",
+    "text5": "Nous conservons vos donnees tant que votre compte est actif, plus une periode raisonnable par la suite, conformement aux obligations comptables et fiscales legales. Vous pouvez demander a tout moment l'acces, la rectification, la portabilite ou la suppression de vos donnees personnelles.",
+    "text6": "Vous avez egalement le droit de deposer une plainte aupres de l'Autorite Nationale de Surveillance du Traitement des Donnees a Caractere Personnel (ANSPDCP) en Roumanie, si vous estimez que vos droits ont ete violes.",
+    "lastUpdated": "Derniere mise a jour: 18 juillet 2026"
   },
   "resetPasswordPage": {
     "checkingSecurity": "Vérification de sécurité...",
@@ -1931,5 +1936,10 @@
     "successDisabled": "L'authentification a deux facteurs a ete desactivee.",
     "incorrectCode": "Code incorrect. Veuillez reessayer.",
     "confirmDisableMsg": "Etes-vous sur de vouloir desactiver l'authentification a deux facteurs?"
+  },
+  "cookieConsent": {
+    "message": "Nous utilisons des cookies techniques essentiels au fonctionnement de votre compte. Vous pouvez choisir les options a accepter.",
+    "essentialOnlyBtn": "Essentiels uniquement",
+    "acceptAllBtn": "Tout accepter"
   }
 }

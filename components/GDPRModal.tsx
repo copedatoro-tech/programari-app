@@ -11,7 +11,6 @@ export default function GDPRModal({ isOpen, onClose }: GDPRModalProps) {
   const t = useTranslations("gdprModal");
   const modalRef = useRef<HTMLDivElement>(null);
 
-  // Închide modalul dacă se dă click în afara cutiei albe
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (modalRef.current && !modalRef.current.contains(event.target as Node)) {
@@ -40,6 +39,9 @@ export default function GDPRModal({ isOpen, onClose }: GDPRModalProps) {
           <p>{t("text2")}</p>
           <p>{t("text3")}</p>
           <p>{t("text4")}</p>
+          <p>{t("text5")}</p>
+          <p>{t("text6")}</p>
+          <p className="text-[10px] text-slate-400 italic pt-2">{t("lastUpdated")}</p>
           <p className="text-slate-500 italic text-xs pt-2 border-t border-slate-100">
             {t("contactLabel")}
             <a href="mailto:copedatoro@gmail.com" className="text-amber-600 font-bold hover:underline">

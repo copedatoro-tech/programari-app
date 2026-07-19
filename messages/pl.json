@@ -93,8 +93,8 @@
     "footer": {
       "contact": "Kontakt Chronos",
       "termeni": "Regulamin",
-      "confidentialitate": "Prywatność",
-      "cookies": "Pliki cookie",
+      "confidentialitate": "Polityka Prywatnosci",
+      "cookies": "Polityka Plikow Cookie",
       "premium": "CHRONOS PREMIUM",
       "management": "ZARZĄDZANIE",
       "secured": "ZABEZPIECZONE",
@@ -1687,22 +1687,27 @@
   "termeniModal": {
     "title": "Regulamin ",
     "titleHighlight": "i Warunki",
-    "text1": "Korzystając z platformy Chronos, akceptujesz nasze zasady działania.",
-    "text2": "System jest przeznaczony do efektywnego zarządzania czasem i zasobami zawodowymi.",
-    "text3": "Użytkownik jest odpowiedzialny za dokładność informacji wprowadzonych w kalendarzu.",
-    "text4": "Zastrzegamy sobie prawo do aktualizacji tych warunków; dalsze korzystanie z platformy po zmianach oznacza ich akceptację.",
+    "text1": "Korzystajac z platformy Chronos, akceptujesz nastepujace zasady dzialania.",
+    "text2": "System sluzy do efektywnego zarzadzania czasem i zasobami zawodowymi Twojej firmy.",
+    "text3": "Uzytkownik jest odpowiedzialny za dokladnosc informacji wprowadzanych do kalendarza oraz za poufnosc danych logowania do swojego konta.",
+    "text4": "Zastrzegamy sobie prawo do aktualizacji niniejszych warunkow; dalsze korzystanie z platformy po zmianach oznacza ich akceptacje.",
     "contactLabel": "Masz pytania dotyczące regulaminu? Napisz do nas: ",
-    "acceptBtn": "AKCEPTUJĘ"
+    "acceptBtn": "AKCEPTUJĘ",
+    "text5": "Usluga jest prowadzona przez EXPLORE WORLD S.R.L., NIP 45995975, z siedziba w Cluj-Napoca, Str. Gruia, Nr. 58, Ap. 17, okreg Cluj, Rumunia. Wszelkie spory beda rozstrzygane zgodnie z prawem rumunskim, przez wlasciwe sady Rumunii.",
+    "lastUpdated": "Ostatnia aktualizacja: 18 lipca 2026"
   },
   "gdprModal": {
     "title": "Polityka",
     "titleHighlight": "Prywatności",
-    "text1": "Ochrona Twoich danych jest priorytetem w systemie Chronos.",
-    "text2": "Zbieramy minimalne dane niezbędne do działania usługi rezerwacji i bezpieczeństwa Twojego konta.",
-    "text3": "Nie sprzedajemy Twoich danych i korzystamy z bezpiecznej infrastruktury do przechowywania.",
-    "text4": "Masz prawo w dowolnym momencie zażądać dostępu, poprawienia lub usunięcia swoich danych osobowych.",
+    "text1": "Administratorem danych osobowych jest EXPLORE WORLD S.R.L., z siedziba w Cluj-Napoca, Str. Gruia, Nr. 58, Ap. 17, okreg Cluj, Rumunia, NIP 45995975.",
+    "text2": "Zbieramy minimalne dane niezbedne do dzialania uslugi rezerwacji i bezpieczenstwa Twojego konta: imie i nazwisko, email, telefon oraz dane rozliczeniowe, jesli dotyczy.",
+    "text3": "Przetwarzanie opiera sie na wykonaniu naszej umowy z Toba oraz na Twojej wyraznej zgodzie. Nie sprzedajemy Twoich danych osobom trzecim i uzywamy bezpiecznej infrastruktury do przechowywania.",
+    "text4": "Aby platforma dzialala, wspolpracujemy z nastepujacymi podmiotami przetwarzajacymi dane, dzialajacymi wylacznie w naszym imieniu: Stripe (platnosci), Supabase (baza danych i uwierzytelnianie), Meta/WhatsApp Business (powiadomienia) oraz Resend (emaile transakcyjne).",
     "contactLabel": "W sprawie próśb dotyczących danych osobowych napisz do nas: ",
-    "understoodBtn": "ROZUMIEM"
+    "understoodBtn": "ROZUMIEM",
+    "text5": "Przechowujemy Twoje dane tak dlugo, jak Twoje konto jest aktywne, plus rozsadny okres potem, zgodnie z prawnymi obowiazkami ksiegowymi i podatkowymi. Mozesz w kazdej chwili zazadac dostepu, sprostowania, przenoszenia lub usuniecia swoich danych osobowych.",
+    "text6": "Masz rowniez prawo zlozyc skarge do Krajowego Urzedu Nadzoru nad Przetwarzaniem Danych Osobowych (ANSPDCP) w Rumunii, jesli uwazasz, ze Twoje prawa zostaly naruszone.",
+    "lastUpdated": "Ostatnia aktualizacja: 18 lipca 2026"
   },
   "resetPasswordPage": {
     "checkingSecurity": "Weryfikacja bezpieczeństwa...",
@@ -1931,5 +1936,10 @@
     "successDisabled": "Uwierzytelnianie dwuetapowe zostalo wylaczone.",
     "incorrectCode": "Nieprawidlowy kod. Sprobuj ponownie.",
     "confirmDisableMsg": "Czy na pewno chcesz wylaczyc uwierzytelnianie dwuetapowe?"
+  },
+  "cookieConsent": {
+    "message": "Uzywamy niezbednych technicznych plikow cookie, aby Twoje konto dzialalo. Mozesz wybrac, ktore opcje zaakceptowac.",
+    "essentialOnlyBtn": "Tylko niezbedne",
+    "acceptAllBtn": "Zaakceptuj wszystko"
   }
 }

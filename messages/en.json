@@ -92,9 +92,9 @@
     "logout": "LOG OUT",
     "footer": {
       "contact": "Chronos Contact",
-      "termeni": "Terms",
-      "confidentialitate": "Privacy",
-      "cookies": "Cookies",
+      "termeni": "Terms and Conditions",
+      "confidentialitate": "Privacy Policy",
+      "cookies": "Cookie Policy",
       "premium": "CHRONOS PREMIUM",
       "management": "MANAGEMENT",
       "secured": "SECURED",
@@ -1687,22 +1687,27 @@
   "termeniModal": {
     "title": "Terms & ",
     "titleHighlight": "Conditions",
-    "text1": "By using the Chronos platform, you agree to our operating rules.",
-    "text2": "The system is designed for the efficient management of time and professional resources.",
-    "text3": "The user is responsible for the accuracy of the information entered in the calendar.",
+    "text1": "By using the Chronos platform, you agree to the following operating rules.",
+    "text2": "The system is designed for the efficient management of your business's time and professional resources.",
+    "text3": "The user is responsible for the accuracy of information entered into the calendar and for the confidentiality of their account's login credentials.",
     "text4": "We reserve the right to update these terms; continued use of the platform after changes constitutes acceptance of them.",
     "contactLabel": "Questions about the terms? Write to us at ",
-    "acceptBtn": "ACCEPT"
+    "acceptBtn": "ACCEPT",
+    "text5": "This service is operated by EXPLORE WORLD S.R.L., Tax ID 45995975, with registered office in Cluj-Napoca, Str. Gruia, No. 58, Ap. 17, Cluj County, Romania. Any dispute shall be resolved under Romanian law, by the competent courts of Romania.",
+    "lastUpdated": "Last updated: July 18, 2026"
   },
   "gdprModal": {
     "title": "Privacy",
     "titleHighlight": "Policy",
-    "text1": "Protecting your data is a priority in the Chronos system.",
-    "text2": "We collect the minimum data necessary for the booking service to function and to secure your account.",
-    "text3": "We do not sell your data and we use secure infrastructure for storage.",
-    "text4": "You have the right to request access to, correction of, or deletion of your personal data at any time.",
+    "text1": "The personal data controller is EXPLORE WORLD S.R.L., with registered office in Cluj-Napoca, Str. Gruia, No. 58, Ap. 17, Cluj County, Romania, having Tax ID 45995975, registered with the Cluj Trade Registry.",
+    "text2": "We collect the minimum data necessary for the booking service to function and to secure your account: name, email, phone number, and billing details where applicable.",
+    "text3": "Processing is based on the performance of our contract with you and on your explicit consent. We do not sell your data to third parties and use secure infrastructure for storage.",
+    "text4": "To operate the platform, we work with the following data processors, acting solely on our behalf: Stripe (payment processing), Supabase (database and authentication), Meta/WhatsApp Business (notifications), and Resend (transactional emails).",
     "contactLabel": "For requests regarding personal data, write to us at ",
-    "understoodBtn": "GOT IT"
+    "understoodBtn": "GOT IT",
+    "text5": "We retain your data for as long as your account is active, plus a reasonable period afterwards, in accordance with legal accounting and tax obligations. You may request access, correction, portability, or deletion of your personal data at any time.",
+    "text6": "You also have the right to file a complaint with the National Supervisory Authority for Personal Data Processing (ANSPDCP) in Romania, if you believe your data protection rights have been violated.",
+    "lastUpdated": "Last updated: July 18, 2026"
   },
   "resetPasswordPage": {
     "checkingSecurity": "Checking Security...",
@@ -1931,5 +1936,10 @@
     "successDisabled": "Two-factor authentication has been disabled.",
     "incorrectCode": "Incorrect code. Please try again.",
     "confirmDisableMsg": "Are you sure you want to disable two-factor authentication?"
+  },
+  "cookieConsent": {
+    "message": "We use essential technical cookies for your account to function. You can choose which options to accept.",
+    "essentialOnlyBtn": "Essential only",
+    "acceptAllBtn": "Accept all"
   }
 }

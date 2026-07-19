@@ -92,9 +92,9 @@
     "logout": "CERRAR SESIÓN",
     "footer": {
       "contact": "Contacto Chronos",
-      "termeni": "Términos",
-      "confidentialitate": "Privacidad",
-      "cookies": "Cookies",
+      "termeni": "Terminos y Condiciones",
+      "confidentialitate": "Politica de Privacidad",
+      "cookies": "Politica de Cookies",
       "premium": "CHRONOS PREMIUM",
       "management": "GESTIÓN",
       "secured": "SEGURO",
@@ -1687,22 +1687,27 @@
   "termeniModal": {
     "title": "Términos y ",
     "titleHighlight": "Condiciones",
-    "text1": "Al utilizar la plataforma Chronos, aceptas nuestras reglas de funcionamiento.",
-    "text2": "El sistema está diseñado para la gestión eficiente del tiempo y de los recursos profesionales.",
-    "text3": "El usuario es responsable de la exactitud de la información introducida en el calendario.",
-    "text4": "Nos reservamos el derecho de actualizar estos términos; el uso continuado de la plataforma tras los cambios implica su aceptación.",
+    "text1": "Al utilizar la plataforma Chronos, aceptas las siguientes reglas de funcionamiento.",
+    "text2": "El sistema esta disenado para la gestion eficiente del tiempo y los recursos profesionales de tu negocio.",
+    "text3": "El usuario es responsable de la exactitud de la informacion introducida en el calendario y de la confidencialidad de las credenciales de acceso de su cuenta.",
+    "text4": "Nos reservamos el derecho de actualizar estos terminos; el uso continuado de la plataforma tras los cambios constituye su aceptacion.",
     "contactLabel": "¿Preguntas sobre los términos? Escríbenos a ",
-    "acceptBtn": "ACEPTAR"
+    "acceptBtn": "ACEPTAR",
+    "text5": "Este servicio es operado por EXPLORE WORLD S.R.L., NIF 45995975, con domicilio social en Cluj-Napoca, Str. Gruia, No. 58, Ap. 17, provincia de Cluj, Rumania. Cualquier disputa se resolvera conforme a la legislacion rumana, por los tribunales competentes de Rumania.",
+    "lastUpdated": "Ultima actualizacion: 18 de julio de 2026"
   },
   "gdprModal": {
     "title": "Política de",
     "titleHighlight": "Privacidad",
-    "text1": "La protección de tus datos es una prioridad en el sistema Chronos.",
-    "text2": "Recopilamos los datos mínimos necesarios para el funcionamiento del servicio de reservas y la seguridad de tu cuenta.",
-    "text3": "No vendemos tus datos y utilizamos infraestructura segura para el almacenamiento.",
-    "text4": "Tienes derecho a solicitar el acceso, la corrección o la eliminación de tus datos personales en cualquier momento.",
+    "text1": "El responsable del tratamiento de datos personales es EXPLORE WORLD S.R.L., con domicilio social en Cluj-Napoca, Str. Gruia, No. 58, Ap. 17, provincia de Cluj, Rumania, con NIF 45995975.",
+    "text2": "Recopilamos los datos minimos necesarios para el funcionamiento del servicio de reservas y la seguridad de tu cuenta: nombre, email, telefono y datos de facturacion, cuando corresponda.",
+    "text3": "El tratamiento se basa en la ejecucion de nuestro contrato contigo y en tu consentimiento explicito. No vendemos tus datos a terceros y usamos infraestructura segura para el almacenamiento.",
+    "text4": "Para operar la plataforma, colaboramos con los siguientes encargados del tratamiento, que actuan exclusivamente en nuestro nombre: Stripe (procesamiento de pagos), Supabase (base de datos y autenticacion), Meta/WhatsApp Business (notificaciones), y Resend (emails transaccionales).",
     "contactLabel": "Para solicitudes sobre datos personales, escríbenos a ",
-    "understoodBtn": "ENTENDIDO"
+    "understoodBtn": "ENTENDIDO",
+    "text5": "Conservamos tus datos mientras tu cuenta este activa, mas un periodo razonable despues, conforme a obligaciones legales contables y fiscales. Puedes solicitar en cualquier momento el acceso, rectificacion, portabilidad o eliminacion de tus datos personales.",
+    "text6": "Tambien tienes derecho a presentar una reclamacion ante la Autoridad Nacional de Supervision del Tratamiento de Datos Personales (ANSPDCP) de Rumania, si consideras que se han vulnerado tus derechos.",
+    "lastUpdated": "Ultima actualizacion: 18 de julio de 2026"
   },
   "resetPasswordPage": {
     "checkingSecurity": "Verificando seguridad...",
@@ -1931,5 +1936,10 @@
     "successDisabled": "La autenticacion en dos pasos ha sido desactivada.",
     "incorrectCode": "Codigo incorrecto. Intentalo de nuevo.",
     "confirmDisableMsg": "Seguro que quieres desactivar la autenticacion en dos pasos?"
+  },
+  "cookieConsent": {
+    "message": "Usamos cookies tecnicas esenciales para que tu cuenta funcione. Puedes elegir que opciones aceptar.",
+    "essentialOnlyBtn": "Solo esenciales",
+    "acceptAllBtn": "Aceptar todo"
   }
 }

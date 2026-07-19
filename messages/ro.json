@@ -92,9 +92,9 @@
     "logout": "IEȘIRE SISTEM",
     "footer": {
       "contact": "Contact Chronos",
-      "termeni": "Termeni",
-      "confidentialitate": "Confidențialitate",
-      "cookies": "Cookies",
+      "termeni": "Termeni si Conditii",
+      "confidentialitate": "Politica de Confidentialitate",
+      "cookies": "Politica Cookie-uri",
       "premium": "CHRONOS PREMIUM",
       "management": "MANAGEMENT",
       "secured": "SECURED",
@@ -1687,22 +1687,27 @@
   "termeniModal": {
     "title": "Termeni & ",
     "titleHighlight": "Condiții",
-    "text1": "Prin utilizarea platformei Chronos, sunteți de acord cu regulile noastre de funcționare.",
-    "text2": "Sistemul este destinat gestiunii eficiente a timpului și a resurselor profesionale.",
-    "text3": "Utilizatorul este responsabil pentru acuratețea informațiilor introduse în calendar.",
-    "text4": "Ne rezervăm dreptul de a actualiza acești termeni; continuarea utilizării platformei după modificări reprezintă acceptarea lor.",
+    "text1": "Prin utilizarea platformei Chronos, sunteti de acord cu urmatoarele reguli de functionare.",
+    "text2": "Sistemul este destinat gestiunii eficiente a timpului si a resurselor profesionale ale afacerii dumneavoastra.",
+    "text3": "Utilizatorul este responsabil pentru acuratetea informatiilor introduse in calendar si pentru confidentialitatea datelor de autentificare ale contului sau.",
+    "text4": "Ne rezervam dreptul de a actualiza acesti termeni; continuarea utilizarii platformei dupa modificari reprezinta acceptarea lor.",
     "contactLabel": "Întrebări despre termeni? Scrie-ne la ",
-    "acceptBtn": "ACCEPT"
+    "acceptBtn": "ACCEPT",
+    "text5": "Acest serviciu este operat de EXPLORE WORLD S.R.L., CUI 45995975, cu sediul social in Municipiul Cluj-Napoca, Str. Gruia, Nr. 58, Ap. 17, Judet Cluj. Orice litigiu se solutioneaza conform legislatiei romane in vigoare, de catre instantele competente din Romania.",
+    "lastUpdated": "Ultima actualizare: 18 iulie 2026"
   },
   "gdprModal": {
     "title": "Politică",
     "titleHighlight": "GDPR",
-    "text1": "Protecția datelor dumneavoastră este prioritară în sistemul Chronos.",
-    "text2": "Colectăm date minime necesare pentru funcționarea serviciului de programări și securitatea contului dumneavoastră.",
-    "text3": "Nu vindem datele dumneavoastră și folosim infrastructură securizată pentru stocare.",
-    "text4": "Aveți dreptul de a solicita accesul, corectarea sau ștergerea datelor dumneavoastră personale în orice moment.",
+    "text1": "Operatorul de date cu caracter personal este EXPLORE WORLD S.R.L., cu sediul social in Municipiul Cluj-Napoca, Str. Gruia, Nr. 58, Ap. 17, Judet Cluj, avand CUI 45995975, inregistrata la Registrul Comertului Cluj.",
+    "text2": "Colectam date minime necesare pentru functionarea serviciului de programari si securitatea contului dumneavoastra: nume, email, telefon, si date de facturare, dupa caz.",
+    "text3": "Prelucrarea se bazeaza pe executarea contractului dintre noi si pe consimtamantul dumneavoastra explicit. Nu vindem datele dumneavoastra catre terti si folosim infrastructura securizata pentru stocare.",
+    "text4": "Pentru functionarea platformei, colaboram cu urmatorii procesatori de date, care actioneaza exclusiv in numele nostru: Stripe (procesare plati), Supabase (baza de date si autentificare), Meta/WhatsApp Business (notificari), si Resend (email-uri tranzactionale).",
     "contactLabel": "Pentru solicitări privind datele personale, scrieți-ne la ",
-    "understoodBtn": "AM ÎNȚELES"
+    "understoodBtn": "AM ÎNȚELES",
+    "text5": "Pastram datele dumneavoastra cat timp contul este activ, plus o perioada rezonabila dupa incetarea acestuia, conform obligatiilor legale contabile si fiscale. Aveti dreptul de a solicita oricand accesul, corectarea, portabilitatea sau stergerea datelor dumneavoastra personale.",
+    "text6": "De asemenea, aveti dreptul de a depune o plangere la Autoritatea Nationala de Supraveghere a Prelucrarii Datelor cu Caracter Personal (ANSPDCP), daca considerati ca drepturile dumneavoastra privind protectia datelor au fost incalcate.",
+    "lastUpdated": "Ultima actualizare: 18 iulie 2026"
   },
   "resetPasswordPage": {
     "checkingSecurity": "Verificare Securitate...",
@@ -1931,5 +1936,10 @@
     "successDisabled": "Autentificarea in 2 pasi a fost dezactivata.",
     "incorrectCode": "Cod incorect. Incearca din nou.",
     "confirmDisableMsg": "Sigur vrei sa dezactivezi autentificarea in 2 pasi?"
+  },
+  "cookieConsent": {
+    "message": "Folosim cookie-uri tehnice esentiale pentru functionarea contului tau. Poti alege ce optiuni accepti.",
+    "essentialOnlyBtn": "Doar esentiale",
+    "acceptAllBtn": "Accept toate"
   }
 }
