@@ -512,9 +512,9 @@
           "prog": "150 marcações/mês",
           "features": [
             "Tudo do Free",
-            "Link de marcações online",
-            "Código QR pessoal",
-            "Relatórios avançados"
+            "150 reservas / mes",
+            "15 servicos",
+            "Relatorios basicos"
           ]
         },
         {
@@ -523,9 +523,10 @@
           "prog": "500 marcações/mês",
           "features": [
             "Tudo do Pro",
-            "WhatsApp automático a clientes",
-            "Notificações a especialistas",
-            "Suporte prioritário"
+            "Link de reserva + Codigo QR",
+            "Pagamento online na reserva",
+            "WhatsApp automatico para clientes",
+            "Notificacoes para especialistas"
           ]
         },
         {
@@ -1620,6 +1621,10 @@
             "highlight": "50"
           },
           {
+            "text": "Pagamento online na reserva",
+            "available": true
+          },
+          {
             "text": "Relatórios Avançados",
             "available": true,
             "highlight": "Avançados"
@@ -1655,6 +1660,10 @@
             "text": "Serviços ilimitados",
             "available": true,
             "highlight": "ilimitados"
+          },
+          {
+            "text": "Pagamento online na reserva",
+            "available": true
           },
           {
             "text": "Relatórios IA & Desempenho da Equipa",

@@ -512,9 +512,9 @@
           "prog": "150 app./mese",
           "features": [
             "Tutto da Free",
-            "Link prenotazioni online",
-            "Codice QR personale",
-            "Report avanzati"
+            "150 prenotazioni / mese",
+            "15 servizi",
+            "Report di base"
           ]
         },
         {
@@ -523,9 +523,10 @@
           "prog": "500 app./mese",
           "features": [
             "Tutto da Pro",
+            "Link prenotazione + Codice QR",
+            "Pagamento online alla prenotazione",
             "WhatsApp automatico ai clienti",
-            "Notifiche agli specialisti",
-            "Supporto prioritario"
+            "Notifiche agli specialisti"
           ]
         },
         {
@@ -1620,6 +1621,10 @@
             "highlight": "50"
           },
           {
+            "text": "Pagamento online alla prenotazione",
+            "available": true
+          },
+          {
             "text": "Report Avanzati",
             "available": true,
             "highlight": "Avanzati"
@@ -1655,6 +1660,10 @@
             "text": "Servizi illimitati",
             "available": true,
             "highlight": "illimitati"
+          },
+          {
+            "text": "Pagamento online alla prenotazione",
+            "available": true
           },
           {
             "text": "Report IA & Performance del Team",

@@ -511,10 +511,10 @@
           "price": "—",
           "prog": "150 időpont/hó",
           "features": [
-            "Minden a Free-ből",
-            "Online foglalási link",
-            "Személyes QR-kód",
-            "Fejlett riportok"
+            "Minden a Free-bol",
+            "150 foglalas / honap",
+            "15 szolgaltatas",
+            "Alapjelentesek"
           ]
         },
         {
@@ -522,10 +522,11 @@
           "price": "—",
           "prog": "500 időpont/hó",
           "features": [
-            "Minden a Pro-ból",
-            "Automatikus WhatsApp ügyfeleknek",
-            "Szakember-értesítések",
-            "Prioritásos támogatás"
+            "Minden a Pro-bol",
+            "Foglalasi link + QR-kod",
+            "Online fizetes foglalaskor",
+            "Automatikus WhatsApp ugyfeleknek",
+            "Szakember ertesitesek"
           ]
         },
         {
@@ -1620,6 +1621,10 @@
             "highlight": "50"
           },
           {
+            "text": "Online fizetes foglalaskor",
+            "available": true
+          },
+          {
             "text": "Fejlett Jelentések",
             "available": true,
             "highlight": "Fejlett"
@@ -1655,6 +1660,10 @@
             "text": "Korlátlan szolgáltatás",
             "available": true,
             "highlight": "Korlátlan"
+          },
+          {
+            "text": "Online fizetes foglalaskor",
+            "available": true
           },
           {
             "text": "MI Jelentések & Csapatteljesítmény",

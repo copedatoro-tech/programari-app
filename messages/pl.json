@@ -512,9 +512,9 @@
           "prog": "150 wizyt/mies.",
           "features": [
             "Wszystko z Free",
-            "Link rezerwacji online",
-            "Osobisty kod QR",
-            "Zaawansowane raporty"
+            "150 rezerwacji / miesiac",
+            "15 uslug",
+            "Podstawowe raporty"
           ]
         },
         {
@@ -523,9 +523,10 @@
           "prog": "500 wizyt/mies.",
           "features": [
             "Wszystko z Pro",
-            "Automatyczny WhatsApp do klientów",
-            "Powiadomienia dla specjalistów",
-            "Priorytetowe wsparcie"
+            "Link rezerwacji + Kod QR",
+            "Platnosc online przy rezerwacji",
+            "Automatyczny WhatsApp dla klientow",
+            "Powiadomienia dla specjalistow"
           ]
         },
         {
@@ -1620,6 +1621,10 @@
             "highlight": "50"
           },
           {
+            "text": "Platnosc online przy rezerwacji",
+            "available": true
+          },
+          {
             "text": "Zaawansowane Raporty",
             "available": true,
             "highlight": "Zaawansowane"
@@ -1655,6 +1660,10 @@
             "text": "Nielimitowane usługi",
             "available": true,
             "highlight": "Nielimitowane"
+          },
+          {
+            "text": "Platnosc online przy rezerwacji",
+            "available": true
           },
           {
             "text": "Raporty AI & Wydajność Zespołu",

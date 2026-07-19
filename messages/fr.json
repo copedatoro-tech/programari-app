@@ -512,9 +512,9 @@
           "prog": "150 rdv/mois",
           "features": [
             "Tout de Free",
-            "Lien de réservation en ligne",
-            "Code QR personnel",
-            "Rapports avancés"
+            "150 reservations / mois",
+            "15 services",
+            "Rapports de base"
           ]
         },
         {
@@ -523,9 +523,10 @@
           "prog": "500 rdv/mois",
           "features": [
             "Tout de Pro",
+            "Lien de reservation + Code QR",
+            "Paiement en ligne a la reservation",
             "WhatsApp automatique clients",
-            "Notifications spécialistes",
-            "Support prioritaire"
+            "Notifications specialistes"
           ]
         },
         {
@@ -1620,6 +1621,10 @@
             "highlight": "50"
           },
           {
+            "text": "Paiement en ligne a la reservation",
+            "available": true
+          },
+          {
             "text": "Rapports Avancés",
             "available": true,
             "highlight": "Avancés"
@@ -1655,6 +1660,10 @@
             "text": "Services illimités",
             "available": true,
             "highlight": "illimités"
+          },
+          {
+            "text": "Paiement en ligne a la reservation",
+            "available": true
           },
           {
             "text": "Rapports IA & Performance d'Équipe",

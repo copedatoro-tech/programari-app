@@ -512,9 +512,9 @@
           "prog": "150 appt/month",
           "features": [
             "Everything in Free",
-            "Online booking link",
-            "Personal QR code",
-            "Advanced reports"
+            "150 bookings / month",
+            "15 services",
+            "Basic reports"
           ]
         },
         {
@@ -523,9 +523,10 @@
           "prog": "500 appt/month",
           "features": [
             "Everything in Pro",
+            "Booking link + QR code",
+            "Online payment at booking",
             "Automatic WhatsApp to clients",
-            "Specialist notifications",
-            "Priority support"
+            "Staff notifications"
           ]
         },
         {
@@ -1620,6 +1621,10 @@
             "highlight": "50"
           },
           {
+            "text": "Online payment at booking",
+            "available": true
+          },
+          {
             "text": "Advanced Reports",
             "available": true,
             "highlight": "Advanced"
@@ -1655,6 +1660,10 @@
             "text": "Unlimited services",
             "available": true,
             "highlight": "Unlimited"
+          },
+          {
+            "text": "Online payment at booking",
+            "available": true
           },
           {
             "text": "AI Reports & Team Performance",

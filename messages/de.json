@@ -512,9 +512,9 @@
           "prog": "150 Termine/Monat",
           "features": [
             "Alles aus Free",
-            "Online-Buchungslink",
-            "Persönlicher QR-Code",
-            "Erweiterte Berichte"
+            "150 Buchungen / Monat",
+            "15 Dienstleistungen",
+            "Basisberichte"
           ]
         },
         {
@@ -523,9 +523,10 @@
           "prog": "500 Termine/Monat",
           "features": [
             "Alles aus Pro",
+            "Buchungslink + QR-Code",
+            "Online-Zahlung bei Buchung",
             "Automatisches WhatsApp an Kunden",
-            "Fachkraft-Benachrichtigungen",
-            "Priorität-Support"
+            "Mitarbeiterbenachrichtigungen"
           ]
         },
         {
@@ -1620,6 +1621,10 @@
             "highlight": "50"
           },
           {
+            "text": "Online-Zahlung bei Buchung",
+            "available": true
+          },
+          {
             "text": "Erweiterte Berichte",
             "available": true,
             "highlight": "Erweiterte"
@@ -1655,6 +1660,10 @@
             "text": "Unbegrenzte Leistungen",
             "available": true,
             "highlight": "Unbegrenzte"
+          },
+          {
+            "text": "Online-Zahlung bei Buchung",
+            "available": true
           },
           {
             "text": "KI-Berichte & Team-Leistung",

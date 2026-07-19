@@ -512,9 +512,9 @@
           "prog": "150 citas/mes",
           "features": [
             "Todo de Free",
-            "Enlace de reservas online",
-            "Código QR personal",
-            "Informes avanzados"
+            "150 reservas / mes",
+            "15 servicios",
+            "Informes basicos"
           ]
         },
         {
@@ -523,9 +523,10 @@
           "prog": "500 citas/mes",
           "features": [
             "Todo de Pro",
-            "WhatsApp automático a clientes",
-            "Notificaciones a especialistas",
-            "Soporte prioritario"
+            "Enlace de reserva + Codigo QR",
+            "Pago online al reservar",
+            "WhatsApp automatico a clientes",
+            "Notificaciones a especialistas"
           ]
         },
         {
@@ -1620,6 +1621,10 @@
             "highlight": "50"
           },
           {
+            "text": "Pago online al reservar",
+            "available": true
+          },
+          {
             "text": "Informes Avanzados",
             "available": true,
             "highlight": "Avanzados"
@@ -1655,6 +1660,10 @@
             "text": "Servicios ilimitados",
             "available": true,
             "highlight": "ilimitados"
+          },
+          {
+            "text": "Pago online al reservar",
+            "available": true
           },
           {
             "text": "Informes IA & Rendimiento del Equipo",

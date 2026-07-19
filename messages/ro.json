@@ -512,9 +512,9 @@
           "prog": "150 prog/lună",
           "features": [
             "Tot din Free",
-            "Link rezervări online",
-            "Cod QR personal",
-            "Rapoarte avansate"
+            "150 rezervări / lună",
+            "15 servicii",
+            "Rapoarte de bază"
           ]
         },
         {
@@ -523,9 +523,10 @@
           "prog": "500 prog/lună",
           "features": [
             "Tot din Pro",
+            "Link rezervări + Cod QR",
+            "Plată online la rezervare",
             "WhatsApp automat clienți",
-            "Notificări specialiști",
-            "Prioritate suport"
+            "Notificări specialiști"
           ]
         },
         {
@@ -768,6 +769,10 @@
             "highlight": "50"
           },
           {
+            "text": "Plată online la rezervare",
+            "available": true
+          },
+          {
             "text": "Rapoarte avansate",
             "available": true,
             "highlight": "avansate"
@@ -803,6 +808,10 @@
             "text": "Servicii nelimitate",
             "available": true,
             "highlight": "nelimitate"
+          },
+          {
+            "text": "Plată online la rezervare",
+            "available": true
           },
           {
             "text": "Rapoarte AI & performanță echipă",
