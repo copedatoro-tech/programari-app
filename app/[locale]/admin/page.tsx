@@ -1,6 +1,5 @@
 "use client";
 import { useState, useEffect, useMemo } from "react";
-import { createBrowserClient } from "@supabase/ssr";
 
 const PLAN_PRICES: Record<string, number> = {
   "CHRONOS PRO": 49,
@@ -15,6 +14,8 @@ const PLAN_COLORS: Record<string, string> = {
   "CHRONOS TEAM": "bg-violet-100 text-violet-700",
   "START (GRATUIT)": "bg-slate-100 text-slate-600",
 };
+
+const ALL_PLANS = ["CHRONOS FREE", "CHRONOS PRO", "CHRONOS ELITE", "CHRONOS TEAM"];
 
 interface Profile {
   id: string;
@@ -45,29 +46,71 @@ function daysLeft(dateStr: string | null): number | null {
   return Math.ceil(diff / (1000 * 60 * 60 * 24));
 }
 
+function exportToCsv(profiles: Profile[]) {
+  const headers = ["Nume", "Email", "Telefon", "Plan", "Status", "Trial activ", "Termeni acceptati", "Stripe Customer ID"];
+  const rows = profiles.map((p) => [
+    p.full_name || "",
+    p.email || "",
+    p.phone || "",
+    p.plan_type || "",
+    p.subscription_status || "",
+    isTrialActive(p.trial_started_at) ? "Da" : "Nu",
+    p.terms_accepted_at ? new Date(p.terms_accepted_at).toLocaleDateString("ro-RO") : "Neacceptat",
+    p.stripe_customer_id || "",
+  ]);
+  const csv = [headers, ...rows].map((r) => r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(",")).join("\n");
+  const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `chronos-useri-${new Date().toISOString().split("T")[0]}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
 export default function AdminPage() {
   const [profiles, setProfiles] = useState<Profile[] | null>(null);
   const [error, setError] = useState("");
   const [search, setSearch] = useState("");
   const [planFilter, setPlanFilter] = useState("all");
+  const [actionLoading, setActionLoading] = useState<string | null>(null);
 
-  const supabase = createBrowserClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  );
+  const fetchData = async () => {
+    const res = await fetch("/api/admin/users");
+    const data = await res.json();
+    if (res.ok) {
+      setProfiles(data.profiles);
+    } else {
+      setError(data.error || "Eroare necunoscută.");
+    }
+  };
 
   useEffect(() => {
-    const fetchData = async () => {
-      const res = await fetch("/api/admin/users");
-      const data = await res.json();
-      if (res.ok) {
-        setProfiles(data.profiles);
-      } else {
-        setError(data.error || "Eroare necunoscută.");
-      }
-    };
     fetchData();
   }, []);
+
+  const runAction = async (userId: string, action: string, plan?: string) => {
+    setActionLoading(userId + action);
+    try {
+      const res = await fetch("/api/admin/update-user", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId, action, plan }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        alert(data.error || "Eroare la acțiune.");
+      } else {
+        if (action === "reset_2fa") alert(`2FA resetat (${data.removed || 0} factori eliminați).`);
+        if (action === "delete_user") alert("Cont șters complet.");
+        await fetchData();
+      }
+    } catch (e: any) {
+      alert(e.message || "Eroare la acțiune.");
+    } finally {
+      setActionLoading(null);
+    }
+  };
 
   const stats = useMemo(() => {
     if (!profiles) return null;
@@ -112,9 +155,17 @@ export default function AdminPage() {
   return (
     <main className="min-h-screen bg-slate-50 py-10 px-4 md:px-8 font-sans">
       <div className="max-w-7xl mx-auto">
-        <h1 className="text-3xl font-black italic uppercase tracking-tighter text-slate-900 mb-8">
-          Panou <span className="text-amber-500">Admin</span>
-        </h1>
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-8">
+          <h1 className="text-3xl font-black italic uppercase tracking-tighter text-slate-900">
+            Panou <span className="text-amber-500">Admin</span>
+          </h1>
+          <button
+            onClick={() => exportToCsv(profiles)}
+            className="px-5 py-3 bg-slate-900 text-white rounded-xl font-black uppercase text-[10px] hover:bg-amber-500 hover:text-slate-900 transition-all"
+          >
+            📥 Export CSV
+          </button>
+        </div>
 
         {/* Statistici rapide */}
         {stats && (
@@ -178,16 +229,18 @@ export default function AdminPage() {
                 <th className="p-4 text-[10px] font-black uppercase text-slate-400">Reînnoire</th>
                 <th className="p-4 text-[10px] font-black uppercase text-slate-400">Termeni</th>
                 <th className="p-4 text-[10px] font-black uppercase text-slate-400">Telefon</th>
+                <th className="p-4 text-[10px] font-black uppercase text-slate-400">Stripe</th>
+                <th className="p-4 text-[10px] font-black uppercase text-slate-400">Acțiuni</th>
               </tr>
             </thead>
             <tbody>
               {filtered.map((p) => {
                 const planKey = (p.plan_type || "").toUpperCase();
                 const trialActive = isTrialActive(p.trial_started_at);
-                const daysUntilRenewal = daysLeft(p.subscription_current_period_end);
+                const isBusy = (action: string) => actionLoading === p.id + action;
 
                 return (
-                  <tr key={p.id} className="border-b border-slate-50 hover:bg-slate-50 transition-colors">
+                  <tr key={p.id} className="border-b border-slate-50 hover:bg-slate-50 transition-colors align-top">
                     <td className="p-4">
                       <p className="font-bold text-slate-900">{p.full_name || "—"}</p>
                       <p className="text-slate-400 text-xs">{p.email}</p>
@@ -237,6 +290,85 @@ export default function AdminPage() {
                       )}
                     </td>
                     <td className="p-4 text-xs text-slate-500">{p.phone || "—"}</td>
+
+                    {/* ✅ Link direct către clientul Stripe, dacă există */}
+                    <td className="p-4 text-xs">
+                      {p.stripe_customer_id ? (
+                        <a
+                          href={`https://dashboard.stripe.com/customers/${p.stripe_customer_id}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-sky-600 font-bold hover:underline"
+                        >
+                          Vezi în Stripe ↗
+                        </a>
+                      ) : (
+                        <span className="text-slate-300">—</span>
+                      )}
+                    </td>
+
+                    {/* ✅ Acțiuni rapide, fără să mai umbli prin Supabase */}
+                    <td className="p-4 space-y-2 min-w-[190px]">
+                      {trialActive ? (
+                        <button
+                          onClick={() => {
+                            if (confirm(`Oprești trial-ul pentru ${p.email}?`)) runAction(p.id, "end_trial");
+                          }}
+                          disabled={isBusy("end_trial")}
+                          className="w-full px-3 py-1.5 bg-red-50 text-red-600 rounded-lg text-[10px] font-black uppercase hover:bg-red-100 disabled:opacity-40"
+                        >
+                          {isBusy("end_trial") ? "..." : "Oprește trial"}
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => {
+                            if (confirm(`Resetezi trial-ul (10 zile noi) pentru ${p.email}?`)) runAction(p.id, "reset_trial");
+                          }}
+                          disabled={isBusy("reset_trial")}
+                          className="w-full px-3 py-1.5 bg-amber-50 text-amber-700 rounded-lg text-[10px] font-black uppercase hover:bg-amber-100 disabled:opacity-40"
+                        >
+                          {isBusy("reset_trial") ? "..." : "Reset trial"}
+                        </button>
+                      )}
+
+                      <select
+                        value={p.plan_type || "CHRONOS FREE"}
+                        onChange={(e) => {
+                          const newPlan = e.target.value;
+                          if (confirm(`Schimbi manual planul lui ${p.email} in ${newPlan}?\n\nAtentie: NU porneste nicio taxare Stripe, doar acces.`)) {
+                            runAction(p.id, "set_plan", newPlan);
+                          }
+                        }}
+                        disabled={isBusy("set_plan")}
+                        className="w-full p-1.5 border border-slate-200 rounded-lg text-[10px] font-bold"
+                      >
+                        {ALL_PLANS.map((pl) => (
+                          <option key={pl} value={pl}>{pl}</option>
+                        ))}
+                      </select>
+
+                      <button
+                        onClick={() => {
+                          if (confirm(`Resetezi 2FA pentru ${p.email}? Userul va putea reactiva 2FA de la zero.`)) runAction(p.id, "reset_2fa");
+                        }}
+                        disabled={isBusy("reset_2fa")}
+                        className="w-full px-3 py-1.5 bg-sky-50 text-sky-700 rounded-lg text-[10px] font-black uppercase hover:bg-sky-100 disabled:opacity-40"
+                      >
+                        {isBusy("reset_2fa") ? "..." : "Reset 2FA"}
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          if (confirm(`ȘTERGI COMPLET contul ${p.email}?\n\nAceastă acțiune este ireversibilă.`)) {
+                            if (confirm("Ești absolut sigur? Nu se poate anula.")) runAction(p.id, "delete_user");
+                          }
+                        }}
+                        disabled={isBusy("delete_user")}
+                        className="w-full px-3 py-1.5 bg-red-600 text-white rounded-lg text-[10px] font-black uppercase hover:bg-red-700 disabled:opacity-40"
+                      >
+                        {isBusy("delete_user") ? "..." : "🗑️ Șterge cont"}
+                      </button>
+                    </td>
                   </tr>
                 );
               })}
@@ -246,6 +378,10 @@ export default function AdminPage() {
             <p className="text-center text-slate-400 py-10 text-sm">Niciun rezultat.</p>
           )}
         </div>
+
+        <p className="text-[10px] text-slate-400 font-medium mt-4">
+          ⚠️ Schimbarea manuală a planului acordă acces fără taxare Stripe. Ștergerea contului este ireversibilă. Folosește cu atenție.
+        </p>
       </div>
     </main>
   );
