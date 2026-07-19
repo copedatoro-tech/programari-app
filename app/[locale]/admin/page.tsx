@@ -222,7 +222,8 @@ export default function AdminPage() {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-slate-100 text-left">
-                <th className="p-4 text-[10px] font-black uppercase text-slate-400">Nume / Email</th>
+                <th className="p-4 text-[10px] font-black uppercase text-slate-400">Nume</th>
+                <th className="p-4 text-[10px] font-black uppercase text-slate-400">Email</th>
                 <th className="p-4 text-[10px] font-black uppercase text-slate-400">Plan</th>
                 <th className="p-4 text-[10px] font-black uppercase text-slate-400">Status</th>
                 <th className="p-4 text-[10px] font-black uppercase text-slate-400">Trial</th>
@@ -243,7 +244,17 @@ export default function AdminPage() {
                   <tr key={p.id} className="border-b border-slate-50 hover:bg-slate-50 transition-colors align-top">
                     <td className="p-4">
                       <p className="font-bold text-slate-900">{p.full_name || "—"}</p>
-                      <p className="text-slate-400 text-xs">{p.email}</p>
+                    </td>
+                    <td className="p-4">
+                      <button
+                        onClick={() => {
+                          navigator.clipboard.writeText(p.email || "");
+                        }}
+                        title="Click pentru a copia"
+                        className="font-bold text-slate-800 text-[13px] hover:text-amber-600 transition-colors text-left"
+                      >
+                        {p.email}
+                      </button>
                     </td>
                     <td className="p-4">
                       <span className={`px-2.5 py-1 rounded-lg text-[10px] font-black uppercase ${PLAN_COLORS[planKey] || "bg-slate-100 text-slate-600"}`}>
