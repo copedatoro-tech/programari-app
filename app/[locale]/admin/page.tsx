@@ -219,8 +219,9 @@ export default function AdminPage() {
 
         {/* Tabel */}
         <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-x-auto">
+          <div className="max-h-[480px] overflow-y-auto">
           <table className="w-full text-sm">
-            <thead>
+            <thead className="sticky top-0 bg-white z-10 shadow-sm">
               <tr className="border-b border-slate-100 text-left">
                 <th className="p-4 text-[10px] font-black uppercase text-slate-400">Nume</th>
                 <th className="p-4 text-[10px] font-black uppercase text-slate-400">Email</th>
@@ -388,6 +389,7 @@ export default function AdminPage() {
           {filtered.length === 0 && (
             <p className="text-center text-slate-400 py-10 text-sm">Niciun rezultat.</p>
           )}
+          </div>
         </div>
 
         <p className="text-[10px] text-slate-400 font-medium mt-4">
