@@ -30,6 +30,7 @@ interface Profile {
   trial_used: boolean | null;
   terms_accepted_at: string | null;
   stripe_customer_id: string | null;
+  manual_grant_expires_at: string | null;
   updated_at: string | null;
 }
 
@@ -74,6 +75,10 @@ export default function AdminPage() {
   const [search, setSearch] = useState("");
   const [planFilter, setPlanFilter] = useState("all");
   const [actionLoading, setActionLoading] = useState<string | null>(null);
+  // ✅ Selecție locală (per rând) pentru planul și numărul de zile alese,
+  // înainte de a acorda acces temporar sau permanent
+  const [pendingPlan, setPendingPlan] = useState<Record<string, string>>({});
+  const [pendingDays, setPendingDays] = useState<Record<string, number>>({});
 
   const fetchData = async () => {
     const res = await fetch("/api/admin/users");
@@ -89,13 +94,13 @@ export default function AdminPage() {
     fetchData();
   }, []);
 
-  const runAction = async (userId: string, action: string, plan?: string) => {
+  const runAction = async (userId: string, action: string, plan?: string, days?: number) => {
     setActionLoading(userId + action);
     try {
       const res = await fetch("/api/admin/update-user", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId, action, plan }),
+        body: JSON.stringify({ userId, action, plan, days }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -343,21 +348,61 @@ export default function AdminPage() {
                         </button>
                       )}
 
-                      <select
-                        value={p.plan_type || "CHRONOS FREE"}
-                        onChange={(e) => {
-                          const newPlan = e.target.value;
-                          if (confirm(`Schimbi manual planul lui ${p.email} in ${newPlan}?\n\nAtentie: NU porneste nicio taxare Stripe, doar acces.`)) {
-                            runAction(p.id, "set_plan", newPlan);
-                          }
-                        }}
-                        disabled={isBusy("set_plan")}
-                        className="w-full p-1.5 border border-slate-200 rounded-lg text-[10px] font-bold"
-                      >
-                        {ALL_PLANS.map((pl) => (
-                          <option key={pl} value={pl}>{pl}</option>
-                        ))}
-                      </select>
+                      <div className="space-y-1.5 bg-slate-50 rounded-lg p-2 border border-slate-100">
+                        <select
+                          value={pendingPlan[p.id] ?? p.plan_type ?? "CHRONOS FREE"}
+                          onChange={(e) => setPendingPlan((s) => ({ ...s, [p.id]: e.target.value }))}
+                          className="w-full p-1.5 border border-slate-200 rounded-lg text-[10px] font-bold"
+                        >
+                          {ALL_PLANS.map((pl) => (
+                            <option key={pl} value={pl}>{pl}</option>
+                          ))}
+                        </select>
+
+                        <button
+                          onClick={() => {
+                            const chosen = pendingPlan[p.id] ?? p.plan_type ?? "CHRONOS FREE";
+                            if (confirm(`Acces PERMANENT (fara expirare) la ${chosen} pentru ${p.email}?`)) {
+                              runAction(p.id, "set_plan", chosen);
+                            }
+                          }}
+                          disabled={isBusy("set_plan")}
+                          className="w-full px-2 py-1.5 bg-slate-900 text-white rounded-lg text-[9px] font-black uppercase hover:bg-slate-700 disabled:opacity-40"
+                        >
+                          {isBusy("set_plan") ? "..." : "Acces permanent"}
+                        </button>
+
+                        <div className="flex gap-1 items-center">
+                          <input
+                            type="number"
+                            min={1}
+                            max={3650}
+                            value={pendingDays[p.id] ?? 30}
+                            onChange={(e) => setPendingDays((s) => ({ ...s, [p.id]: Number(e.target.value) }))}
+                            className="w-14 p-1.5 border border-slate-200 rounded-lg text-[10px] font-bold text-center"
+                          />
+                          <span className="text-[9px] text-slate-400 font-bold">zile</span>
+                        </div>
+                        <button
+                          onClick={() => {
+                            const chosen = pendingPlan[p.id] ?? p.plan_type ?? "CHRONOS FREE";
+                            const chosenDays = pendingDays[p.id] ?? 30;
+                            if (confirm(`Acces TEMPORAR la ${chosen} pentru ${chosenDays} zile, pentru ${p.email}?\n\nDupa expirare revine automat la CHRONOS FREE.`)) {
+                              runAction(p.id, "grant_temp_access", chosen, chosenDays);
+                            }
+                          }}
+                          disabled={isBusy("grant_temp_access")}
+                          className="w-full px-2 py-1.5 bg-emerald-600 text-white rounded-lg text-[9px] font-black uppercase hover:bg-emerald-700 disabled:opacity-40"
+                        >
+                          {isBusy("grant_temp_access") ? "..." : "Acces temporar"}
+                        </button>
+
+                        {p.manual_grant_expires_at && new Date(p.manual_grant_expires_at) > new Date() && (
+                          <p className="text-[9px] text-emerald-700 font-bold text-center">
+                            expira {new Date(p.manual_grant_expires_at).toLocaleDateString("ro-RO")}
+                          </p>
+                        )}
+                      </div>
 
                       <button
                         onClick={() => {

@@ -24,7 +24,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Acces interzis." }, { status: 403 });
     }
 
-    const { userId, action, plan } = await req.json();
+    const { userId, action, plan, days } = await req.json();
     if (!userId || !action) {
       return NextResponse.json({ error: "Date incomplete." }, { status: 400 });
     }
@@ -57,14 +57,33 @@ export async function POST(req: Request) {
       if (!plan || !VALID_PLANS.includes(plan)) {
         return NextResponse.json({ error: "Plan invalid." }, { status: 400 });
       }
-      // ⚠️ Setare manuală, fără legătură cu Stripe — util pentru conturi
-      // de test sau acces gratuit acordat manual, dar NU pornește nicio taxare
+      // ⚠️ Setare manuală PERMANENTĂ, fără legătură cu Stripe — util pentru
+      // conturi de test sau acces gratuit acordat pe termen nelimitat
       const { error } = await supabaseAdmin
         .from("profiles")
-        .update({ plan_type: plan })
+        .update({ plan_type: plan, manual_grant_expires_at: null })
         .eq("id", userId);
       if (error) return NextResponse.json({ error: error.message }, { status: 500 });
       return NextResponse.json({ success: true });
+    }
+
+    if (action === "grant_temp_access") {
+      if (!plan || !VALID_PLANS.includes(plan)) {
+        return NextResponse.json({ error: "Plan invalid." }, { status: 400 });
+      }
+      const numDays = Number(days);
+      if (!numDays || numDays <= 0 || numDays > 3650) {
+        return NextResponse.json({ error: "Numar de zile invalid." }, { status: 400 });
+      }
+
+      const expiresAt = new Date(Date.now() + numDays * 24 * 60 * 60 * 1000).toISOString();
+
+      const { error } = await supabaseAdmin
+        .from("profiles")
+        .update({ plan_type: plan, manual_grant_expires_at: expiresAt })
+        .eq("id", userId);
+      if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+      return NextResponse.json({ success: true, expiresAt });
     }
 
     if (action === "reset_2fa") {

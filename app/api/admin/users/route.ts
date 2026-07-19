@@ -35,7 +35,7 @@ export async function GET() {
         id, email, full_name, phone, plan_type, subscription_status,
         subscription_current_period_end, subscription_cancel_at_period_end,
         trial_started_at, trial_used, terms_accepted_at, stripe_customer_id,
-        updated_at
+        manual_grant_expires_at, updated_at
       `)
       .order("updated_at", { ascending: false });
 
