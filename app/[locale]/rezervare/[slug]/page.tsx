@@ -205,7 +205,7 @@ function RezervareContent() {
 
   const fetchAdminIdBySlug = useCallback(async (slug: string) => {
     try {
-      const { data, error } = await supabase.from("profiles").select("id").eq("slug", slug).single();
+      const { data, error } = await supabase.from("profiles_public").select("id").eq("slug", slug).single();
       if (error) {
         if (error.code !== "PGRST116") setTechnicalError(true);
         return null;
@@ -224,7 +224,7 @@ function RezervareContent() {
       const [staffRes, servicesRes, profileRes] = await Promise.all([
         supabase.from("staff").select("*").eq("user_id", adminId).order("created_at", { ascending: false }),
         supabase.from("services").select("*").eq("user_id", adminId).order("created_at", { ascending: false }),
-        supabase.from("profiles").select("working_hours, manual_blocks, stripe_account_id, stripe_onboarded, currency, require_payment_at_booking, slug, avatar_url, full_name, phone, email").eq("id", adminId).single(),
+        supabase.from("profiles_public").select("working_hours, manual_blocks, has_stripe_account, stripe_onboarded, currency, require_payment_at_booking, slug, avatar_url, full_name, phone, email").eq("id", adminId).single(),
       ]);
       const hasTechnicalIssue =
         (staffRes.error && staffRes.error.code !== "PGRST116") ||
@@ -250,7 +250,7 @@ function RezervareContent() {
         }
         setPaymentConfig({
           required: !!profileRes.data.require_payment_at_booking,
-          onboarded: !!profileRes.data.stripe_onboarded && !!profileRes.data.stripe_account_id,
+          onboarded: !!profileRes.data.stripe_onboarded && !!profileRes.data.has_stripe_account,
           slug: profileRes.data.slug || null,
         });
       }
@@ -332,24 +332,15 @@ function RezervareContent() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
 
+  // 🔒 Nota securitate: canalul realtime de mai jos NU mai asculta tabelul "profiles"
+  // direct (RLS blocheaza acum accesul public la tabelul original). Configurarea
+  // salonului (program, blocari manuale, date de contact) se reimprospateaza printr-un
+  // polling usor la fiecare 60s in useEffect-ul separat de mai jos. Ramane neschimbat
+  // doar realtime-ul pentru "appointments" si "feedbacks", care nu sunt afectate.
   useEffect(() => {
     if (!adminId) return;
     configChannelRef.current = supabase
       .channel(`config-${adminId}`)
-      .on("postgres_changes",
-        { event: "*", schema: "public", table: "profiles", filter: `id=eq.${adminId}` },
-        (payload) => {
-          const newData = payload.new as any;
-          if (newData?.working_hours) setAdminWorkingHours(parseWH(newData.working_hours));
-          if (newData?.manual_blocks) setAdminManualBlocks(newData.manual_blocks as Record<string, string[]>);
-          setAdminProfile((prev) => ({
-            full_name: newData?.full_name ?? prev?.full_name ?? null,
-            avatar_url: newData?.avatar_url ?? prev?.avatar_url ?? null,
-            phone: newData?.phone ?? prev?.phone ?? null,
-            email: newData?.email ?? prev?.email ?? null,
-          }));
-        }
-      )
       .on("postgres_changes",
         { event: "*", schema: "public", table: "appointments", filter: `user_id=eq.${adminId}` },
         () => {
@@ -371,6 +362,18 @@ function RezervareContent() {
       .subscribe();
     return () => { if (configChannelRef.current) supabase.removeChannel(configChannelRef.current); };
   }, [adminId, fetchAppointmentsForDate, fetchFeedbacks]);
+
+  // 🔄 Polling pentru configurarea salonului (program, blocari manuale, date de contact),
+  // in locul realtime-ului de pe "profiles" care nu mai e disponibil public dupa fix-ul
+  // de securitate RLS. La fiecare 60s reimprospatam datele - suficient pentru o pagina
+  // de rezervare, unde programul de lucru nu se schimba in timp real.
+  useEffect(() => {
+    if (!adminId) return;
+    const interval = setInterval(() => {
+      fetchAdminConfig();
+    }, 60000);
+    return () => clearInterval(interval);
+  }, [adminId, fetchAdminConfig]);
 
   const updateBooking = (id: string, fields: Partial<typeof bookings[0]>) => {
     setBookings(prev => {
@@ -457,7 +460,7 @@ function RezervareContent() {
 
     setLoading(true);
     try {
-      const { data: profileData } = await supabase.from("profiles").select("plan_type").eq("id", adminId).single();
+      const { data: profileData } = await supabase.from("profiles_public").select("plan_type").eq("id", adminId).single();
       const plan = profileData?.plan_type || "START (GRATUIT)";
       const maxAppointments = PLAN_LIMITS[plan] ?? 30;
 
