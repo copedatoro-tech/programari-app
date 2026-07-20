@@ -163,7 +163,7 @@ export async function POST(req: Request) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        from: process.env.RESEND_FROM_EMAIL || "Chronos <notificari@programari-app.vercel.app>",
+        from: process.env.RESEND_FROM_EMAIL || "Chronos <notificari@chronosproductivity.com>",
         to: email,
         subject: c.subject(dataFormatata),
         html,

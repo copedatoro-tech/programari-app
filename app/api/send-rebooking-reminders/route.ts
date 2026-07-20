@@ -32,7 +32,7 @@ export async function GET(request: Request) {
       return NextResponse.json({ message: "Niciun salon cu funcția activată.", sent: 0 });
     }
 
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://programari-app.vercel.app";
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://www.chronosproductivity.com";
     let totalSent = 0;
     let totalSkipped = 0;
     const errors: string[] = [];
