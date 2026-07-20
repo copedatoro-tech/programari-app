@@ -183,7 +183,7 @@
           "⚠️ Activa la prueba de 10 días SOLO después de haber configurado completamente: Perfil, Configuración, Servicios y Especialistas",
           "🎁 La prueba te da acceso al plan Equipo (ilimitado) durante 10 días — no la desperdicies en la configuración",
           "📊 Free: 30 citas/mes · Pro: 150 · Elite: 500 · Equipo: ilimitado",
-          "💬 Los planes Elite y Equipo incluyen envío automático de mensajes de WhatsApp a clientes y especialistas",
+          "📧 Todos los planes incluyen confirmaciones y recordatorios automáticos enviados a los clientes por email",
           "🔓 El enlace de reservas, el código QR y los informes avanzados están disponibles desde el plan Pro"
         ],
         "tip": "¡No actives la prueba antes de configurar la aplicación — o perderás días valiosos de los 10 disponibles! Configura todo primero y luego actívala."
@@ -304,7 +304,7 @@
           },
           "phone": {
             "title": "Telefono del Cliente",
-            "desc": "Anade el numero de telefono — los mensajes de confirmacion y recordatorio se envian automaticamente por WhatsApp, si tienes el plan Elite o Team."
+            "desc": "Añade el número de teléfono del cliente — útil para contacto rápido y para el historial de su ficha."
           }
         },
         "abonamente": {
@@ -456,8 +456,8 @@
           "desc": "Los clientes dejan reseñas directamente en tu página pública de reservas, construyendo tu reputación online."
         },
         {
-          "titlu": "Confirmaciones y Recordatorios WhatsApp",
-          "desc": "Mensajes automáticos, enviados directamente por WhatsApp — confirmaciones de reserva, recordatorios un día antes."
+          "titlu": "Confirmaciones y Recordatorios Automáticos",
+          "desc": "Emails automáticos, enviados al instante — confirmaciones de reserva, recordatorios enviados un día antes."
         },
         {
           "titlu": "Código QR de Reserva Rápida",
@@ -525,7 +525,7 @@
             "Todo de Pro",
             "Enlace de reserva + Codigo QR",
             "Pago online al reservar",
-            "WhatsApp automatico a clientes",
+            "Notificaciones automáticas por email",
             "Notificaciones a especialistas"
           ]
         },
@@ -628,7 +628,7 @@
         {
           "emoji": "☕",
           "situation": "Estás tomando un café con amigos",
-          "notifTitle": "Recordatorio enviado por WhatsApp",
+          "notifTitle": "Recordatorio enviado automáticamente",
           "notifDesc": "Cliente avisado automáticamente, un día antes"
         },
         {
@@ -1074,9 +1074,9 @@
     },
     "rebooking": {
       "title": "Recordatorios de Regreso",
-      "subtitle": "Trae automáticamente a los clientes de vuelta, por WhatsApp, sin imponer una hora fija.",
+      "subtitle": "Trae automáticamente a los clientes de vuelta, por email, sin imponerles una hora fija.",
       "label": "Recordatorios Automáticos",
-      "desc": "Cada cliente recibe automáticamente un mensaje de WhatsApp en el momento adecuado para volver — calculado a partir de su propio patrón real de visitas, no una fecha fija para todos.",
+      "desc": "Cada cliente recibe automáticamente un email cuando es el momento adecuado para que vuelva — calculado a partir de su patrón real de visitas, no una fecha fija para todos.",
       "daysLabel": "Intervalo predeterminado (clientes nuevos, sin patrón aún)",
       "daysHint": "días desde la última visita"
     },
@@ -1087,7 +1087,7 @@
       "title": "Recordatorio Adicional (2 horas antes)",
       "subtitle": "Un último aviso, el mismo día de la cita, además del recordatorio del día anterior.",
       "label": "Recordatorio 2 Horas Antes",
-      "desc": "Opcional. Envía un mensaje corto de WhatsApp aproximadamente 2 horas antes de la cita — útil para clientes ocupados que olvidan fácilmente."
+      "desc": "Opcional. Envía un email breve aproximadamente 2 horas antes de la cita — útil para clientes ocupados que suelen olvidar."
     }
   },
   "calendarPage": {
@@ -1558,10 +1558,6 @@
           {
             "text": "Reseñas de clientes",
             "available": false
-          },
-          {
-            "text": "Notificaciones de WhatsApp",
-            "available": false
           }
         ]
       },
@@ -1592,10 +1588,6 @@
           },
           {
             "text": "Reseñas de clientes",
-            "available": false
-          },
-          {
-            "text": "Notificaciones de WhatsApp",
             "available": false
           }
         ]
@@ -1634,7 +1626,7 @@
             "available": true
           },
           {
-            "text": "Confirmaciones y Recordatorios WhatsApp (300/mes)",
+            "text": "Confirmaciones y Recordatorios Email (300/mes)",
             "available": true,
             "highlight": "300/mes"
           }
@@ -1675,7 +1667,7 @@
             "available": true
           },
           {
-            "text": "Confirmaciones y Recordatorios WhatsApp Ilimitados",
+            "text": "Confirmaciones y Recordatorios Email Ilimitado",
             "available": true,
             "highlight": "Ilimitados"
           }
@@ -1711,7 +1703,7 @@
     "text1": "El responsable del tratamiento de datos personales es EXPLORE WORLD S.R.L., con domicilio social en Cluj-Napoca, Str. Gruia, No. 58, Ap. 17, provincia de Cluj, Rumania, con NIF 45995975.",
     "text2": "Recopilamos los datos minimos necesarios para el funcionamiento del servicio de reservas y la seguridad de tu cuenta: nombre, email, telefono y datos de facturacion, cuando corresponda.",
     "text3": "El tratamiento se basa en la ejecucion de nuestro contrato contigo y en tu consentimiento explicito. No vendemos tus datos a terceros y usamos infraestructura segura para el almacenamiento.",
-    "text4": "Para operar la plataforma, colaboramos con los siguientes encargados del tratamiento, que actuan exclusivamente en nuestro nombre: Stripe (procesamiento de pagos), Supabase (base de datos y autenticacion), Meta/WhatsApp Business (notificaciones), y Resend (emails transaccionales).",
+    "text4": "Para el funcionamiento de la plataforma, colaboramos con los siguientes encargados del tratamiento de datos, que actúan exclusivamente en nuestro nombre: Stripe (procesamiento de pagos), Supabase (base de datos y autenticación) y Resend (emails transaccionales).",
     "contactLabel": "Para solicitudes sobre datos personales, escríbenos a ",
     "understoodBtn": "ENTENDIDO",
     "text5": "Conservamos tus datos mientras tu cuenta este activa, mas un periodo razonable despues, conforme a obligaciones legales contables y fiscales. Puedes solicitar en cualquier momento el acceso, rectificacion, portabilidad o eliminacion de tus datos personales.",

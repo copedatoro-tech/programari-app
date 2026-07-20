@@ -183,7 +183,7 @@
           "⚠️ Aktywuj 10-dniowy okres próbny TYLKO po pełnym skonfigurowaniu: Profilu, Ustawień, Usług i Specjalistów",
           "🎁 Okres próbny daje dostęp do planu Zespół (nieograniczony) na 10 dni — nie marnuj go na konfigurację",
           "📊 Free: 30 wizyt/mies. · Pro: 150 · Elite: 500 · Zespół: nieograniczony",
-          "💬 Plany Elite i Zespół obejmują automatyczne wysyłanie wiadomości WhatsApp do klientów i specjalistów",
+          "📧 Wszystkie plany obejmują automatyczne potwierdzenia i przypomnienia wysyłane do klientów e-mailem",
           "🔓 Link rezerwacji, kod QR i zaawansowane raporty są dostępne od planu Pro"
         ],
         "tip": "Nie aktywuj okresu próbnego przed skonfigurowaniem aplikacji — inaczej stracisz cenne dni z 10 dostępnych! Najpierw skonfiguruj wszystko, potem aktywuj."
@@ -304,7 +304,7 @@
           },
           "phone": {
             "title": "Telefon Klienta",
-            "desc": "Dodaj numer telefonu — wiadomosci potwierdzajace i przypominajace sa automatycznie wysylane przez WhatsApp, jesli masz plan Elite lub Team."
+            "desc": "Dodaj numer telefonu klienta — przydatny do szybkiego kontaktu i historii w jego karcie."
           }
         },
         "abonamente": {
@@ -456,8 +456,8 @@
           "desc": "Klienci zostawiają opinie bezpośrednio na Twojej publicznej stronie rezerwacji, budując Twoją reputację online."
         },
         {
-          "titlu": "Potwierdzenia & Przypomnienia WhatsApp",
-          "desc": "Automatyczne wiadomości, wysyłane bezpośrednio przez WhatsApp — potwierdzenia rezerwacji, przypomnienia dzień wcześniej."
+          "titlu": "Automatyczne Potwierdzenia i Przypomnienia",
+          "desc": "Automatyczne e-maile, wysyłane natychmiast — potwierdzenia rezerwacji, przypomnienia wysyłane dzień wcześniej."
         },
         {
           "titlu": "Kod QR do Szybkiej Rezerwacji",
@@ -525,7 +525,7 @@
             "Wszystko z Pro",
             "Link rezerwacji + Kod QR",
             "Platnosc online przy rezerwacji",
-            "Automatyczny WhatsApp dla klientow",
+            "Automatyczne powiadomienia e-mail",
             "Powiadomienia dla specjalistow"
           ]
         },
@@ -628,7 +628,7 @@
         {
           "emoji": "☕",
           "situation": "Pijesz kawę ze znajomymi",
-          "notifTitle": "Przypomnienie wysłane przez WhatsApp",
+          "notifTitle": "Przypomnienie wysłane automatycznie",
           "notifDesc": "Klient powiadomiony automatycznie, dzień wcześniej"
         },
         {
@@ -1074,9 +1074,9 @@
     },
     "rebooking": {
       "title": "Przypomnienia o Powrocie",
-      "subtitle": "Automatycznie sprowadza klientów z powrotem, przez WhatsApp, bez narzucania stałej godziny.",
+      "subtitle": "Automatycznie przypomina klientom o powrocie, e-mailem, bez narzucania stałej godziny.",
       "label": "Automatyczne Przypomnienia",
-      "desc": "Każdy klient automatycznie otrzymuje wiadomość WhatsApp w odpowiednim momencie na powrót — obliczonym na podstawie jego rzeczywistego wzorca wizyt, a nie stałej daty dla wszystkich.",
+      "desc": "Każdy klient automatycznie otrzymuje e-mail we właściwym momencie na powrót — obliczonym na podstawie jego rzeczywistego wzorca wizyt, a nie stałej daty dla wszystkich.",
       "daysLabel": "Domyślny interwał (nowi klienci, brak jeszcze wzorca)",
       "daysHint": "dni od ostatniej wizyty"
     },
@@ -1087,7 +1087,7 @@
       "title": "Dodatkowe Przypomnienie (2 godziny wcześniej)",
       "subtitle": "Ostatnie przypomnienie, w dniu wizyty, oprócz przypomnienia z dnia poprzedniego.",
       "label": "Przypomnienie 2 Godziny Wcześniej",
-      "desc": "Opcjonalne. Wysyła krótką wiadomość WhatsApp około 2 godziny przed wizytą — przydatne dla zapracowanych klientów, którzy łatwo zapominają."
+      "desc": "Opcjonalnie. Wysyła krótki e-mail około 2 godziny przed wizytą — przydatne dla zapracowanych klientów, którzy łatwo zapominają."
     }
   },
   "calendarPage": {
@@ -1558,10 +1558,6 @@
           {
             "text": "Opinie klientów",
             "available": false
-          },
-          {
-            "text": "Powiadomienia WhatsApp",
-            "available": false
           }
         ]
       },
@@ -1592,10 +1588,6 @@
           },
           {
             "text": "Opinie klientów",
-            "available": false
-          },
-          {
-            "text": "Powiadomienia WhatsApp",
             "available": false
           }
         ]
@@ -1634,7 +1626,7 @@
             "available": true
           },
           {
-            "text": "Potwierdzenia i Przypomnienia WhatsApp (300/mies.)",
+            "text": "Potwierdzenia i Przypomnienia Email (300/miesiąc)",
             "available": true,
             "highlight": "300/mies."
           }
@@ -1675,7 +1667,7 @@
             "available": true
           },
           {
-            "text": "Nieograniczone Potwierdzenia i Przypomnienia WhatsApp",
+            "text": "Potwierdzenia i Przypomnienia Email Bez limitu",
             "available": true,
             "highlight": "Nieograniczone"
           }
@@ -1711,7 +1703,7 @@
     "text1": "Administratorem danych osobowych jest EXPLORE WORLD S.R.L., z siedziba w Cluj-Napoca, Str. Gruia, Nr. 58, Ap. 17, okreg Cluj, Rumunia, NIP 45995975.",
     "text2": "Zbieramy minimalne dane niezbedne do dzialania uslugi rezerwacji i bezpieczenstwa Twojego konta: imie i nazwisko, email, telefon oraz dane rozliczeniowe, jesli dotyczy.",
     "text3": "Przetwarzanie opiera sie na wykonaniu naszej umowy z Toba oraz na Twojej wyraznej zgodzie. Nie sprzedajemy Twoich danych osobom trzecim i uzywamy bezpiecznej infrastruktury do przechowywania.",
-    "text4": "Aby platforma dzialala, wspolpracujemy z nastepujacymi podmiotami przetwarzajacymi dane, dzialajacymi wylacznie w naszym imieniu: Stripe (platnosci), Supabase (baza danych i uwierzytelnianie), Meta/WhatsApp Business (powiadomienia) oraz Resend (emaile transakcyjne).",
+    "text4": "Dla funkcjonowania platformy współpracujemy z następującymi podmiotami przetwarzającymi dane, działającymi wyłącznie w naszym imieniu: Stripe (przetwarzanie płatności), Supabase (baza danych i uwierzytelnianie) oraz Resend (e-maile transakcyjne).",
     "contactLabel": "W sprawie próśb dotyczących danych osobowych napisz do nas: ",
     "understoodBtn": "ROZUMIEM",
     "text5": "Przechowujemy Twoje dane tak dlugo, jak Twoje konto jest aktywne, plus rozsadny okres potem, zgodnie z prawnymi obowiazkami ksiegowymi i podatkowymi. Mozesz w kazdej chwili zazadac dostepu, sprostowania, przenoszenia lub usuniecia swoich danych osobowych.",

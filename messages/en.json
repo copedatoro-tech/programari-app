@@ -183,7 +183,7 @@
           "⚠️ Activate the 10-day trial ONLY after you've fully set up: Profile, Settings, Services and Specialists",
           "🎁 The trial gives you access to the Team plan (unlimited) for 10 days — don't waste it on setup",
           "📊 Free: 30 appt/month · Pro: 150 · Elite: 500 · Team: unlimited",
-          "💬 The Elite and Team plans include automatic WhatsApp messages to clients and specialists",
+          "📧 All plans include automatic booking confirmations and reminders, sent to clients by email",
           "🔓 The booking link, QR code and advanced reports are available from the Pro plan"
         ],
         "tip": "Don't activate the trial before setting up the app — otherwise you'll waste precious days out of the 10! Set everything up first, then activate."
@@ -304,7 +304,7 @@
           },
           "phone": {
             "title": "Client Phone",
-            "desc": "Add the phone number — confirmation and reminder messages are sent to it automatically via WhatsApp, if you have the Elite or Team plan."
+            "desc": "Add the client's phone number — useful for quick contact and for the client's file history."
           }
         },
         "abonamente": {
@@ -456,8 +456,8 @@
           "desc": "Clients leave reviews directly on your public booking page, building your online reputation."
         },
         {
-          "titlu": "WhatsApp Confirmations & Reminders",
-          "desc": "Automatic messages, sent directly via WhatsApp — booking confirmations, reminders a day in advance."
+          "titlu": "Automatic Confirmations & Reminders",
+          "desc": "Automatic emails, sent instantly — booking confirmations, reminders sent one day in advance."
         },
         {
           "titlu": "Quick Booking QR Code",
@@ -525,7 +525,7 @@
             "Everything in Pro",
             "Booking link + QR code",
             "Online payment at booking",
-            "Automatic WhatsApp to clients",
+            "Automatic email notifications",
             "Staff notifications"
           ]
         },
@@ -628,7 +628,7 @@
         {
           "emoji": "☕",
           "situation": "You're having coffee with friends",
-          "notifTitle": "Reminder sent via WhatsApp",
+          "notifTitle": "Reminder sent automatically",
           "notifDesc": "Client notified automatically, a day in advance"
         },
         {
@@ -1074,9 +1074,9 @@
     },
     "rebooking": {
       "title": "Rebooking Reminders",
-      "subtitle": "Automatically brings clients back, via WhatsApp, without forcing a fixed time.",
+      "subtitle": "Automatically brings clients back, by email, without forcing a fixed time.",
       "label": "Automatic Reminders",
-      "desc": "Each client automatically receives a WhatsApp message when it's the right time for them to come back — calculated from their real visit pattern, not one fixed date for everyone.",
+      "desc": "Each client automatically receives an email when it's the right time for them to come back — calculated from their actual visit pattern, not a fixed date for everyone.",
       "daysLabel": "Default interval (for new clients, no pattern yet)",
       "daysHint": "days since last visit"
     },
@@ -1087,7 +1087,7 @@
       "title": "Extra Reminder (2 hours before)",
       "subtitle": "One last nudge, on the day of the appointment, in addition to the day-before reminder.",
       "label": "2-Hour Reminder",
-      "desc": "Optional. Sends a short WhatsApp message about 2 hours before the appointment — useful for busy clients who forget easily."
+      "desc": "Optional. Sends a short email about 2 hours before the appointment — useful for busy clients who tend to forget."
     }
   },
   "calendarPage": {
@@ -1558,10 +1558,6 @@
           {
             "text": "Client reviews",
             "available": false
-          },
-          {
-            "text": "WhatsApp notifications",
-            "available": false
           }
         ]
       },
@@ -1592,10 +1588,6 @@
           },
           {
             "text": "Client reviews",
-            "available": false
-          },
-          {
-            "text": "WhatsApp notifications",
             "available": false
           }
         ]
@@ -1634,7 +1626,7 @@
             "available": true
           },
           {
-            "text": "WhatsApp Confirmations & Reminders (300/month)",
+            "text": "Confirmations & Reminders Email (300/month)",
             "available": true,
             "highlight": "300/month"
           }
@@ -1675,7 +1667,7 @@
             "available": true
           },
           {
-            "text": "Unlimited WhatsApp Confirmations & Reminders",
+            "text": "Confirmations & Reminders Email Unlimited",
             "available": true,
             "highlight": "Unlimited"
           }
@@ -1711,7 +1703,7 @@
     "text1": "The personal data controller is EXPLORE WORLD S.R.L., with registered office in Cluj-Napoca, Str. Gruia, No. 58, Ap. 17, Cluj County, Romania, having Tax ID 45995975, registered with the Cluj Trade Registry.",
     "text2": "We collect the minimum data necessary for the booking service to function and to secure your account: name, email, phone number, and billing details where applicable.",
     "text3": "Processing is based on the performance of our contract with you and on your explicit consent. We do not sell your data to third parties and use secure infrastructure for storage.",
-    "text4": "To operate the platform, we work with the following data processors, acting solely on our behalf: Stripe (payment processing), Supabase (database and authentication), Meta/WhatsApp Business (notifications), and Resend (transactional emails).",
+    "text4": "For the platform to function, we work with the following data processors, acting exclusively on our behalf: Stripe (payment processing), Supabase (database and authentication), and Resend (transactional emails).",
     "contactLabel": "For requests regarding personal data, write to us at ",
     "understoodBtn": "GOT IT",
     "text5": "We retain your data for as long as your account is active, plus a reasonable period afterwards, in accordance with legal accounting and tax obligations. You may request access, correction, portability, or deletion of your personal data at any time.",

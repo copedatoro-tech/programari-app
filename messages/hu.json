@@ -183,7 +183,7 @@
           "⚠️ A 10 napos próbaidőszakot CSAK azután aktiváld, hogy teljesen beállítottad: Profil, Beállítások, Szolgáltatások és Szakemberek",
           "🎁 A próbaidőszak 10 napig hozzáférést biztosít a Csapat csomaghoz (korlátlan) — ne pazarold el a beállításra",
           "📊 Free: 30 időpont/hó · Pro: 150 · Elite: 500 · Csapat: korlátlan",
-          "💬 Az Elite és Csapat csomag automatikus WhatsApp üzenetküldést tartalmaz ügyfeleknek és szakembereknek",
+          "📧 Minden csomag automatikus foglalás-visszaigazolást és emlékeztetőt tartalmaz, amit emailben küldünk az ügyfeleknek",
           "🔓 A foglalási link, a QR-kód és a fejlett riportok a Pro csomagtól elérhetők"
         ],
         "tip": "Ne aktiváld a próbaidőszakot az alkalmazás beállítása előtt — különben értékes napokat veszítesz a 10-ből! Először állíts be mindent, csak utána aktiválj."
@@ -304,7 +304,7 @@
           },
           "phone": {
             "title": "Ugyfel Telefonszama",
-            "desc": "Adja hozza a telefonszamot — a visszaigazolo es emlekezteto uzenetek automatikusan WhatsAppon keresztul kerulnek elkuldesre, ha Elite vagy Team csomagja van."
+            "desc": "Add hozzá az ügyfél telefonszámát — hasznos a gyors kapcsolatfelvételhez és az ügyfél dossziéjának előzményeihez."
           }
         },
         "abonamente": {
@@ -456,8 +456,8 @@
           "desc": "Az ügyfelek közvetlenül a nyilvános foglalási oldaladon hagynak véleményt, felépítve online hírnevedet."
         },
         {
-          "titlu": "WhatsApp Visszaigazolások & Emlékeztetők",
-          "desc": "Automatikus üzenetek, közvetlenül WhatsAppon küldve — foglalás-visszaigazolások, emlékeztetők egy nappal korábban."
+          "titlu": "Automatikus Visszaigazolások és Emlékeztetők",
+          "desc": "Automatikus emailek, azonnal elküldve — foglalás-visszaigazolások, egy nappal korábban küldött emlékeztetők."
         },
         {
           "titlu": "Gyors Foglalási QR-kód",
@@ -525,7 +525,7 @@
             "Minden a Pro-bol",
             "Foglalasi link + QR-kod",
             "Online fizetes foglalaskor",
-            "Automatikus WhatsApp ugyfeleknek",
+            "Automatikus email értesítések",
             "Szakember ertesitesek"
           ]
         },
@@ -628,7 +628,7 @@
         {
           "emoji": "☕",
           "situation": "Kávézol a barátaiddal",
-          "notifTitle": "Emlékeztető elküldve WhatsAppon",
+          "notifTitle": "Emlékeztető automatikusan elküldve",
           "notifDesc": "Az ügyfél automatikusan értesítve, egy nappal korábban"
         },
         {
@@ -1074,9 +1074,9 @@
     },
     "rebooking": {
       "title": "Visszatérési Emlékeztetők",
-      "subtitle": "Automatikusan visszahozza az ügyfeleket, WhatsAppon, anélkül hogy rögzített időpontot kényszerítene.",
+      "subtitle": "Automatikusan visszahozza az ügyfeleket, emailben, anélkül hogy fix időpontot kényszerítene.",
       "label": "Automatikus Emlékeztetők",
-      "desc": "Minden ügyfél automatikusan WhatsApp üzenetet kap a megfelelő időpontban a visszatéréshez — a saját valós látogatási mintázatából számolva, nem egy rögzített dátum mindenkinek.",
+      "desc": "Minden ügyfél automatikusan kap egy emailt, amikor számára a megfelelő idő van a visszatérésre — a valós látogatási mintázata alapján kiszámítva, nem egy fix dátum mindenkinek.",
       "daysLabel": "Alapértelmezett intervallum (új ügyfelek, még nincs mintázat)",
       "daysHint": "nap az utolsó látogatás óta"
     },
@@ -1087,7 +1087,7 @@
       "title": "Extra Emlékeztető (2 órával előtte)",
       "subtitle": "Egy utolsó jelzés, a foglalás napján, az előző napi emlékeztető mellett.",
       "label": "2 Órás Emlékeztető",
-      "desc": "Opcionális. Rövid WhatsApp üzenetet küld körülbelül 2 órával a foglalás előtt — hasznos elfoglalt ügyfeleknek, akik könnyen elfelejtik."
+      "desc": "Opcionális. Rövid emailt küld körülbelül 2 órával az időpont előtt — hasznos elfoglalt ügyfeleknek, akik könnyen elfelejtik."
     }
   },
   "calendarPage": {
@@ -1558,10 +1558,6 @@
           {
             "text": "Ügyfélvélemények",
             "available": false
-          },
-          {
-            "text": "WhatsApp értesítések",
-            "available": false
           }
         ]
       },
@@ -1592,10 +1588,6 @@
           },
           {
             "text": "Ügyfélvélemények",
-            "available": false
-          },
-          {
-            "text": "WhatsApp értesítések",
             "available": false
           }
         ]
@@ -1634,7 +1626,7 @@
             "available": true
           },
           {
-            "text": "WhatsApp Visszaigazolások & Emlékeztetők (300/hó)",
+            "text": "Visszaigazolások és Emlékeztetők Email (300/hó)",
             "available": true,
             "highlight": "300/hó"
           }
@@ -1675,7 +1667,7 @@
             "available": true
           },
           {
-            "text": "Korlátlan WhatsApp Visszaigazolások & Emlékeztetők",
+            "text": "Visszaigazolások és Emlékeztetők Email Korlátlan",
             "available": true,
             "highlight": "Korlátlan"
           }
@@ -1711,7 +1703,7 @@
     "text1": "A szemelyes adatok kezeloje az EXPLORE WORLD S.R.L., szekhelye Kolozsvar, Gruia utca, 58. szam, 17. lakas, Kolozs megye, Romania, adoszama 45995975.",
     "text2": "A foglalasi szolgaltatas mukodesehez es fiokod biztonsagahoz szukseges minimalis adatokat gyujtjuk: nev, email, telefonszam, es szamlazasi adatok, ha alkalmazhato.",
     "text3": "Az adatkezeles a veled kotott szerzodes teljesitesen es kifejezett hozzajarulasodon alapul. Nem adjuk el adataidat harmadik feleknek, es biztonsagos infrastrukturat hasznalunk a tarolashoz.",
-    "text4": "A platform mukodtetesehez az alabbi adatfeldolgozokkal dolgozunk egyutt, akik kizarolag a nevunkben jarnak el: Stripe (fizetesek), Supabase (adatbazis es hitelesites), Meta/WhatsApp Business (ertesitesek), es Resend (tranzakcios emailek).",
+    "text4": "A platform működéséhez a következő adatfeldolgozókkal működünk együtt, akik kizárólag a nevünkben járnak el: Stripe (fizetésfeldolgozás), Supabase (adatbázis és hitelesítés) és Resend (tranzakciós emailek).",
     "contactLabel": "Személyes adatokkal kapcsolatos kérésekért írj nekünk: ",
     "understoodBtn": "ÉRTETTEM",
     "text5": "Adataidat addig oriztuk meg, amig fiokod aktiv, plusz egy esszeru ideig azutan, a torvenyes szamviteli es ado kotelezettsegeknek megfeleloen. Barmikor kerhetit a szemelyes adataidhoz valo hozzaferest, azok helyesbiteset, hordozhatosagat vagy torleset.",

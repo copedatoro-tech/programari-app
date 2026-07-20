@@ -183,7 +183,7 @@
           "⚠️ Ativa o teste de 10 dias APENAS depois de teres configurado completamente: Perfil, Definições, Serviços e Especialistas",
           "🎁 O teste dá-te acesso ao plano Equipa (ilimitado) durante 10 dias — não o desperdices na configuração",
           "📊 Free: 30 marcações/mês · Pro: 150 · Elite: 500 · Equipa: ilimitado",
-          "💬 Os planos Elite e Equipa incluem envio automático de mensagens WhatsApp a clientes e especialistas",
+          "📧 Todos os planos incluem confirmações e lembretes automáticos enviados aos clientes por email",
           "🔓 O link de marcações, o código QR e os relatórios avançados estão disponíveis a partir do plano Pro"
         ],
         "tip": "Não ativa o teste antes de configurar a aplicação — caso contrário perdes dias preciosos dos 10 disponíveis! Configura tudo primeiro e só depois ativa."
@@ -304,7 +304,7 @@
           },
           "phone": {
             "title": "Telefone do Cliente",
-            "desc": "Adicione o numero de telefone — as mensagens de confirmacao e lembrete sao enviadas automaticamente via WhatsApp, se tiver o plano Elite ou Team."
+            "desc": "Adicione o número de telefone do cliente — útil para contacto rápido e para o histórico da sua ficha."
           }
         },
         "abonamente": {
@@ -456,8 +456,8 @@
           "desc": "Os clientes deixam avaliações diretamente na tua página pública de marcação, construindo a tua reputação online."
         },
         {
-          "titlu": "Confirmações & Lembretes WhatsApp",
-          "desc": "Mensagens automáticas, enviadas diretamente via WhatsApp — confirmações de marcação, lembretes um dia antes."
+          "titlu": "Confirmações e Lembretes Automáticos",
+          "desc": "Emails automáticos, enviados instantaneamente — confirmações de reserva, lembretes enviados um dia antes."
         },
         {
           "titlu": "Código QR de Marcação Rápida",
@@ -525,7 +525,7 @@
             "Tudo do Pro",
             "Link de reserva + Codigo QR",
             "Pagamento online na reserva",
-            "WhatsApp automatico para clientes",
+            "Notificações automáticas por email",
             "Notificacoes para especialistas"
           ]
         },
@@ -628,7 +628,7 @@
         {
           "emoji": "☕",
           "situation": "Estás a tomar um café com amigos",
-          "notifTitle": "Lembrete enviado via WhatsApp",
+          "notifTitle": "Lembrete enviado automaticamente",
           "notifDesc": "Cliente avisado automaticamente, um dia antes"
         },
         {
@@ -1074,9 +1074,9 @@
     },
     "rebooking": {
       "title": "Lembretes de Regresso",
-      "subtitle": "Traz automaticamente os clientes de volta, via WhatsApp, sem impor uma hora fixa.",
+      "subtitle": "Traz automaticamente os clientes de volta, por email, sem lhes impor uma hora fixa.",
       "label": "Lembretes Automáticos",
-      "desc": "Cada cliente recebe automaticamente uma mensagem WhatsApp no momento certo para regressar — calculado a partir do seu próprio padrão real de visitas, não uma data fixa para todos.",
+      "desc": "Cada cliente recebe automaticamente um email quando é o momento certo para ele voltar — calculado a partir do seu padrão real de visitas, não uma data fixa para todos.",
       "daysLabel": "Intervalo padrão (novos clientes, ainda sem padrão)",
       "daysHint": "dias desde a última visita"
     },
@@ -1087,7 +1087,7 @@
       "title": "Lembrete Adicional (2 horas antes)",
       "subtitle": "Um último aviso, no próprio dia da marcação, além do lembrete do dia anterior.",
       "label": "Lembrete 2 Horas Antes",
-      "desc": "Opcional. Envia uma mensagem curta de WhatsApp cerca de 2 horas antes da marcação — útil para clientes ocupados que se esquecem facilmente."
+      "desc": "Opcional. Envia um email curto cerca de 2 horas antes da marcação — útil para clientes ocupados, que esquecem facilmente."
     }
   },
   "calendarPage": {
@@ -1558,10 +1558,6 @@
           {
             "text": "Avaliações de clientes",
             "available": false
-          },
-          {
-            "text": "Notificações WhatsApp",
-            "available": false
           }
         ]
       },
@@ -1592,10 +1588,6 @@
           },
           {
             "text": "Avaliações de clientes",
-            "available": false
-          },
-          {
-            "text": "Notificações WhatsApp",
             "available": false
           }
         ]
@@ -1634,7 +1626,7 @@
             "available": true
           },
           {
-            "text": "Confirmações & Lembretes WhatsApp (300/mês)",
+            "text": "Confirmações e Lembretes Email (300/mês)",
             "available": true,
             "highlight": "300/mês"
           }
@@ -1675,7 +1667,7 @@
             "available": true
           },
           {
-            "text": "Confirmações & Lembretes WhatsApp Ilimitados",
+            "text": "Confirmações e Lembretes Email Ilimitado",
             "available": true,
             "highlight": "Ilimitados"
           }
@@ -1711,7 +1703,7 @@
     "text1": "O responsavel pelo tratamento de dados pessoais e EXPLORE WORLD S.R.L., com sede em Cluj-Napoca, Str. Gruia, No. 58, Ap. 17, distrito de Cluj, Romenia, com NIF 45995975.",
     "text2": "Recolhemos os dados minimos necessarios para o funcionamento do servico de marcacoes e a seguranca da sua conta: nome, email, telefone, e dados de faturacao, quando aplicavel.",
     "text3": "O tratamento baseia-se na execucao do nosso contrato consigo e no seu consentimento explicito. Nao vendemos os seus dados a terceiros e utilizamos infraestrutura segura para armazenamento.",
-    "text4": "Para operar a plataforma, colaboramos com os seguintes subcontratantes, que atuam exclusivamente em nosso nome: Stripe (processamento de pagamentos), Supabase (base de dados e autenticacao), Meta/WhatsApp Business (notificacoes), e Resend (emails transacionais).",
+    "text4": "Para o funcionamento da plataforma, colaboramos com os seguintes subcontratantes, que atuam exclusivamente em nosso nome: Stripe (processamento de pagamentos), Supabase (base de dados e autenticação) e Resend (emails transacionais).",
     "contactLabel": "Para pedidos relacionados com dados pessoais, escreve-nos para ",
     "understoodBtn": "ENTENDI",
     "text5": "Conservamos os seus dados enquanto a sua conta estiver ativa, mais um periodo razoavel depois, de acordo com obrigacoes legais contabilisticas e fiscais. Pode solicitar a qualquer momento o acesso, retificacao, portabilidade ou eliminacao dos seus dados pessoais.",

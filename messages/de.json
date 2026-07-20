@@ -183,7 +183,7 @@
           "⚠️ Aktiviere die 10-tägige Testphase ERST, wenn du vollständig konfiguriert hast: Profil, Einstellungen, Leistungen und Fachkräfte",
           "🎁 Die Testphase gibt dir 10 Tage lang Zugriff auf den Team-Plan (unbegrenzt) — verschwende sie nicht mit der Einrichtung",
           "📊 Free: 30 Termine/Monat · Pro: 150 · Elite: 500 · Team: unbegrenzt",
-          "💬 Die Pläne Elite und Team beinhalten automatischen WhatsApp-Versand an Kunden und Fachkräfte",
+          "📧 Alle Pläne beinhalten automatische Buchungsbestätigungen und Erinnerungen, die per E-Mail an Kunden gesendet werden",
           "🔓 Buchungslink, QR-Code und erweiterte Berichte sind ab dem Pro-Plan verfügbar"
         ],
         "tip": "Aktiviere die Testphase nicht, bevor du die App eingerichtet hast — sonst verlierst du wertvolle Tage der 10! Richte zuerst alles ein, dann aktiviere."
@@ -304,7 +304,7 @@
           },
           "phone": {
             "title": "Kundentelefon",
-            "desc": "Fugen Sie die Telefonnummer hinzu — Bestatigungs- und Erinnerungsnachrichten werden automatisch per WhatsApp gesendet, wenn Sie den Elite- oder Team-Plan haben."
+            "desc": "Fügen Sie die Telefonnummer des Kunden hinzu — nützlich für schnellen Kontakt und für den Verlauf in der Kundenakte."
           }
         },
         "abonamente": {
@@ -456,8 +456,8 @@
           "desc": "Kunden hinterlassen Bewertungen direkt auf Ihrer öffentlichen Buchungsseite und bauen Ihren Online-Ruf auf."
         },
         {
-          "titlu": "WhatsApp Bestätigungen & Erinnerungen",
-          "desc": "Automatische Nachrichten, direkt per WhatsApp gesendet — Buchungsbestätigungen, Erinnerungen einen Tag im Voraus."
+          "titlu": "Automatische Bestätigungen & Erinnerungen",
+          "desc": "Automatische E-Mails, sofort versendet — Buchungsbestätigungen, Erinnerungen einen Tag im Voraus."
         },
         {
           "titlu": "Schnellbuchungs-QR-Code",
@@ -525,7 +525,7 @@
             "Alles aus Pro",
             "Buchungslink + QR-Code",
             "Online-Zahlung bei Buchung",
-            "Automatisches WhatsApp an Kunden",
+            "Automatische E-Mail-Benachrichtigungen",
             "Mitarbeiterbenachrichtigungen"
           ]
         },
@@ -628,7 +628,7 @@
         {
           "emoji": "☕",
           "situation": "Sie trinken Kaffee mit Freunden",
-          "notifTitle": "Erinnerung per WhatsApp gesendet",
+          "notifTitle": "Erinnerung automatisch gesendet",
           "notifDesc": "Kunde automatisch benachrichtigt, einen Tag im Voraus"
         },
         {
@@ -1074,9 +1074,9 @@
     },
     "rebooking": {
       "title": "Rückkehr-Erinnerungen",
-      "subtitle": "Bringt Kunden automatisch zurück, per WhatsApp, ohne eine feste Uhrzeit vorzugeben.",
+      "subtitle": "Bringt Kunden automatisch per E-Mail zurück, ohne eine feste Uhrzeit vorzugeben.",
       "label": "Automatische Erinnerungen",
-      "desc": "Jeder Kunde erhält automatisch eine WhatsApp-Nachricht zum richtigen Zeitpunkt für die Rückkehr — berechnet aus seinem echten Besuchsmuster, kein fester Termin für alle.",
+      "desc": "Jeder Kunde erhält automatisch eine E-Mail, wenn der richtige Zeitpunkt für ihn ist, wiederzukommen — berechnet aus seinem tatsächlichen Besuchsmuster, kein fester Termin für alle.",
       "daysLabel": "Standardintervall (für neue Kunden, noch kein Muster)",
       "daysHint": "Tage seit dem letzten Besuch"
     },
@@ -1087,7 +1087,7 @@
       "title": "Zusätzliche Erinnerung (2 Stunden vorher)",
       "subtitle": "Ein letzter Anstoß, am Tag des Termins, zusätzlich zur Erinnerung am Vortag.",
       "label": "2-Stunden-Erinnerung",
-      "desc": "Optional. Sendet eine kurze WhatsApp-Nachricht etwa 2 Stunden vor dem Termin — nützlich für vielbeschäftigte Kunden, die leicht vergessen."
+      "desc": "Optional. Sendet etwa 2 Stunden vor dem Termin eine kurze E-Mail — nützlich für vielbeschäftigte Kunden, die leicht vergessen."
     }
   },
   "calendarPage": {
@@ -1558,10 +1558,6 @@
           {
             "text": "Kundenbewertungen",
             "available": false
-          },
-          {
-            "text": "WhatsApp-Benachrichtigungen",
-            "available": false
           }
         ]
       },
@@ -1592,10 +1588,6 @@
           },
           {
             "text": "Kundenbewertungen",
-            "available": false
-          },
-          {
-            "text": "WhatsApp-Benachrichtigungen",
             "available": false
           }
         ]
@@ -1634,7 +1626,7 @@
             "available": true
           },
           {
-            "text": "WhatsApp Bestätigungen & Erinnerungen (300/Monat)",
+            "text": "Bestätigungen & Erinnerungen E-Mail (300/Monat)",
             "available": true,
             "highlight": "300/Monat"
           }
@@ -1675,7 +1667,7 @@
             "available": true
           },
           {
-            "text": "Unbegrenzte WhatsApp Bestätigungen & Erinnerungen",
+            "text": "Bestätigungen & Erinnerungen E-Mail Unbegrenzt",
             "available": true,
             "highlight": "Unbegrenzte"
           }
@@ -1711,7 +1703,7 @@
     "text1": "Der Verantwortliche fuer die Verarbeitung personenbezogener Daten ist EXPLORE WORLD S.R.L., mit Sitz in Cluj-Napoca, Str. Gruia, Nr. 58, Ap. 17, Kreis Cluj, Rumaenien, Steuernummer 45995975.",
     "text2": "Wir erheben die minimal notwendigen Daten fuer den Betrieb des Buchungsdienstes und die Sicherheit Ihres Kontos: Name, E-Mail, Telefonnummer und gegebenenfalls Rechnungsdaten.",
     "text3": "Die Verarbeitung basiert auf der Erfuellung unseres Vertrags mit Ihnen sowie auf Ihrer ausdruecklichen Einwilligung. Wir verkaufen Ihre Daten nicht an Dritte und nutzen sichere Infrastruktur zur Speicherung.",
-    "text4": "Zum Betrieb der Plattform arbeiten wir mit folgenden Auftragsverarbeitern zusammen, die ausschliesslich in unserem Namen handeln: Stripe (Zahlungsabwicklung), Supabase (Datenbank und Authentifizierung), Meta/WhatsApp Business (Benachrichtigungen) und Resend (Transaktions-E-Mails).",
+    "text4": "Für den Betrieb der Plattform arbeiten wir mit folgenden Auftragsverarbeitern zusammen, die ausschließlich in unserem Namen handeln: Stripe (Zahlungsabwicklung), Supabase (Datenbank und Authentifizierung) und Resend (Transaktions-E-Mails).",
     "contactLabel": "Für Anfragen zu personenbezogenen Daten schreib uns an ",
     "understoodBtn": "VERSTANDEN",
     "text5": "Wir speichern Ihre Daten, solange Ihr Konto aktiv ist, sowie danach fuer einen angemessenen Zeitraum gemaess gesetzlicher Buchhaltungs- und Steuerpflichten. Sie koennen jederzeit Zugriff, Berichtigung, Uebertragbarkeit oder Loeschung Ihrer personenbezogenen Daten verlangen.",

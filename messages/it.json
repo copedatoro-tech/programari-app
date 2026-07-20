@@ -183,7 +183,7 @@
           "⚠️ Attiva la prova di 10 giorni SOLO dopo aver configurato completamente: Profilo, Impostazioni, Servizi e Specialisti",
           "🎁 La prova ti dà accesso al piano Team (illimitato) per 10 giorni — non sprecarla nella configurazione",
           "📊 Free: 30 app./mese · Pro: 150 · Elite: 500 · Team: illimitato",
-          "💬 I piani Elite e Team includono l'invio automatico di messaggi WhatsApp a clienti e specialisti",
+          "📧 Tutti i piani includono conferme e promemoria automatici inviati ai clienti via email",
           "🔓 Il link di prenotazione, il codice QR e i report avanzati sono disponibili dal piano Pro"
         ],
         "tip": "Non attivare la prova prima di configurare l'app — altrimenti perdi giorni preziosi sui 10 disponibili! Configura prima tutto, poi attiva."
@@ -304,7 +304,7 @@
           },
           "phone": {
             "title": "Telefono del Cliente",
-            "desc": "Aggiungi il numero di telefono — i messaggi di conferma e promemoria vengono inviati automaticamente via WhatsApp, se hai il piano Elite o Team."
+            "desc": "Aggiungi il numero di telefono del cliente — utile per un contatto rapido e per la cronologia della sua scheda."
           }
         },
         "abonamente": {
@@ -456,8 +456,8 @@
           "desc": "I clienti lasciano recensioni direttamente sulla tua pagina pubblica di prenotazione, costruendo la tua reputazione online."
         },
         {
-          "titlu": "Conferme & Promemoria WhatsApp",
-          "desc": "Messaggi automatici, inviati direttamente via WhatsApp — conferme di prenotazione, promemoria un giorno prima."
+          "titlu": "Conferme e Promemoria Automatici",
+          "desc": "Email automatiche, inviate istantaneamente — conferme di prenotazione, promemoria inviati il giorno prima."
         },
         {
           "titlu": "Codice QR di Prenotazione Rapida",
@@ -525,7 +525,7 @@
             "Tutto da Pro",
             "Link prenotazione + Codice QR",
             "Pagamento online alla prenotazione",
-            "WhatsApp automatico ai clienti",
+            "Notifiche email automatiche",
             "Notifiche agli specialisti"
           ]
         },
@@ -628,7 +628,7 @@
         {
           "emoji": "☕",
           "situation": "Sei al caffè con gli amici",
-          "notifTitle": "Promemoria inviato su WhatsApp",
+          "notifTitle": "Promemoria inviato automaticamente",
           "notifDesc": "Cliente avvisato automaticamente, un giorno prima"
         },
         {
@@ -1074,9 +1074,9 @@
     },
     "rebooking": {
       "title": "Promemoria di Ritorno",
-      "subtitle": "Riporta automaticamente i clienti, via WhatsApp, senza imporre un orario fisso.",
+      "subtitle": "Riporta automaticamente i clienti, via email, senza imporre un orario fisso.",
       "label": "Promemoria Automatici",
-      "desc": "Ogni cliente riceve automaticamente un messaggio WhatsApp al momento giusto per tornare — calcolato dal suo reale schema di visite, non una data fissa per tutti.",
+      "desc": "Ogni cliente riceve automaticamente un'email quando è il momento giusto per tornare — calcolato dal suo reale schema di visite, non una data fissa per tutti.",
       "daysLabel": "Intervallo predefinito (nuovi clienti, ancora senza schema)",
       "daysHint": "giorni dall'ultima visita"
     },
@@ -1087,7 +1087,7 @@
       "title": "Promemoria Aggiuntivo (2 ore prima)",
       "subtitle": "Un ultimo promemoria, il giorno stesso dell'appuntamento, oltre a quello del giorno prima.",
       "label": "Promemoria 2 Ore Prima",
-      "desc": "Facoltativo. Invia un breve messaggio WhatsApp circa 2 ore prima dell'appuntamento — utile per clienti impegnati che dimenticano facilmente."
+      "desc": "Opzionale. Invia una breve email circa 2 ore prima dell'appuntamento — utile per i clienti impegnati, che dimenticano facilmente."
     }
   },
   "calendarPage": {
@@ -1558,10 +1558,6 @@
           {
             "text": "Recensioni clienti",
             "available": false
-          },
-          {
-            "text": "Notifiche WhatsApp",
-            "available": false
           }
         ]
       },
@@ -1592,10 +1588,6 @@
           },
           {
             "text": "Recensioni clienti",
-            "available": false
-          },
-          {
-            "text": "Notifiche WhatsApp",
             "available": false
           }
         ]
@@ -1634,7 +1626,7 @@
             "available": true
           },
           {
-            "text": "Conferme e Promemoria WhatsApp (300/mese)",
+            "text": "Conferme e Promemoria Email (300/mese)",
             "available": true,
             "highlight": "300/mese"
           }
@@ -1675,7 +1667,7 @@
             "available": true
           },
           {
-            "text": "Conferme e Promemoria WhatsApp Illimitati",
+            "text": "Conferme e Promemoria Email Illimitato",
             "available": true,
             "highlight": "Illimitati"
           }
@@ -1711,7 +1703,7 @@
     "text1": "Il titolare del trattamento dei dati personali e EXPLORE WORLD S.R.L., con sede legale a Cluj-Napoca, Str. Gruia, No. 58, Ap. 17, contea di Cluj, Romania, P.IVA 45995975.",
     "text2": "Raccogliamo i dati minimi necessari per il funzionamento del servizio di prenotazione e la sicurezza del tuo account: nome, email, telefono e dati di fatturazione, ove applicabile.",
     "text3": "Il trattamento si basa sull'esecuzione del contratto con te e sul tuo consenso esplicito. Non vendiamo i tuoi dati a terzi e utilizziamo infrastrutture sicure per l'archiviazione.",
-    "text4": "Per far funzionare la piattaforma, collaboriamo con i seguenti responsabili del trattamento, che agiscono esclusivamente per nostro conto: Stripe (elaborazione pagamenti), Supabase (database e autenticazione), Meta/WhatsApp Business (notifiche), e Resend (email transazionali).",
+    "text4": "Per il funzionamento della piattaforma, collaboriamo con i seguenti responsabili del trattamento dati, che agiscono esclusivamente per nostro conto: Stripe (elaborazione pagamenti), Supabase (database e autenticazione) e Resend (email transazionali).",
     "contactLabel": "Per richieste relative ai dati personali, scrivici a ",
     "understoodBtn": "HO CAPITO",
     "text5": "Conserviamo i tuoi dati finche il tuo account e attivo, piu un periodo ragionevole successivo, in conformita agli obblighi legali contabili e fiscali. Puoi richiedere in qualsiasi momento l'accesso, la rettifica, la portabilita o la cancellazione dei tuoi dati personali.",

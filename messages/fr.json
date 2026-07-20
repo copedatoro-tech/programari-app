@@ -183,7 +183,7 @@
           "⚠️ Activez l'essai de 10 jours SEULEMENT après avoir entièrement configuré : Profil, Paramètres, Services et Spécialistes",
           "🎁 L'essai vous donne accès au forfait Équipe (illimité) pendant 10 jours — ne le gaspillez pas sur la configuration",
           "📊 Gratuit : 30 rdv/mois · Pro : 150 · Elite : 500 · Équipe : illimité",
-          "💬 Les forfaits Elite et Équipe incluent l'envoi automatique de messages WhatsApp aux clients et spécialistes",
+          "📧 Tous les forfaits incluent des confirmations et rappels automatiques envoyés aux clients par email",
           "🔓 Le lien de réservation, le code QR et les rapports avancés sont disponibles à partir du forfait Pro"
         ],
         "tip": "N'activez pas l'essai avant d'avoir configuré l'application — sinon vous perdez des jours précieux sur les 10 disponibles ! Configurez d'abord tout, puis activez."
@@ -304,7 +304,7 @@
           },
           "phone": {
             "title": "Telephone du Client",
-            "desc": "Ajoutez le numero de telephone — les messages de confirmation et de rappel y sont envoyes automatiquement via WhatsApp, si vous avez le plan Elite ou Team."
+            "desc": "Ajoutez le numéro de téléphone du client — utile pour un contact rapide et pour l'historique de son dossier."
           }
         },
         "abonamente": {
@@ -456,8 +456,8 @@
           "desc": "Les clients laissent des avis directement sur votre page publique de réservation, construisant votre réputation en ligne."
         },
         {
-          "titlu": "Confirmations & Rappels WhatsApp",
-          "desc": "Messages automatiques, envoyés directement via WhatsApp — confirmations de réservation, rappels la veille."
+          "titlu": "Confirmations & Rappels Automatiques",
+          "desc": "Emails automatiques, envoyés instantanément — confirmations de réservation, rappels envoyés la veille."
         },
         {
           "titlu": "Code QR de Réservation Rapide",
@@ -525,7 +525,7 @@
             "Tout de Pro",
             "Lien de reservation + Code QR",
             "Paiement en ligne a la reservation",
-            "WhatsApp automatique clients",
+            "Notifications email automatiques",
             "Notifications specialistes"
           ]
         },
@@ -628,7 +628,7 @@
         {
           "emoji": "☕",
           "situation": "Vous prenez un café entre amis",
-          "notifTitle": "Rappel envoyé via WhatsApp",
+          "notifTitle": "Rappel envoyé automatiquement",
           "notifDesc": "Client averti automatiquement, la veille"
         },
         {
@@ -1074,9 +1074,9 @@
     },
     "rebooking": {
       "title": "Rappels de Retour",
-      "subtitle": "Ramène automatiquement les clients, via WhatsApp, sans imposer une heure fixe.",
+      "subtitle": "Ramène automatiquement les clients, par email, sans leur imposer une heure fixe.",
       "label": "Rappels Automatiques",
-      "desc": "Chaque client reçoit automatiquement un message WhatsApp au bon moment pour revenir — calculé à partir de son propre rythme de visites, pas une date fixe pour tous.",
+      "desc": "Chaque client reçoit automatiquement un email au bon moment pour revenir — calculé à partir de son schéma réel de visites, pas une date fixe pour tous.",
       "daysLabel": "Intervalle par défaut (nouveaux clients, sans historique)",
       "daysHint": "jours depuis la dernière visite"
     },
@@ -1087,7 +1087,7 @@
       "title": "Rappel Supplémentaire (2 heures avant)",
       "subtitle": "Un dernier rappel, le jour même du rendez-vous, en plus du rappel de la veille.",
       "label": "Rappel 2 Heures Avant",
-      "desc": "Facultatif. Envoie un court message WhatsApp environ 2 heures avant le rendez-vous — utile pour les clients occupés qui oublient facilement."
+      "desc": "Optionnel. Envoie un court email environ 2 heures avant le rendez-vous — utile pour les clients occupés, qui oublient facilement."
     }
   },
   "calendarPage": {
@@ -1558,10 +1558,6 @@
           {
             "text": "Avis clients",
             "available": false
-          },
-          {
-            "text": "Notifications WhatsApp",
-            "available": false
           }
         ]
       },
@@ -1592,10 +1588,6 @@
           },
           {
             "text": "Avis clients",
-            "available": false
-          },
-          {
-            "text": "Notifications WhatsApp",
             "available": false
           }
         ]
@@ -1634,7 +1626,7 @@
             "available": true
           },
           {
-            "text": "Confirmations & Rappels WhatsApp (300/mois)",
+            "text": "Confirmations & Rappels Email (300/mois)",
             "available": true,
             "highlight": "300/mois"
           }
@@ -1675,7 +1667,7 @@
             "available": true
           },
           {
-            "text": "Confirmations & Rappels WhatsApp Illimités",
+            "text": "Confirmations & Rappels Email Illimité",
             "available": true,
             "highlight": "Illimités"
           }
@@ -1711,7 +1703,7 @@
     "text1": "Le responsable du traitement des donnees personnelles est EXPLORE WORLD S.R.L., dont le siege social est situe a Cluj-Napoca, Str. Gruia, No. 58, Ap. 17, departement de Cluj, Roumanie, immatricule sous le numero fiscal 45995975.",
     "text2": "Nous collectons les donnees minimales necessaires au fonctionnement du service de reservation et a la securite de votre compte: nom, email, telephone, et donnees de facturation le cas echeant.",
     "text3": "Le traitement repose sur l'execution de notre contrat avec vous et sur votre consentement explicite. Nous ne vendons pas vos donnees a des tiers et utilisons une infrastructure securisee pour le stockage.",
-    "text4": "Pour faire fonctionner la plateforme, nous collaborons avec les sous-traitants suivants, agissant exclusivement en notre nom: Stripe (paiements), Supabase (base de donnees et authentification), Meta/WhatsApp Business (notifications), et Resend (emails transactionnels).",
+    "text4": "Pour le fonctionnement de la plateforme, nous collaborons avec les sous-traitants suivants, agissant exclusivement en notre nom : Stripe (traitement des paiements), Supabase (base de données et authentification), et Resend (emails transactionnels).",
     "contactLabel": "Pour toute demande concernant tes données personnelles, écris-nous à ",
     "understoodBtn": "COMPRIS",
     "text5": "Nous conservons vos donnees tant que votre compte est actif, plus une periode raisonnable par la suite, conformement aux obligations comptables et fiscales legales. Vous pouvez demander a tout moment l'acces, la rectification, la portabilite ou la suppression de vos donnees personnelles.",
