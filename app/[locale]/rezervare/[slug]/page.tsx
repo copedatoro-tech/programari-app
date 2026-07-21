@@ -3,6 +3,7 @@
 import { useState, useEffect, Suspense, useCallback, useMemo, useRef } from "react";
 import { useParams, useSearchParams } from "next/navigation";
 import Image from "next/image";
+import Script from "next/script";
 import { supabase } from "@/lib/supabaseClient";
 import { useTranslations } from "next-intl";
 import LocaleSwitcher from "@/components/LocaleSwitcher";
@@ -15,19 +16,11 @@ interface ExistingAppointment { time: string; duration: number }
 interface WorkingHourEntry { day: string; start: string; end: string; closed: boolean }
 interface AdminProfile { full_name: string | null; avatar_url: string | null; phone: string | null; email: string | null }
 
-// FIX (nu tradus): zilele stocate in baza de date (working_hours.day) sunt salvate
-// intotdeauna in romana, indiferent de limba interfetei. Acest array e folosit DOAR
-// pentru a verifica disponibilitatea din baza de date, deci trebuie sa ramana fix.
 const DAY_NAMES_LONG = ["Duminică", "Luni", "Marți", "Miercuri", "Joi", "Vineri", "Sâmbătă"];
 
 type LimitReason = "plan_limit" | "hour_blocked" | "day_closed" | "outside_hours" | "service_overlap" | "already_booked";
 
-const PLAN_LIMITS: Record<string, number> = {
-  "START (GRATUIT)": 30,
-  "CHRONOS PRO": 150,
-  "CHRONOS ELITE": 500,
-  "CHRONOS TEAM": Infinity,
-};
+const MAX_SERVICES_PER_BOOKING = 5;
 
 function addMinutesToTime(timeStr: string, minutes: number): string {
   if (!timeStr || timeStr === "00:00") return "00:00";
@@ -38,14 +31,6 @@ function addMinutesToTime(timeStr: string, minutes: number): string {
   return `${String(newH).padStart(2, "0")}:${String(newM).padStart(2, "0")}`;
 }
 
-function timeToMinutes(t: string): number {
-  if (!t || !t.includes(":")) return 0;
-  const [h, m] = t.split(":").map(Number);
-  return h * 60 + (m || 0);
-}
-
-// ✅ Normalizează numărul de telefon pentru link-uri wa.me (fără spații, fără "+",
-// cu prefix de țară — presupunem România dacă numărul începe cu "0")
 function toWaLink(phone: string): string {
   const digits = phone.replace(/\D/g, "");
   const withCountryCode = digits.startsWith("0") ? "4" + digits : digits;
@@ -59,10 +44,16 @@ function parseWH(whData: any): WorkingHourEntry[] {
   }
   return Array.isArray(whData) ? whData : [];
 }
-// Cheie compusa data+specialist - ca sa blocam orele DOAR pentru specialistul ales,
-// nu pentru toti specialistii (specialisti diferiti pot fi ocupati la ore diferite)
+
 function mkKey(date: string, specialistId: string) {
   return `${date}|${specialistId || ""}`;
+}
+
+declare global {
+  interface Window {
+    onTurnstileSuccess?: (token: string) => void;
+    onTurnstileExpired?: () => void;
+  }
 }
 
 // ─── POPUPS ────────────────────────────────────────────────────────────────
@@ -123,6 +114,9 @@ function RezervareContent() {
   const [savedUserProfiles, setSavedUserProfiles] = useState<{ nume: string; telefon: string; email: string }[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
 
+  // 🔒 Token Cloudflare Turnstile — confirma ca cel ce trimite formularul e om, nu bot
+  const [turnstileToken, setTurnstileToken] = useState<string>("");
+
   const today = new Date().toISOString().split("T")[0];
 
   const emptyBooking = () => ({
@@ -154,6 +148,16 @@ function RezervareContent() {
   const [numeFeedback, setNumeFeedback] = useState("");
   const [mesajFeedback, setMesajFeedback] = useState("");
   const [incarcareFeedback, setIncarcareFeedback] = useState(false);
+
+  // ✅ Registram callback-urile globale pentru widget-ul Turnstile
+  useEffect(() => {
+    window.onTurnstileSuccess = (token: string) => setTurnstileToken(token);
+    window.onTurnstileExpired = () => setTurnstileToken("");
+    return () => {
+      window.onTurnstileSuccess = undefined;
+      window.onTurnstileExpired = undefined;
+    };
+  }, []);
 
   const fetchAppointmentsForDate = useCallback(async (date: string, specialistId?: string) => {
     if (!adminId || !date) return;
@@ -300,9 +304,6 @@ function RezervareContent() {
     if (adminId) fetchAppointmentsForDate(today, "");
   }, [adminId, today, fetchAppointmentsForDate]);
 
-  // ✅ Cod QR / link personal de specialist — dacă URL-ul conține ?specialist=ID,
-  // preselectăm automat acel specialist la primul serviciu, imediat ce lista de
-  // specialiști e încărcată. Clientul alege doar data și ora.
   useEffect(() => {
     const presetSpecialistId = searchParams.get("specialist");
     if (!presetSpecialistId || specialisti.length === 0) return;
@@ -334,9 +335,9 @@ function RezervareContent() {
 
   // 🔒 Nota securitate: canalul realtime de mai jos NU mai asculta tabelul "profiles"
   // direct (RLS blocheaza acum accesul public la tabelul original). Configurarea
-  // salonului (program, blocari manuale, date de contact) se reimprospateaza printr-un
-  // polling usor la fiecare 60s in useEffect-ul separat de mai jos. Ramane neschimbat
-  // doar realtime-ul pentru "appointments" si "feedbacks", care nu sunt afectate.
+  // salonului se reimprospateaza printr-un polling usor la fiecare 60s, in useEffect-ul
+  // separat de mai jos. Ramane neschimbat doar realtime-ul pentru "appointments" si
+  // "feedbacks", care nu sunt afectate.
   useEffect(() => {
     if (!adminId) return;
     configChannelRef.current = supabase
@@ -363,10 +364,6 @@ function RezervareContent() {
     return () => { if (configChannelRef.current) supabase.removeChannel(configChannelRef.current); };
   }, [adminId, fetchAppointmentsForDate, fetchFeedbacks]);
 
-  // 🔄 Polling pentru configurarea salonului (program, blocari manuale, date de contact),
-  // in locul realtime-ului de pe "profiles" care nu mai e disponibil public dupa fix-ul
-  // de securitate RLS. La fiecare 60s reimprospatam datele - suficient pentru o pagina
-  // de rezervare, unde programul de lucru nu se schimba in timp real.
   useEffect(() => {
     if (!adminId) return;
     const interval = setInterval(() => {
@@ -386,7 +383,17 @@ function RezervareContent() {
     });
   };
 
+  // 🔒 Limita de maxim 5 servicii per rezervare — previne spam-ul de programari
+  // multiple nelimitate intr-o singura trimitere.
   const addBookingCard = () => {
+    if (bookings.length >= MAX_SERVICES_PER_BOOKING) {
+      setPopup({
+        icon: "⚠️",
+        title: t("attentionTitle"),
+        message: `Poți adăuga maxim ${MAX_SERVICES_PER_BOOKING} servicii într-o singură rezervare.`,
+      });
+      return;
+    }
     const lastDate = bookings[bookings.length - 1]?.data || today;
     const newB = { ...emptyBooking(), data: lastDate };
     setBookings(prev => [...prev, newB]);
@@ -458,23 +465,16 @@ function RezervareContent() {
 
     if (Object.keys(newErrors).length > 0) { setErrors(newErrors); return; }
 
+    // 🔒 Verificam ca widget-ul Turnstile a confirmat ca nu e bot, inainte sa trimitem orice
+    if (!turnstileToken) {
+      setPopup({ icon: "⚠️", title: t("attentionTitle"), message: "Te rugăm să aștepți finalizarea verificării de securitate, apoi încearcă din nou." });
+      return;
+    }
+
     setLoading(true);
     try {
-      const { data: profileData } = await supabase.from("profiles_public").select("plan_type").eq("id", adminId).single();
-      const plan = profileData?.plan_type || "START (GRATUIT)";
-      const maxAppointments = PLAN_LIMITS[plan] ?? 30;
-
-      if (maxAppointments !== Infinity) {
-        const startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString();
-        const { data: apptData } = await supabase.from("appointments").select("id").eq("user_id", adminId).gte("created_at", startOfMonth);
-        if (apptData && (apptData.length + bookings.length) > maxAppointments) {
-          setPopup(getLimitPopupContent("plan_limit"));
-          setLoading(false);
-          return;
-        }
-      }
-
       if (paymentConfig.required && paymentConfig.onboarded) {
+        // Fluxul cu plata online ramane pe ruta Stripe existenta
         const res = await fetch("/api/stripe/create-booking-checkout", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -504,56 +504,40 @@ function RezervareContent() {
         return;
       }
 
-      for (const b of bookings) {
-        const svc = servicii.find(s => s.id === b.serviciu_id);
-        const duration = svc?.duration || 30;
-        const payload = {
-          user_id: adminId,
-          title: clientInfo.nume.trim(),
-          prenume: clientInfo.nume.trim(),
-          nume: clientInfo.nume.trim(),
-          phone: clientInfo.telefon,
-          email: clientInfo.email.trim(),
-          date: b.data,
-          time: b.ora,
-          duration: duration,
-          details: `Serviciu: ${svc?.nume_serviciu}${clientInfo.detalii ? ` | Notă: ${clientInfo.detalii}` : ""}`,
-          specialist: specialisti.find(s => s.id === b.specialist_id)?.name || t("firstAvailOpt"),
-          angajat_id: b.specialist_id || null,
-          serviciu_id: b.serviciu_id,
-          status: "pending",
-          is_client_booking: true,
-        };
-        const { data: inserted, error } = await supabase.from("appointments").insert([payload]).select("id").single();
-        if (error) throw error;
-        if (inserted?.id) {
-          fetch("/api/send", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              email: clientInfo.email.trim(),
-              nume: clientInfo.nume.trim(),
-              data: b.data,
-              ora: b.ora,
-              appointmentId: inserted.id,
-            }),
-          }).catch(() => {});
+      // 🔒 Fluxul fara plata trece acum prin API-ul securizat /api/create-booking,
+      // care verifica Turnstile, limita de servicii, rate limiting per IP si
+      // limita de plan a salonului, pe server (nu se mai poate ocoli din browser).
+      const res = await fetch("/api/create-booking", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          turnstileToken,
+          adminId,
+          clientInfo: {
+            nume: clientInfo.nume.trim(),
+            telefon: clientInfo.telefon,
+            email: clientInfo.email.trim(),
+            detalii: clientInfo.detalii,
+          },
+          bookings: bookings.map(b => ({
+            serviciu_id: b.serviciu_id,
+            specialist_id: b.specialist_id || null,
+            data: b.data,
+            ora: b.ora,
+          })),
+        }),
+      });
+
+      const result = await res.json();
+
+      if (!res.ok) {
+        if (result.code === "plan_limit") {
+          setPopup(getLimitPopupContent("plan_limit"));
+        } else {
+          setPopup({ icon: "❌", title: t("errorTitle"), message: result.error || t("errorDefaultMsg") });
         }
-        // Trimitem si confirmare pe WhatsApp, in paralel - foloseste sablonul
-        // "confirmare_programare" aprobat de Meta. Esecul nu blocheaza rezervarea.
-        if (clientInfo.telefon) {
-          fetch("/api/send-whatsapp-confirmation", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              phone: clientInfo.telefon,
-              nume: clientInfo.nume.trim(),
-              data: b.data,
-              ora: b.ora,
-              adminId,
-            }),
-          }).catch(() => {});
-        }
+        setLoading(false);
+        return;
       }
 
       const newProfile = { nume: clientInfo.nume.trim(), telefon: clientInfo.telefon.trim(), email: clientInfo.email.trim() };
@@ -639,6 +623,8 @@ function RezervareContent() {
 
   return (
     <main className="min-h-screen relative bg-gradient-to-br from-slate-50 via-white to-amber-50/40 flex flex-col items-center p-4 md:p-10 text-slate-900 overflow-x-hidden" onClick={() => setShowSuggestions(false)}>
+
+      <Script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer />
 
       <div className="fixed -top-40 -left-40 w-96 h-96 bg-amber-200/20 rounded-full blur-3xl pointer-events-none" />
       <div className="fixed top-1/3 -right-40 w-[500px] h-[500px] bg-slate-300/20 rounded-full blur-3xl pointer-events-none" />
@@ -914,10 +900,16 @@ function RezervareContent() {
                   </div>
                 ))}
 
-                <button type="button" onClick={addBookingCard}
-                  className="w-full py-6 border-4 border-dashed border-slate-200 rounded-[35px] text-slate-300 font-black uppercase italic hover:border-amber-500 hover:text-amber-500 transition-all flex items-center justify-center gap-3">
-                  <span className="text-2xl">+</span> {t("addServiceBtn")}
-                </button>
+                {bookings.length < MAX_SERVICES_PER_BOOKING ? (
+                  <button type="button" onClick={addBookingCard}
+                    className="w-full py-6 border-4 border-dashed border-slate-200 rounded-[35px] text-slate-300 font-black uppercase italic hover:border-amber-500 hover:text-amber-500 transition-all flex items-center justify-center gap-3">
+                    <span className="text-2xl">+</span> {t("addServiceBtn")}
+                  </button>
+                ) : (
+                  <p className="text-center text-[10px] font-black uppercase italic text-slate-300">
+                    Limită maximă: {MAX_SERVICES_PER_BOOKING} servicii per rezervare
+                  </p>
+                )}
               </div>
 
               <div className="space-y-2 mt-4">
@@ -925,6 +917,16 @@ function RezervareContent() {
                 <textarea placeholder={t("notesPlaceholder")}
                   className="w-full bg-white border-2 border-amber-500 rounded-[25px] py-6 px-8 text-[16px] font-bold outline-none min-h-[100px] resize-none focus:bg-slate-50 transition-all"
                   value={clientInfo.detalii} onChange={(e) => setClientInfo({ ...clientInfo, detalii: e.target.value })} />
+              </div>
+
+              {/* 🔒 Widget Cloudflare Turnstile — verificare silentioasa anti-bot */}
+              <div className="flex justify-center">
+                <div
+                  className="cf-turnstile"
+                  data-sitekey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY}
+                  data-callback="onTurnstileSuccess"
+                  data-expired-callback="onTurnstileExpired"
+                />
               </div>
 
               <button type="submit" disabled={loading}
