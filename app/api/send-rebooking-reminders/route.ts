@@ -1,10 +1,15 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
-import { checkAndConsumeWhatsAppQuota } from "@/lib/whatsappQuota";
+import { Resend } from "resend";
 
-const WHATSAPP_PHONE_NUMBER_ID = process.env.WHATSAPP_PHONE_NUMBER_ID!;
-const WHATSAPP_ACCESS_TOKEN = process.env.WHATSAPP_ACCESS_TOKEN!;
-const TEMPLATE_NAME = "reamintire_revenire"; // ✅ trebuie creat și aprobat în Meta Business Manager
+function escapeHtml(value: unknown) {
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
 
 // ✅ Ruta e menită să fie apelată zilnic, printr-un Cron Job (Vercel Cron sau extern),
 // nu manual. Pentru fiecare salon cu funcția activată, verifică fiecare client:
@@ -16,11 +21,20 @@ const TEMPLATE_NAME = "reamintire_revenire"; // ✅ trebuie creat și aprobat î
 // - Dacă are o singură vizită, folosește valoarea generală (implicit 30 zile).
 // - Mesajul include automat serviciul cel mai frecvent ales de acel client, ca să
 //   fie personalizat ("Ai nevoie de o nouă programare pentru Tuns?").
+//
+// 📧 CONVERTIT PE EMAIL (2026-07): trimitea inițial pe WhatsApp Business API,
+// dezactivat temporar din cauza costurilor și complexității de configurare Meta.
+// Rămâne disponibil doar pentru planurile ELITE și TEAM, la fel ca înainte.
 export async function GET(request: Request) {
   try {
     const authHeader = request.headers.get("authorization");
     if (process.env.CRON_SECRET && authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
       return NextResponse.json({ error: "Neautorizat." }, { status: 401 });
+    }
+
+    const resend = new Resend(process.env.RESEND_API_KEY);
+    if (!process.env.RESEND_API_KEY) {
+      return NextResponse.json({ error: "Eroare Configurare: API Key Resend lipsește din server." }, { status: 500 });
     }
 
     const { data: eligibleProfiles } = await supabaseAdmin
@@ -34,12 +48,11 @@ export async function GET(request: Request) {
 
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://www.chronosproductivity.com";
     let totalSent = 0;
-    let totalSkipped = 0;
     const errors: string[] = [];
 
     for (const profile of eligibleProfiles) {
       const plan = (profile.plan_type || "").toUpperCase();
-      if (!plan.includes("ELITE") && !plan.includes("TEAM")) continue; // doar planuri cu WhatsApp
+      if (!plan.includes("ELITE") && !plan.includes("TEAM")) continue; // functie disponibila doar ELITE/TEAM
       if (!profile.slug) continue; // fără pagină publică, nu are rost linkul
 
       const defaultDays = profile.rebooking_reminder_days || 30;
@@ -47,14 +60,16 @@ export async function GET(request: Request) {
 
       const { data: clients } = await supabaseAdmin
         .from("client_cases")
-        .select("id, client_name, phone_number, last_rebooking_reminder_sent")
+        .select("id, client_name, client_email, phone_number, last_rebooking_reminder_sent")
         .eq("user_id", profile.id)
-        .not("phone_number", "is", null);
+        .not("client_email", "is", null);
 
       if (!clients || clients.length === 0) continue;
 
       for (const client of clients) {
         try {
+          if (!client.client_email) continue; // fără email, nu avem cum trimite
+
           // ✅ Aducem TOATE programările trecute ale clientului, cronologic —
           // nu doar ultima, ca să putem calcula intervalul mediu real
           const { data: apptsData } = await supabaseAdmin
@@ -95,9 +110,6 @@ export async function GET(request: Request) {
             continue; // deja trimis pentru acest "gol" de vizite
           }
 
-          const quota = await checkAndConsumeWhatsAppQuota(profile.id, plan);
-          if (!quota.allowed) { totalSkipped++; continue; }
-
           // ✅ Serviciul cel mai frecvent ales de acest client, pentru personalizare
           const serviceCounts: Record<string, number> = {};
           pastAppts.forEach((a: any) => {
@@ -105,47 +117,53 @@ export async function GET(request: Request) {
           });
           const topService = Object.entries(serviceCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || "";
 
-          const digits = client.phone_number.replace(/\D/g, "");
-          const waNumber = digits.startsWith("0") ? "4" + digits : digits;
           const bookingLink = `${baseUrl}/rezervare/${profile.slug}`;
 
-          const res = await fetch(`https://graph.facebook.com/v19.0/${WHATSAPP_PHONE_NUMBER_ID}/messages`, {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${WHATSAPP_ACCESS_TOKEN}`,
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              messaging_product: "whatsapp",
-              to: waNumber,
-              type: "template",
-              template: {
-                name: TEMPLATE_NAME,
-                language: { code: "ro" },
-                components: [
-                  {
-                    type: "body",
-                    parameters: [
-                      { type: "text", text: client.client_name || "acolo" },
-                      { type: "text", text: topService || "o vizită nouă" },
-                      { type: "text", text: profile.full_name || "noi" },
-                      { type: "text", text: bookingLink },
-                    ],
-                  },
-                ],
-              },
-            }),
+          const safeName = escapeHtml(client.client_name || "acolo");
+          const safeService = escapeHtml(topService || "o nouă vizită");
+          const safeSalon = escapeHtml(profile.full_name || "noi");
+
+          const dataMail = await resend.emails.send({
+            from: "Chronos <notificari@chronosproductivity.com>",
+            to: [client.client_email],
+            subject: `${safeSalon} — E timpul pentru o nouă vizită?`,
+            html: `
+              <div style="font-family: 'Helvetica', Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 40px; color: #0f172a; background-color: #f8fafc; border-radius: 24px;">
+                <div style="text-align: center; margin-bottom: 24px;">
+                  <img src="${baseUrl}/logo-chronos.png" alt="Chronos" width="64" height="64" style="display: inline-block;" />
+                </div>
+                <h1 style="font-size: 24px; font-weight: 900; font-style: italic; text-transform: uppercase; letter-spacing: -0.05em; margin-bottom: 24px; text-align: center;">
+                  CHRONOS<span style="color: #f59e0b;">.</span>
+                </h1>
+
+                <div style="background-color: #ffffff; padding: 32px; border-radius: 20px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+                  <h2 style="font-size: 18px; font-weight: 800; margin-top: 0; color: #1e293b; font-style: italic; text-transform: uppercase;">Salut, ${safeName}!</h2>
+                  <p style="font-size: 14px; line-height: 1.6; color: #64748b;">
+                    A trecut ceva timp de la ultima ta vizită la <strong>${safeSalon}</strong>. Ai nevoie de o nouă programare pentru <strong>${safeService}</strong>?
+                  </p>
+
+                  <div style="margin-top: 28px; text-align: center;">
+                    <a href="${bookingLink}" style="display: inline-block; background-color: #0f172a; color: #ffffff; padding: 14px 28px; border-radius: 14px; font-weight: 900; font-size: 12px; text-transform: uppercase; text-decoration: none; letter-spacing: 0.05em;">
+                      Rezervă acum
+                    </a>
+                  </div>
+                </div>
+
+                <p style="text-align: center; font-size: 10px; font-weight: 700; color: #cbd5e1; text-transform: uppercase; letter-spacing: 0.2em; margin-top: 32px;">
+                  © 2026 Chronos System • Premium Management
+                </p>
+              </div>
+            `,
           });
 
-          if (res.ok) {
+          if (!dataMail.error) {
             await supabaseAdmin
               .from("client_cases")
               .update({ last_rebooking_reminder_sent: today.toISOString().split("T")[0] })
               .eq("id", client.id);
             totalSent++;
           } else {
-            const errData = await res.json().catch(() => ({}));
-            errors.push(`${client.phone_number}: ${errData?.error?.message || res.statusText}`);
+            errors.push(`${client.client_email}: ${dataMail.error.message}`);
           }
         } catch (innerErr: any) {
           errors.push(`Client ${client.id}: ${innerErr.message}`);
@@ -153,7 +171,7 @@ export async function GET(request: Request) {
       }
     }
 
-    return NextResponse.json({ sent: totalSent, skippedNoQuota: totalSkipped, errors });
+    return NextResponse.json({ sent: totalSent, errors });
   } catch (error: any) {
     console.error("Eroare reamintiri revenire:", error.message);
     return NextResponse.json({ error: "Eroare internă." }, { status: 500 });
