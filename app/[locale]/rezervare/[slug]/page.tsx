@@ -425,12 +425,21 @@ function RezervareContent() {
       setPopup({ icon: "⚠️", title: t("attentionTitle"), message: t("attentionMsg") });
       return;
     }
+    // 🔒 FIX: /api/waitlist cere acum si turnstileToken (la fel ca la
+    // create-booking) — fara el, ruta respinge cererea cu eroare de
+    // securitate. Verificam aici, inainte de a trimite, ca sa dam un mesaj
+    // clar userului in loc de o eroare seaca din backend.
+    if (!turnstileToken) {
+      setPopup({ icon: "⚠️", title: t("attentionTitle"), message: "Te rugăm să aștepți finalizarea verificării de securitate, apoi încearcă din nou." });
+      return;
+    }
     setWaitlistSaving(true);
     try {
       const res = await fetch("/api/waitlist", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          turnstileToken,
           adminId,
           specialistId: b.specialist_id || null,
           serviciuId: b.serviciu_id || null,
