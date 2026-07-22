@@ -31,6 +31,7 @@ interface Profile {
   terms_accepted_at: string | null;
   stripe_customer_id: string | null;
   manual_grant_expires_at: string | null;
+  manual_grant_fallback_plan: string | null;
   updated_at: string | null;
 }
 
@@ -79,6 +80,10 @@ export default function AdminPage() {
   // înainte de a acorda acces temporar sau permanent
   const [pendingPlan, setPendingPlan] = useState<Record<string, string>>({});
   const [pendingDays, setPendingDays] = useState<Record<string, number>>({});
+  // 🆕 Selecție locală (per rând) pentru comportamentul la expirare:
+  // "free" = revine la CHRONOS FREE (implicit, ca până acum)
+  // "previous" = revine la planul avut înainte de orice acordare manuală
+  const [pendingFallback, setPendingFallback] = useState<Record<string, "free" | "previous">>({});
 
   const fetchData = async () => {
     const res = await fetch("/api/admin/users");
@@ -94,13 +99,19 @@ export default function AdminPage() {
     fetchData();
   }, []);
 
-  const runAction = async (userId: string, action: string, plan?: string, days?: number) => {
+  const runAction = async (
+    userId: string,
+    action: string,
+    plan?: string,
+    days?: number,
+    fallbackMode?: "free" | "previous"
+  ) => {
     setActionLoading(userId + action);
     try {
       const res = await fetch("/api/admin/update-user", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId, action, plan, days }),
+        body: JSON.stringify({ userId, action, plan, days, fallbackMode }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -245,6 +256,7 @@ export default function AdminPage() {
                 const planKey = (p.plan_type || "").toUpperCase();
                 const trialActive = isTrialActive(p.trial_started_at);
                 const isBusy = (action: string) => actionLoading === p.id + action;
+                const fallbackChoice = pendingFallback[p.id] ?? "free";
 
                 return (
                   <tr key={p.id} className="border-b border-slate-50 hover:bg-slate-50 transition-colors align-top">
@@ -325,7 +337,7 @@ export default function AdminPage() {
                     </td>
 
                     {/* ✅ Acțiuni rapide, fără să mai umbli prin Supabase */}
-                    <td className="p-4 space-y-2 min-w-[190px]">
+                    <td className="p-4 space-y-2 min-w-[200px]">
                       {trialActive ? (
                         <button
                           onClick={() => {
@@ -383,12 +395,31 @@ export default function AdminPage() {
                           />
                           <span className="text-[9px] text-slate-400 font-bold">zile</span>
                         </div>
+
+                        {/* 🆕 Selector lipsă anterior: ce se întâmplă la expirare */}
+                        <select
+                          value={fallbackChoice}
+                          onChange={(e) =>
+                            setPendingFallback((s) => ({ ...s, [p.id]: e.target.value as "free" | "previous" }))
+                          }
+                          className="w-full p-1.5 border border-slate-200 rounded-lg text-[10px] font-bold"
+                        >
+                          <option value="free">La expirare → revine la FREE</option>
+                          <option value="previous">La expirare → revine la planul anterior</option>
+                        </select>
+
                         <button
                           onClick={() => {
                             const chosen = pendingPlan[p.id] ?? p.plan_type ?? "CHRONOS FREE";
                             const chosenDays = pendingDays[p.id] ?? 30;
-                            if (confirm(`Acces TEMPORAR la ${chosen} pentru ${chosenDays} zile, pentru ${p.email}?\n\nDupa expirare revine automat la CHRONOS FREE.`)) {
-                              runAction(p.id, "grant_temp_access", chosen, chosenDays);
+                            const fallbackLabel =
+                              fallbackChoice === "previous" ? "planul avut anterior" : "CHRONOS FREE";
+                            if (
+                              confirm(
+                                `Acces TEMPORAR la ${chosen} pentru ${chosenDays} zile, pentru ${p.email}?\n\nDupa expirare revine automat la ${fallbackLabel}.`
+                              )
+                            ) {
+                              runAction(p.id, "grant_temp_access", chosen, chosenDays, fallbackChoice);
                             }
                           }}
                           disabled={isBusy("grant_temp_access")}
@@ -400,6 +431,11 @@ export default function AdminPage() {
                         {p.manual_grant_expires_at && new Date(p.manual_grant_expires_at) > new Date() && (
                           <p className="text-[9px] text-emerald-700 font-bold text-center">
                             expira {new Date(p.manual_grant_expires_at).toLocaleDateString("ro-RO")}
+                            {p.manual_grant_fallback_plan && (
+                              <span className="block text-slate-500 font-medium normal-case">
+                                → revine la {p.manual_grant_fallback_plan}
+                              </span>
+                            )}
                           </p>
                         )}
                       </div>

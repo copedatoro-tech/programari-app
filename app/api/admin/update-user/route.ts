@@ -24,7 +24,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Acces interzis." }, { status: 403 });
     }
 
-    const { userId, action, plan, days } = await req.json();
+    const { userId, action, plan, days, fallbackMode } = await req.json();
     if (!userId || !action) {
       return NextResponse.json({ error: "Date incomplete." }, { status: 400 });
     }
@@ -58,10 +58,11 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: "Plan invalid." }, { status: 400 });
       }
       // ⚠️ Setare manuală PERMANENTĂ, fără legătură cu Stripe — util pentru
-      // conturi de test sau acces gratuit acordat pe termen nelimitat
+      // conturi de test sau acces gratuit acordat pe termen nelimitat.
+      // Nu are sens sa aiba un fallback (nu expira niciodata), deci il curatam.
       const { error } = await supabaseAdmin
         .from("profiles")
-        .update({ plan_type: plan, manual_grant_expires_at: null })
+        .update({ plan_type: plan, manual_grant_expires_at: null, manual_grant_fallback_plan: null })
         .eq("id", userId);
       if (error) return NextResponse.json({ error: error.message }, { status: 500 });
       return NextResponse.json({ success: true });
@@ -76,14 +77,60 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: "Numar de zile invalid." }, { status: 400 });
       }
 
+      // ✅ Citim starea CURENTĂ a userului, ÎNAINTE să o suprascriem — ca sa
+      // stim exact la ce sa revenim, daca adminul alege "planul anterior".
+      const { data: currentProfile, error: fetchError } = await supabaseAdmin
+        .from("profiles")
+        .select("plan_type, stripe_subscription_id, manual_grant_expires_at, manual_grant_fallback_plan")
+        .eq("id", userId)
+        .single();
+
+      if (fetchError) return NextResponse.json({ error: fetchError.message }, { status: 500 });
+
+      // 🔒 Fix siguranta: daca userul are un abonament Stripe REAL, activ, nu
+      // atingem planul lui manual — ar insemna sa-l retrogradam gresit pe cineva
+      // care chiar plateste. Adminul poate gestiona abonamente reale direct din
+      // Stripe Dashboard, nu de aici.
+      if (currentProfile?.stripe_subscription_id) {
+        return NextResponse.json(
+          { error: "Acest cont are deja un abonament Stripe activ — gestionează-l direct din Stripe Dashboard, nu prin acordare manuală." },
+          { status: 400 }
+        );
+      }
+
+      // 🐛 FIX: daca userul are deja o acordare manuala ACTIVA (neexpirata),
+      // "plan_type" curent din DB nu mai reprezinta planul lui real dinainte
+      // de orice interventie manuala — reprezinta planul acordat anterior.
+      // Trebuie sa refolosim fallback-ul deja salvat, ca sa nu-l pierdem la
+      // acordari succesive (ex: FREE -> PRO -> ELITE, inainte sa expire PRO).
+      const hasActiveGrant =
+        !!currentProfile?.manual_grant_expires_at &&
+        new Date(currentProfile.manual_grant_expires_at) > new Date();
+
+      const realUnderlyingPlan =
+        hasActiveGrant && currentProfile?.manual_grant_fallback_plan
+          ? currentProfile.manual_grant_fallback_plan
+          : currentProfile?.plan_type && VALID_PLANS.includes(currentProfile.plan_type)
+          ? currentProfile.plan_type
+          : "CHRONOS FREE";
+
+      // fallbackMode: "previous" = revine la planul real de dinaintea oricarei
+      //               acordari manuale in lant
+      //               "free" (sau orice altceva/lipsa) = revine la CHRONOS FREE
+      const fallbackPlan = fallbackMode === "previous" ? realUnderlyingPlan : "CHRONOS FREE";
+
       const expiresAt = new Date(Date.now() + numDays * 24 * 60 * 60 * 1000).toISOString();
 
       const { error } = await supabaseAdmin
         .from("profiles")
-        .update({ plan_type: plan, manual_grant_expires_at: expiresAt })
+        .update({
+          plan_type: plan,
+          manual_grant_expires_at: expiresAt,
+          manual_grant_fallback_plan: fallbackPlan,
+        })
         .eq("id", userId);
       if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-      return NextResponse.json({ success: true, expiresAt });
+      return NextResponse.json({ success: true, expiresAt, fallbackPlan });
     }
 
     if (action === "reset_2fa") {
