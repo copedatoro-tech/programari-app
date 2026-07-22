@@ -2,6 +2,12 @@ import { NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
+import Stripe from "stripe";
+
+// La fel ca in celelalte rute Stripe din proiect (checkout, portal, webhook
+// etc.) — nu exista un client Stripe central in "lib/", fiecare ruta isi
+// instantiaza propriul client.
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
 const VALID_PLANS = ["CHRONOS FREE", "CHRONOS PRO", "CHRONOS ELITE", "CHRONOS TEAM"];
 
@@ -146,6 +152,32 @@ export async function POST(req: Request) {
     }
 
     if (action === "delete_user") {
+      // 🐛 FIX: inainte sa stergem contul, verificam daca are un abonament
+      // Stripe activ. Daca da, il anulam IMEDIAT (nu la finalul perioadei) —
+      // altfel abonamentul continua sa factureze cardul clientului la
+      // reinnoire, desi contul lui din aplicatie nu mai exista.
+      const { data: profileToDelete, error: profileFetchError } = await supabaseAdmin
+        .from("profiles")
+        .select("stripe_subscription_id, stripe_customer_id")
+        .eq("id", userId)
+        .single();
+
+      if (profileFetchError) {
+        return NextResponse.json({ error: profileFetchError.message }, { status: 500 });
+      }
+
+      let stripeCanceled = false;
+      if (profileToDelete?.stripe_subscription_id) {
+        try {
+          await stripe.subscriptions.cancel(profileToDelete.stripe_subscription_id);
+          stripeCanceled = true;
+        } catch (stripeErr: any) {
+          // Daca abonamentul e deja anulat/inexistent in Stripe, nu blocam
+          // stergerea contului pentru atat — doar logam, ca sa stii ulterior.
+          console.error("Eroare la anularea abonamentului Stripe:", stripeErr.message);
+        }
+      }
+
       // ✅ Șterge complet contul — util pentru conturi de test rămase.
       // Ștergem profilul din tabela "profiles" înainte, apoi userul din Auth.
       const { error: profileError } = await supabaseAdmin
@@ -157,7 +189,7 @@ export async function POST(req: Request) {
       const { error: authError } = await supabaseAdmin.auth.admin.deleteUser(userId);
       if (authError) return NextResponse.json({ error: authError.message }, { status: 500 });
 
-      return NextResponse.json({ success: true });
+      return NextResponse.json({ success: true, stripeCanceled });
     }
 
     return NextResponse.json({ error: "Acțiune necunoscută." }, { status: 400 });
