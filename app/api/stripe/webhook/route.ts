@@ -252,10 +252,6 @@ export async function POST(request: Request) {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({
-                email: metadata.clientEmail,
-                nume: metadata.clientNume,
-                data: row.date,
-                ora: row.time,
                 appointmentId: row.id,
               }),
             }).catch(() => {});
@@ -263,21 +259,20 @@ export async function POST(request: Request) {
 
           const firstRow = (insertedRows as any[])[0];
           if (firstRow.phone) {
-            const totalRemaining = Math.round((insertedRows as any[]).reduce((sum, row) => {
-              if (row.payment_status !== "deposit_paid") return sum;
-              return sum + Math.max(0, (row.total_price || 0) - (row.amount_paid || 0));
-            }, 0));
+            // 🔒 FIX: ruta /api/send-whatsapp-confirmation accepta acum doar
+            // { appointmentId, adminId } — citeste telefon/nume/data/ora
+            // direct din DB si verifica apartenenta programarii la adminId,
+            // ca sa nu mai poata fi folosita din exterior cu date arbitrare.
+            // "paymentStatus" si "amountRemaining" nu erau oricum folosite
+            // de ruta originala (nu apareau in parametrii sablonului
+            // WhatsApp trimis), deci eliminarea lor de aici nu schimba
+            // comportamentul.
             fetch(`${baseUrl}/api/send-whatsapp-confirmation`, {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({
-                phone: firstRow.phone,
-                nume: metadata.clientNume,
-                data: firstRow.date,
-                ora: firstRow.time,
+                appointmentId: firstRow.id,
                 adminId,
-                paymentStatus: firstRow.payment_status,
-                amountRemaining: totalRemaining,
               }),
             }).catch(() => {});
           }

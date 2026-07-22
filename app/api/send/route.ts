@@ -15,41 +15,58 @@ export async function POST(request: Request) {
   // Inițializare securizată în interiorul rutei
   const resend = new Resend(process.env.RESEND_API_KEY);
   try {
-    const { email, nume, data, ora, appointmentId } = await request.json();
-    // Verificări de siguranță pentru datele de intrare
-    if (!email) {
-      return NextResponse.json({ error: "Eroare: Adresa de email lipsește." }, { status: 400 });
+    const { appointmentId } = await request.json();
+
+    // 🔒 FIX SECURITATE: ruta accepta anterior { email, nume, data, ora }
+    // trimise direct de client, fara nicio verificare — oricine putea trimite
+    // un request catre acest endpoint cu orice adresa de email dorea, folosind
+    // Chronos ca "relay" de spam. Acum "appointmentId" e OBLIGATORIU, iar
+    // toate datele (email, nume, data, ora) se citesc DIN BAZA DE DATE, nu
+    // din request — clientul nu mai poate alege catre cine se trimite.
+    if (!appointmentId) {
+      return NextResponse.json({ error: "Eroare: appointmentId lipsește." }, { status: 400 });
     }
     if (!process.env.RESEND_API_KEY) {
       return NextResponse.json({ error: "Eroare Configurare: API Key Resend lipsește din server." }, { status: 500 });
     }
-    const manageUrl = appointmentId ? `${process.env.NEXT_PUBLIC_BASE_URL}/gestioneaza/${appointmentId}` : null;
-    let responsiblePhone = "";
-    if (appointmentId) {
-      const { data: appointment } = await supabaseAdmin
-        .from("appointments")
-        .select("user_id")
-        .eq("id", appointmentId)
-        .maybeSingle();
 
-      if (appointment?.user_id) {
-        const { data: profile } = await supabaseAdmin
-          .from("profiles")
-          .select("phone")
-          .eq("id", appointment.user_id)
-          .maybeSingle();
-        responsiblePhone = profile?.phone || "";
-      }
+    const { data: appointment, error: apptError } = await supabaseAdmin
+      .from("appointments")
+      .select("email, prenume, nume, date, time, user_id")
+      .eq("id", appointmentId)
+      .maybeSingle();
+
+    if (apptError || !appointment) {
+      return NextResponse.json({ error: "Programare inexistentă." }, { status: 404 });
+    }
+    if (!appointment.email) {
+      return NextResponse.json({ error: "Programarea nu are o adresă de email asociată." }, { status: 400 });
     }
 
-    const safeName = escapeHtml(nume);
-    const safeDate = escapeHtml(data);
-    const safeTime = escapeHtml(ora);
+    const manageUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/gestioneaza/${appointmentId}`;
+    let responsiblePhone = "";
+    if (appointment.user_id) {
+      const { data: profile } = await supabaseAdmin
+        .from("profiles")
+        .select("phone")
+        .eq("id", appointment.user_id)
+        .maybeSingle();
+      responsiblePhone = profile?.phone || "";
+    }
+
+    const displayName = appointment.prenume
+      ? `${appointment.prenume} ${appointment.nume || ""}`.trim()
+      : appointment.nume || "";
+
+    const safeName = escapeHtml(displayName);
+    const safeDate = escapeHtml(appointment.date);
+    const safeTime = escapeHtml(appointment.time);
     const safeResponsiblePhone = escapeHtml(responsiblePhone);
+
     // Trimiterea e-mailului cu branding Chronos
     const dataMail = await resend.emails.send({
       from: 'Chronos <onboarding@resend.dev>', // Notă: După ce configurezi domeniul, schimbă aici
-      to: [email],
+      to: [appointment.email],
       subject: 'Confirmare Programare • Chronos System',
       html: `
         <div style="font-family: 'Helvetica', Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 40px; color: #0f172a; background-color: #f8fafc; border-radius: 24px;">
@@ -72,14 +89,12 @@ export async function POST(request: Request) {
             
             <p style="font-size: 13px; font-weight: 600; font-style: italic; color: #475569; margin-bottom: 0;">Vă așteptăm cu drag!</p>
 
-            ${manageUrl ? `
             <div style="margin-top: 28px; text-align: center;">
               <a href="${manageUrl}" style="display: inline-block; background-color: #0f172a; color: #ffffff; padding: 14px 28px; border-radius: 14px; font-weight: 900; font-size: 12px; text-transform: uppercase; text-decoration: none; letter-spacing: 0.05em;">
                 Gestionează Programarea
               </a>
               <p style="font-size: 10px; color: #94a3b8; margin-top: 10px;">Poți anula sau reprograma oricând, direct de aici.</p>
             </div>
-            ` : ""}
             ${safeResponsiblePhone ? `
             <div style="margin-top: 22px; padding: 16px; background-color: #f8fafc; border-radius: 16px; border: 1px solid #e2e8f0;">
               <p style="margin: 0; font-size: 11px; font-weight: 900; text-transform: uppercase; color: #475569; letter-spacing: 0.08em;">Contact rapid</p>
