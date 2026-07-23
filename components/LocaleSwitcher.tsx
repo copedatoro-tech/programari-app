@@ -36,8 +36,6 @@ export default function LocaleSwitcher() {
 
   const current = LOCALE_INFO[locale] ?? { label: locale, flag: "🌐" };
 
-  // ✅ Salvăm limba aleasă în profiles, dacă userul e autentificat —
-  // folosită mai târziu pentru email-uri automate (ex. reamintiri abonament)
   const savePreferredLocale = async (loc: string) => {
     try {
       const supabase = createBrowserClient(
@@ -73,7 +71,6 @@ export default function LocaleSwitcher() {
                 onClick={() => {
                   setOpen(false);
                   savePreferredLocale(loc);
-                  // @ts-ignore
                   router.replace(pathname, { locale: loc });
                 }}
                 className={`w-full flex items-center gap-3 text-left px-3 py-2.5 rounded-xl text-[12px] font-bold transition-colors ${

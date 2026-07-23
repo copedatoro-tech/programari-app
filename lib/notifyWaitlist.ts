@@ -11,7 +11,7 @@ export async function notifyWaitlistIfAny(
   serviciuId: string | null
 ) {
   try {
-    let query = supabaseAdmin
+    const query = supabaseAdmin
       .from("waitlist")
       .select("*")
       .eq("user_id", adminId)
@@ -41,17 +41,18 @@ export async function notifyWaitlistIfAny(
       .eq("id", match.id);
 
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
-    const claimUrl = `${baseUrl}/confirma-loc/${match.id}`;
 
+    // 🔒 FIX: /api/send-waitlist-notification accepta acum doar
+    // { waitlistId, adminId } — citeste email/nume/data direct din DB si
+    // verifica apartenenta la adminId. Formatul vechi ({ email, nume, date,
+    // time, claimUrl }) nu mai era acceptat de ruta noua, deci notificarea
+    // nu se mai trimitea deloc din acest flux real.
     await fetch(`${baseUrl}/api/send-waitlist-notification`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        email: match.client_email,
-        nume: match.client_name,
-        date,
-        time,
-        claimUrl,
+        waitlistId: match.id,
+        adminId,
       }),
     }).catch(() => {});
   } catch (e) {

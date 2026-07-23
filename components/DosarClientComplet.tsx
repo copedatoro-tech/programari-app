@@ -450,15 +450,25 @@ export default function DosarClientComplet({
 }: DosarClientProps) {
   const t = useTranslations("dosarClient");
 
-  // Guard: dacă dosarul nu e încă disponibil, nu randăm nimic
-  if (!dosar) return null;
+  // 🐛 FIX Rules of Hooks: "if (!dosar) return null" era plasat AICI,
+  // inainte de toate hook-urile de mai jos (useState, useCallback). Asta
+  // insemna ca la randari cu "dosar" null, React sarea complet peste
+  // hook-uri, iar la randarea urmatoare cu "dosar" populat, ordinea
+  // hook-urilor nu mai coincidea cu randarea anterioara — exact ce
+  // interzice React ("Rendered more hooks than during the previous
+  // render"), risc real de crash sau stare corupta.
+  //
+  // Fix: toate hook-urile ruleaza necondiTionat, la fiecare randare. Guard-ul
+  // de "dosar" s-a mutat DUPA hook-uri (mai jos), iar initializatorii de
+  // mai jos folosesc acum "dosar?." ca sa nu pice daca "dosar" e null la
+  // primul randaj.
 
   // Parsăm lucrările și fișierele din câmpurile JSON ale dosarului
   const [lucrari, setLucrari] = useState<Lucrare[]>(() => {
-    try { return JSON.parse(dosar.lucrari || "[]"); } catch { return []; }
+    try { return JSON.parse(dosar?.lucrari || "[]"); } catch { return []; }
   });
   const [fisiere, setFisiere] = useState<FisierAtasat[]>(() => {
-    try { return JSON.parse(dosar.fisiere_atasate || "[]"); } catch { return []; }
+    try { return JSON.parse(dosar?.fisiere_atasate || "[]"); } catch { return []; }
   });
   const [tabActiv, setTabActiv] = useState<"profil" | "lucrari" | "fisiere">("profil");
   const [dosarLocal, setDosarLocal] = useState(dosar);
@@ -485,6 +495,10 @@ export default function DosarClientComplet({
       .eq("id", dosarId);
     if (error) console.error("Eroare salvare fișiere:", error.message);
   }, [dosarId]);
+
+  // Guard: dacă dosarul nu e încă disponibil, nu randăm nimic — mutat AICI,
+  // după toate hook-urile, ca sa respecte Rules of Hooks.
+  if (!dosar) return null;
 
   const adaugaLucrare = () => {
     const noua: Lucrare = {
