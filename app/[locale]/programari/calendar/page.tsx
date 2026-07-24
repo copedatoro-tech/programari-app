@@ -5,12 +5,11 @@ import { useSearchParams } from "next/navigation";
 import { QueryClient, QueryClientProvider, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabaseClient";
 import { showToast, showConfirm } from "@/lib/toast";
-import { useTranslations, useLocale } from "next-intl";
+import { useTranslations } from "next-intl";
 import { ChronosTimePicker, ChronosDatePicker } from "@/components/ChronosDateTimePickers";
 // ─── Constants ────────────────────────────────────────────────────────────────
 const SLOT_H = 56;
 const TIME_COL_W = 68;
-const DAY_COL_W = 148;
 // ─── Utils ────────────────────────────────────────────────────────────────────
 function sameDay(a: Date, b: Date) {
   return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
@@ -170,7 +169,7 @@ interface HoverCardProps {
   staffColorIndex: number;
   onClose: () => void;
 }
-function AppointmentHoverCard({ prog, anchorRect, serviceById, rawStaff, staffColorIndex, onClose }: HoverCardProps) {
+function AppointmentHoverCard({ prog, anchorRect, serviceById, rawStaff, staffColorIndex }: HoverCardProps) {
   const t = useTranslations("calendarPage");
   const svc = serviceById[prog.serviciuId || ""];
   const staff = rawStaff.find(s => s.id === prog.expertId);
@@ -267,7 +266,6 @@ function WeekStrip({ selectedDate, onSelectDate, programariByDate, adminWorkingH
   programariByDate: Record<string, Prog[]>; adminWorkingHours: WorkingHour[];
 }) {
   const t = useTranslations("calendarPage");
-  const locale = useLocale();
   const dayShort = t.raw("dayShort") as string[];
   const dayLong = t.raw("dayLong") as string[];
   const months = t.raw("months") as string[];
@@ -720,14 +718,13 @@ function DayView({ selectedDate, programari, rawStaff, rawServices, serviceById,
   );
 }
 // ─── WeekView — redesign simplu (listă per zi, fără grid ore) ─────────────────
-function WeekView({ selectedDate, programariByDate, rawStaff, serviceById, rawServices, onEdit, selectedExpert, selectedServiciu, adminWorkingHours, onSelectDate }: {
+function WeekView({ selectedDate, programariByDate, rawStaff, serviceById, onEdit, selectedExpert, selectedServiciu, adminWorkingHours }: {
   selectedDate: Date; programariByDate: Record<string,Prog[]>;
   rawStaff: StaffRow[]; serviceById: Record<string,ServiceRow>; rawServices: ServiceRow[];
   onEdit: (p: Prog) => void; selectedExpert: string; selectedServiciu: string;
   adminWorkingHours: WorkingHour[]; onSelectDate: (d: Date) => void;
 }) {
   const t = useTranslations("calendarPage");
-  const dayShort = t.raw("dayShort") as string[];
   const dayLong = t.raw("dayLong") as string[];
   const today = new Date();
   const weekDays = useMemo(() => {
@@ -1087,9 +1084,7 @@ function DocumentsSection({ editForm, userId, setEditForm, qClient }: DocumentsS
 // ─── CalendarContent ──────────────────────────────────────────────────────────
 function CalendarContent() {
   const t = useTranslations("calendarPage");
-  const locale = useLocale();
   const localeCode = t("localeCode");
-  const dayLong = t.raw("dayLong") as string[];
   const months = t.raw("months") as string[];
   const monthsShort = t.raw("monthsShort") as string[];
   const searchParams = useSearchParams();
@@ -1215,8 +1210,6 @@ function CalendarContent() {
   const handleSelectExpert = useCallback((id:string)=>{setSelectedExpert(id);if(id&&selectedServiciu){const st=rawStaff.find(s=>s.id===id);if(st?.services?.length&&!st.services.includes(selectedServiciu))setSelectedServiciu("");}},[selectedServiciu,rawStaff]);
   const handleSelectServiciu = useCallback((id:string)=>{setSelectedServiciu(id);if(id&&selectedExpert){const st=rawStaff.find(s=>s.id===selectedExpert);if(st?.services?.length&&!st.services.includes(id))setSelectedExpert("");}},[selectedExpert,rawStaff]);
   const nav = useCallback((dir:number)=>{setSelectedDate(prev=>{const d=new Date(prev);if(viewMode==="year")d.setFullYear(d.getFullYear()+dir);else if(viewMode==="month")d.setMonth(d.getMonth()+dir);else if(viewMode==="week")d.setDate(d.getDate()+dir*7);else d.setDate(d.getDate()+dir);return d;});},[viewMode]);
-  const angInModal = useMemo(()=>{if(!editForm?.serviciuId)return rawStaff;return rawStaff.filter(a=>a.services?.includes(editForm.serviciuId!));},[editForm?.serviciuId,rawStaff]);
-  const svcInModal = useMemo(()=>{if(!editForm?.expertId)return rawServices;const a=rawStaff.find(s=>s.id===editForm.expertId);if(!a?.services?.length)return rawServices;return rawServices.filter(s=>a.services.includes(s.id));},[editForm?.expertId,rawStaff,rawServices]);
   const editExisting = useMemo(()=>{
     if(!editForm)return[];
     return programari.filter(p=>

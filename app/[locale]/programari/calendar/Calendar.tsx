@@ -4,7 +4,7 @@ import { useMemo, useState, useEffect } from "react";
 import { supabase } from "@/lib/supabaseClient";
 
 type Programare = {
-  id: any;
+  id: string;
   nume: string;
   data: string; 
   ora: string;
@@ -23,7 +23,6 @@ const monthNames = [
 export default function Calendar({ programari }: { programari: Programare[] }) {
   const [viewMode, setViewMode] = useState<ViewMode>("month");
   const [currentDate, setCurrentDate] = useState<Date>(new Date());
-  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
 
   // --- MODIFICARE NOUĂ: State pentru Pop-up ---
   const [selectedProg, setSelectedProg] = useState<Programare | null>(null);
@@ -56,7 +55,7 @@ export default function Calendar({ programari }: { programari: Programare[] }) {
     return map;
   }, [programari]);
 
-  const eliminaProgramare = async (id: any) => {
+  const eliminaProgramare = async (id: string) => {
     if (confirm("Sigur dorești să ștergi această programare?")) {
       const { error } = await supabase.from('appointments').delete().eq('id', id);
       if (!error) {
@@ -81,13 +80,13 @@ export default function Calendar({ programari }: { programari: Programare[] }) {
 
   const handleNext = () => {
     const d = new Date(currentDate);
-    viewMode === "month" ? d.setMonth(d.getMonth() + 1) : d.setDate(d.getDate() + 7);
+    if (viewMode === "month") { d.setMonth(d.getMonth() + 1); } else { d.setDate(d.getDate() + 7); }
     setCurrentDate(d);
   };
 
   const handlePrev = () => {
     const d = new Date(currentDate);
-    viewMode === "month" ? d.setMonth(d.getMonth() - 1) : d.setDate(d.getDate() - 7);
+    if (viewMode === "month") { d.setMonth(d.getMonth() - 1); } else { d.setDate(d.getDate() - 7); }
     setCurrentDate(d);
   };
 
@@ -163,7 +162,7 @@ export default function Calendar({ programari }: { programari: Programare[] }) {
             </button>
             <button 
               title="Revino la data de astăzi"
-              onClick={() => {setCurrentDate(new Date()); setSelectedDate(new Date());}} 
+              onClick={() => {setCurrentDate(new Date());}} 
               className="px-8 py-2 text-[11px] font-black uppercase tracking-[0.2em] text-slate-500 hover:text-amber-600 transition-colors italic"
             >
               Astăzi

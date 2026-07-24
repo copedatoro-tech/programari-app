@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
@@ -381,7 +381,7 @@ export default function OnboardingTour({ userId }: { userId: string }) {
   // ─── ECRAN — Tur cu spotlight pe element real ───────────────────────────
   if (hasHighlights && highlight) {
     const isFirstOverall = stepIndex === 0 && highlightIndex === 0;
-    let cardStyle: React.CSSProperties = {
+    const cardStyle: React.CSSProperties = {
       position: "fixed", zIndex: 9992, width: 320, maxWidth: "calc(100vw - 32px)",
     };
     let arrowSide: "left" | "right" | "top" = "left";

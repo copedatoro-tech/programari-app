@@ -3,7 +3,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { createBrowserClient } from "@supabase/ssr";
 import { useRouter } from "next/navigation";
-import { Link } from "@/i18n/navigation";
 import { useTranslations, useLocale } from "next-intl";
 import { showConfirm, showToast } from "@/lib/toast";
 

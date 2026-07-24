@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect } from "react";
 import { createBrowserClient } from "@supabase/ssr";
@@ -70,7 +70,7 @@ export default function ResetPasswordPage() {
 
         setTimeout(() => router.push("/login"), 2000);
       }
-    } catch (err) {
+    } catch {
       setError(t("errConnection"));
     } finally {
       setLoading(false);

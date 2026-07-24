@@ -68,7 +68,7 @@ export default function LoginPage() {
 
       router.push("/programari");
       router.refresh();
-    } catch (err) {
+    } catch {
       setMfaError("Eroare neașteptată.");
       setLoading(false);
     }

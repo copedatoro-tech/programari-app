@@ -135,7 +135,7 @@ export default function ProfilPage() {
             setSubscriptionPlan(profile.plan_type.toLowerCase());
           }
         }
-      } catch (err) {
+      } catch {
         console.warn("Eroare la sincronizare date profil.");
       } finally {
         if (isMounted) setLoading(false);

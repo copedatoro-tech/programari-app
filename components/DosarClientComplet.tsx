@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import { useState, useCallback } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import { useTranslations } from "next-intl";
@@ -443,7 +443,6 @@ function ManagerFisiere({
 // ============================================================
 export default function DosarClientComplet({
   dosar,
-  userId,
   onClose,
   onUpdate,
   onSterge,

@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { createBrowserClient } from "@supabase/ssr";
 import { useTranslations, useLocale } from "next-intl";
-import { showToast, showConfirm } from "@/lib/toast";
+import { showToast } from "@/lib/toast";
 import { Crown, Gem, ShieldCheck, Zap } from "lucide-react";
 // --- METADATA STATICA PER PLAN (id-uri Stripe - NU se traduc) ---
 // ✅ Am înlocuit stripeLink (Payment Link static) cu priceId, folosit acum
@@ -15,21 +15,6 @@ const PLAN_META = [
 ];
 // Curs fix aproximativ pentru afisare informativa (nu pentru facturare - plata ramane mereu in RON)
 const RON_TO_EUR = 5;
-// --- FUNCTIE UTILITARA PENTRU A FI FOLOSITA IN ALTA PARTE A APLICATIEI ---
-const getActivePlan = async (supabase: any, userId: string, trialSuffix: string = " (TRIAL)") => {
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("plan_type, trial_started_at")
-    .eq("id", userId)
-    .single();
-  if (!profile) return "CHRONOS FREE";
-  if (profile.trial_started_at) {
-    const start = new Date(profile.trial_started_at);
-    const end = new Date(start.getTime() + 10 * 24 * 60 * 60 * 1000);
-    if (new Date() < end) return `CHRONOS TEAM${trialSuffix}`;
-  }
-  return profile.plan_type || "CHRONOS FREE";
-};
 // Modal elegant de schimbare plan
 function ElegantModal({ title, message, confirmLabel, cancelLabel, onConfirm, onCancel }: {
   title: string;
@@ -260,7 +245,7 @@ export default function AbonamentePage() {
         await showToast({ message: data.error || t("errors.trialActivate"), type: "error", title: t("errors.errorTitle") });
         setIsRedirecting(false);
       }
-    } catch (err) {
+    } catch {
       await showToast({ message: t("errors.trialActivate"), type: "error", title: t("errors.errorTitle") });
       setIsRedirecting(false);
     }

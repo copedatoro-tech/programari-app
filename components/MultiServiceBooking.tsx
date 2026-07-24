@@ -271,7 +271,7 @@ function SlotRow({
 // ─── Componenta principală ────────────────────────────────────────────────────
 export default function MultiServiceBooking({
   adminId, servicii, specialisti, adminWorkingHours, adminManualBlocks,
-  clientData, pozaProfil, presetDate, validateClientData, onSuccess, onCancel, documente,
+  clientData, pozaProfil, presetDate, validateClientData, onSuccess, documente,
 }: MultiServiceBookingProps) {
   const t = useTranslations("multiServiceBooking");
   const localeCode = t("localeCode");

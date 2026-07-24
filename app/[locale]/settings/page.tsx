@@ -1,9 +1,9 @@
-"use client";
+﻿"use client";
 import { useState, useEffect, useRef, useMemo, useCallback, startTransition, Suspense } from "react";
 import { createBrowserClient } from "@supabase/ssr";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Link } from "@/i18n/navigation";
-import { useTranslations, useLocale } from "next-intl";
+import { useTranslations } from "next-intl";
 import { QRCodeSVG } from "qrcode.react";
 import { showToast } from "@/lib/toast";
 import TwoFactorSetup from "@/components/TwoFactorSetup";
@@ -16,7 +16,6 @@ const DEFAULT_NOTIF_SETTINGS: NotificationSettings = { in_app_enabled: true, sys
 
 function SettingsContent() {
   const t = useTranslations("settings");
-  const locale = useLocale();
   const router = useRouter();
   const searchParams = useSearchParams();
   const supabase = useMemo(() => createBrowserClient(

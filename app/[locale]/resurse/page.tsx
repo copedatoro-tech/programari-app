@@ -52,10 +52,6 @@ function parseStaffWH(raw: any): ScheduleDay[] {
   return Array.isArray(raw) ? raw : [];
 }
 
-function defaultSchedule(): ScheduleDay[] {
-  return RO_DAY_NAMES.map((day) => ({ day, start: "09:00", end: "18:00", closed: false }));
-}
-
 // ✅ Generează o parolă temporară, ușor de citit/dictat, pentru contul specialistului
 function generateTempPassword(): string {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
@@ -266,7 +262,7 @@ export default function ResursePage() {
 
   const activeazaEditare = (item: any, tip: 'service' | 'staff') => {
     if (isDemo) return;
-    let editData = {
+    const editData = {
       ...item, tip,
       name: tip === 'service' ? (item.nume_serviciu || "") : (item.name || ""),
       price: item.price || "0",
@@ -288,7 +284,7 @@ export default function ResursePage() {
   const salveazaEditare = async () => {
     if (isDemo || !editForm || !editingId || !userId) return;
     const tabela = editForm.tip === 'service' ? 'services' : 'staff';
-    let payload: any = {};
+    const payload: any = {};
     if (editForm.tip === 'service') {
       payload.nume_serviciu = editForm.name;
       payload.price = parseFloat(editForm.price) || 0;

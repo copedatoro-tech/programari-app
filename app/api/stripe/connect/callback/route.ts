@@ -1,11 +1,11 @@
-import { NextResponse } from "next/server";
+﻿import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { cookies } from "next/headers";
 import { createServerClient } from "@supabase/ssr";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
-export async function GET(request: Request) {
+export async function GET() {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
   const cookieStore = await cookies();
   const supabase = createServerClient(

@@ -148,11 +148,23 @@ export default function RegisterPage() {
           terms_accepted_at: new Date().toISOString()
         }]);
 
+        // 🐛 FIX: eroarea de la inserarea profilului era citită dar niciodată
+        // verificata — userul vedea mereu "cont creat cu succes" si era
+        // redirectionat la login, chiar daca profilul lui nu exista deloc in
+        // baza de date (fara plan_type, full_name etc., esentiale pentru
+        // functionarea aplicatiei). Acum tratam eroarea explicit.
+        if (profileError) {
+          console.error("Eroare la crearea profilului:", profileError.message);
+          setError(t("unexpectedError"));
+          setLoading(false);
+          return;
+        }
+
         alert(t("accountCreated"));
         await supabase.auth.signOut();
         router.push("/login");
       }
-    } catch (err: any) {
+    } catch {
       setError(t("unexpectedError"));
     } finally {
       setLoading(false);

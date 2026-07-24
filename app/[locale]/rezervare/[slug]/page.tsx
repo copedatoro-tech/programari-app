@@ -978,12 +978,12 @@ function RezervareContent() {
                 <div>
                   <div className="flex gap-1 mb-2">{Array.from({ length: f.stele }).map((_, i) => <Star key={i} className="w-4 h-4 text-amber-500" fill="currentColor" strokeWidth={2.5} />)}</div>
                   <p className="font-black text-[12px] text-amber-500 uppercase mb-2">{f.nume_client}</p>
-                  <p className="font-bold italic text-slate-700">"{f.comentariu}"</p>
+                  <p className="font-bold italic text-slate-700">&ldquo;{f.comentariu}&rdquo;</p>
                 </div>
                 {f.raspuns_admin && (
                   <div className="ml-2 p-6 bg-slate-900 rounded-3xl border-l-4 border-amber-500">
                     <p className="text-[10px] font-black text-amber-500 uppercase mb-1 tracking-widest italic">{t("salonReplyLabel")}</p>
-                    <p className="text-white text-sm font-bold italic">"{f.raspuns_admin}"</p>
+                    <p className="text-white text-sm font-bold italic">&ldquo;{f.raspuns_admin}&rdquo;</p>
                   </div>
                 )}
               </div>

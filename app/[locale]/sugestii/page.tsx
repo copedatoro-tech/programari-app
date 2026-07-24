@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import { useEffect, useState, useRef, useCallback } from "react";
 import { Link } from "@/i18n/navigation";
 import { supabase } from "@/lib/supabaseClient";
@@ -523,12 +523,12 @@ export default function PareriClienti() {
                 ) : (
                   <>
                     <p className="text-slate-700 font-bold italic mb-8 text-sm leading-relaxed">
-                      "{f.comentariu}"
+                      &ldquo;{f.comentariu}&rdquo;
                     </p>
                     {f.raspuns_admin && (
                       <div className="mb-8 p-6 bg-slate-900 rounded-[30px] border-b-4 border-amber-600">
                         <p className="text-amber-500 font-black uppercase text-[8px] mb-2 italic">{t("yourResponseLabel")}</p>
-                        <p className="text-white text-xs italic">"{f.raspuns_admin}"</p>
+                        <p className="text-white text-xs italic">&ldquo;{f.raspuns_admin}&rdquo;</p>
                       </div>
                     )}
                   </>

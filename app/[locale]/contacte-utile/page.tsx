@@ -732,6 +732,7 @@ export default function ContacteUtilePage() {
           folder={folderEditat}
           onSalveaza={actualizeazaFolder}
           onClose={() => setFolderEditat(null)}
+          onSterge={() => stergeFolder(folderEditat.id)}
           t={t}
         />
       )}

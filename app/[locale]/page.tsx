@@ -9,9 +9,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import {
-  ArrowRight, ShieldCheck, Mail, BellRing, MoreHorizontal,
-  Calendar, Users, Zap, Star, Clock, FileText, BarChart2,
-  Phone, CheckCircle2, Package, MapPin, QrCode, Smartphone,
+  ArrowRight, ShieldCheck, Mail, BellRing,
+  Calendar, Users, Zap, Star, FileText, BarChart2,
+  Phone, CheckCircle2, Package, Smartphone,
 } from "lucide-react";
 // ✅ Modale legale — deschise direct pe pagina de landing, în loc să
 // navigheze greșit către alte rute (ex. /login)

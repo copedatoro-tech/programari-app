@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import { useTranslations } from "next-intl";
@@ -322,17 +322,13 @@ export function ChronosDatePicker({
   value,
   onChange,
   onClose,
-  minDate,
   workingHours = [],
-  manualBlocks = {},
   isDateAvailable,
 }: {
   value: string;
   onChange: (val: string) => void;
   onClose: () => void;
-  minDate?: string;
   workingHours?: WorkingHourEntry[];
-  manualBlocks?: Record<string, string[]>;
   isDateAvailable?: (dateStr: string) => boolean;
 }) {
   const t = useTranslations("chronosPickers");
