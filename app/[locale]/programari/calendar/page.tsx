@@ -523,11 +523,11 @@ function SummaryBar({ programari, rawServices, selectedDate, selectedExpert, sel
   );
 }
 // ─── DayView ──────────────────────────────────────────────────────────────────
-function DayView({ selectedDate, programari, rawStaff, rawServices, serviceById, onEdit, adminWorkingHours, selectedExpert, selectedServiciu, onSelectServiciu, onAddNew }: {
+function DayView({ selectedDate, programari, rawStaff, rawServices, serviceById, onEdit, adminWorkingHours, adminManualBlocks, selectedExpert, selectedServiciu, onSelectServiciu, onAddNew }: {
   selectedDate: Date; programari: Prog[]; rawStaff: StaffRow[];
   rawServices: ServiceRow[]; serviceById: Record<string,ServiceRow>;
   onEdit: (p: Prog) => void; onAddNew: (time: string, date: string) => void;
-  adminWorkingHours: WorkingHour[]; selectedExpert: string; selectedServiciu: string;
+  adminWorkingHours: WorkingHour[]; adminManualBlocks: ManualBlocks; selectedExpert: string; selectedServiciu: string;
   onSelectServiciu: (id: string) => void;
 }) {
   const t = useTranslations("calendarPage");
@@ -535,7 +535,12 @@ function DayView({ selectedDate, programari, rawStaff, rawServices, serviceById,
   const dateKey = formatDateKey(selectedDate);
   const dayName = dayLong[selectedDate.getDay()];
   const ds = adminWorkingHours.find(h=>h.day===dayName);
-  const isClosed = !!ds?.closed;
+  const dayManualBlocks = (adminManualBlocks[dateKey] || []).length;
+  const isFullyBlocked = dayManualBlocks >= 94;
+  const isClosed = !!ds?.closed || isFullyBlocked;
+  const nowRef = new Date();
+  const todayKeyRef = formatDateKey(nowRef);
+  const nowMinutesRef = nowRef.getHours()*60+nowRef.getMinutes();
   const whStart = ds?.start||"";
   const whEnd   = ds?.end||"";
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -661,11 +666,14 @@ function DayView({ selectedDate, programari, rawStaff, rawServices, serviceById,
               </div>
             )}
             {slots.map((slot,i) => {
+              const isPastSlot = dateKey === todayKeyRef && timeToMin(slot) <= nowMinutesRef;
+              const slotDisabled = isClosed || isPastSlot;
               return (
-                <button key={`e-${slot}`} onClick={()=>onAddNew(slot,dateKey)}
-                  style={{position:"absolute",left:0,right:0,top:i*SLOT_H,height:SLOT_H,zIndex:5,background:"transparent",border:"none",cursor:"pointer"}}
-                  className="group hover:bg-amber-50 transition-all">
-                  <span style={{position:"absolute",left:10,top:"50%",transform:"translateY(-50%)",fontSize:10,fontWeight:700,color:"#f59e0b",opacity:0}} className="group-hover:opacity-100 transition-opacity">+ {slot}</span>
+                <button key={`e-${slot}`} onClick={()=>{ if(!slotDisabled) onAddNew(slot,dateKey); }}
+                  disabled={slotDisabled}
+                  style={{position:"absolute",left:0,right:0,top:i*SLOT_H,height:SLOT_H,zIndex:5,background:"transparent",border:"none",cursor:slotDisabled?"not-allowed":"pointer"}}
+                  className={slotDisabled?"":"group hover:bg-amber-50 transition-all"}>
+                  {!slotDisabled && <span style={{position:"absolute",left:10,top:"50%",transform:"translateY(-50%)",fontSize:10,fontWeight:700,color:"#f59e0b",opacity:0}} className="group-hover:opacity-100 transition-opacity">+ {slot}</span>}
                 </button>
               );
             })}
@@ -718,11 +726,11 @@ function DayView({ selectedDate, programari, rawStaff, rawServices, serviceById,
   );
 }
 // ─── WeekView — redesign simplu (listă per zi, fără grid ore) ─────────────────
-function WeekView({ selectedDate, programariByDate, rawStaff, serviceById, onEdit, selectedExpert, selectedServiciu, adminWorkingHours }: {
+function WeekView({ selectedDate, programariByDate, rawStaff, serviceById, onEdit, selectedExpert, selectedServiciu, adminWorkingHours, adminManualBlocks }: {
   selectedDate: Date; programariByDate: Record<string,Prog[]>;
   rawStaff: StaffRow[]; serviceById: Record<string,ServiceRow>; rawServices: ServiceRow[];
   onEdit: (p: Prog) => void; selectedExpert: string; selectedServiciu: string;
-  adminWorkingHours: WorkingHour[]; onSelectDate: (d: Date) => void;
+  adminWorkingHours: WorkingHour[]; adminManualBlocks: ManualBlocks; onSelectDate: (d: Date) => void;
 }) {
   const t = useTranslations("calendarPage");
   const dayLong = t.raw("dayLong") as string[];
@@ -761,7 +769,9 @@ function WeekView({ selectedDate, programariByDate, rawStaff, serviceById, onEdi
             const key = formatDateKey(day);
             const dn = dayLong[day.getDay()];
             const wh = whByDay[dn];
-            const isClosed = !!wh?.closed;
+            const dayManualBlocksWV = (adminManualBlocks[key] || []).length;
+            const isFullyBlockedWV = dayManualBlocksWV >= 94;
+            const isClosed = !!wh?.closed || isFullyBlockedWV;
             const isToday = sameDay(day,today);
             const dayAppts = (programariByDate[key]||[])
               .filter(p=>(!selectedExpert||p.expertId===selectedExpert)&&(!selectedServiciu||p.serviciuId===selectedServiciu))
@@ -769,18 +779,16 @@ function WeekView({ selectedDate, programariByDate, rawStaff, serviceById, onEdi
             return (
               <div key={di} style={{
                 minHeight:120,
-                borderRight:di<6?"1px solid #e2e8f0":"none",
-                borderBottom:"1px solid #e2e8f0",
-                background:isClosed
-                  ? "repeating-linear-gradient(135deg,rgba(239,68,68,0.04) 0px,rgba(239,68,68,0.04) 5px,rgba(255,245,245,1) 5px,rgba(255,245,245,1) 10px)"
-                  : isToday?"rgba(251,191,36,0.04)":"#fff",
+                borderRight:di<6?(isClosed?"1px solid #fca5a5":"1px solid #e2e8f0"):"none",
+                borderBottom: isClosed ? "1px solid #fca5a5" : "1px solid #e2e8f0",
+                boxShadow: isClosed ? "inset 0 0 0 2px #fca5a5" : "none",
+                background:isClosed?"#fef2f2":isToday?"rgba(251,191,36,0.04)":"#fff",
                 padding:"8px 6px",
                 display:"flex",flexDirection:"column",gap:5,
               }}>
                 {isClosed&&(
-                  <div style={{textAlign:"center",padding:"12px 4px",color:"#fca5a5"}}>
-                    <div style={{fontSize:20,marginBottom:4}}>🚫</div>
-                    <span style={{fontSize:9,fontWeight:700,color:"#f87171"}}>{t("weekDayClosedLabel")}</span>
+                  <div style={{display:"flex",justifyContent:"center",marginBottom:6}}>
+                    <span style={{fontSize:8,fontWeight:800,color:"#fff",background:"#dc2626",padding:"2px 8px",borderRadius:5,letterSpacing:"0.02em"}}>{t("closedBadgeCaps")}</span>
                   </div>
                 )}
                 {!isClosed&&dayAppts.length===0&&(
@@ -842,11 +850,11 @@ function WeekView({ selectedDate, programariByDate, rawStaff, serviceById, onEdi
   );
 }
 // ─── MonthView ────────────────────────────────────────────────────────────────
-function MonthView({ selectedDate, programariByDate, rawStaff, serviceById, onEdit, onDayClick, selectedExpert, selectedServiciu, adminWorkingHours }: {
+function MonthView({ selectedDate, programariByDate, rawStaff, serviceById, onEdit, onDayClick, selectedExpert, selectedServiciu, adminWorkingHours, adminManualBlocks }: {
   selectedDate: Date; programariByDate: Record<string,Prog[]>;
   rawStaff: StaffRow[]; serviceById: Record<string,ServiceRow>;
   onEdit: (p: Prog) => void; onDayClick: (d: Date) => void;
-  selectedExpert: string; selectedServiciu: string; adminWorkingHours: WorkingHour[];
+  selectedExpert: string; selectedServiciu: string; adminWorkingHours: WorkingHour[]; adminManualBlocks: ManualBlocks;
 }) {
   const t = useTranslations("calendarPage");
   const dayShort = t.raw("dayShort") as string[];
@@ -885,7 +893,7 @@ function MonthView({ selectedDate, programariByDate, rawStaff, serviceById, onEd
           const online=appts.filter(p=>p.isOnline).length;
           const isCurMo=day.getMonth()===selectedDate.getMonth();
           const isToday=sameDay(day,today);const isSel=sameDay(day,selectedDate);
-          const wh=whByDay[dayLong[day.getDay()]];const isClosed=!!wh?.closed;
+          const wh=whByDay[dayLong[day.getDay()]];const dayBlocked=(adminManualBlocks[key]||[]).length>=94;const isClosed=!!wh?.closed||dayBlocked;
           return (
             <div key={idx} onClick={()=>onDayClick(day)}
               style={{
@@ -1473,18 +1481,18 @@ function CalendarContent() {
         {isLoading&&<div style={{height:3,background:"#fef3c7",overflow:"hidden",flexShrink:0}}><div style={{height:"100%",width:"33%",background:"#f59e0b"}} className="animate-pulse"/></div>}
         {viewMode==="day"&&(
           <DayView selectedDate={selectedDate} programari={filteredProg} rawStaff={rawStaff} rawServices={rawServices} serviceById={serviceById}
-            onEdit={openEdit} adminWorkingHours={viewWorkingHours} selectedExpert={selectedExpert} selectedServiciu={selectedServiciu}
+            onEdit={openEdit} adminWorkingHours={viewWorkingHours} adminManualBlocks={adminManualBlocks} selectedExpert={selectedExpert} selectedServiciu={selectedServiciu}
             onSelectServiciu={handleSelectServiciu}
             onAddNew={(time,date)=>setNewForm({date,time,nume:"",telefon:"",email:"",serviciuId:"",expertId:selectedExpert||rawStaff[0]?.id||"",motiv:""})}/>
         )}
         {viewMode==="week"&&(
           <WeekView selectedDate={selectedDate} programariByDate={programariByDate} rawStaff={rawStaff} rawServices={rawServices} serviceById={serviceById}
-            onEdit={openEdit} selectedExpert={selectedExpert} selectedServiciu={selectedServiciu} adminWorkingHours={viewWorkingHours}
+            onEdit={openEdit} selectedExpert={selectedExpert} selectedServiciu={selectedServiciu} adminWorkingHours={viewWorkingHours} adminManualBlocks={adminManualBlocks}
             onSelectDate={d=>{setSelectedDate(d);setViewMode("day");}}/>
         )}
         {viewMode==="month"&&(
           <MonthView selectedDate={selectedDate} programariByDate={programariByDate} rawStaff={rawStaff} serviceById={serviceById}
-            onEdit={openEdit} onDayClick={d=>{setSelectedDate(d);setViewMode("day");}} selectedExpert={selectedExpert} selectedServiciu={selectedServiciu} adminWorkingHours={viewWorkingHours}/>
+            onEdit={openEdit} onDayClick={d=>{setSelectedDate(d);setViewMode("day");}} selectedExpert={selectedExpert} selectedServiciu={selectedServiciu} adminWorkingHours={viewWorkingHours} adminManualBlocks={adminManualBlocks}/>
         )}
         {viewMode==="year"&&(
           <YearView selectedDate={selectedDate} programariByDate={programariByDate} onMonthClick={(yr,mo)=>{setSelectedDate(new Date(yr,mo,1));setViewMode("month");}}/>

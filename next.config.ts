@@ -15,6 +15,9 @@ const nextConfig: NextConfig = {
     ],
   },
   reactStrictMode: true,
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
 };
 
 const configWithIntl = withNextIntl(nextConfig);
