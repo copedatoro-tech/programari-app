@@ -42,7 +42,6 @@ export default function GestioneazaPage() {
   const [existingSlots, setExistingSlots] = useState<{ time: string; duration: number }[]>([]);
   const [saving, setSaving] = useState(false);
 
-  const today = useMemo(() => new Date().toISOString().split("T")[0], []);
 
   const loadAppt = useCallback(async () => {
     try {

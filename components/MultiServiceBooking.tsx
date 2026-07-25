@@ -69,12 +69,11 @@ function mkKey(date: string, specialistId: string) {
 // ─── Un slot (rând) ───────────────────────────────────────────────────────────
 function SlotRow({
   slot, index, servicii, specialisti, workingHours, manualBlocks,
-  apptForSlot, today, onChange, onRemove, canRemove,
+  apptForSlot, onChange, onRemove, canRemove,
 }: {
   slot: ServiceSlot; index: number; servicii: ServiceRow[]; specialisti: StaffRow[];
   workingHours: WorkingHour[]; manualBlocks: Record<string, string[]>;
   apptForSlot: ExistingAppt[];
-  today: string;
   onChange: (u: Partial<ServiceSlot>) => void;
   onRemove: () => void; canRemove: boolean;
 }) {
@@ -494,7 +493,6 @@ export default function MultiServiceBooking({
             servicii={servicii} specialisti={specialisti}
             workingHours={adminWorkingHours} manualBlocks={adminManualBlocks}
             apptForSlot={apptCache[mkKey(slot.data, slot.specialist_id)] || []}
-            today={today}
             onChange={(u) => updateSlot(slot.slotId, u)}
             onRemove={() => removeSlot(slot.slotId)}
             canRemove={slots.length > 1}

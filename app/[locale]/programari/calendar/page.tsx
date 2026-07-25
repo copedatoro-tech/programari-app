@@ -1099,7 +1099,6 @@ function CalendarContent() {
   const isDemo = searchParams.get("demo")==="true";
   const modalRef = useRef<HTMLDivElement>(null);
   const qClient = useQueryClient();
-  const today = useMemo(()=>new Date().toISOString().split("T")[0],[]);
   const [viewMode, setViewMode] = useState<ViewMode>("month");
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [searchTerm, setSearchTerm] = useState("");
