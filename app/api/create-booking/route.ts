@@ -104,7 +104,6 @@ export async function POST(request: Request) {
         .select("id")
         .eq("user_id", adminId)
         .gte("created_at", startOfMonth);
-
       if (apptData && apptData.length + bookings.length > maxAppointments) {
         return NextResponse.json({ error: "S-a atins limita de programari pentru luna aceasta.", code: "plan_limit" }, { status: 400 });
       }
@@ -113,17 +112,41 @@ export async function POST(request: Request) {
     // ── Inregistram incercarea (pentru rate limiting) ───────────────────
     await supabaseAdmin.from("booking_rate_limits").insert({ ip_address: ip });
 
-    // ── Preluam serviciile, ca sa stim durata fiecaruia ─────────────────
+    // ── Preluam serviciile si staff-ul, FILTRATE dupa acest salon ───────
+    // 🔒 FIX: interogarea de servicii nu filtra pe user_id (spre deosebire
+    // de staff, care era deja corect filtrat) — cineva putea trimite un
+    // serviciu_id de la ALT salon, iar acesta era gasit si folosit oricum
+    // (durata reala, nume in email), generand combinatii incoerente.
     const serviceIds = bookings.map((b: any) => b.serviciu_id);
     const { data: services } = await supabaseAdmin
       .from("services")
       .select("id, nume_serviciu, duration")
+      .eq("user_id", adminId)
       .in("id", serviceIds);
 
     const { data: staff } = await supabaseAdmin
       .from("staff")
       .select("id, name")
       .eq("user_id", adminId);
+
+    // 🔒 FIX: respingem explicit daca vreun serviciu_id nu apartine acestui
+    // salon (dupa filtrare, nu s-ar mai gasi in lista), in loc sa lasam
+    // programarea sa se insereze cu durata implicita/gresita.
+    for (const b of bookings) {
+      const svcExists = services?.some((s) => s.id === b.serviciu_id);
+      if (!svcExists) {
+        return NextResponse.json({ error: "Unul dintre serviciile selectate nu apartine acestui salon." }, { status: 400 });
+      }
+      // 🔒 FIX: la fel, daca specialist_id e trimis dar nu apartine acestui
+      // salon, respingem — inainte doar afisa un nume generic ("Prima
+      // disponibilitate") dar tot insera angajat_id-ul strain in DB.
+      if (b.specialist_id) {
+        const staffExists = staff?.some((s) => s.id === b.specialist_id);
+        if (!staffExists) {
+          return NextResponse.json({ error: "Specialistul selectat nu apartine acestui salon." }, { status: 400 });
+        }
+      }
+    }
 
     // ── Inseram programarile ────────────────────────────────────────────
     const insertedIds: string[] = [];
@@ -149,18 +172,15 @@ export async function POST(request: Request) {
         status: "pending",
         is_client_booking: true,
       };
-
       const { data: inserted, error } = await supabaseAdmin
         .from("appointments")
         .insert([payload])
         .select("id")
         .single();
-
       if (error) {
         console.error("Eroare insert programare:", error.message);
         continue;
       }
-
       if (inserted?.id) {
         insertedIds.push(inserted.id);
         // Trimitem emailul de confirmare, fara sa blocam raspunsul daca esueaza
@@ -177,11 +197,9 @@ export async function POST(request: Request) {
         }).catch(() => {});
       }
     }
-
     if (insertedIds.length === 0) {
       return NextResponse.json({ error: "Nu s-a putut salva nicio programare." }, { status: 500 });
     }
-
     return NextResponse.json({ success: true, count: insertedIds.length });
   } catch (err: any) {
     console.error("Eroare create-booking:", err.message);

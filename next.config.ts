@@ -33,7 +33,7 @@ const configWithIntl = withNextIntl(nextConfig);
 // doar in productie/CI, unde ar trebui setat ca variabila de mediu pe
 // Vercel). Local, build-ul sare complet peste Sentry — mai rapid, fara
 // blocaje, fara sa afecteze functionarea reala a Sentry in productie.
-export default process.env.SENTRY_AUTH_TOKEN
+export default (process.env.VERCEL && process.env.SENTRY_AUTH_TOKEN)
   ? withSentryConfig(configWithIntl, {
       // For all available options, see:
       // https://www.npmjs.com/package/@sentry/webpack-plugin#options
