@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { useParams } from "next/navigation";
@@ -290,10 +290,8 @@ export default function GestioneazaPage() {
               <ChronosDatePicker
                 value={newDate}
                 onChange={(v) => { setNewDate(v); setNewTime(""); setShowDatePicker(false); }}
-                minDate={today}
                 onClose={() => setShowDatePicker(false)}
                 workingHours={appt.workingHours}
-                manualBlocks={appt.manualBlocks}
               />
             </div>
           </div>

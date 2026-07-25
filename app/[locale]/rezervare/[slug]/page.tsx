@@ -658,10 +658,8 @@ function RezervareContent() {
                 updateBooking(pickerControl.bookingId, { data: val, ora: "00:00" });
                 setPickerControl(null);
               }}
-              minDate={today}
               onClose={() => setPickerControl(null)}
               workingHours={effectiveWorkingHours}
-              manualBlocks={adminManualBlocks}
               isDateAvailable={(d) => isDateAvailable(d, effectiveWorkingHours)}
             />
           </div>

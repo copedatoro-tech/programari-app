@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import React, { useState, useEffect, useMemo, Suspense, useCallback, useRef } from "react";
 import { Link } from "@/i18n/navigation";
 import { useSearchParams } from "next/navigation";
@@ -1243,7 +1243,7 @@ function CalendarContent() {
     <div style={{display:"flex",flexDirection:"column",height:"100vh",background:"#f8fafc",overflow:"hidden"}}>
       {editForm&&(
         <>
-          {showDatePicker&&(<div style={{position:"fixed",inset:0,zIndex:900,background:"rgba(0,0,0,0.5)",backdropFilter:"blur(4px)",display:"flex",alignItems:"center",justifyContent:"center",padding:16}} onClick={()=>setShowDatePicker(false)}><div onClick={e=>e.stopPropagation()}><ChronosDatePicker value={editForm.data} onChange={v=>{setEditForm(p=>p?{...p,data:v,ora:""}:null);setShowDatePicker(false);}} minDate={today} onClose={()=>setShowDatePicker(false)} workingHours={editWorkingHours} manualBlocks={adminManualBlocks}/></div></div>)}
+          {showDatePicker&&(<div style={{position:"fixed",inset:0,zIndex:900,background:"rgba(0,0,0,0.5)",backdropFilter:"blur(4px)",display:"flex",alignItems:"center",justifyContent:"center",padding:16}} onClick={()=>setShowDatePicker(false)}><div onClick={e=>e.stopPropagation()}><ChronosDatePicker value={editForm.data} onChange={v=>{setEditForm(p=>p?{...p,data:v,ora:""}:null);setShowDatePicker(false);}} onClose={()=>setShowDatePicker(false)} workingHours={editWorkingHours}/></div></div>)}
           {showTimePicker&&(<div style={{position:"fixed",inset:0,zIndex:900,background:"rgba(0,0,0,0.5)",backdropFilter:"blur(4px)",display:"flex",alignItems:"center",justifyContent:"center",padding:16}} onClick={()=>setShowTimePicker(false)}><div onClick={e=>e.stopPropagation()}><ChronosTimePicker value={editForm.ora||"09:00"} onChange={v=>{setEditForm(p=>p?{...p,ora:v}:null);setShowTimePicker(false);}} onClose={()=>setShowTimePicker(false)} workingHours={editWorkingHours} existingAppointments={editExisting} selectedDate={editForm.data} serviceDuration={editSvcDur} manualBlocks={adminManualBlocks}/></div></div>)}
           <div style={{position:"fixed",inset:0,background:"rgba(15,23,42,0.72)",backdropFilter:"blur(6px)",zIndex:500,display:"flex",alignItems:"center",justifyContent:"center",padding:12}} onClick={closeModal}>
             <div ref={modalRef} onClick={e=>e.stopPropagation()} style={{background:"#fff",width:"100%",maxWidth:540,borderRadius:20,overflow:"hidden",boxShadow:"0 24px 60px rgba(0,0,0,0.25)",border:"1px solid #e2e8f0",position:"relative",display:"flex",flexDirection:"column",maxHeight:"96vh"}}>

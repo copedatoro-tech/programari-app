@@ -143,8 +143,8 @@ function SlotRow({
             <ChronosDatePicker
               value={slot.data}
               onChange={(v) => { onChange({ data: v, ora: "00:00" }); setShowDate(false); }}
-              minDate={today} onClose={() => setShowDate(false)}
-              workingHours={effectiveWH} manualBlocks={manualBlocks}
+              onClose={() => setShowDate(false)}
+              workingHours={effectiveWH}
             />
           </div>
         </div>
