@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import { useRouter } from "next/navigation";
@@ -101,6 +101,7 @@ export default function BazaDateClienti() {
             }
           } else {
             deProcesat.set(tel, {
+              id: crypto.randomUUID(),
               user_id: currentUserId,
               client_name: numeDinProgr || "Client Nou",
               client_email: emailDinProgr || "",
