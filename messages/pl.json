@@ -1876,7 +1876,8 @@
     "addManualSubmitBtn": "Dodaj do listy",
     "addNameEmailDateRequired": "Imię, e-mail i data są wymagane.",
     "addError": "Błąd podczas dodawania.",
-    "addSuccess": "Pomyślnie dodano do listy oczekujących."
+    "addSuccess": "Pomyślnie dodano do listy oczekujących.",
+    "addTimeLabel": "Godzina"
   },
   "specialistPortal": {
     "login": {

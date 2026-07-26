@@ -1876,7 +1876,8 @@
     "addManualSubmitBtn": "Adaugă pe listă",
     "addNameEmailDateRequired": "Numele, emailul și data sunt obligatorii.",
     "addError": "Eroare la adăugare.",
-    "addSuccess": "Adăugat cu succes pe lista de așteptare."
+    "addSuccess": "Adăugat cu succes pe lista de așteptare.",
+    "addTimeLabel": "Ora"
   },
   "specialistPortal": {
     "login": {

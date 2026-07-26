@@ -1876,7 +1876,8 @@
     "addManualSubmitBtn": "Añadir a la lista",
     "addNameEmailDateRequired": "El nombre, el correo y la fecha son obligatorios.",
     "addError": "Error al añadir.",
-    "addSuccess": "Añadido con éxito a la lista de espera."
+    "addSuccess": "Añadido con éxito a la lista de espera.",
+    "addTimeLabel": "Hora"
   },
   "specialistPortal": {
     "login": {

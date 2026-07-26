@@ -1876,7 +1876,8 @@
     "addManualSubmitBtn": "Add to Waitlist",
     "addNameEmailDateRequired": "Name, email and date are required.",
     "addError": "Error adding entry.",
-    "addSuccess": "Successfully added to the waitlist."
+    "addSuccess": "Successfully added to the waitlist.",
+    "addTimeLabel": "Time"
   },
   "specialistPortal": {
     "login": {

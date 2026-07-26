@@ -1876,7 +1876,8 @@
     "addManualSubmitBtn": "Hozzáadás a listához",
     "addNameEmailDateRequired": "A név, az e-mail és a dátum kötelező.",
     "addError": "Hiba a hozzáadás során.",
-    "addSuccess": "Sikeresen hozzáadva a várólistához."
+    "addSuccess": "Sikeresen hozzáadva a várólistához.",
+    "addTimeLabel": "Idő"
   },
   "specialistPortal": {
     "login": {

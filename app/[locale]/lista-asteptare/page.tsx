@@ -5,6 +5,8 @@ import { createBrowserClient } from "@supabase/ssr";
 import { useRouter } from "next/navigation";
 import { useTranslations, useLocale } from "next-intl";
 import { showConfirm, showToast } from "@/lib/toast";
+import { ChronosTimePicker, ChronosDatePicker } from "@/components/ChronosDateTimePickers";
+import { CalendarDays, Clock3 } from "lucide-react";
 
 interface WaitlistEntry {
   id: string;
@@ -12,6 +14,7 @@ interface WaitlistEntry {
   clientPhone: string | null;
   clientEmail: string;
   date: string;
+  requestedTime: string | null;
   status: string;
   createdAt: string;
   specialistName: string | null;
@@ -33,9 +36,12 @@ export default function ListaAsteptarePage() {
   const [staff, setStaff] = useState<StaffRow[]>([]);
   const [services, setServices] = useState<ServiceRow[]>([]);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [showTimePicker, setShowTimePicker] = useState(false);
   const [adding, setAdding] = useState(false);
+  const today = new Date().toISOString().split("T")[0];
   const [addForm, setAddForm] = useState({
-    clientName: "", clientPhone: "", clientEmail: "", date: "",
+    clientName: "", clientPhone: "", clientEmail: "", date: today, time: "",
     specialistId: "", serviciuId: "",
   });
 
@@ -81,6 +87,7 @@ export default function ListaAsteptarePage() {
           clientPhone: addForm.clientPhone.trim() || null,
           clientEmail: addForm.clientEmail.trim(),
           date: addForm.date,
+          requestedTime: addForm.time || null,
           specialistId: addForm.specialistId || null,
           serviciuId: addForm.serviciuId || null,
         }),
@@ -92,7 +99,7 @@ export default function ListaAsteptarePage() {
       }
       await showToast({ message: t("addSuccess"), type: "success" });
       setShowAddModal(false);
-      setAddForm({ clientName: "", clientPhone: "", clientEmail: "", date: "", specialistId: "", serviciuId: "" });
+      setAddForm({ clientName: "", clientPhone: "", clientEmail: "", date: today, time: "", specialistId: "", serviciuId: "" });
       load();
     } catch {
       await showToast({ message: t("addError"), type: "error" });
@@ -208,7 +215,10 @@ export default function ListaAsteptarePage() {
                         <div>{e.clientPhone}</div>
                         <div className="text-slate-400">{e.clientEmail}</div>
                       </td>
-                      <td className="p-5 font-black text-[12px] text-amber-600">{fmtDate(e.date)}</td>
+                      <td className="p-5 font-black text-[12px] text-amber-600">
+                        {fmtDate(e.date)}
+                        {e.requestedTime && <span className="block text-[10px] text-slate-400 font-bold">{e.requestedTime}</span>}
+                      </td>
                       <td className="p-5 text-[11px] font-bold text-slate-600">{e.specialistName || t("anyOpt")}</td>
                       <td className="p-5 text-[11px] font-bold text-slate-600">{e.serviceName || t("anyOpt")}</td>
                       <td className="p-5">{statusBadge(e.status)}</td>
@@ -229,6 +239,38 @@ export default function ListaAsteptarePage() {
           </div>
         )}
       </div>
+
+      {/* PICKER DATA */}
+      {showDatePicker && (
+        <div className="fixed inset-0 z-[900] bg-slate-950/50 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => setShowDatePicker(false)}>
+          <div onClick={(e) => e.stopPropagation()}>
+            <ChronosDatePicker
+              value={addForm.date}
+              onChange={(val) => { setAddForm((f) => ({ ...f, date: val })); setShowDatePicker(false); }}
+              onClose={() => setShowDatePicker(false)}
+              workingHours={[]}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* PICKER ORA */}
+      {showTimePicker && (
+        <div className="fixed inset-0 z-[900] bg-slate-950/50 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => setShowTimePicker(false)}>
+          <div onClick={(e) => e.stopPropagation()}>
+            <ChronosTimePicker
+              value={addForm.time || "09:00"}
+              onChange={(val) => { setAddForm((f) => ({ ...f, time: val })); setShowTimePicker(false); }}
+              onClose={() => setShowTimePicker(false)}
+              workingHours={[]}
+              existingAppointments={[]}
+              selectedDate={addForm.date}
+              serviceDuration={30}
+              manualBlocks={{}}
+            />
+          </div>
+        </div>
+      )}
 
       {/* MODAL ADAUGARE MANUALA */}
       {showAddModal && (
@@ -269,15 +311,33 @@ export default function ListaAsteptarePage() {
                   />
                 </div>
               </div>
-              <div className="flex flex-col gap-1">
-                <span className="text-[9px] font-black text-slate-400 ml-3 uppercase">{t("addDateLabel")}</span>
-                <input
-                  type="date"
-                  className="bg-slate-50 p-4 rounded-2xl font-bold text-[13px] outline-none border-2 border-transparent focus:border-amber-400 transition-all"
-                  value={addForm.date}
-                  onChange={(e) => setAddForm((f) => ({ ...f, date: e.target.value }))}
-                />
+
+              {/* ✅ Picker native Chronos pentru dată și oră, la fel ca in restul aplicatiei */}
+              <div className="grid grid-cols-2 gap-3">
+                <div className="flex flex-col gap-1">
+                  <span className="text-[9px] font-black text-slate-400 ml-3 uppercase">{t("addDateLabel")}</span>
+                  <button
+                    type="button"
+                    onClick={() => setShowDatePicker(true)}
+                    className="bg-slate-900 text-white rounded-2xl py-4 px-4 font-black text-[13px] uppercase italic hover:bg-slate-800 transition-all flex items-center justify-center gap-2"
+                  >
+                    <CalendarDays className="w-4 h-4 shrink-0" strokeWidth={2.6} />
+                    <span>{new Date(addForm.date + "T00:00:00").toLocaleDateString(locale, { day: "2-digit", month: "2-digit", year: "numeric" })}</span>
+                  </button>
+                </div>
+                <div className="flex flex-col gap-1">
+                  <span className="text-[9px] font-black text-slate-400 ml-3 uppercase">{t("addTimeLabel")}</span>
+                  <button
+                    type="button"
+                    onClick={() => setShowTimePicker(true)}
+                    className={`rounded-2xl py-4 px-4 font-black text-[13px] uppercase italic transition-all flex items-center justify-center gap-2 ${addForm.time ? "bg-amber-500 text-white hover:bg-amber-600" : "bg-slate-900 text-white hover:bg-slate-800"}`}
+                  >
+                    <Clock3 className="w-4 h-4 shrink-0" strokeWidth={2.6} />
+                    <span>{addForm.time || t("anyOpt")}</span>
+                  </button>
+                </div>
               </div>
+
               <div className="grid grid-cols-2 gap-3">
                 <div className="flex flex-col gap-1">
                   <span className="text-[9px] font-black text-slate-400 ml-3 uppercase">{t("addSpecialistLabel")}</span>

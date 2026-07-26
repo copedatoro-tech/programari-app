@@ -1876,7 +1876,8 @@
     "addManualSubmitBtn": "Zur Warteliste hinzufügen",
     "addNameEmailDateRequired": "Name, E-Mail und Datum sind erforderlich.",
     "addError": "Fehler beim Hinzufügen.",
-    "addSuccess": "Erfolgreich zur Warteliste hinzugefügt."
+    "addSuccess": "Erfolgreich zur Warteliste hinzugefügt.",
+    "addTimeLabel": "Uhrzeit"
   },
   "specialistPortal": {
     "login": {

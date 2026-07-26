@@ -47,6 +47,7 @@ export async function GET() {
     clientPhone: e.client_phone,
     clientEmail: e.client_email,
     date: e.date,
+    requestedTime: e.requested_time,
     status: e.status,
     createdAt: e.created_at,
     specialistName: staffRows?.find((s) => s.id === e.specialist_id)?.name || null,
@@ -66,7 +67,7 @@ export async function POST(request: Request) {
 
   try {
     const body = await request.json();
-    const { clientName, clientPhone, clientEmail, date, specialistId, serviciuId } = body;
+    const { clientName, clientPhone, clientEmail, date, requestedTime, specialistId, serviciuId } = body;
 
     if (!clientName?.trim() || !clientEmail?.trim() || !date) {
       return NextResponse.json({ error: "Nume, email și dată sunt obligatorii." }, { status: 400 });
@@ -104,6 +105,7 @@ export async function POST(request: Request) {
         specialist_id: specialistId || null,
         serviciu_id: serviciuId || null,
         date,
+        requested_time: requestedTime || null,
         client_name: clientName.trim(),
         client_phone: clientPhone?.trim() || null,
         client_email: clientEmail.trim(),
