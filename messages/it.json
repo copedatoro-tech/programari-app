@@ -1864,7 +1864,19 @@
     "statusConfirmed": "✅ Confermato",
     "statusExpired": "⏱️ Scaduto",
     "removeBtn": "Rimuovi",
-    "confirmRemove": "Sei sicuro di voler rimuovere questo cliente dalla lista?"
+    "confirmRemove": "Sei sicuro di voler rimuovere questo cliente dalla lista?",
+    "addManualBtn": "Aggiungi manualmente",
+    "addManualTitle": "Aggiungi qualcuno manualmente",
+    "addNameLabel": "Nome cliente",
+    "addPhoneLabel": "Telefono",
+    "addEmailLabel": "Email",
+    "addDateLabel": "Data richiesta",
+    "addSpecialistLabel": "Specialista (opzionale)",
+    "addServiceLabel": "Servizio (opzionale)",
+    "addManualSubmitBtn": "Aggiungi alla lista",
+    "addNameEmailDateRequired": "Nome, email e data sono obbligatori.",
+    "addError": "Errore durante l'aggiunta.",
+    "addSuccess": "Aggiunto con successo alla lista d'attesa."
   },
   "specialistPortal": {
     "login": {

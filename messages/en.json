@@ -1864,7 +1864,19 @@
     "statusConfirmed": "✅ Confirmed",
     "statusExpired": "⏱️ Expired",
     "removeBtn": "Remove",
-    "confirmRemove": "Are you sure you want to remove this client from the list?"
+    "confirmRemove": "Are you sure you want to remove this client from the list?",
+    "addManualBtn": "Add Manually",
+    "addManualTitle": "Add Someone Manually",
+    "addNameLabel": "Client Name",
+    "addPhoneLabel": "Phone",
+    "addEmailLabel": "Email",
+    "addDateLabel": "Requested Date",
+    "addSpecialistLabel": "Specialist (optional)",
+    "addServiceLabel": "Service (optional)",
+    "addManualSubmitBtn": "Add to Waitlist",
+    "addNameEmailDateRequired": "Name, email and date are required.",
+    "addError": "Error adding entry.",
+    "addSuccess": "Successfully added to the waitlist."
   },
   "specialistPortal": {
     "login": {

@@ -1864,7 +1864,19 @@
     "statusConfirmed": "✅ Megerősítve",
     "statusExpired": "⏱️ Lejárt",
     "removeBtn": "Eltávolítás",
-    "confirmRemove": "Biztosan eltávolítod ezt az ügyfelet a listáról?"
+    "confirmRemove": "Biztosan eltávolítod ezt az ügyfelet a listáról?",
+    "addManualBtn": "Kézi hozzáadás",
+    "addManualTitle": "Valaki manuális hozzáadása",
+    "addNameLabel": "Ügyfél neve",
+    "addPhoneLabel": "Telefon",
+    "addEmailLabel": "E-mail",
+    "addDateLabel": "Kért dátum",
+    "addSpecialistLabel": "Szakember (opcionális)",
+    "addServiceLabel": "Szolgáltatás (opcionális)",
+    "addManualSubmitBtn": "Hozzáadás a listához",
+    "addNameEmailDateRequired": "A név, az e-mail és a dátum kötelező.",
+    "addError": "Hiba a hozzáadás során.",
+    "addSuccess": "Sikeresen hozzáadva a várólistához."
   },
   "specialistPortal": {
     "login": {

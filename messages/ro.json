@@ -1864,7 +1864,19 @@
     "statusConfirmed": "✅ Confirmat",
     "statusExpired": "⏱️ Expirat",
     "removeBtn": "Elimină",
-    "confirmRemove": "Sigur elimini acest client de pe listă?"
+    "confirmRemove": "Sigur elimini acest client de pe listă?",
+    "addManualBtn": "Adaugă manual",
+    "addManualTitle": "Adaugă pe cineva manual",
+    "addNameLabel": "Nume client",
+    "addPhoneLabel": "Telefon",
+    "addEmailLabel": "Email",
+    "addDateLabel": "Data dorită",
+    "addSpecialistLabel": "Specialist (opțional)",
+    "addServiceLabel": "Serviciu (opțional)",
+    "addManualSubmitBtn": "Adaugă pe listă",
+    "addNameEmailDateRequired": "Numele, emailul și data sunt obligatorii.",
+    "addError": "Eroare la adăugare.",
+    "addSuccess": "Adăugat cu succes pe lista de așteptare."
   },
   "specialistPortal": {
     "login": {

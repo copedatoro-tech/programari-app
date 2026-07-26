@@ -1864,7 +1864,19 @@
     "statusConfirmed": "✅ Bestätigt",
     "statusExpired": "⏱️ Abgelaufen",
     "removeBtn": "Entfernen",
-    "confirmRemove": "Möchtest du diesen Kunden wirklich von der Liste entfernen?"
+    "confirmRemove": "Möchtest du diesen Kunden wirklich von der Liste entfernen?",
+    "addManualBtn": "Manuell hinzufügen",
+    "addManualTitle": "Jemanden manuell hinzufügen",
+    "addNameLabel": "Kundenname",
+    "addPhoneLabel": "Telefon",
+    "addEmailLabel": "E-Mail",
+    "addDateLabel": "Gewünschtes Datum",
+    "addSpecialistLabel": "Spezialist (optional)",
+    "addServiceLabel": "Dienstleistung (optional)",
+    "addManualSubmitBtn": "Zur Warteliste hinzufügen",
+    "addNameEmailDateRequired": "Name, E-Mail und Datum sind erforderlich.",
+    "addError": "Fehler beim Hinzufügen.",
+    "addSuccess": "Erfolgreich zur Warteliste hinzugefügt."
   },
   "specialistPortal": {
     "login": {
