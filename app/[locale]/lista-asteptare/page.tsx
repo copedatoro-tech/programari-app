@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect, useCallback } from "react";
 import { createBrowserClient } from "@supabase/ssr";
@@ -50,19 +50,26 @@ export default function ListaAsteptarePage() {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   );
 
+  const [adminWorkingHours, setAdminWorkingHours] = useState<any[]>([]);
   const load = useCallback(async () => {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) { router.replace("/login"); return; }
     try {
-      const [waitlistRes, staffRes, servicesRes] = await Promise.all([
+      const [waitlistRes, staffRes, servicesRes, profileRes] = await Promise.all([
         fetch("/api/waitlist/admin"),
         supabase.from("staff").select("id, name, services").eq("user_id", session.user.id),
         supabase.from("services").select("id, nume_serviciu").eq("user_id", session.user.id),
+        supabase.from("profiles").select("working_hours").eq("id", session.user.id).single(),
       ]);
       const data = await waitlistRes.json();
       setEntries(data.entries || []);
       if (staffRes.data) setStaff(staffRes.data);
       if (servicesRes.data) setServices(servicesRes.data);
+      if (profileRes.data?.working_hours) {
+        const wh = profileRes.data.working_hours;
+        const parsed = typeof wh === "string" ? JSON.parse(wh) : wh;
+        setAdminWorkingHours(Array.isArray(parsed) ? parsed : []);
+      }
     } catch {
       // ignorăm
     } finally {
@@ -248,7 +255,7 @@ export default function ListaAsteptarePage() {
               value={addForm.date}
               onChange={(val) => { setAddForm((f) => ({ ...f, date: val })); setShowDatePicker(false); }}
               onClose={() => setShowDatePicker(false)}
-              workingHours={[]}
+              workingHours={adminWorkingHours}
             />
           </div>
         </div>
@@ -262,7 +269,7 @@ export default function ListaAsteptarePage() {
               value={addForm.time || "09:00"}
               onChange={(val) => { setAddForm((f) => ({ ...f, time: val })); setShowTimePicker(false); }}
               onClose={() => setShowTimePicker(false)}
-              workingHours={[]}
+              workingHours={adminWorkingHours}
               existingAppointments={[]}
               selectedDate={addForm.date}
               serviceDuration={30}
