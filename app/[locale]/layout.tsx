@@ -19,8 +19,7 @@ export default async function LocaleLayout({
 }) {
   const { locale } = await params;
 
-  // @ts-expect-error - routing.locales este un array readonly de string-uri specifice, dar "locale" vine ca string generic din params
-  if (!routing.locales.includes(locale)) notFound();
+  if (!(routing.locales as readonly string[]).includes(locale)) notFound();
 
   const messages = await getMessages();
 
