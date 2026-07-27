@@ -375,9 +375,9 @@
     },
     "hero": {
       "badge": "🔥 10 DNI DARMOWEGO OKRESU PRÓBNEGO — BEZ KARTY",
-      "titleLine1": "TY ROBISZ TO, CO UMIESZ",
-      "titleHighlight1": "NAJLEPIEJ!",
-      "titleLine2": "CHRONOS ZAJMUJE SIĘ RESZTĄ.",
+      "titleLine1": "CHRONOS OBSŁUGUJE REZERWACJE",
+      "titleHighlight1": "TY DAJESZ JAKOŚĆ",
+      "titleLine2": "I ODZYSKUJESZ CZAS DLA SIEBIE.",
       "subtitle": "Kompletna platforma zarządzania dla salonów, klinik, warsztatów i każdej firmy działającej na wizyty. Kalendarz, klienci, dokumenty, raporty i rezerwacje online — wszystko w jednym miejscu.",
       "ctaMain": "CHCĘ 10 DNI GRATIS",
       "ctaSub": "ZAŁÓŻ KONTO TERAZ",
@@ -492,12 +492,12 @@
       "heading": "PRZEJRZYSTE",
       "headingHighlight": "CENY",
       "subtitle": "Aktywuj okres próbny po pełnym skonfigurowaniu aplikacji — nie stracisz ani jednego dnia",
-      "popularBadge": "⭐ POPULARNY",
+      "popularBadge": "POLECANY",
       "planBadge": "PLAN",
       "plans": [
         {
           "plan": "Free",
-          "price": "Darmowy",
+          "price": "Za darmo",
           "prog": "30 wizyt/mies.",
           "features": [
             "Pełny kalendarz",
@@ -508,7 +508,7 @@
         },
         {
           "plan": "Pro",
-          "price": "—",
+          "price": "49 RON/mies.",
           "prog": "150 wizyt/mies.",
           "features": [
             "Wszystko z Free",
@@ -519,7 +519,7 @@
         },
         {
           "plan": "Elite",
-          "price": "—",
+          "price": "99 RON/mies.",
           "prog": "500 wizyt/mies.",
           "features": [
             "Wszystko z Pro",
@@ -531,7 +531,7 @@
         },
         {
           "plan": "Team",
-          "price": "—",
+          "price": "199 RON/mies.",
           "prog": "Bez limitu",
           "features": [
             "Wszystko z Elite",
@@ -542,7 +542,7 @@
         }
       ],
       "cta": "ZACZNIJ Z 10 DNIAMI GRATIS",
-      "ctaNote": "Bez karty. Bez zobowiązań. Aktywuj, gdy wszystko będzie skonfigurowane."
+      "ctaNote": "Bez karty. Bez zobowiązań. Zacznij za darmo z pełnym dostępem Team przez 10 dni."
     },
     "audience": {
       "heading": "DLA KAŻDEGO, KTO",
@@ -584,10 +584,10 @@
     },
     "finalCta": {
       "heading1": "GOTOWY, ŻEBY SPRÓBOWAĆ?",
-      "heading2": "10 DNI. DARMOWE. BEZ RYZYKA.",
-      "paragraph": "Uzupełniasz profil, ustawiasz grafik, dodajesz usługi i specjalistów — i jesteś gotowy na przyjmowanie rezerwacji online. Aktywuj okres próbny po zakończeniu konfiguracji, żeby nie stracić ani jednego dnia.",
+      "heading2": "10 DNI. ZA DARMO. PEŁNY DOSTĘP TEAM.",
+      "paragraph": "Uzupełnij profil, ustaw grafik, dodaj usługi i specjalistów — a następnie aktywuj darmowy okres próbny, gdy wszystko będzie gotowe. Chronos obsługuje rezerwacje, abyś mógł dawać jakość i odzyskać czas dla siebie.",
       "button": "UTWÓRZ DARMOWE KONTO",
-      "note": "Bez karty. Bez zobowiązań. Bez wiadomości o 23:00."
+      "note": "Bez karty. Bez zobowiązań. Więcej jakości. Więcej czasu dla Ciebie."
     },
     "footer": {
       "description": "Kompletna platforma zarządzania dla firm działających na wizyty. Kalendarz, klienci, dokumenty, raporty i rezerwacje online.",

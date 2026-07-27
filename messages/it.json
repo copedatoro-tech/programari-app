@@ -375,9 +375,9 @@
     },
     "hero": {
       "badge": "🔥 10 GIORNI DI PROVA GRATUITA — SENZA CARTA",
-      "titleLine1": "TU FAI QUELLO CHE SAI FARE",
-      "titleHighlight1": "MEGLIO!",
-      "titleLine2": "CHRONOS PENSA AL RESTO.",
+      "titleLine1": "CHRONOS GESTISCE LE PRENOTAZIONI",
+      "titleHighlight1": "TU OFFRI QUALITÀ",
+      "titleLine2": "E RITROVI TEMPO PER TE.",
       "subtitle": "La piattaforma completa di gestione per saloni, cliniche, officine e qualsiasi attività basata su appuntamenti. Calendario, clienti, documenti, report e prenotazioni online — tutto in un unico posto.",
       "ctaMain": "VOGLIO 10 GIORNI GRATIS",
       "ctaSub": "CREA IL TUO ACCOUNT ORA",
@@ -492,12 +492,12 @@
       "heading": "PREZZI",
       "headingHighlight": "TRASPARENTI",
       "subtitle": "Attiva la prova dopo aver configurato completamente l'applicazione — non perdi nemmeno un giorno",
-      "popularBadge": "⭐ POPOLARE",
+      "popularBadge": "CONSIGLIATO",
       "planBadge": "PIANO",
       "plans": [
         {
           "plan": "Free",
-          "price": "Gratuito",
+          "price": "Gratis",
           "prog": "30 app./mese",
           "features": [
             "Calendario completo",
@@ -508,7 +508,7 @@
         },
         {
           "plan": "Pro",
-          "price": "—",
+          "price": "49 RON/mese",
           "prog": "150 app./mese",
           "features": [
             "Tutto da Free",
@@ -519,7 +519,7 @@
         },
         {
           "plan": "Elite",
-          "price": "—",
+          "price": "99 RON/mese",
           "prog": "500 app./mese",
           "features": [
             "Tutto da Pro",
@@ -531,7 +531,7 @@
         },
         {
           "plan": "Team",
-          "price": "—",
+          "price": "199 RON/mese",
           "prog": "Illimitato",
           "features": [
             "Tutto da Elite",
@@ -542,7 +542,7 @@
         }
       ],
       "cta": "INIZIA CON 10 GIORNI GRATIS",
-      "ctaNote": "Senza carta. Senza impegno. Attiva una volta configurato tutto."
+      "ctaNote": "Nessuna carta. Nessun impegno. Inizia gratis con accesso completo Team per 10 giorni."
     },
     "audience": {
       "heading": "PER CHIUNQUE",
@@ -584,10 +584,10 @@
     },
     "finalCta": {
       "heading1": "PRONTO A PROVARE?",
-      "heading2": "10 GIORNI. GRATIS. SENZA RISCHIO.",
-      "paragraph": "Completa il profilo, imposta l'orario, aggiungi servizi e specialisti — e sei pronto a ricevere prenotazioni online. Attiva la prova una volta terminata la configurazione per non perdere nemmeno un giorno.",
+      "heading2": "10 GIORNI. GRATIS. ACCESSO COMPLETO TEAM.",
+      "paragraph": "Completa il profilo, imposta l'orario, aggiungi servizi e specialisti — poi attiva la prova gratuita quando tutto è pronto. Chronos gestisce le prenotazioni, così tu puoi offrire qualità e ritrovare tempo per te.",
       "button": "CREA ACCOUNT GRATUITO",
-      "note": "Senza carta. Senza impegno. Senza messaggi alle 23."
+      "note": "Nessuna carta. Nessun impegno. Più qualità. Più tempo per te."
     },
     "footer": {
       "description": "La piattaforma completa di gestione per attività basate su appuntamenti. Calendario, clienti, documenti, report e prenotazioni online.",

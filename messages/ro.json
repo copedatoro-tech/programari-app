@@ -375,9 +375,9 @@
     },
     "hero": {
       "badge": "🔥 10 ZILE TRIAL GRATUIT — FĂRĂ CARD",
-      "titleLine1": "TU FACI CE ȘTII",
-      "titleHighlight1": "CEL MAI BINE!",
-      "titleLine2": "CHRONOS SE OCUPĂ DE RESTUL.",
+      "titleLine1": "CHRONOS SE OCUPĂ DE PROGRAMĂRI",
+      "titleHighlight1": "TU OFERI CALITATE",
+      "titleLine2": "ȘI CÂȘTIGI TIMP LIBER PENTRU TINE.",
       "subtitle": "Platforma completă de management pentru saloane, clinici, ateliere și orice afacere bazată pe programări. Calendar, clienți, documente, rapoarte și rezervări online — totul într-un singur loc.",
       "ctaMain": "VREAU 10 ZILE GRATUIT",
       "ctaSub": "CREEAZĂ-ȚI CONTUL ACUM",
@@ -492,7 +492,7 @@
       "heading": "PREȚURI",
       "headingHighlight": "TRANSPARENTE",
       "subtitle": "Activează trial-ul după ce ai configurat complet aplicația — nu pierzi nicio zi",
-      "popularBadge": "⭐ POPULAR",
+      "popularBadge": "RECOMANDAT",
       "planBadge": "PLAN",
       "plans": [
         {
@@ -508,7 +508,7 @@
         },
         {
           "plan": "Pro",
-          "price": "—",
+          "price": "49 RON/lună",
           "prog": "150 prog/lună",
           "features": [
             "Tot din Free",
@@ -519,7 +519,7 @@
         },
         {
           "plan": "Elite",
-          "price": "—",
+          "price": "99 RON/lună",
           "prog": "500 prog/lună",
           "features": [
             "Tot din Pro",
@@ -531,7 +531,7 @@
         },
         {
           "plan": "Team",
-          "price": "—",
+          "price": "199 RON/lună",
           "prog": "Nelimitat",
           "features": [
             "Tot din Elite",
@@ -542,7 +542,7 @@
         }
       ],
       "cta": "ÎNCEPE CU 10 ZILE GRATUIT",
-      "ctaNote": "Fără card. Fără obligații. Activează după ce configurezi totul."
+      "ctaNote": "Fără card. Fără obligații. Începi gratuit cu acces complet Team timp de 10 zile."
     },
     "audience": {
       "heading": "PENTRU ORICINE",
@@ -584,10 +584,10 @@
     },
     "finalCta": {
       "heading1": "GATA SĂ ÎNCERCI?",
-      "heading2": "10 ZILE. GRATUIT. FĂRĂ RISC.",
-      "paragraph": "Completezi profilul, setezi programul, adaugi serviciile și specialiștii — și ești gata să primești rezervări online. Activezi trial-ul după ce ai terminat setările ca să nu pierzi nicio zi.",
+      "heading2": "10 ZILE. GRATUIT. ACCES COMPLET TEAM.",
+      "paragraph": "Completezi profilul, setezi programul, adaugi serviciile și specialiștii — apoi activezi trial-ul gratuit când ești pregătit. Chronos se ocupă de programări, ca tu să oferi calitate și să câștigi timp liber pentru tine.",
       "button": "CREEAZĂ CONT GRATUIT",
-      "note": "Fără card. Fără obligații. Fără mesaje la 11 noaptea."
+      "note": "Fără card. Fără obligații. Mai multă calitate. Mai mult timp pentru tine."
     },
     "footer": {
       "description": "Platforma completă de management pentru afaceri bazate pe programări. Calendar, clienți, documente, rapoarte și rezervări online.",

@@ -9,8 +9,8 @@ import { Crown, Gem, ShieldCheck, Zap } from "lucide-react";
 // prin /api/checkout — permite identificarea userului (client_reference_id)
 const PLAN_META = [
   { id: "CHRONOS FREE", priceId: null, popular: false, Icon: ShieldCheck, accent: "text-slate-700", bg: "bg-slate-100", ring: "border-slate-200" },
-  { id: "CHRONOS PRO", priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_PRO, popular: true, Icon: Zap, accent: "text-amber-600", bg: "bg-amber-50", ring: "border-amber-200" },
-  { id: "CHRONOS ELITE", priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_ELITE, popular: false, Icon: Gem, accent: "text-sky-600", bg: "bg-sky-50", ring: "border-sky-200" },
+  { id: "CHRONOS PRO", priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_PRO, popular: false, Icon: Zap, accent: "text-amber-600", bg: "bg-amber-50", ring: "border-amber-200" },
+  { id: "CHRONOS ELITE", priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_ELITE, popular: true, Icon: Gem, accent: "text-sky-600", bg: "bg-sky-50", ring: "border-sky-200" },
   { id: "CHRONOS TEAM", priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_TEAM, popular: false, Icon: Crown, accent: "text-violet-600", bg: "bg-violet-50", ring: "border-violet-200" },
 ];
 // Curs fix aproximativ pentru afisare informativa (nu pentru facturare - plata ramane mereu in RON)

@@ -375,9 +375,9 @@
     },
     "hero": {
       "badge": "🔥 10 DIAS DE TESTE GRÁTIS — SEM CARTÃO",
-      "titleLine1": "TU FAZES O QUE SABES",
-      "titleHighlight1": "FAZER MELHOR!",
-      "titleLine2": "O CHRONOS TRATA DO RESTO.",
+      "titleLine1": "O CHRONOS TRATA DAS MARCAÇÕES",
+      "titleHighlight1": "VOCÊ ENTREGA QUALIDADE",
+      "titleLine2": "E GANHA TEMPO PARA SI.",
       "subtitle": "A plataforma completa de gestão para salões, clínicas, oficinas e qualquer negócio baseado em marcações. Calendário, clientes, documentos, relatórios e marcações online — tudo num só lugar.",
       "ctaMain": "QUERO 10 DIAS GRÁTIS",
       "ctaSub": "CRIA A TUA CONTA AGORA",
@@ -492,7 +492,7 @@
       "heading": "PREÇOS",
       "headingHighlight": "TRANSPARENTES",
       "subtitle": "Ativa o teste depois de configurares completamente a aplicação — não perdes nenhum dia",
-      "popularBadge": "⭐ POPULAR",
+      "popularBadge": "RECOMENDADO",
       "planBadge": "PLANO",
       "plans": [
         {
@@ -508,7 +508,7 @@
         },
         {
           "plan": "Pro",
-          "price": "—",
+          "price": "49 RON/mês",
           "prog": "150 marcações/mês",
           "features": [
             "Tudo do Free",
@@ -519,7 +519,7 @@
         },
         {
           "plan": "Elite",
-          "price": "—",
+          "price": "99 RON/mês",
           "prog": "500 marcações/mês",
           "features": [
             "Tudo do Pro",
@@ -531,7 +531,7 @@
         },
         {
           "plan": "Team",
-          "price": "—",
+          "price": "199 RON/mês",
           "prog": "Ilimitado",
           "features": [
             "Tudo do Elite",
@@ -542,7 +542,7 @@
         }
       ],
       "cta": "COMEÇA COM 10 DIAS GRÁTIS",
-      "ctaNote": "Sem cartão. Sem compromisso. Ativa assim que tudo estiver configurado."
+      "ctaNote": "Sem cartão. Sem compromisso. Comece grátis com acesso completo Team durante 10 dias."
     },
     "audience": {
       "heading": "PARA QUALQUER PESSOA QUE",
@@ -584,10 +584,10 @@
     },
     "finalCta": {
       "heading1": "PRONTO PARA EXPERIMENTAR?",
-      "heading2": "10 DIAS. GRÁTIS. SEM RISCO.",
-      "paragraph": "Completa o teu perfil, define o teu horário, adiciona serviços e especialistas — e estás pronto para receber marcações online. Ativa o teste assim que terminares as configurações para não perderes nenhum dia.",
+      "heading2": "10 DIAS. GRÁTIS. ACESSO COMPLETO TEAM.",
+      "paragraph": "Complete o perfil, defina o horário, adicione serviços e especialistas — depois ative o teste gratuito quando tudo estiver pronto. O Chronos trata das marcações para que você entregue qualidade e ganhe tempo para si.",
       "button": "CRIAR CONTA GRÁTIS",
-      "note": "Sem cartão. Sem compromisso. Sem mensagens às 23h."
+      "note": "Sem cartão. Sem compromisso. Mais qualidade. Mais tempo para si."
     },
     "footer": {
       "description": "A plataforma completa de gestão para negócios baseados em marcações. Calendário, clientes, documentos, relatórios e marcações online.",

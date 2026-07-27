@@ -375,9 +375,9 @@
     },
     "hero": {
       "badge": "🔥 10 TAGE KOSTENLOS TESTEN — OHNE KARTE",
-      "titleLine1": "DU MACHST, WAS DU AM",
-      "titleHighlight1": "BESTEN KANNST!",
-      "titleLine2": "CHRONOS ÜBERNIMMT DEN REST.",
+      "titleLine1": "CHRONOS ÜBERNIMMT DIE BUCHUNGEN",
+      "titleHighlight1": "DU LIEFERST QUALITÄT",
+      "titleLine2": "UND GEWINNST ZEIT FÜR DICH ZURÜCK.",
       "subtitle": "Die komplette Management-Plattform für Salons, Kliniken, Werkstätten und jedes terminbasierte Unternehmen. Kalender, Kunden, Dokumente, Berichte und Online-Buchungen — alles an einem Ort.",
       "ctaMain": "ICH WILL 10 TAGE GRATIS",
       "ctaSub": "JETZT KONTO ERSTELLEN",
@@ -492,7 +492,7 @@
       "heading": "TRANSPARENTE",
       "headingHighlight": "PREISE",
       "subtitle": "Aktiviere die Testphase, nachdem du die App vollständig eingerichtet hast — du verlierst keinen Tag",
-      "popularBadge": "⭐ BELIEBT",
+      "popularBadge": "EMPFOHLEN",
       "planBadge": "PLAN",
       "plans": [
         {
@@ -508,7 +508,7 @@
         },
         {
           "plan": "Pro",
-          "price": "—",
+          "price": "49 RON/Monat",
           "prog": "150 Termine/Monat",
           "features": [
             "Alles aus Free",
@@ -519,7 +519,7 @@
         },
         {
           "plan": "Elite",
-          "price": "—",
+          "price": "99 RON/Monat",
           "prog": "500 Termine/Monat",
           "features": [
             "Alles aus Pro",
@@ -531,7 +531,7 @@
         },
         {
           "plan": "Team",
-          "price": "—",
+          "price": "199 RON/Monat",
           "prog": "Unbegrenzt",
           "features": [
             "Alles aus Elite",
@@ -542,7 +542,7 @@
         }
       ],
       "cta": "STARTE MIT 10 TAGEN GRATIS",
-      "ctaNote": "Ohne Karte. Ohne Verpflichtung. Aktiviere, sobald alles eingerichtet ist."
+      "ctaNote": "Keine Karte. Keine Verpflichtung. Starte 10 Tage kostenlos mit vollem Team-Zugang."
     },
     "audience": {
       "heading": "FÜR ALLE, DIE",
@@ -584,10 +584,10 @@
     },
     "finalCta": {
       "heading1": "BEREIT ES ZU VERSUCHEN?",
-      "heading2": "10 TAGE. KOSTENLOS. OHNE RISIKO.",
-      "paragraph": "Vervollständige dein Profil, lege deinen Zeitplan fest, füge Leistungen und Fachkräfte hinzu — und du bist bereit, Online-Buchungen zu erhalten. Aktiviere die Testphase, sobald die Einrichtung abgeschlossen ist, damit du keinen Tag verlierst.",
+      "heading2": "10 TAGE. KOSTENLOS. VOLLER TEAM-ZUGANG.",
+      "paragraph": "Vervollständige dein Profil, lege deinen Zeitplan fest, füge Leistungen und Spezialisten hinzu — und aktiviere die kostenlose Testphase erst, wenn alles bereit ist. Chronos übernimmt die Buchungen, damit du Qualität liefern und Zeit für dich zurückgewinnen kannst.",
       "button": "KOSTENLOSES KONTO ERSTELLEN",
-      "note": "Ohne Karte. Ohne Verpflichtung. Keine Nachrichten um 23 Uhr."
+      "note": "Keine Karte. Keine Verpflichtung. Mehr Qualität. Mehr Zeit für dich."
     },
     "footer": {
       "description": "Die komplette Management-Plattform für terminbasierte Unternehmen. Kalender, Kunden, Dokumente, Berichte und Online-Buchungen.",

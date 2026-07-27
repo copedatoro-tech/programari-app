@@ -479,6 +479,7 @@ export default function LandingPage() {
                   {highlight ? t("pricing.popularBadge") : t("pricing.planBadge")}
                 </div>
                 <h3 className={`text-2xl font-black italic uppercase tracking-tighter mb-1 ${highlight?"text-white":"text-slate-900"}`}>{p.plan}</h3>
+                <p className={`text-3xl font-black tracking-tighter mb-1 ${highlight?"text-white":"text-slate-900"}`}>{p.price}</p>
                 <p className={`text-[10px] font-black italic mb-5 ${highlight?"text-amber-400":"text-amber-600"}`}>{p.prog}</p>
                 <div className="space-y-2.5 mb-6">
                   {p.features.map((f,j)=>(

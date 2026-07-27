@@ -375,9 +375,9 @@
     },
     "hero": {
       "badge": "🔥 10 JOURS D'ESSAI GRATUIT — SANS CARTE",
-      "titleLine1": "TU FAIS CE QUE TU SAIS",
-      "titleHighlight1": "FAIRE DE MIEUX !",
-      "titleLine2": "CHRONOS S'OCCUPE DU RESTE.",
+      "titleLine1": "CHRONOS GÈRE LES RÉSERVATIONS",
+      "titleHighlight1": "VOUS OFFREZ LA QUALITÉ",
+      "titleLine2": "ET VOUS RÉCUPÉREZ DU TEMPS POUR VOUS.",
       "subtitle": "La plateforme complète de gestion pour salons, cliniques, ateliers et toute entreprise basée sur les rendez-vous. Calendrier, clients, documents, rapports et réservations en ligne — tout en un seul endroit.",
       "ctaMain": "JE VEUX 10 JOURS GRATUITS",
       "ctaSub": "CRÉE TON COMPTE MAINTENANT",
@@ -492,7 +492,7 @@
       "heading": "TARIFS",
       "headingHighlight": "TRANSPARENTS",
       "subtitle": "Active l'essai après avoir entièrement configuré l'application — tu ne perds aucun jour",
-      "popularBadge": "⭐ POPULAIRE",
+      "popularBadge": "RECOMMANDÉ",
       "planBadge": "FORFAIT",
       "plans": [
         {
@@ -508,7 +508,7 @@
         },
         {
           "plan": "Pro",
-          "price": "—",
+          "price": "49 RON/mois",
           "prog": "150 rdv/mois",
           "features": [
             "Tout de Free",
@@ -519,7 +519,7 @@
         },
         {
           "plan": "Elite",
-          "price": "—",
+          "price": "99 RON/mois",
           "prog": "500 rdv/mois",
           "features": [
             "Tout de Pro",
@@ -531,7 +531,7 @@
         },
         {
           "plan": "Team",
-          "price": "—",
+          "price": "199 RON/mois",
           "prog": "Illimité",
           "features": [
             "Tout d'Elite",
@@ -542,7 +542,7 @@
         }
       ],
       "cta": "COMMENCE AVEC 10 JOURS GRATUITS",
-      "ctaNote": "Sans carte. Sans engagement. Active une fois tout configuré."
+      "ctaNote": "Sans carte. Sans engagement. Commencez gratuitement avec l'accès complet Team pendant 10 jours."
     },
     "audience": {
       "heading": "POUR TOUS CEUX QUI",
@@ -584,10 +584,10 @@
     },
     "finalCta": {
       "heading1": "PRÊT À ESSAYER ?",
-      "heading2": "10 JOURS. GRATUIT. SANS RISQUE.",
-      "paragraph": "Complète ton profil, définis ton planning, ajoute les services et spécialistes — et tu es prêt à recevoir des réservations en ligne. Active l'essai une fois les réglages terminés pour ne perdre aucun jour.",
+      "heading2": "10 JOURS. GRATUIT. ACCÈS COMPLET TEAM.",
+      "paragraph": "Complétez votre profil, définissez votre planning, ajoutez vos services et spécialistes — puis activez l'essai gratuit lorsque tout est prêt. Chronos gère les réservations pour que vous puissiez offrir de la qualité et récupérer du temps pour vous.",
       "button": "CRÉER UN COMPTE GRATUIT",
-      "note": "Sans carte. Sans engagement. Sans messages à 23h."
+      "note": "Sans carte. Sans engagement. Plus de qualité. Plus de temps pour vous."
     },
     "footer": {
       "description": "La plateforme complète de gestion pour les entreprises basées sur les rendez-vous. Calendrier, clients, documents, rapports et réservations en ligne.",

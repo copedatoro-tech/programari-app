@@ -375,9 +375,9 @@
     },
     "hero": {
       "badge": "🔥 10 NAPOS INGYENES PRÓBAIDŐSZAK — KÁRTYA NÉLKÜL",
-      "titleLine1": "TE AZT CSINÁLOD, AMIHEZ",
-      "titleHighlight1": "A LEGJOBBAN ÉRTESZ!",
-      "titleLine2": "A CHRONOS INTÉZI A TÖBBIT.",
+      "titleLine1": "A CHRONOS KEZELI A FOGLALÁSOKAT",
+      "titleHighlight1": "TE MINŐSÉGET NYÚJTASZ",
+      "titleLine2": "ÉS VISSZAKAPOD A SAJÁT IDŐDET.",
       "subtitle": "A teljes körű menedzsment platform szalonok, klinikák, műhelyek és bármely időpontalapú vállalkozás számára. Naptár, ügyfelek, dokumentumok, riportok és online foglalás — mind egy helyen.",
       "ctaMain": "SZERETNÉM A 10 INGYENES NAPOT",
       "ctaSub": "HOZD LÉTRE A FIÓKODAT MOST",
@@ -492,7 +492,7 @@
       "heading": "ÁTLÁTHATÓ",
       "headingHighlight": "ÁRAK",
       "subtitle": "Aktiváld a próbaidőszakot, miután teljesen beállítottad az alkalmazást — egyetlen napot sem veszítesz",
-      "popularBadge": "⭐ NÉPSZERŰ",
+      "popularBadge": "AJÁNLOTT",
       "planBadge": "CSOMAG",
       "plans": [
         {
@@ -508,7 +508,7 @@
         },
         {
           "plan": "Pro",
-          "price": "—",
+          "price": "49 RON/hó",
           "prog": "150 időpont/hó",
           "features": [
             "Minden a Free-bol",
@@ -519,7 +519,7 @@
         },
         {
           "plan": "Elite",
-          "price": "—",
+          "price": "99 RON/hó",
           "prog": "500 időpont/hó",
           "features": [
             "Minden a Pro-bol",
@@ -531,7 +531,7 @@
         },
         {
           "plan": "Team",
-          "price": "—",
+          "price": "199 RON/hó",
           "prog": "Korlátlan",
           "features": [
             "Minden az Elite-ből",
@@ -542,7 +542,7 @@
         }
       ],
       "cta": "KEZDD EL 10 INGYENES NAPPAL",
-      "ctaNote": "Kártya nélkül. Kötelezettség nélkül. Aktiváld, ha minden be van állítva."
+      "ctaNote": "Nincs bankkártya. Nincs kötelezettség. Kezdd ingyen, teljes Team hozzáféréssel 10 napig."
     },
     "audience": {
       "heading": "BÁRKINEK, AKI",
@@ -584,10 +584,10 @@
     },
     "finalCta": {
       "heading1": "KÉSZ VAGY KIPRÓBÁLNI?",
-      "heading2": "10 NAP. INGYENES. KOCKÁZAT NÉLKÜL.",
-      "paragraph": "Töltsd ki a profilodat, állítsd be az ütemtervedet, add hozzá a szolgáltatásokat és szakembereket — és készen állsz az online foglalások fogadására. Aktiváld a próbaidőszakot, miután befejezted a beállítást, hogy ne veszíts egy napot sem.",
+      "heading2": "10 NAP. INGYEN. TELJES TEAM HOZZÁFÉRÉS.",
+      "paragraph": "Töltsd ki a profilodat, állítsd be az időbeosztást, add hozzá a szolgáltatásokat és a specialistákat — majd aktiváld az ingyenes próbaidőszakot, amikor minden készen áll. A Chronos kezeli a foglalásokat, hogy te minőséget nyújthass és visszakapd a saját idődet.",
       "button": "INGYENES FIÓK LÉTREHOZÁSA",
-      "note": "Kártya nélkül. Kötelezettség nélkül. Nincs üzenet este 11-kor."
+      "note": "Nincs bankkártya. Nincs kötelezettség. Több minőség. Több idő neked."
     },
     "footer": {
       "description": "A teljes körű menedzsment platform időpontalapú vállalkozások számára. Naptár, ügyfelek, dokumentumok, riportok és online foglalás.",

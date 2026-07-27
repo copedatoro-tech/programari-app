@@ -375,9 +375,9 @@
     },
     "hero": {
       "badge": "🔥 10-DAY FREE TRIAL — NO CARD NEEDED",
-      "titleLine1": "YOU DO WHAT YOU DO",
-      "titleHighlight1": "BEST!",
-      "titleLine2": "CHRONOS HANDLES THE REST.",
+      "titleLine1": "CHRONOS HANDLES YOUR BOOKINGS",
+      "titleHighlight1": "YOU DELIVER QUALITY",
+      "titleLine2": "AND GET YOUR TIME BACK.",
       "subtitle": "The complete management platform for salons, clinics, workshops and any appointment-based business. Calendar, clients, documents, reports and online bookings — all in one place.",
       "ctaMain": "I WANT 10 FREE DAYS",
       "ctaSub": "CREATE YOUR ACCOUNT NOW",
@@ -492,7 +492,7 @@
       "heading": "TRANSPARENT",
       "headingHighlight": "PRICING",
       "subtitle": "Activate the trial after you've fully set up the app — you won't lose a single day",
-      "popularBadge": "⭐ POPULAR",
+      "popularBadge": "BEST VALUE",
       "planBadge": "PLAN",
       "plans": [
         {
@@ -508,7 +508,7 @@
         },
         {
           "plan": "Pro",
-          "price": "—",
+          "price": "49 RON/mo",
           "prog": "150 appt/month",
           "features": [
             "Everything in Free",
@@ -519,7 +519,7 @@
         },
         {
           "plan": "Elite",
-          "price": "—",
+          "price": "99 RON/mo",
           "prog": "500 appt/month",
           "features": [
             "Everything in Pro",
@@ -531,7 +531,7 @@
         },
         {
           "plan": "Team",
-          "price": "—",
+          "price": "199 RON/mo",
           "prog": "Unlimited",
           "features": [
             "Everything in Elite",
@@ -542,7 +542,7 @@
         }
       ],
       "cta": "START WITH 10 FREE DAYS",
-      "ctaNote": "No card. No commitment. Activate once everything is set up."
+      "ctaNote": "No card. No commitment. Start free with full Team access for 10 days."
     },
     "audience": {
       "heading": "FOR ANYONE WHO",
@@ -584,10 +584,10 @@
     },
     "finalCta": {
       "heading1": "READY TO TRY IT?",
-      "heading2": "10 DAYS. FREE. NO RISK.",
-      "paragraph": "Complete your profile, set your schedule, add services and specialists — and you're ready to receive online bookings. Activate the trial once you've finished setup so you don't lose a day.",
+      "heading2": "10 DAYS. FREE. FULL TEAM ACCESS.",
+      "paragraph": "Complete your profile, set your schedule, add services and specialists — then activate your free trial when you're ready. Chronos handles the bookings, so you can deliver quality and get your personal time back.",
       "button": "CREATE FREE ACCOUNT",
-      "note": "No card. No commitment. No messages at 11pm."
+      "note": "No card. No commitment. More quality. More time for you."
     },
     "footer": {
       "description": "The complete management platform for appointment-based businesses. Calendar, clients, documents, reports and online bookings.",
