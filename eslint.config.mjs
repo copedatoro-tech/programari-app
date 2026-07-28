@@ -63,7 +63,7 @@ const eslintConfig = [
       // public/sw.js sau alte .js din subfoldere, care rămân verificate
       // normal. Acoperă automat orice alt script uitat acolo, prezent sau
       // viitor, fără sa mai fie nevoie sa il adaugam manual pe lista.
-      "*.js",
+      "*.js",`r`n`r`n      // Scripturi Codex de mentenanta/migrare, pastrate in proiect dar neincluse in aplicatia Next.js`r`n      "scripts/codex/**",
     ],
   },
 ];
