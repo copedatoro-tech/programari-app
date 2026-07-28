@@ -10,7 +10,7 @@ import LocaleSwitcher from "@/components/LocaleSwitcher";
 import { ChronosTimePicker, ChronosDatePicker } from "@/components/ChronosDateTimePickers";
 import { CalendarDays, Clock3, Star } from "lucide-react";
 
-interface StaffRow { id: string; name: string; services: string[]; working_hours?: any }
+interface StaffRow { id: string; name: string; services: string[]; working_hours?: any; photo_url?: string | null }
 interface ServiceRow { id: string; nume_serviciu: string; price: number; duration: number }
 interface ExistingAppointment { time: string; duration: number }
 interface WorkingHourEntry { day: string; start: string; end: string; closed: boolean }
@@ -836,17 +836,38 @@ function RezervareContent() {
                         </div>
                         <div className="space-y-2">
                           <label className="text-[10px] font-black uppercase italic text-slate-400 ml-4">{t("expertLabel")}</label>
-                          <select
-                            className="w-full bg-white border-2 border-amber-500 rounded-[25px] py-4 px-6 text-[14px] font-black uppercase italic outline-none cursor-pointer"
-                            value={b.specialist_id}
-                            onChange={(e) => updateBooking(b.id, { specialist_id: e.target.value })}>
-                            <option value="">{t("firstAvailOpt")}</option>
+                          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                            <button
+                              type="button"
+                              onClick={() => updateBooking(b.id, { specialist_id: "" })}
+                              className={`min-h-[132px] rounded-[24px] border-2 p-3 flex flex-col items-center justify-center gap-2 transition-all ${!b.specialist_id ? "border-amber-500 bg-amber-50 shadow-lg" : "border-slate-200 bg-white hover:border-amber-300"}`}
+                            >
+                              <div className={`w-16 h-16 rounded-full flex items-center justify-center font-black text-xl ${!b.specialist_id ? "bg-amber-500 text-white" : "bg-slate-100 text-slate-400"}`}>*</div>
+                              <span className="text-[9px] font-black uppercase italic text-slate-700 text-center leading-tight">{t("firstAvailOpt")}</span>
+                            </button>
                             {specialisti
                               .filter(s => !b.serviciu_id || s.services.includes(b.serviciu_id))
-                              .map((sp) => (
-                                <option key={sp.id} value={sp.id}>{sp.name.toUpperCase()}</option>
-                              ))}
-                          </select>
+                              .map((sp) => {
+                                const selected = b.specialist_id === sp.id;
+                                return (
+                                  <button
+                                    type="button"
+                                    key={sp.id}
+                                    onClick={() => updateBooking(b.id, { specialist_id: sp.id })}
+                                    className={`min-h-[132px] rounded-[24px] border-2 p-3 flex flex-col items-center justify-center gap-2 transition-all ${selected ? "border-amber-500 bg-amber-50 shadow-lg" : "border-slate-200 bg-white hover:border-amber-300"}`}
+                                  >
+                                    <div className="relative w-16 h-16 rounded-full overflow-hidden bg-slate-100 border-2 border-white shadow-md flex items-center justify-center">
+                                      {sp.photo_url ? (
+                                        <Image src={sp.photo_url} alt={sp.name} fill className="object-cover" />
+                                      ) : (
+                                        <span className="text-xl font-black text-amber-500 uppercase italic">{(sp.name || "?").slice(0, 1)}</span>
+                                      )}
+                                    </div>
+                                    <span className="text-[9px] font-black uppercase italic text-slate-700 text-center leading-tight line-clamp-2">{sp.name}</span>
+                                  </button>
+                                );
+                              })}
+                          </div>
                         </div>
                       </div>
 

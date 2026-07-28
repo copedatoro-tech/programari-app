@@ -925,7 +925,12 @@
       "teamOnlyBadge": "Tylko Team",
       "teamOnlyHint": "Portal specjalisty jest dostępny tylko w planie Chronos Team. Kliknij, aby ulepszyć.",
       "phoneLabel": "Telefon Specjalisty"
-    }
+    },
+    "staffPhotoUploadBtn": "Dodaj zdjecie",
+    "staffPhotoRemoveBtn": "Usun zdjecie",
+    "staffPhotoImageOnly": "Wybierz plik obrazu.",
+    "staffPhotoUploadError": "Blad przesylania zdjecia:",
+    "staffPhotoAlt": "Zdjecie specjalisty"
   },
   "sugestii": {
     "checkingAccess": "Sprawdzanie dostępu...",

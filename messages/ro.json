@@ -1108,7 +1108,12 @@
       "teamOnlyBadge": "Doar Team",
       "teamOnlyHint": "Portalul de specialist e disponibil doar pe planul Chronos Team. Apasă pentru a face upgrade.",
       "phoneLabel": "Telefon Specialist"
-    }
+    },
+    "staffPhotoUploadBtn": "Incarca poza",
+    "staffPhotoRemoveBtn": "Sterge poza",
+    "staffPhotoImageOnly": "Te rugam sa alegi un fisier imagine.",
+    "staffPhotoUploadError": "Eroare la incarcarea pozei:",
+    "staffPhotoAlt": "Poza specialist"
   },
   "sugestii": {
     "checkingAccess": "Se verifică accesul...",

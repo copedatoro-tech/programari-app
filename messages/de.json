@@ -925,7 +925,12 @@
       "teamOnlyBadge": "Nur Team",
       "teamOnlyHint": "Das Spezialisten-Portal ist nur im Chronos Team Plan verfügbar. Klicken Sie zum Upgrade.",
       "phoneLabel": "Telefon des Spezialisten"
-    }
+    },
+    "staffPhotoUploadBtn": "Foto hochladen",
+    "staffPhotoRemoveBtn": "Foto entfernen",
+    "staffPhotoImageOnly": "Bitte eine Bilddatei auswahlen.",
+    "staffPhotoUploadError": "Fehler beim Hochladen des Fotos:",
+    "staffPhotoAlt": "Spezialistenfoto"
   },
   "sugestii": {
     "checkingAccess": "Zugriff wird überprüft...",

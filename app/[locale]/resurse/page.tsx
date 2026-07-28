@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { createBrowserClient } from '@supabase/ssr';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
+import Image from 'next/image';
 import { showToast } from "@/lib/toast";
 import SimpleTimePicker from "@/components/SimpleTimePicker";
 
@@ -300,6 +301,32 @@ export default function ResursePage() {
     setEditingId(null); setEditForm(null);
     await fetchResurse(userId);
   };
+
+  async function handleUploadStaffPhoto(staffId: string, file?: File | null) {
+    if (!file || !userId || isDemo) return;
+    if (!file.type.startsWith("image/")) {
+      alert(t("staffPhotoImageOnly"));
+      return;
+    }
+    const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
+    const filePath = `staff/${userId}/${staffId}-${Date.now()}.${ext}`;
+    const { error: uploadError } = await supabase.storage.from("avatars").upload(filePath, file, { upsert: true });
+    if (uploadError) { alert(`${t("staffPhotoUploadError")} ${uploadError.message}`); return; }
+    const { data } = supabase.storage.from("avatars").getPublicUrl(filePath);
+    const photoUrl = data.publicUrl;
+    const { error } = await supabase.from("staff").update({ photo_url: photoUrl }).eq("id", staffId).eq("user_id", userId);
+    if (error) { alert(error.message); return; }
+    await fetchResurse(userId);
+    if (editingId === staffId) setEditForm((prev: any) => prev ? { ...prev, photo_url: photoUrl } : prev);
+  }
+
+  async function handleRemoveStaffPhoto(staffId: string) {
+    if (!userId || isDemo) return;
+    const { error } = await supabase.from("staff").update({ photo_url: null }).eq("id", staffId).eq("user_id", userId);
+    if (error) { alert(error.message); return; }
+    await fetchResurse(userId);
+    if (editingId === staffId) setEditForm((prev: any) => prev ? { ...prev, photo_url: null } : prev);
+  }
 
   const toggleServiciuStaff = (serviceId: string) => {
     if (!editForm) return;
@@ -784,8 +811,30 @@ export default function ResursePage() {
                 <div key={p.id} className="group bg-slate-900 rounded-[28px] border-l-8 border-slate-700 hover:border-amber-500 transition-all overflow-hidden relative shadow-lg">
                   {editingId === p.id ? (
                     <div ref={editStaffRef} className="p-8 space-y-6 bg-slate-800 animate-in slide-in-from-bottom-2 duration-200">
-                      <input className="w-full p-4 rounded-xl border-2 border-slate-700 bg-slate-900 text-white font-black uppercase italic text-[11px]"
-                        value={editForm?.name || ""} onChange={e => setEditForm({ ...editForm, name: e.target.value })} />
+                      <div className="flex flex-col sm:flex-row gap-4 items-center sm:items-start">
+                        <div className="relative w-24 h-24 rounded-[28px] overflow-hidden bg-slate-900 border-2 border-slate-700 flex items-center justify-center shrink-0">
+                          {editForm?.photo_url ? (
+                            <Image src={editForm.photo_url} alt={editForm?.name || t("staffPhotoAlt")} fill className="object-cover" />
+                          ) : (
+                            <span className="text-3xl font-black text-amber-500 uppercase italic">{(editForm?.name || "?").slice(0, 1)}</span>
+                          )}
+                        </div>
+                        <div className="flex-1 w-full space-y-3">
+                          <input className="w-full p-4 rounded-xl border-2 border-slate-700 bg-slate-900 text-white font-black uppercase italic text-[11px]"
+                            value={editForm?.name || ""} onChange={e => setEditForm({ ...editForm, name: e.target.value })} />
+                          <div className="flex flex-wrap gap-2">
+                            <label className="cursor-pointer px-4 py-3 bg-slate-900 border-2 border-slate-700 text-amber-500 rounded-xl text-[9px] font-black uppercase italic hover:bg-amber-500 hover:text-slate-900 transition-all">
+                              {t("staffPhotoUploadBtn")}
+                              <input type="file" accept="image/*" className="hidden" onChange={(e) => handleUploadStaffPhoto(editingId!, e.target.files?.[0])} />
+                            </label>
+                            {editForm?.photo_url && (
+                              <button onClick={() => handleRemoveStaffPhoto(editingId!)} className="px-4 py-3 bg-slate-900 border-2 border-slate-700 text-red-400 rounded-xl text-[9px] font-black uppercase italic hover:bg-red-500 hover:text-white transition-all">
+                                {t("staffPhotoRemoveBtn")}
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      </div>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                         <input className="w-full p-4 rounded-xl border-2 border-slate-700 bg-slate-900 text-white font-black uppercase italic text-[11px]"
                           placeholder={t("phoneLabel")}
@@ -810,9 +859,16 @@ export default function ResursePage() {
                       </div>
                     </div>
                   ) : (
-                    <div className="p-6 flex justify-between items-center cursor-pointer" onClick={() => activeazaEditare(p, 'staff')}>
-                      <div className="flex-1">
-                        <p className="font-black uppercase italic text-[13px] text-white group-hover:text-amber-500 transition-colors">{p.name}</p>
+                    <div className="p-6 flex justify-between items-center gap-4 cursor-pointer" onClick={() => activeazaEditare(p, 'staff')}>
+                      <div className="relative w-16 h-16 rounded-2xl overflow-hidden bg-slate-800 border border-slate-700 flex items-center justify-center shrink-0">
+                        {p.photo_url ? (
+                          <Image src={p.photo_url} alt={p.name || t("staffPhotoAlt")} fill className="object-cover" />
+                        ) : (
+                          <span className="text-2xl font-black text-amber-500 uppercase italic">{(p.name || "?").slice(0, 1)}</span>
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-black uppercase italic text-[13px] text-white group-hover:text-amber-500 transition-colors truncate">{p.name}</p>
                         {(p.phone || p.email) && (
                           <div className="flex flex-wrap gap-1.5 mt-2">
                             {p.phone && <span className="text-[8px] bg-slate-800 text-slate-300 px-3 py-1 rounded-full border border-slate-700 uppercase font-black">{p.phone}</span>}

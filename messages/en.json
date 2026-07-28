@@ -925,7 +925,12 @@
       "teamOnlyBadge": "Team Only",
       "teamOnlyHint": "The specialist portal is only available on the Chronos Team plan. Click to upgrade.",
       "phoneLabel": "Specialist Phone"
-    }
+    },
+    "staffPhotoUploadBtn": "Upload photo",
+    "staffPhotoRemoveBtn": "Remove photo",
+    "staffPhotoImageOnly": "Please choose an image file.",
+    "staffPhotoUploadError": "Photo upload error:",
+    "staffPhotoAlt": "Specialist photo"
   },
   "sugestii": {
     "checkingAccess": "Checking access...",

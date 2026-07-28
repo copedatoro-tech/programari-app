@@ -925,7 +925,12 @@
       "teamOnlyBadge": "Team Uniquement",
       "teamOnlyHint": "Le portail spécialiste est disponible uniquement sur le plan Chronos Team. Cliquez pour mettre à niveau.",
       "phoneLabel": "Téléphone du Spécialiste"
-    }
+    },
+    "staffPhotoUploadBtn": "Importer photo",
+    "staffPhotoRemoveBtn": "Supprimer photo",
+    "staffPhotoImageOnly": "Veuillez choisir un fichier image.",
+    "staffPhotoUploadError": "Erreur lors de l'import de la photo:",
+    "staffPhotoAlt": "Photo du specialiste"
   },
   "sugestii": {
     "checkingAccess": "Vérification de l'accès...",

@@ -925,7 +925,12 @@
       "teamOnlyBadge": "Csak Team",
       "teamOnlyHint": "A szakember portál csak a Chronos Team csomagban érhető el. Kattintson a frissítéshez.",
       "phoneLabel": "Szakember Telefonszáma"
-    }
+    },
+    "staffPhotoUploadBtn": "Foto feltoltese",
+    "staffPhotoRemoveBtn": "Foto torlese",
+    "staffPhotoImageOnly": "Kerjuk, kepfajlt valasszon.",
+    "staffPhotoUploadError": "Hiba a foto feltoltesekor:",
+    "staffPhotoAlt": "Szakember foto"
   },
   "sugestii": {
     "checkingAccess": "Hozzáférés ellenőrzése...",

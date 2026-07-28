@@ -925,7 +925,12 @@
       "teamOnlyBadge": "Solo Team",
       "teamOnlyHint": "Il portale specialista è disponibile solo nel piano Chronos Team. Clicca per aggiornare.",
       "phoneLabel": "Telefono dello Specialista"
-    }
+    },
+    "staffPhotoUploadBtn": "Carica foto",
+    "staffPhotoRemoveBtn": "Rimuovi foto",
+    "staffPhotoImageOnly": "Scegli un file immagine.",
+    "staffPhotoUploadError": "Errore caricamento foto:",
+    "staffPhotoAlt": "Foto specialista"
   },
   "sugestii": {
     "checkingAccess": "Verifica dell'accesso...",
