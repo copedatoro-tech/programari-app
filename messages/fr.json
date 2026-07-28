@@ -811,7 +811,14 @@
         "nume": "CHRONOS TEAM",
         "limita": "Réservations illimitées"
       }
-    }
+    },
+    "workLocationsTitle": "Lieux de travail",
+    "workLocationsHint": "Ajoutez les lieux ou les clients peuvent venir aux rendez-vous. Ils apparaissent sur la page publique de reservation et dans les confirmations.",
+    "addWorkLocationBtn": "Ajouter une adresse",
+    "removeWorkLocationBtn": "Supprimer",
+    "noWorkLocations": "Vous n'avez encore ajoute aucun lieu de travail.",
+    "workLocationNamePlaceholder": "Nom du lieu {n}",
+    "workLocationAddressPlaceholder": "Rue, numero, ville (pour le lien Google Maps)"
   },
   "resurse": {
     "headingLine1": "Gestion",
@@ -1199,7 +1206,9 @@
       "deleteConfirmBtn": "Supprimer",
       "updatedToast": "Rendez-vous mis à jour !",
       "whatsappMessageBase": "Bonjour {nume} ! On t'attend pour ton rendez-vous du {data} à {ora}",
-      "whatsappMessageServiceSuffix": " pour {serviciu}"
+      "whatsappMessageServiceSuffix": " pour {serviciu}",
+      "whatsappLocationLine": "Lieu: {location}",
+      "whatsappMapsLine": "Google Maps: {maps}"
     },
     "newModal": {
       "title": "Nouveau rendez-vous",
@@ -1404,7 +1413,12 @@
     "techErrorTitle": "Problème technique temporaire",
     "techErrorMsg": "Nous rencontrons un problème technique indépendant de notre volonté, chez notre fournisseur de services. La résolution est déjà en cours — réessaie dans quelques minutes.",
     "techErrorRetryBtn": "Réessayer",
-    "chooseSpecialistBtn": "Choisir le specialiste"
+    "chooseSpecialistBtn": "Choisir le specialiste",
+    "workLocationTitle": "Choisir le lieu",
+    "workLocationHint": "Choisissez le lieu ou vous souhaitez vous rendre pour ce rendez-vous.",
+    "defaultWorkLocationName": "Lieu de travail",
+    "openMapsBtn": "Ouvrir dans Google Maps",
+    "chooseWorkLocationMsg": "Veuillez choisir le lieu de travail pour votre rendez-vous."
   },
   "programariPage": {
     "successTitle": "Rendez-vous enregistrés !",

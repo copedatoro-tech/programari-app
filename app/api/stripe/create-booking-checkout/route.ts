@@ -8,7 +8,7 @@ const PLATFORM_FEE_PERCENT = 1; // ✅ comisionul Chronos, ușor de ajustat aici
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { adminId, clientInfo, bookings } = body;
+    const { adminId, clientInfo, bookings, workLocation } = body;
     // bookings: [{ serviciu_id, specialist_id, data, ora }]
 
     if (!adminId || !clientInfo?.nume || !clientInfo?.email || !Array.isArray(bookings) || bookings.length === 0) {
@@ -17,7 +17,7 @@ export async function POST(request: Request) {
 
     const { data: profile } = await supabaseAdmin
       .from("profiles")
-      .select("stripe_account_id, stripe_onboarded, currency, require_payment_at_booking, deposit_percent, slug")
+      .select("stripe_account_id, stripe_onboarded, currency, require_payment_at_booking, deposit_percent, slug, work_locations")
       .eq("id", adminId)
       .single();
 
@@ -32,6 +32,16 @@ export async function POST(request: Request) {
       .in("id", serviceIds);
 
     const currency = (profile.currency || "RON").toLowerCase();
+    const profileLocations = Array.isArray(profile.work_locations) ? profile.work_locations : [];
+    const matchedLocation = workLocation?.id
+      ? profileLocations.find((loc: any) => String(loc?.id) === String(workLocation.id))
+      : null;
+    const selectedWorkLocation = matchedLocation?.address ? {
+      id: String(matchedLocation.id),
+      name: String(matchedLocation.name || "Locatie"),
+      address: String(matchedLocation.address),
+      mapsUrl: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(String(matchedLocation.address))}`,
+    } : null;
 
     // ✅ Procentul de avans — 100 = plată integrală (comportament vechi, neschimbat),
     // orice valoare mai mică = client plătește doar acel procent acum, restul la salon
@@ -103,6 +113,7 @@ export async function POST(request: Request) {
         clientTelefon: clientInfo.telefon || "",
         clientEmail: clientInfo.email,
         clientDetalii: clientInfo.detalii || "",
+        workLocation: selectedWorkLocation ? JSON.stringify(selectedWorkLocation) : "",
         bookings: JSON.stringify(bookings),
         // ✅ Metadate noi, necesare la crearea programării după plată, ca să știm
         // exact cât s-a plătit acum (avans sau integral) și cât mai rămâne

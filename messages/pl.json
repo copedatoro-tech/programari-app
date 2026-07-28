@@ -811,7 +811,14 @@
         "nume": "CHRONOS TEAM",
         "limita": "Nieograniczone rezerwacje"
       }
-    }
+    },
+    "workLocationsTitle": "Lokalizacje pracy",
+    "workLocationsHint": "Dodaj miejsca, do ktorych klienci moga przyjsc na wizyty. Pojawiaja sie na publicznej stronie rezerwacji i w potwierdzeniach.",
+    "addWorkLocationBtn": "Dodaj adres",
+    "removeWorkLocationBtn": "Usun",
+    "noWorkLocations": "Nie dodano jeszcze zadnej lokalizacji pracy.",
+    "workLocationNamePlaceholder": "Nazwa lokalizacji {n}",
+    "workLocationAddressPlaceholder": "Ulica, numer, miasto (do linku Google Maps)"
   },
   "resurse": {
     "headingLine1": "Zarządzanie",
@@ -1199,7 +1206,9 @@
       "deleteConfirmBtn": "Usuń",
       "updatedToast": "Wizyta zaktualizowana!",
       "whatsappMessageBase": "Cześć, {nume}! Czekamy na Ciebie na wizycie {data} o {ora}",
-      "whatsappMessageServiceSuffix": " na {serviciu}"
+      "whatsappMessageServiceSuffix": " na {serviciu}",
+      "whatsappLocationLine": "Lokalizacja: {location}",
+      "whatsappMapsLine": "Google Maps: {maps}"
     },
     "newModal": {
       "title": "Nowa wizyta",
@@ -1404,7 +1413,12 @@
     "techErrorTitle": "Tymczasowy problem techniczny",
     "techErrorMsg": "Mamy problem techniczny niezależny od nas, u naszego dostawcy usług. Już nad tym pracujemy — spróbuj ponownie za kilka minut.",
     "techErrorRetryBtn": "Spróbuj ponownie",
-    "chooseSpecialistBtn": "Wybierz specjaliste"
+    "chooseSpecialistBtn": "Wybierz specjaliste",
+    "workLocationTitle": "Wybierz lokalizacje",
+    "workLocationHint": "Wybierz miejsce, do ktorego chcesz przyjsc na te wizyte.",
+    "defaultWorkLocationName": "Lokalizacja pracy",
+    "openMapsBtn": "Otworz w Google Maps",
+    "chooseWorkLocationMsg": "Wybierz lokalizacje pracy dla swojej wizyty."
   },
   "programariPage": {
     "successTitle": "Wizyty zapisane!",

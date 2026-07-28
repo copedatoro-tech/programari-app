@@ -994,7 +994,14 @@
         "nume": "CHRONOS TEAM",
         "limita": "Rezervări nelimitate"
       }
-    }
+    },
+    "workLocationsTitle": "Adrese de lucru",
+    "workLocationsHint": "Adauga punctele de lucru unde clientii pot veni la programari. Acestea apar pe pagina publica si in confirmarile trimise clientilor.",
+    "addWorkLocationBtn": "Adauga adresa",
+    "removeWorkLocationBtn": "Sterge",
+    "noWorkLocations": "Nu ai adaugat inca nicio adresa de lucru.",
+    "workLocationNamePlaceholder": "Denumire locatie {n}",
+    "workLocationAddressPlaceholder": "Strada, numar, oras (pentru link Google Maps)"
   },
   "resurse": {
     "headingLine1": "Gestiune",
@@ -1382,7 +1389,9 @@
       "deleteConfirmBtn": "Șterge",
       "updatedToast": "Programare actualizată!",
       "whatsappMessageBase": "Bună, {nume}! Te așteptăm la programarea din {data}, ora {ora}",
-      "whatsappMessageServiceSuffix": " pentru {serviciu}"
+      "whatsappMessageServiceSuffix": " pentru {serviciu}",
+      "whatsappLocationLine": "Locatie: {location}",
+      "whatsappMapsLine": "Google Maps: {maps}"
     },
     "newModal": {
       "title": "Programare nouă",
@@ -1587,7 +1596,12 @@
     "techErrorTitle": "Problemă tehnică temporară",
     "techErrorMsg": "Întâmpinăm o problemă tehnică independentă de noi, la furnizorul nostru de servicii. Se lucrează deja la rezolvare — te rugăm să încerci din nou peste câteva minute.",
     "techErrorRetryBtn": "Încearcă din nou",
-    "chooseSpecialistBtn": "Alege specialistul"
+    "chooseSpecialistBtn": "Alege specialistul",
+    "workLocationTitle": "Alege punctul de lucru",
+    "workLocationHint": "Alege locatia unde vrei sa ajungi la programare.",
+    "defaultWorkLocationName": "Locatie de lucru",
+    "openMapsBtn": "Deschide in Google Maps",
+    "chooseWorkLocationMsg": "Te rugam sa alegi punctul de lucru pentru programare."
   },
   "programariPage": {
     "successTitle": "Programări Salvate!",

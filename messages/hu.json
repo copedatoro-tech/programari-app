@@ -811,7 +811,14 @@
         "nume": "CHRONOS TEAM",
         "limita": "Korlátlan foglalás"
       }
-    }
+    },
+    "workLocationsTitle": "Munkavégzesi helyek",
+    "workLocationsHint": "Adja hozza azokat a helyszineket, ahova az ugyfelek idopontra erkezhetnek. Ezek megjelennek a nyilvanos foglalasi oldalon es a visszaigazolasokban.",
+    "addWorkLocationBtn": "Cim hozzaadasa",
+    "removeWorkLocationBtn": "Torles",
+    "noWorkLocations": "Meg nem adott hozza munkavegzesi helyet.",
+    "workLocationNamePlaceholder": "Helyszin neve {n}",
+    "workLocationAddressPlaceholder": "Utca, hazszam, varos (Google Maps linkhez)"
   },
   "resurse": {
     "headingLine1": "Szolgáltatások",
@@ -1199,7 +1206,9 @@
       "deleteConfirmBtn": "Törlés",
       "updatedToast": "Időpont frissítve!",
       "whatsappMessageBase": "Szia, {nume}! Várunk a {data} időpontodra, {ora} órakor",
-      "whatsappMessageServiceSuffix": " ehhez: {serviciu}"
+      "whatsappMessageServiceSuffix": " ehhez: {serviciu}",
+      "whatsappLocationLine": "Helyszin: {location}",
+      "whatsappMapsLine": "Google Maps: {maps}"
     },
     "newModal": {
       "title": "Új időpont",
@@ -1404,7 +1413,12 @@
     "techErrorTitle": "Ideiglenes technikai probléma",
     "techErrorMsg": "Rajtunk kívülálló technikai problémánk van a szolgáltatónknál. Már dolgozunk a megoldáson — kérjük, próbáld újra néhány perc múlva.",
     "techErrorRetryBtn": "Újra próbálom",
-    "chooseSpecialistBtn": "Szakember valasztasa"
+    "chooseSpecialistBtn": "Szakember valasztasa",
+    "workLocationTitle": "Munkavegzesi hely kivalasztasa",
+    "workLocationHint": "Valassza ki, hova szeretne menni az idopontra.",
+    "defaultWorkLocationName": "Munkavegzesi hely",
+    "openMapsBtn": "Megnyitas Google Mapsben",
+    "chooseWorkLocationMsg": "Kerjuk, valassza ki az idopont helyszinet."
   },
   "programariPage": {
     "successTitle": "Időpontok mentve!",

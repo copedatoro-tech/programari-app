@@ -811,7 +811,14 @@
         "nume": "CHRONOS TEAM",
         "limita": "Marcações ilimitadas"
       }
-    }
+    },
+    "workLocationsTitle": "Locais de trabalho",
+    "workLocationsHint": "Adicione os locais onde os clientes podem ir para as marcacoes. Eles aparecem na pagina publica de reservas e nas confirmacoes.",
+    "addWorkLocationBtn": "Adicionar morada",
+    "removeWorkLocationBtn": "Remover",
+    "noWorkLocations": "Ainda nao adicionou nenhum local de trabalho.",
+    "workLocationNamePlaceholder": "Nome do local {n}",
+    "workLocationAddressPlaceholder": "Rua, numero, cidade (para link Google Maps)"
   },
   "resurse": {
     "headingLine1": "Gestão de",
@@ -1199,7 +1206,9 @@
       "deleteConfirmBtn": "Eliminar",
       "updatedToast": "Marcação atualizada!",
       "whatsappMessageBase": "Olá, {nume}! Esperamos-te na tua marcação de {data}, às {ora}",
-      "whatsappMessageServiceSuffix": " para {serviciu}"
+      "whatsappMessageServiceSuffix": " para {serviciu}",
+      "whatsappLocationLine": "Local: {location}",
+      "whatsappMapsLine": "Google Maps: {maps}"
     },
     "newModal": {
       "title": "Nova marcação",
@@ -1404,7 +1413,12 @@
     "techErrorTitle": "Problema técnico temporário",
     "techErrorMsg": "Estamos com um problema técnico alheio a nós, no nosso fornecedor de serviços. Já estamos a trabalhar na resolução — tenta novamente dentro de alguns minutos.",
     "techErrorRetryBtn": "Tentar novamente",
-    "chooseSpecialistBtn": "Escolher especialista"
+    "chooseSpecialistBtn": "Escolher especialista",
+    "workLocationTitle": "Escolher local",
+    "workLocationHint": "Escolha onde pretende ir para esta marcacao.",
+    "defaultWorkLocationName": "Local de trabalho",
+    "openMapsBtn": "Abrir no Google Maps",
+    "chooseWorkLocationMsg": "Escolha o local de trabalho para a sua marcacao."
   },
   "programariPage": {
     "successTitle": "Marcações guardadas!",

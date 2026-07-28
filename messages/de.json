@@ -811,7 +811,14 @@
         "nume": "CHRONOS TEAM",
         "limita": "Unbegrenzte Buchungen"
       }
-    }
+    },
+    "workLocationsTitle": "Arbeitsstandorte",
+    "workLocationsHint": "Fugen Sie die Standorte hinzu, an denen Kunden zu Terminen kommen konnen. Sie erscheinen auf der offentlichen Buchungsseite und in Kundenbestatigungen.",
+    "addWorkLocationBtn": "Adresse hinzufugen",
+    "removeWorkLocationBtn": "Entfernen",
+    "noWorkLocations": "Sie haben noch keinen Arbeitsstandort hinzugefugt.",
+    "workLocationNamePlaceholder": "Standortname {n}",
+    "workLocationAddressPlaceholder": "Strasse, Nummer, Stadt (fur Google-Maps-Link)"
   },
   "resurse": {
     "headingLine1": "Verwaltung",
@@ -1199,7 +1206,9 @@
       "deleteConfirmBtn": "Löschen",
       "updatedToast": "Termin aktualisiert!",
       "whatsappMessageBase": "Hallo {nume}! Wir erwarten dich zu deinem Termin am {data} um {ora}",
-      "whatsappMessageServiceSuffix": " für {serviciu}"
+      "whatsappMessageServiceSuffix": " für {serviciu}",
+      "whatsappLocationLine": "Standort: {location}",
+      "whatsappMapsLine": "Google Maps: {maps}"
     },
     "newModal": {
       "title": "Neuer Termin",
@@ -1404,7 +1413,12 @@
     "techErrorTitle": "Vorübergehendes technisches Problem",
     "techErrorMsg": "Wir haben ein technisches Problem, das außerhalb unserer Kontrolle liegt, bei unserem Dienstanbieter. Es wird bereits daran gearbeitet — bitte versuche es in ein paar Minuten erneut.",
     "techErrorRetryBtn": "Erneut versuchen",
-    "chooseSpecialistBtn": "Spezialist auswahlen"
+    "chooseSpecialistBtn": "Spezialist auswahlen",
+    "workLocationTitle": "Arbeitsstandort wahlen",
+    "workLocationHint": "Wahlen Sie den Standort fur diesen Termin.",
+    "defaultWorkLocationName": "Arbeitsstandort",
+    "openMapsBtn": "In Google Maps offnen",
+    "chooseWorkLocationMsg": "Bitte wahlen Sie den Arbeitsstandort fur Ihren Termin."
   },
   "programariPage": {
     "successTitle": "Termine gespeichert!",

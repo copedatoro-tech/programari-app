@@ -101,6 +101,7 @@ type Prog = {
   telefon?: string; motiv?: string; poza?: string; documente: DocAtt[];
   expertId?: string; serviciuId?: string; duration?: number; isOnline?: boolean;
   totalPrice?: number; amountPaid?: number; paymentStatus?: string;
+  workLocationName?: string; workLocationAddress?: string; workLocationMapsUrl?: string;
 };
 type ViewMode = "day"|"week"|"month"|"year";
 type ManualBlocks = Record<string, string[]>;
@@ -147,6 +148,7 @@ function mapRow(it: any): Prog {
     expertId: it.angajat_id??"", serviciuId: it.serviciu_id??"",
     duration: it.duration??0, isOnline: it.is_client_booking??false,
     totalPrice: it.total_price??0, amountPaid: it.amount_paid??0, paymentStatus: it.payment_status??"unpaid",
+    workLocationName: it.work_location_name??"", workLocationAddress: it.work_location_address??"", workLocationMapsUrl: it.work_location_maps_url??"",
   };
 }
 // ─── Sanitizare nume fișier (diacritice RO + caractere speciale) ──────────────
@@ -1142,7 +1144,7 @@ function CalendarContent() {
   const {data:programari=[],isLoading,refetch:refetchAppts} = useQuery<Prog[]>({
     queryKey:["appointments",userId,dateRange.start,dateRange.end],enabled:!!userId,staleTime:1000*60*2,
     queryFn:async()=>{
-      const{data,error}=await supabase.from("appointments").select("id,title,prenume,nume,email,date,time,details,phone,poza,file_url,documente,angajat_id,serviciu_id,duration,is_client_booking,total_price,amount_paid,payment_status").eq("user_id",userId!).gte("date",dateRange.start).lte("date",dateRange.end).order("date",{ascending:true});
+      const{data,error}=await supabase.from("appointments").select("id,title,prenume,nume,email,date,time,details,phone,poza,file_url,documente,angajat_id,serviciu_id,duration,is_client_booking,total_price,amount_paid,payment_status,work_location_name,work_location_address,work_location_maps_url").eq("user_id",userId!).gte("date",dateRange.start).lte("date",dateRange.end).order("date",{ascending:true});
       if(error)return[];return(data??[]).map(mapRow);
     },
   });
@@ -1173,7 +1175,7 @@ function CalendarContent() {
   const handleSearch = useCallback((q:string)=>{if(!q.trim()){setSearchResults([]);return;}setSearchResults(programari.filter(p=>p.nume.toLowerCase().includes(q.toLowerCase())||p.telefon?.includes(q)||p.email?.toLowerCase().includes(q.toLowerCase())).slice(0,8));},[programari]);
   const openEdit = useCallback((p:Prog)=>{setEditForm({...p});setShowDatePicker(false);setShowTimePicker(false);setShowSearchDrop(false);},[]);
   const closeModal = useCallback(()=>{setEditForm(null);setNewForm(null);setShowDatePicker(false);setShowTimePicker(false);setShowSearchDrop(false);},[]);
-  useEffect(()=>{if(!editForm)return;const sn=rawServices.find(s=>s.id===editForm.serviciuId)?.nume_serviciu;const base=t("editModal.whatsappMessageBase",{nume:editForm.nume,data:editForm.data,ora:editForm.ora});const suffix=sn?t("editModal.whatsappMessageServiceSuffix",{serviciu:sn}):"";setCustomMsg(`${base}${suffix}.`);},[editForm?.id]);
+  useEffect(()=>{if(!editForm)return;const sn=rawServices.find(s=>s.id===editForm.serviciuId)?.nume_serviciu;const base=t("editModal.whatsappMessageBase",{nume:editForm.nume,data:editForm.data,ora:editForm.ora});const suffix=sn?t("editModal.whatsappMessageServiceSuffix",{serviciu:sn}):"";const locationBlock=editForm.workLocationAddress?`\n${t("editModal.whatsappLocationLine",{location:editForm.workLocationName||editForm.workLocationAddress})}\n${t("editModal.whatsappMapsLine",{maps:editForm.workLocationMapsUrl||`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(editForm.workLocationAddress)}`})}`:"";setCustomMsg(`${base}${suffix}.${locationBlock}`);},[editForm?.id,rawServices,t]);
   useEffect(()=>{function h(e:MouseEvent){if(modalRef.current&&!modalRef.current.contains(e.target as Node)&&!showDatePicker&&!showTimePicker)closeModal();}if(editForm)document.addEventListener("mousedown",h);return()=>document.removeEventListener("mousedown",h);},[editForm,showDatePicker,showTimePicker]);
   const handleUpdate = async()=>{
     if(!editForm)return;
@@ -1330,7 +1332,7 @@ function CalendarContent() {
                   <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:8}}>
                     <div style={{flex:1}}>
                       <p style={{fontSize:7,fontWeight:700,textTransform:"uppercase",color:hasWA?"#15803d":"#94a3b8",marginBottom:3}}>{t("editModal.whatsappLabel")}</p>
-                      <input style={{width:"100%",background:"transparent",border:"none",fontSize:10,fontWeight:600,color:hasWA?"#334155":"#94a3b8",outline:"none",cursor:hasWA?"text":"not-allowed"}}
+                      <textarea style={{width:"100%",background:"transparent",border:"none",fontSize:10,fontWeight:600,color:hasWA?"#334155":"#94a3b8",outline:"none",cursor:hasWA?"text":"not-allowed",resize:"vertical",minHeight:58}}
                         value={hasWA?customMsg:t("editModal.whatsappUnavailable")}
                         onChange={e=>{if(hasWA)setCustomMsg(e.target.value);}}
                         readOnly={!hasWA}/>

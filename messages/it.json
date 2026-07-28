@@ -811,7 +811,14 @@
         "nume": "CHRONOS TEAM",
         "limita": "Prenotazioni illimitate"
       }
-    }
+    },
+    "workLocationsTitle": "Sedi di lavoro",
+    "workLocationsHint": "Aggiungi le sedi dove i clienti possono presentarsi agli appuntamenti. Appaiono nella pagina pubblica di prenotazione e nelle conferme.",
+    "addWorkLocationBtn": "Aggiungi indirizzo",
+    "removeWorkLocationBtn": "Rimuovi",
+    "noWorkLocations": "Non hai ancora aggiunto nessuna sede di lavoro.",
+    "workLocationNamePlaceholder": "Nome sede {n}",
+    "workLocationAddressPlaceholder": "Via, numero, citta (per link Google Maps)"
   },
   "resurse": {
     "headingLine1": "Gestione",
@@ -1199,7 +1206,9 @@
       "deleteConfirmBtn": "Elimina",
       "updatedToast": "Appuntamento aggiornato!",
       "whatsappMessageBase": "Ciao {nume}! Ti aspettiamo per il tuo appuntamento del {data} alle {ora}",
-      "whatsappMessageServiceSuffix": " per {serviciu}"
+      "whatsappMessageServiceSuffix": " per {serviciu}",
+      "whatsappLocationLine": "Sede: {location}",
+      "whatsappMapsLine": "Google Maps: {maps}"
     },
     "newModal": {
       "title": "Nuovo appuntamento",
@@ -1404,7 +1413,12 @@
     "techErrorTitle": "Problema tecnico temporaneo",
     "techErrorMsg": "Stiamo riscontrando un problema tecnico indipendente da noi, presso il nostro fornitore di servizi. Ci stiamo già lavorando — riprova tra qualche minuto.",
     "techErrorRetryBtn": "Riprova",
-    "chooseSpecialistBtn": "Scegli specialista"
+    "chooseSpecialistBtn": "Scegli specialista",
+    "workLocationTitle": "Scegli la sede",
+    "workLocationHint": "Scegli dove vuoi andare per questo appuntamento.",
+    "defaultWorkLocationName": "Sede di lavoro",
+    "openMapsBtn": "Apri in Google Maps",
+    "chooseWorkLocationMsg": "Scegli la sede di lavoro per il tuo appuntamento."
   },
   "programariPage": {
     "successTitle": "Appuntamenti salvati!",

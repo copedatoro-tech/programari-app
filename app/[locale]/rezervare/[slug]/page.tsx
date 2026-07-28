@@ -14,7 +14,8 @@ interface StaffRow { id: string; name: string; services: string[]; working_hours
 interface ServiceRow { id: string; nume_serviciu: string; price: number; duration: number }
 interface ExistingAppointment { time: string; duration: number }
 interface WorkingHourEntry { day: string; start: string; end: string; closed: boolean }
-interface AdminProfile { full_name: string | null; avatar_url: string | null; phone: string | null; email: string | null }
+type WorkLocation = { id: string; name: string; address: string };
+interface AdminProfile { full_name: string | null; avatar_url: string | null; phone: string | null; email: string | null; work_locations: WorkLocation[] }
 
 const DAY_NAMES_LONG = ["Duminică", "Luni", "Marți", "Miercuri", "Joi", "Vineri", "Sâmbătă"];
 
@@ -35,6 +36,9 @@ function toWaLink(phone: string): string {
   const digits = phone.replace(/\D/g, "");
   const withCountryCode = digits.startsWith("0") ? "4" + digits : digits;
   return `https://wa.me/${withCountryCode}`;
+}
+function toMapsLink(address: string): string {
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
 }
 
 function parseWH(whData: any): WorkingHourEntry[] {
@@ -104,6 +108,7 @@ function RezervareContent() {
 
   const [adminWorkingHours, setAdminWorkingHours] = useState<WorkingHourEntry[]>([]);
   const [adminProfile, setAdminProfile] = useState<AdminProfile | null>(null);
+  const [selectedWorkLocationId, setSelectedWorkLocationId] = useState("");
   const [adminManualBlocks, setAdminManualBlocks] = useState<Record<string, string[]>>({});
   const [paymentConfig, setPaymentConfig] = useState<{ required: boolean; onboarded: boolean; slug: string | null }>({
     required: false, onboarded: false, slug: null,
@@ -229,7 +234,7 @@ function RezervareContent() {
       const [staffRes, servicesRes, profileRes] = await Promise.all([
         supabase.from("staff").select("*").eq("user_id", adminId).order("created_at", { ascending: false }),
         supabase.from("services").select("*").eq("user_id", adminId).order("created_at", { ascending: false }),
-        supabase.from("profiles_public").select("working_hours, manual_blocks, has_stripe_account, stripe_onboarded, currency, require_payment_at_booking, slug, avatar_url, full_name, phone, email").eq("id", adminId).single(),
+        supabase.from("profiles_public").select("working_hours, manual_blocks, has_stripe_account, stripe_onboarded, currency, require_payment_at_booking, slug, avatar_url, full_name, phone, email, work_locations").eq("id", adminId).single(),
       ]);
       const hasTechnicalIssue =
         (staffRes.error && staffRes.error.code !== "PGRST116") ||
@@ -248,6 +253,7 @@ function RezervareContent() {
           avatar_url: profileRes.data.avatar_url || null,
           phone: profileRes.data.phone || null,
           email: profileRes.data.email || null,
+          work_locations: Array.isArray(profileRes.data.work_locations) ? profileRes.data.work_locations : [],
         });
         setAdminWorkingHours(parseWH(profileRes.data.working_hours));
         if (profileRes.data.manual_blocks && typeof profileRes.data.manual_blocks === "object") {
@@ -300,6 +306,22 @@ function RezervareContent() {
     if (adminIdReady && adminId) fetchAdminConfig();
     else if (adminIdReady && !adminId) setFetchingConfig(false);
   }, [adminIdReady, adminId, fetchAdminConfig]);
+
+  useEffect(() => {
+    const locations = adminProfile?.work_locations || [];
+    if (locations.length === 0) {
+      setSelectedWorkLocationId("");
+      return;
+    }
+    if (!selectedWorkLocationId || !locations.some((loc) => loc.id === selectedWorkLocationId)) {
+      setSelectedWorkLocationId(locations[0].id);
+    }
+  }, [adminProfile?.work_locations, selectedWorkLocationId]);
+
+  const selectedWorkLocation = useMemo(() => {
+    const locations = adminProfile?.work_locations || [];
+    return locations.find((loc) => loc.id === selectedWorkLocationId) || locations[0] || null;
+  }, [adminProfile?.work_locations, selectedWorkLocationId]);
 
   useEffect(() => {
     if (adminId) fetchAppointmentsForDate(today, "");
@@ -467,8 +489,9 @@ function RezervareContent() {
     if (!clientInfo.email.trim()) newErrors.email = true;
 
     const invalidBookings = bookings.some(b => !b.serviciu_id || b.ora === "00:00");
-    if (invalidBookings) {
-      setPopup({ icon: "⚠️", title: t("incompleteTitle"), message: t("incompleteMsg") });
+    const needsLocation = (adminProfile?.work_locations || []).length > 1 && !selectedWorkLocation;
+    if (invalidBookings || needsLocation) {
+      setPopup({ icon: "⚠️", title: t("incompleteTitle"), message: needsLocation ? t("chooseWorkLocationMsg") : t("incompleteMsg") });
       setErrors(newErrors);
       return;
     }
@@ -496,6 +519,12 @@ function RezervareContent() {
               email: clientInfo.email.trim(),
               detalii: clientInfo.detalii,
             },
+            workLocation: selectedWorkLocation ? {
+              id: selectedWorkLocation.id,
+              name: selectedWorkLocation.name,
+              address: selectedWorkLocation.address,
+              mapsUrl: toMapsLink(selectedWorkLocation.address),
+            } : null,
             bookings: bookings.map(b => ({
               serviciu_id: b.serviciu_id,
               specialist_id: b.specialist_id || null,
@@ -865,6 +894,46 @@ function RezervareContent() {
                     value={clientInfo.email} onChange={(e) => { setClientInfo({ ...clientInfo, email: e.target.value }); setErrors({ ...errors, email: false }); }} />
                 </div>
               </div>
+
+              {(adminProfile?.work_locations?.length || 0) > 0 && (
+                <div className="bg-slate-50 border-2 border-slate-100 rounded-[35px] p-6 space-y-4">
+                  <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                    <div>
+                      <p className="text-[10px] font-black uppercase italic text-slate-400 tracking-widest">{t("workLocationTitle")}</p>
+                      <p className="text-xs font-bold text-slate-500 italic">{t("workLocationHint")}</p>
+                    </div>
+                    {selectedWorkLocation?.address && (
+                      <a href={toMapsLink(selectedWorkLocation.address)} target="_blank" rel="noopener noreferrer" className="bg-slate-900 text-amber-500 px-5 py-3 rounded-2xl text-[10px] font-black uppercase italic hover:bg-amber-500 hover:text-slate-900 transition-all">
+                        {t("openMapsBtn")}
+                      </a>
+                    )}
+                  </div>
+
+                  {adminProfile?.work_locations.length === 1 ? (
+                    <div className="bg-white rounded-[25px] border-2 border-amber-200 p-5">
+                      <p className="text-sm font-black text-slate-900 uppercase italic">{adminProfile.work_locations[0].name || t("defaultWorkLocationName")}</p>
+                      <p className="text-xs font-bold text-slate-500 mt-1">{adminProfile.work_locations[0].address}</p>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {adminProfile?.work_locations.map((loc) => {
+                        const selected = selectedWorkLocationId === loc.id;
+                        return (
+                          <button
+                            key={loc.id}
+                            type="button"
+                            onClick={() => setSelectedWorkLocationId(loc.id)}
+                            className={`text-left rounded-[25px] border-2 p-5 transition-all ${selected ? "border-amber-500 bg-amber-50 shadow-lg" : "border-slate-200 bg-white hover:border-amber-300"}`}
+                          >
+                            <p className="text-sm font-black text-slate-900 uppercase italic">{loc.name || t("defaultWorkLocationName")}</p>
+                            <p className="text-xs font-bold text-slate-500 mt-1">{loc.address}</p>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              )}
 
               <div className="h-px bg-slate-100 w-full"></div>
 

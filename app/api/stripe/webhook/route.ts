@@ -203,6 +203,8 @@ export async function POST(request: Request) {
 
         const depositPercent = Number(metadata.depositPercent) || 100;
         const paymentStatus = metadata.paymentStatus || "fully_paid";
+        let selectedWorkLocation: any = null;
+        try { selectedWorkLocation = metadata.workLocation ? JSON.parse(metadata.workLocation) : null; } catch {}
 
         const serviceIds = bookings.map((b: any) => b.serviciu_id).filter(Boolean);
         const { data: services } = await supabaseAdmin
@@ -235,6 +237,10 @@ export async function POST(request: Request) {
             total_price: fullPrice,
             amount_paid: amountPaidNow,
             payment_status: paymentStatus,
+            work_location_id: selectedWorkLocation?.id || null,
+            work_location_name: selectedWorkLocation?.name || null,
+            work_location_address: selectedWorkLocation?.address || null,
+            work_location_maps_url: selectedWorkLocation?.mapsUrl || null,
           };
         });
 

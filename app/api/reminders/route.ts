@@ -3,12 +3,24 @@ import { Resend } from "resend";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import { checkAndConsumeWhatsAppQuota } from "@/lib/whatsappQuota";
 
+function escapeHtml(value: unknown) {
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
 // ℹ️ Acest e-mail e trimis automat, fără context de utilizator logat —
 // nu avem limba aleasă de client la momentul rezervării, deci folosim
 // română ca limbă implicită. Poate fi extins mai târziu, salvând limba
 // aleasă de client direct pe programare, în pagina de rezervare publică.
-function buildReminderHtml(nume: string, data: string, ora: string, appointmentId: string, serviciu?: string) {
+function buildReminderHtml(nume: string, data: string, ora: string, appointmentId: string, serviciu?: string, locationName?: string, locationAddress?: string, locationMapsUrl?: string) {
   const manageUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/gestioneaza/${appointmentId}`;
+  const safeLocationName = locationName ? escapeHtml(locationName) : "";
+  const safeLocationAddress = locationAddress ? escapeHtml(locationAddress) : "";
+  const mapsUrl = locationMapsUrl || (locationAddress ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(locationAddress)}` : "");
   return `
     <div style="font-family: 'Helvetica', Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 40px; color: #0f172a; background-color: #f8fafc; border-radius: 24px;">
       <h1 style="font-size: 24px; font-weight: 900; font-style: italic; text-transform: uppercase; letter-spacing: -0.05em; margin-bottom: 24px;">
@@ -25,6 +37,14 @@ function buildReminderHtml(nume: string, data: string, ora: string, appointmentI
         </div>
         <p style="font-size: 13px; font-weight: 600; font-style: italic; color: #475569; margin-bottom: 0;">Te așteptăm cu drag!</p>
 
+        ${safeLocationAddress ? `
+        <div style="margin-top: 22px; padding: 16px; background-color: #eff6ff; border-radius: 16px; border: 1px solid #bfdbfe;">
+          <p style="margin: 0; font-size: 11px; font-weight: 900; text-transform: uppercase; color: #1d4ed8; letter-spacing: 0.08em;">Locatie</p>
+          ${safeLocationName ? `<p style="margin: 6px 0 0 0; font-size: 13px; font-weight: 900; color: #0f172a;">${safeLocationName}</p>` : ""}
+          <p style="margin: 6px 0 12px 0; font-size: 13px; line-height: 1.5; color: #334155;"><strong style="color:#0f172a;">${safeLocationAddress}</strong></p>
+          <a href="${mapsUrl}" style="display: inline-block; background-color: #2563eb; color: #ffffff; padding: 10px 16px; border-radius: 12px; font-weight: 900; font-size: 11px; text-transform: uppercase; text-decoration: none;">Deschide in Google Maps</a>
+        </div>
+        ` : ""}
         <div style="margin-top: 28px; text-align: center;">
           <a href="${manageUrl}" style="display: inline-block; background-color: #0f172a; color: #ffffff; padding: 14px 28px; border-radius: 14px; font-weight: 900; font-size: 12px; text-transform: uppercase; text-decoration: none; letter-spacing: 0.05em;">
             Gestionează Programarea
@@ -133,7 +153,7 @@ export async function GET(request: Request) {
 
   const { data: appointments, error } = await supabaseAdmin
     .from("appointments")
-    .select("id, title, prenume, nume, email, phone, date, time, serviciu_id, reminder_sent, reminder_whatsapp_sent, user_id, total_price, amount_paid, payment_status")
+    .select("id, title, prenume, nume, email, phone, date, time, serviciu_id, reminder_sent, reminder_whatsapp_sent, user_id, total_price, amount_paid, payment_status, work_location_name, work_location_address, work_location_maps_url")
     .eq("date", tomorrowStr)
     .neq("status", "cancelled")
     .or("reminder_sent.eq.false,reminder_whatsapp_sent.eq.false");
@@ -175,7 +195,7 @@ export async function GET(request: Request) {
           from: "Chronos <onboarding@resend.dev>",
           to: [appt.email as string],
           subject: "Reamintire Programare • Chronos System",
-          html: buildReminderHtml(clientName, appt.date, appt.time, appt.id),
+          html: buildReminderHtml(clientName, appt.date, appt.time, appt.id, undefined, appt.work_location_name || "", appt.work_location_address || "", appt.work_location_maps_url || ""),
         });
         if (result.error) {
           errors.push(`[email] ${appt.id}: ${result.error.message}`);

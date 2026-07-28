@@ -47,7 +47,7 @@ export async function POST(request: Request) {
     // care nu-i aparțin.
     const { data: appointment, error: apptError } = await supabaseAdmin
       .from("appointments")
-      .select("phone, prenume, nume, date, time, user_id")
+      .select("phone, prenume, nume, date, time, user_id, work_location_name, work_location_address, work_location_maps_url")
       .eq("id", appointmentId)
       .maybeSingle();
 

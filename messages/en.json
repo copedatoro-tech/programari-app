@@ -811,7 +811,14 @@
         "nume": "CHRONOS TEAM",
         "limita": "Unlimited bookings"
       }
-    }
+    },
+    "workLocationsTitle": "Work locations",
+    "workLocationsHint": "Add the locations where clients can come for appointments. They appear on the public booking page and in client confirmations.",
+    "addWorkLocationBtn": "Add address",
+    "removeWorkLocationBtn": "Remove",
+    "noWorkLocations": "You have not added any work location yet.",
+    "workLocationNamePlaceholder": "Location name {n}",
+    "workLocationAddressPlaceholder": "Street, number, city (for Google Maps link)"
   },
   "resurse": {
     "headingLine1": "Manage",
@@ -1199,7 +1206,9 @@
       "deleteConfirmBtn": "Delete",
       "updatedToast": "Appointment updated!",
       "whatsappMessageBase": "Hi, {nume}! We're expecting you for your appointment on {data} at {ora}",
-      "whatsappMessageServiceSuffix": " for {serviciu}"
+      "whatsappMessageServiceSuffix": " for {serviciu}",
+      "whatsappLocationLine": "Location: {location}",
+      "whatsappMapsLine": "Google Maps: {maps}"
     },
     "newModal": {
       "title": "New appointment",
@@ -1404,7 +1413,12 @@
     "techErrorTitle": "Temporary Technical Issue",
     "techErrorMsg": "We're experiencing a technical issue outside our control, at our service provider. It's already being worked on — please try again in a few minutes.",
     "techErrorRetryBtn": "Try Again",
-    "chooseSpecialistBtn": "Choose specialist"
+    "chooseSpecialistBtn": "Choose specialist",
+    "workLocationTitle": "Choose work location",
+    "workLocationHint": "Choose where you want to go for this appointment.",
+    "defaultWorkLocationName": "Work location",
+    "openMapsBtn": "Open in Google Maps",
+    "chooseWorkLocationMsg": "Please choose the work location for your appointment."
   },
   "programariPage": {
     "successTitle": "Appointments Saved!",

@@ -7,6 +7,8 @@ import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { Crown, Gem, ShieldCheck, Zap } from "lucide-react";
 
+type WorkLocation = { id: string; name: string; address: string };
+
 export default function ProfilPage() {
   const t = useTranslations("profil");
   const [isClient, setIsClient] = useState(false);
@@ -26,6 +28,7 @@ export default function ProfilPage() {
   const [nume, setNume] = useState("");
   const [email, setEmail] = useState("");
   const [telefon, setTelefon] = useState("");
+  const [workLocations, setWorkLocations] = useState<WorkLocation[]>([]);
   const [functie, setFunctie] = useState("");
   const [slug, setSlug] = useState("");
   const [hasInitialSlug, setHasInitialSlug] = useState(false);
@@ -74,6 +77,7 @@ export default function ProfilPage() {
           setNume("Utilizator Demo");
           setEmail("demo@chronos.ro");
           setTelefon("0700000000");
+          setWorkLocations([{ id: "demo-1", name: "Locatia principala", address: "Strada Exemplu 10, Bucuresti" }]);
           setFunctie("Administrator (Demo)");
           setSlug("demo-salon");
           setHasInitialSlug(true);
@@ -106,6 +110,16 @@ export default function ProfilPage() {
           setEmail(u.email || "");
           setNume(profile?.full_name || u.user_metadata?.full_name || "");
           setTelefon(profile?.phone || u.user_metadata?.phone || "");
+          const rawLocations = Array.isArray(profile?.work_locations) ? profile.work_locations : [];
+          const normalizedLocations = rawLocations.map((loc: any, index: number) => ({
+            id: String(loc?.id || `loc-${index + 1}`),
+            name: String(loc?.name || ""),
+            address: String(loc?.address || ""),
+          }));
+          setWorkLocations(normalizedLocations.length > 0
+            ? normalizedLocations
+            : [{ id: "loc-primary", name: "", address: "" }]
+          );
           setFunctie(profile?.role || "Administrator Sistem");
 
           if (profile?.slug) {
@@ -155,6 +169,13 @@ export default function ProfilPage() {
           full_name: nume,
           avatar_url: avatarUrl,
           phone: telefon,
+          work_locations: workLocations
+            .map((loc, index) => ({
+              id: loc.id || `loc-${Date.now()}-${index}`,
+              name: loc.name.trim() || `Locatia ${index + 1}`,
+              address: loc.address.trim(),
+            }))
+            .filter((loc) => loc.address),
           role: functie,
           email: user.email,
           updated_at: new Date().toISOString(),
@@ -236,6 +257,27 @@ export default function ProfilPage() {
     } finally {
       setUpdating(false);
     }
+  };
+
+  const addWorkLocation = () => {
+    if (isDemo) return;
+    setWorkLocations((prev) => [
+      ...prev,
+      { id: `loc-${Date.now()}`, name: "", address: "" },
+    ]);
+  };
+
+  const updateWorkLocation = (id: string, field: "name" | "address", value: string) => {
+    if (isDemo) return;
+    setWorkLocations((prev) => prev.map((loc) => loc.id === id ? { ...loc, [field]: value } : loc));
+  };
+
+  const removeWorkLocation = (id: string) => {
+    if (isDemo) return;
+    setWorkLocations((prev) => {
+      if (prev.length <= 1) return [{ id: prev[0]?.id || "loc-primary", name: "", address: "" }];
+      return prev.filter((loc) => loc.id !== id);
+    });
   };
 
   const handleSignOut = async () => {
@@ -399,6 +441,58 @@ export default function ProfilPage() {
                 readOnly={isDemo}
                 className={`w-full p-6 rounded-[25px] font-bold text-sm outline-none transition-all ${!isDemo ? 'bg-slate-50 border-2 border-slate-100 focus:border-amber-500 focus:bg-white' : 'bg-slate-100 text-slate-600 italic'}`}
               />
+            </div>
+          </div>
+
+          <div className="bg-slate-50 p-8 md:p-10 rounded-[40px] border-2 border-slate-100 space-y-6">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+              <div>
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest italic">{t("workLocationsTitle")}</p>
+                <p className="text-[10px] text-slate-500 font-bold italic mt-1">{t("workLocationsHint")}</p>
+              </div>
+              <button
+                type="button"
+                onClick={addWorkLocation}
+                disabled={isDemo}
+                className="px-6 py-3 bg-slate-900 text-amber-500 rounded-2xl text-[10px] font-black uppercase italic hover:bg-amber-500 hover:text-slate-900 transition-all disabled:opacity-50"
+              >
+                {t("addWorkLocationBtn")}
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              {workLocations.map((loc, index) => (
+                <div key={loc.id} className="bg-white rounded-[30px] border-2 border-slate-100 p-5 grid grid-cols-1 md:grid-cols-[1fr_2fr_auto] gap-4 items-start">
+                  <input
+                    type="text"
+                    value={loc.name}
+                    onChange={(e) => updateWorkLocation(loc.id, "name", e.target.value)}
+                    readOnly={isDemo}
+                    placeholder={t("workLocationNamePlaceholder", { n: index + 1 })}
+                    className="w-full p-4 rounded-2xl bg-slate-50 border-2 border-slate-100 focus:border-amber-500 outline-none text-xs font-black uppercase italic"
+                  />
+                  <textarea
+                    rows={2}
+                    value={loc.address}
+                    onChange={(e) => updateWorkLocation(loc.id, "address", e.target.value)}
+                    readOnly={isDemo}
+                    placeholder={t("workLocationAddressPlaceholder")}
+                    className="w-full p-4 rounded-2xl bg-slate-50 border-2 border-slate-100 focus:border-amber-500 outline-none text-xs font-bold resize-none"
+                  />
+                  {workLocations.length > 1 ? (
+                    <button
+                      type="button"
+                      onClick={() => removeWorkLocation(loc.id)}
+                      disabled={isDemo}
+                      className="px-5 py-4 bg-red-50 text-red-500 rounded-2xl text-[9px] font-black uppercase italic hover:bg-red-500 hover:text-white transition-all disabled:opacity-50"
+                    >
+                      {t("removeWorkLocationBtn")}
+                    </button>
+                  ) : (
+                    <div className="hidden md:block" />
+                  )}
+                </div>
+              ))}
             </div>
           </div>
 

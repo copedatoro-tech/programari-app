@@ -43,7 +43,7 @@ export async function GET(request: Request) {
 
   const { data: appointments, error } = await supabaseAdmin
     .from("appointments")
-    .select("id, title, prenume, nume, email, date, time, user_id, reminder_2h_sent, total_price, amount_paid, payment_status")
+    .select("id, title, prenume, nume, email, date, time, user_id, reminder_2h_sent, total_price, amount_paid, payment_status, work_location_name, work_location_address, work_location_maps_url")
     .in("date", [todayStr, tomorrowStr])
     .neq("status", "cancelled")
     .eq("reminder_2h_sent", false);
@@ -90,6 +90,9 @@ export async function GET(request: Request) {
     const safeName = escapeHtml(clientName);
     const safeTime = escapeHtml(appt.time);
     const safeSalon = escapeHtml(profile.full_name || "Chronos");
+    const safeLocationName = appt.work_location_name ? escapeHtml(appt.work_location_name) : "";
+    const safeLocationAddress = appt.work_location_address ? escapeHtml(appt.work_location_address) : "";
+    const mapsUrl = appt.work_location_maps_url || (appt.work_location_address ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(appt.work_location_address)}` : "");
 
     try {
       const dataMail = await resend.emails.send({
@@ -115,6 +118,14 @@ export async function GET(request: Request) {
               </div>
 
               <p style="font-size: 13px; font-weight: 600; font-style: italic; color: #475569; margin-bottom: 0;">Te așteptăm!</p>
+              ${safeLocationAddress ? `
+              <div style="margin-top: 22px; padding: 16px; background-color: #eff6ff; border-radius: 16px; border: 1px solid #bfdbfe;">
+                <p style="margin: 0; font-size: 11px; font-weight: 900; text-transform: uppercase; color: #1d4ed8; letter-spacing: 0.08em;">Locatie</p>
+                ${safeLocationName ? `<p style="margin: 6px 0 0 0; font-size: 13px; font-weight: 900; color: #0f172a;">${safeLocationName}</p>` : ""}
+                <p style="margin: 6px 0 12px 0; font-size: 13px; line-height: 1.5; color: #334155;"><strong style="color:#0f172a;">${safeLocationAddress}</strong></p>
+                <a href="${mapsUrl}" style="display: inline-block; background-color: #2563eb; color: #ffffff; padding: 10px 16px; border-radius: 12px; font-weight: 900; font-size: 11px; text-transform: uppercase; text-decoration: none;">Deschide in Google Maps</a>
+              </div>
+              ` : ""}
             </div>
 
             <p style="text-align: center; font-size: 10px; font-weight: 700; color: #cbd5e1; text-transform: uppercase; letter-spacing: 0.2em; margin-top: 32px;">

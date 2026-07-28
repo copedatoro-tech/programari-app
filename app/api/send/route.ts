@@ -32,7 +32,7 @@ export async function POST(request: Request) {
 
     const { data: appointment, error: apptError } = await supabaseAdmin
       .from("appointments")
-      .select("email, prenume, nume, date, time, user_id")
+      .select("email, prenume, nume, date, time, user_id, work_location_name, work_location_address, work_location_maps_url")
       .eq("id", appointmentId)
       .maybeSingle();
 
@@ -62,6 +62,9 @@ export async function POST(request: Request) {
     const safeDate = escapeHtml(appointment.date);
     const safeTime = escapeHtml(appointment.time);
     const safeResponsiblePhone = escapeHtml(responsiblePhone);
+    const safeWorkLocationName = escapeHtml(appointment.work_location_name || "");
+    const safeWorkLocationAddress = escapeHtml(appointment.work_location_address || "");
+    const mapsUrl = appointment.work_location_maps_url || (appointment.work_location_address ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(appointment.work_location_address)}` : "");
 
     // Trimiterea e-mailului cu branding Chronos
     const dataMail = await resend.emails.send({
@@ -89,6 +92,14 @@ export async function POST(request: Request) {
             
             <p style="font-size: 13px; font-weight: 600; font-style: italic; color: #475569; margin-bottom: 0;">Vă așteptăm cu drag!</p>
 
+            ${safeWorkLocationAddress ? `
+            <div style="margin-top: 22px; padding: 16px; background-color: #eff6ff; border-radius: 16px; border: 1px solid #bfdbfe;">
+              <p style="margin: 0; font-size: 11px; font-weight: 900; text-transform: uppercase; color: #1d4ed8; letter-spacing: 0.08em;">Locatie</p>
+              ${safeWorkLocationName ? `<p style="margin: 6px 0 0 0; font-size: 13px; font-weight: 900; color: #0f172a;">${safeWorkLocationName}</p>` : ""}
+              <p style="margin: 6px 0 12px 0; font-size: 13px; line-height: 1.5; color: #334155;"><strong style="color:#0f172a;">${safeWorkLocationAddress}</strong></p>
+              <a href="${mapsUrl}" style="display: inline-block; background-color: #2563eb; color: #ffffff; padding: 10px 16px; border-radius: 12px; font-weight: 900; font-size: 11px; text-transform: uppercase; text-decoration: none;">Deschide in Google Maps</a>
+            </div>
+            ` : ""}
             <div style="margin-top: 28px; text-align: center;">
               <a href="${manageUrl}" style="display: inline-block; background-color: #0f172a; color: #ffffff; padding: 14px 28px; border-radius: 14px; font-weight: 900; font-size: 12px; text-transform: uppercase; text-decoration: none; letter-spacing: 0.05em;">
                 Gestionează Programarea

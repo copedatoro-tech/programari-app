@@ -19,6 +19,21 @@ function getClientIp(request: Request): string {
   if (realIp) return realIp;
   return "unknown";
 }
+function normalizeWorkLocation(profileLocations: any, submittedLocation: any) {
+  const locations = Array.isArray(profileLocations) ? profileLocations : [];
+  if (locations.length === 0) return null;
+  if (!submittedLocation?.id) return null;
+  const match = locations.find((loc: any) => String(loc?.id) === String(submittedLocation.id));
+  if (!match?.address) return null;
+  const name = String(match.name || submittedLocation.name || "Locatie").trim();
+  const address = String(match.address).trim();
+  return {
+    id: String(match.id),
+    name,
+    address,
+    mapsUrl: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`,
+  };
+}
 
 async function verifyTurnstile(token: string, ip: string): Promise<boolean> {
   if (!token) return false;
@@ -43,7 +58,7 @@ export async function POST(request: Request) {
   try {
     const ip = getClientIp(request);
     const body = await request.json();
-    const { turnstileToken, adminId, clientInfo, bookings } = body;
+    const { turnstileToken, adminId, clientInfo, bookings, workLocation } = body;
 
     // ── Validari de baza ────────────────────────────────────────────────
     if (!adminId || !clientInfo?.nume || !clientInfo?.telefon || !clientInfo?.email) {
@@ -90,12 +105,13 @@ export async function POST(request: Request) {
     // ── Verificare limita de plan a salonului ───────────────────────────
     const { data: profileData } = await supabaseAdmin
       .from("profiles")
-      .select("plan_type")
+      .select("plan_type, work_locations")
       .eq("id", adminId)
       .single();
 
     const plan = profileData?.plan_type || "CHRONOS FREE";
     const maxAppointments = PLAN_LIMITS[plan] ?? 30;
+    const selectedWorkLocation = normalizeWorkLocation(profileData?.work_locations, workLocation);
 
     if (maxAppointments !== Infinity) {
       const startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString();
@@ -171,6 +187,10 @@ export async function POST(request: Request) {
         serviciu_id: b.serviciu_id,
         status: "pending",
         is_client_booking: true,
+        work_location_id: selectedWorkLocation?.id || null,
+        work_location_name: selectedWorkLocation?.name || null,
+        work_location_address: selectedWorkLocation?.address || null,
+        work_location_maps_url: selectedWorkLocation?.mapsUrl || null,
       };
       const { data: inserted, error } = await supabaseAdmin
         .from("appointments")
