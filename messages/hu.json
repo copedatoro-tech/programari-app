@@ -1403,7 +1403,8 @@
     "noRatingYet": "Legyél az első, aki értékel",
     "techErrorTitle": "Ideiglenes technikai probléma",
     "techErrorMsg": "Rajtunk kívülálló technikai problémánk van a szolgáltatónknál. Már dolgozunk a megoldáson — kérjük, próbáld újra néhány perc múlva.",
-    "techErrorRetryBtn": "Újra próbálom"
+    "techErrorRetryBtn": "Újra próbálom",
+    "chooseSpecialistBtn": "Szakember valasztasa"
   },
   "programariPage": {
     "successTitle": "Időpontok mentve!",

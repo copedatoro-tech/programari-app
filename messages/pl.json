@@ -1403,7 +1403,8 @@
     "noRatingYet": "Bądź pierwszą osobą, która oceni",
     "techErrorTitle": "Tymczasowy problem techniczny",
     "techErrorMsg": "Mamy problem techniczny niezależny od nas, u naszego dostawcy usług. Już nad tym pracujemy — spróbuj ponownie za kilka minut.",
-    "techErrorRetryBtn": "Spróbuj ponownie"
+    "techErrorRetryBtn": "Spróbuj ponownie",
+    "chooseSpecialistBtn": "Wybierz specjaliste"
   },
   "programariPage": {
     "successTitle": "Wizyty zapisane!",

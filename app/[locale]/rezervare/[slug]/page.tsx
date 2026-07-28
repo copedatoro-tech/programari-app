@@ -137,6 +137,7 @@ function RezervareContent() {
   const [technicalError, setTechnicalError] = useState(false);
   const [pickerControl, setPickerControl] = useState<{ type: "date" | "time"; bookingId: string } | null>(null);
   const [waitlistModal, setWaitlistModal] = useState<{ bookingId: string } | null>(null);
+  const [specialistPickerBookingId, setSpecialistPickerBookingId] = useState<string | null>(null);
   const [waitlistSaving, setWaitlistSaving] = useState(false);
   const [waitlistJoined, setWaitlistJoined] = useState(false);
 
@@ -688,6 +689,58 @@ function RezervareContent() {
 
       {popup && <ChronosPopup {...popup} onClose={() => setPopup(null)} />}
       {feedbackTrimisSucces && <SuccessPopup onClose={() => setFeedbackTrimisSucces(false)} />}
+
+      {specialistPickerBookingId && (() => {
+        const bookingForPicker = bookings.find((b) => b.id === specialistPickerBookingId);
+        if (!bookingForPicker) return null;
+        const availableSpecialists = specialisti.filter(s => !bookingForPicker.serviciu_id || s.services.includes(bookingForPicker.serviciu_id));
+        return (
+          <div className="fixed inset-0 z-[840] bg-slate-950/55 backdrop-blur-sm flex items-center justify-center p-4"
+            onClick={() => setSpecialistPickerBookingId(null)}>
+            <div onClick={(e) => e.stopPropagation()} className="bg-white w-full max-w-2xl rounded-[36px] p-6 md:p-8 shadow-2xl border-t-[8px] border-amber-500 max-h-[82vh] flex flex-col">
+              <div className="flex items-start justify-between gap-4 mb-5">
+                <div>
+                  <span className="text-[9px] font-black uppercase italic text-amber-500 tracking-widest">{t("expertLabel")}</span>
+                  <h3 className="text-xl md:text-2xl font-black uppercase italic text-slate-900 tracking-tighter">{t("chooseSpecialistBtn")}</h3>
+                </div>
+                <button type="button" onClick={() => setSpecialistPickerBookingId(null)} className="w-10 h-10 rounded-xl bg-slate-100 text-slate-400 font-black hover:bg-red-500 hover:text-white transition-all">x</button>
+              </div>
+              <div className="overflow-y-auto pr-1">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 pb-1">
+                  <button
+                    type="button"
+                    onClick={() => { updateBooking(specialistPickerBookingId, { specialist_id: "" }); setSpecialistPickerBookingId(null); }}
+                    className={`min-h-[132px] rounded-[26px] border-2 p-3 flex flex-col items-center justify-center gap-2 transition-all ${!bookingForPicker.specialist_id ? "border-amber-500 bg-amber-50 shadow-lg" : "border-slate-200 bg-white hover:border-amber-300"}`}
+                  >
+                    <div className={`w-20 h-20 rounded-full flex items-center justify-center font-black text-2xl shadow-sm ${!bookingForPicker.specialist_id ? "bg-amber-500 text-white" : "bg-slate-100 text-slate-400"}`}>*</div>
+                    <span className="text-[9px] font-black uppercase italic text-slate-700 text-center leading-tight">{t("firstAvailOpt")}</span>
+                  </button>
+                  {availableSpecialists.map((sp) => {
+                    const selected = bookingForPicker.specialist_id === sp.id;
+                    return (
+                      <button
+                        type="button"
+                        key={sp.id}
+                        onClick={() => { updateBooking(specialistPickerBookingId, { specialist_id: sp.id }); setSpecialistPickerBookingId(null); }}
+                        className={`min-h-[132px] rounded-[26px] border-2 p-3 flex flex-col items-center justify-center gap-2 transition-all ${selected ? "border-amber-500 bg-amber-50 shadow-lg" : "border-slate-200 bg-white hover:border-amber-300"}`}
+                      >
+                        <div className="relative w-20 h-20 rounded-full overflow-hidden bg-slate-100 border-[3px] border-white shadow-md flex items-center justify-center">
+                          {sp.photo_url ? (
+                            <Image src={sp.photo_url} alt={sp.name} fill className="object-cover" />
+                          ) : (
+                            <span className="text-2xl font-black text-amber-500 uppercase italic">{(sp.name || "?").slice(0, 1)}</span>
+                          )}
+                        </div>
+                        <span className="text-[9px] font-black uppercase italic text-slate-700 text-center leading-tight line-clamp-2">{sp.name}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
 
       {waitlistModal && (
         <div className="fixed inset-0 z-[850] bg-slate-950/50 backdrop-blur-sm flex items-center justify-center p-4"

@@ -1403,7 +1403,8 @@
     "noRatingYet": "Sei die erste Person, die bewertet",
     "techErrorTitle": "Vorübergehendes technisches Problem",
     "techErrorMsg": "Wir haben ein technisches Problem, das außerhalb unserer Kontrolle liegt, bei unserem Dienstanbieter. Es wird bereits daran gearbeitet — bitte versuche es in ein paar Minuten erneut.",
-    "techErrorRetryBtn": "Erneut versuchen"
+    "techErrorRetryBtn": "Erneut versuchen",
+    "chooseSpecialistBtn": "Spezialist auswahlen"
   },
   "programariPage": {
     "successTitle": "Termine gespeichert!",

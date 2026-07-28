@@ -1403,7 +1403,8 @@
     "noRatingYet": "Sê o primeiro a avaliar",
     "techErrorTitle": "Problema técnico temporário",
     "techErrorMsg": "Estamos com um problema técnico alheio a nós, no nosso fornecedor de serviços. Já estamos a trabalhar na resolução — tenta novamente dentro de alguns minutos.",
-    "techErrorRetryBtn": "Tentar novamente"
+    "techErrorRetryBtn": "Tentar novamente",
+    "chooseSpecialistBtn": "Escolher especialista"
   },
   "programariPage": {
     "successTitle": "Marcações guardadas!",
