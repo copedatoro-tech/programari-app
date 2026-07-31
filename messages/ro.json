@@ -1283,7 +1283,9 @@
       "subtitle": "Un ultim impuls, chiar în ziua programării, pe lângă reamintirea de o zi înainte.",
       "label": "Reamintire 2 Ore Înainte",
       "desc": "Opțional. Trimite un email scurt cu aproximativ 2 ore înainte de programare — util pentru clienți ocupați, care uită ușor."
-    }
+    },
+    "allowClientDocumentsLabel": "Documente de la clienți",
+    "allowClientDocumentsHint": "Permite clienților să atașeze poze sau documente (ex. o factură, o defecțiune) direct la rezervarea online. Maxim 5 fișiere, 10MB fiecare."
   },
   "calendarPage": {
     "dayShort": [
@@ -1601,7 +1603,13 @@
     "workLocationHint": "Alege locatia unde vrei sa ajungi la programare.",
     "defaultWorkLocationName": "Locatie de lucru",
     "openMapsBtn": "Deschide in Google Maps",
-    "chooseWorkLocationMsg": "Te rugam sa alegi punctul de lucru pentru programare."
+    "chooseWorkLocationMsg": "Te rugam sa alegi punctul de lucru pentru programare.",
+    "documentsLabel": "Documente (opțional)",
+    "addDocumentsBtn": "Adaugă poze sau documente",
+    "uploadingLabel": "Se încarcă...",
+    "documentsHint": "Maxim 5 fișiere, 10MB fiecare. Ex: poza cu defecțiunea, o factură.",
+    "maxDocumentsMsg": "Poți atașa maxim 5 fișiere.",
+    "fileTooLargeMsg": "Un fișier depășește limita de 10MB și a fost ignorat."
   },
   "programariPage": {
     "successTitle": "Programări Salvate!",

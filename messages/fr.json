@@ -1100,7 +1100,9 @@
       "subtitle": "Un dernier rappel, le jour même du rendez-vous, en plus du rappel de la veille.",
       "label": "Rappel 2 Heures Avant",
       "desc": "Optionnel. Envoie un court email environ 2 heures avant le rendez-vous — utile pour les clients occupés, qui oublient facilement."
-    }
+    },
+    "allowClientDocumentsLabel": "Documents des clients",
+    "allowClientDocumentsHint": "Permet aux clients de joindre des photos ou documents (ex. une facture, un défaut) directement à la réservation en ligne. Max 5 fichiers, 10 Mo chacun."
   },
   "calendarPage": {
     "dayShort": [
@@ -1418,7 +1420,13 @@
     "workLocationHint": "Choisissez le lieu ou vous souhaitez vous rendre pour ce rendez-vous.",
     "defaultWorkLocationName": "Lieu de travail",
     "openMapsBtn": "Ouvrir dans Google Maps",
-    "chooseWorkLocationMsg": "Veuillez choisir le lieu de travail pour votre rendez-vous."
+    "chooseWorkLocationMsg": "Veuillez choisir le lieu de travail pour votre rendez-vous.",
+    "documentsLabel": "Documents (optionnel)",
+    "addDocumentsBtn": "Ajouter des photos ou documents",
+    "uploadingLabel": "Téléchargement...",
+    "documentsHint": "Max 5 fichiers, 10 Mo chacun. Ex : une photo du problème, une facture.",
+    "maxDocumentsMsg": "Vous pouvez joindre 5 fichiers maximum.",
+    "fileTooLargeMsg": "Un fichier dépassait la limite de 10 Mo et a été ignoré."
   },
   "programariPage": {
     "successTitle": "Rendez-vous enregistrés !",

@@ -1100,7 +1100,9 @@
       "subtitle": "Egy utolsó jelzés, a foglalás napján, az előző napi emlékeztető mellett.",
       "label": "2 Órás Emlékeztető",
       "desc": "Opcionális. Rövid emailt küld körülbelül 2 órával az időpont előtt — hasznos elfoglalt ügyfeleknek, akik könnyen elfelejtik."
-    }
+    },
+    "allowClientDocumentsLabel": "Ügyfél dokumentumok",
+    "allowClientDocumentsHint": "Lehetővé teszi az ügyfeleknek, hogy fotókat vagy dokumentumokat (pl. számlát, hibát) csatoljanak közvetlenül az online foglaláshoz. Max 5 fájl, egyenként 10MB."
   },
   "calendarPage": {
     "dayShort": [
@@ -1418,7 +1420,13 @@
     "workLocationHint": "Valassza ki, hova szeretne menni az idopontra.",
     "defaultWorkLocationName": "Munkavegzesi hely",
     "openMapsBtn": "Megnyitas Google Mapsben",
-    "chooseWorkLocationMsg": "Kerjuk, valassza ki az idopont helyszinet."
+    "chooseWorkLocationMsg": "Kerjuk, valassza ki az idopont helyszinet.",
+    "documentsLabel": "Dokumentumok (opcionális)",
+    "addDocumentsBtn": "Fotók vagy dokumentumok hozzáadása",
+    "uploadingLabel": "Feltöltés...",
+    "documentsHint": "Max 5 fájl, egyenként 10MB. Pl. fotó a hibáról, számla.",
+    "maxDocumentsMsg": "Legfeljebb 5 fájlt csatolhatsz.",
+    "fileTooLargeMsg": "Egy fájl túllépte a 10MB-os korlátot, és kimaradt."
   },
   "programariPage": {
     "successTitle": "Időpontok mentve!",

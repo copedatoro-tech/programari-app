@@ -3,6 +3,7 @@ import { supabaseAdmin } from "@/lib/supabaseAdmin";
 
 const MAX_SERVICES_PER_BOOKING = 5;
 const MAX_BOOKINGS_PER_IP_PER_DAY = 3;
+const MAX_DOCUMENTS_PER_BOOKING = 5;
 
 const PLAN_LIMITS: Record<string, number> = {
   "START (GRATUIT)": 30,
@@ -18,21 +19,6 @@ function getClientIp(request: Request): string {
   const realIp = request.headers.get("x-real-ip");
   if (realIp) return realIp;
   return "unknown";
-}
-function normalizeWorkLocation(profileLocations: any, submittedLocation: any) {
-  const locations = Array.isArray(profileLocations) ? profileLocations : [];
-  if (locations.length === 0) return null;
-  if (!submittedLocation?.id) return null;
-  const match = locations.find((loc: any) => String(loc?.id) === String(submittedLocation.id));
-  if (!match?.address) return null;
-  const name = String(match.name || submittedLocation.name || "Locatie").trim();
-  const address = String(match.address).trim();
-  return {
-    id: String(match.id),
-    name,
-    address,
-    mapsUrl: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`,
-  };
 }
 
 async function verifyTurnstile(token: string, ip: string): Promise<boolean> {
@@ -58,7 +44,7 @@ export async function POST(request: Request) {
   try {
     const ip = getClientIp(request);
     const body = await request.json();
-    const { turnstileToken, adminId, clientInfo, bookings, workLocation } = body;
+    const { turnstileToken, adminId, clientInfo, bookings, documente } = body;
 
     // ── Validari de baza ────────────────────────────────────────────────
     if (!adminId || !clientInfo?.nume || !clientInfo?.telefon || !clientInfo?.email) {
@@ -77,6 +63,21 @@ export async function POST(request: Request) {
       if (!b.serviciu_id || !b.data || !b.ora || b.ora === "00:00") {
         return NextResponse.json({ error: "Completeaza serviciul, data si ora pentru toate programarile." }, { status: 400 });
       }
+    }
+
+    // 🔒 Validare documente — daca sunt trimise, trebuie sa fie un array
+    // valid, cu maxim 5 intrari (aceeasi limita ca la upload); fiecare
+    // fisier a fost deja incarcat separat, prin /api/upload-booking-document,
+    // care a facut deja verificarile de securitate (dimensiune, extensie,
+    // comutator activ al salonului) — aici doar validam forma datelor.
+    let safeDocumente: { name: string; url: string }[] = [];
+    if (documente !== undefined) {
+      if (!Array.isArray(documente) || documente.length > MAX_DOCUMENTS_PER_BOOKING) {
+        return NextResponse.json({ error: "Documente invalide." }, { status: 400 });
+      }
+      safeDocumente = documente
+        .filter((d: any) => d && typeof d.url === "string" && typeof d.name === "string")
+        .slice(0, MAX_DOCUMENTS_PER_BOOKING);
     }
 
     // ── Verificare anti-bot (Cloudflare Turnstile) ──────────────────────
@@ -105,13 +106,12 @@ export async function POST(request: Request) {
     // ── Verificare limita de plan a salonului ───────────────────────────
     const { data: profileData } = await supabaseAdmin
       .from("profiles")
-      .select("plan_type, work_locations")
+      .select("plan_type")
       .eq("id", adminId)
       .single();
 
     const plan = profileData?.plan_type || "CHRONOS FREE";
     const maxAppointments = PLAN_LIMITS[plan] ?? 30;
-    const selectedWorkLocation = normalizeWorkLocation(profileData?.work_locations, workLocation);
 
     if (maxAppointments !== Infinity) {
       const startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString();
@@ -129,10 +129,6 @@ export async function POST(request: Request) {
     await supabaseAdmin.from("booking_rate_limits").insert({ ip_address: ip });
 
     // ── Preluam serviciile si staff-ul, FILTRATE dupa acest salon ───────
-    // 🔒 FIX: interogarea de servicii nu filtra pe user_id (spre deosebire
-    // de staff, care era deja corect filtrat) — cineva putea trimite un
-    // serviciu_id de la ALT salon, iar acesta era gasit si folosit oricum
-    // (durata reala, nume in email), generand combinatii incoerente.
     const serviceIds = bookings.map((b: any) => b.serviciu_id);
     const { data: services } = await supabaseAdmin
       .from("services")
@@ -145,17 +141,13 @@ export async function POST(request: Request) {
       .select("id, name")
       .eq("user_id", adminId);
 
-    // 🔒 FIX: respingem explicit daca vreun serviciu_id nu apartine acestui
-    // salon (dupa filtrare, nu s-ar mai gasi in lista), in loc sa lasam
-    // programarea sa se insereze cu durata implicita/gresita.
+    // 🔒 Respingem explicit daca vreun serviciu_id/specialist_id nu apartine
+    // acestui salon.
     for (const b of bookings) {
       const svcExists = services?.some((s) => s.id === b.serviciu_id);
       if (!svcExists) {
         return NextResponse.json({ error: "Unul dintre serviciile selectate nu apartine acestui salon." }, { status: 400 });
       }
-      // 🔒 FIX: la fel, daca specialist_id e trimis dar nu apartine acestui
-      // salon, respingem — inainte doar afisa un nume generic ("Prima
-      // disponibilitate") dar tot insera angajat_id-ul strain in DB.
       if (b.specialist_id) {
         const staffExists = staff?.some((s) => s.id === b.specialist_id);
         if (!staffExists) {
@@ -187,10 +179,7 @@ export async function POST(request: Request) {
         serviciu_id: b.serviciu_id,
         status: "pending",
         is_client_booking: true,
-        work_location_id: selectedWorkLocation?.id || null,
-        work_location_name: selectedWorkLocation?.name || null,
-        work_location_address: selectedWorkLocation?.address || null,
-        work_location_maps_url: selectedWorkLocation?.mapsUrl || null,
+        documente: safeDocumente,
       };
       const { data: inserted, error } = await supabaseAdmin
         .from("appointments")
@@ -207,13 +196,7 @@ export async function POST(request: Request) {
         fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/send`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            email: clientInfo.email.trim(),
-            nume: clientInfo.nume.trim(),
-            data: b.data,
-            ora: b.ora,
-            appointmentId: inserted.id,
-          }),
+          body: JSON.stringify({ appointmentId: inserted.id }),
         }).catch(() => {});
       }
     }

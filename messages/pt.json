@@ -1100,7 +1100,9 @@
       "subtitle": "Um último aviso, no próprio dia da marcação, além do lembrete do dia anterior.",
       "label": "Lembrete 2 Horas Antes",
       "desc": "Opcional. Envia um email curto cerca de 2 horas antes da marcação — útil para clientes ocupados, que esquecem facilmente."
-    }
+    },
+    "allowClientDocumentsLabel": "Documentos dos clientes",
+    "allowClientDocumentsHint": "Permite que os clientes anexem fotos ou documentos (ex. uma fatura, um defeito) diretamente à reserva online. Máximo 5 ficheiros, 10MB cada."
   },
   "calendarPage": {
     "dayShort": [
@@ -1418,7 +1420,13 @@
     "workLocationHint": "Escolha onde pretende ir para esta marcacao.",
     "defaultWorkLocationName": "Local de trabalho",
     "openMapsBtn": "Abrir no Google Maps",
-    "chooseWorkLocationMsg": "Escolha o local de trabalho para a sua marcacao."
+    "chooseWorkLocationMsg": "Escolha o local de trabalho para a sua marcacao.",
+    "documentsLabel": "Documentos (opcional)",
+    "addDocumentsBtn": "Adicionar fotos ou documentos",
+    "uploadingLabel": "A carregar...",
+    "documentsHint": "Máximo 5 ficheiros, 10MB cada. Ex: uma foto do problema, uma fatura.",
+    "maxDocumentsMsg": "Podes anexar no máximo 5 ficheiros.",
+    "fileTooLargeMsg": "Um ficheiro excedeu o limite de 10MB e foi ignorado."
   },
   "programariPage": {
     "successTitle": "Marcações guardadas!",

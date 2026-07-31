@@ -1100,7 +1100,9 @@
       "subtitle": "Ein letzter Anstoß, am Tag des Termins, zusätzlich zur Erinnerung am Vortag.",
       "label": "2-Stunden-Erinnerung",
       "desc": "Optional. Sendet etwa 2 Stunden vor dem Termin eine kurze E-Mail — nützlich für vielbeschäftigte Kunden, die leicht vergessen."
-    }
+    },
+    "allowClientDocumentsLabel": "Kundendokumente",
+    "allowClientDocumentsHint": "Ermöglicht Kunden, Fotos oder Dokumente (z. B. eine Rechnung, ein Defekt) direkt bei der Online-Buchung anzuhängen. Max. 5 Dateien, je 10 MB."
   },
   "calendarPage": {
     "dayShort": [
@@ -1418,7 +1420,13 @@
     "workLocationHint": "Wahlen Sie den Standort fur diesen Termin.",
     "defaultWorkLocationName": "Arbeitsstandort",
     "openMapsBtn": "In Google Maps offnen",
-    "chooseWorkLocationMsg": "Bitte wahlen Sie den Arbeitsstandort fur Ihren Termin."
+    "chooseWorkLocationMsg": "Bitte wahlen Sie den Arbeitsstandort fur Ihren Termin.",
+    "documentsLabel": "Dokumente (optional)",
+    "addDocumentsBtn": "Fotos oder Dokumente hinzufügen",
+    "uploadingLabel": "Wird hochgeladen...",
+    "documentsHint": "Max. 5 Dateien, je 10 MB. Z. B. ein Foto des Problems, eine Rechnung.",
+    "maxDocumentsMsg": "Du kannst maximal 5 Dateien anhängen.",
+    "fileTooLargeMsg": "Eine Datei überschritt das 10-MB-Limit und wurde übersprungen."
   },
   "programariPage": {
     "successTitle": "Termine gespeichert!",

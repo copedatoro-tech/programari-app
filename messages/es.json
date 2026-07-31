@@ -1100,7 +1100,9 @@
       "subtitle": "Un último aviso, el mismo día de la cita, además del recordatorio del día anterior.",
       "label": "Recordatorio 2 Horas Antes",
       "desc": "Opcional. Envía un email breve aproximadamente 2 horas antes de la cita — útil para clientes ocupados que suelen olvidar."
-    }
+    },
+    "allowClientDocumentsLabel": "Documentos de clientes",
+    "allowClientDocumentsHint": "Permite a los clientes adjuntar fotos o documentos (ej. una factura, un desperfecto) directamente en la reserva online. Máximo 5 archivos, 10MB cada uno."
   },
   "calendarPage": {
     "dayShort": [
@@ -1418,7 +1420,13 @@
     "workLocationHint": "Elige donde quieres acudir para esta cita.",
     "defaultWorkLocationName": "Ubicacion de trabajo",
     "openMapsBtn": "Abrir en Google Maps",
-    "chooseWorkLocationMsg": "Por favor elige la ubicacion de trabajo para tu cita."
+    "chooseWorkLocationMsg": "Por favor elige la ubicacion de trabajo para tu cita.",
+    "documentsLabel": "Documentos (opcional)",
+    "addDocumentsBtn": "Añadir fotos o documentos",
+    "uploadingLabel": "Subiendo...",
+    "documentsHint": "Máximo 5 archivos, 10MB cada uno. Ej: una foto del problema, una factura.",
+    "maxDocumentsMsg": "Puedes adjuntar máximo 5 archivos.",
+    "fileTooLargeMsg": "Un archivo superó el límite de 10MB y fue omitido."
   },
   "programariPage": {
     "successTitle": "¡Citas guardadas!",

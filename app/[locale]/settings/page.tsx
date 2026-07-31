@@ -48,6 +48,7 @@ function SettingsContent() {
   const [stripeOnboarded, setStripeOnboarded] = useState(false);
   const [stripeAccountId, setStripeAccountId] = useState<string | null>(null);
   const [requirePayment, setRequirePayment] = useState(false);
+  const [allowClientDocuments, setAllowClientDocuments] = useState(false);
   const [currency, setCurrency] = useState("RON");
   const [rebookingEnabled, setRebookingEnabled] = useState(false);
   const [rebookingDays, setRebookingDays] = useState(30);
@@ -132,6 +133,7 @@ function SettingsContent() {
       setStripeOnboarded(!!profile.stripe_onboarded);
       setStripeAccountId(profile.stripe_account_id || null);
       setRequirePayment(!!profile.require_payment_at_booking);
+      setAllowClientDocuments(!!profile.allow_client_documents);
       setCurrency(profile.currency || "RON");
       setRebookingEnabled(!!profile.rebooking_reminder_enabled);
       setRebookingDays(profile.rebooking_reminder_days || 30);
@@ -225,7 +227,13 @@ function SettingsContent() {
     await supabase.from('profiles').update({ require_payment_at_booking: newVal }).eq('id', userId);
     await showToast({ message: t("toastSavedMsg"), type: "success" });
   };
-
+  const handleToggleAllowClientDocuments = async () => {
+    if (!userId) return;
+    const newVal = !allowClientDocuments;
+    setAllowClientDocuments(newVal);
+    await supabase.from('profiles').update({ allow_client_documents: newVal }).eq('id', userId);
+    await showToast({ message: t("toastSavedMsg"), type: "success" });
+  };
   const handleCurrencyChange = async (newCurrency: string) => {
     if (!userId) return;
     setCurrency(newCurrency);
@@ -687,6 +695,19 @@ function SettingsContent() {
                   {CURRENCY_OPTIONS.map((c) => <option key={c} value={c}>{c}</option>)}
                 </select>
               </div>
+            </div>
+            <div className="bg-slate-50 border-2 border-slate-100 rounded-[22px] p-5 flex flex-col justify-between mb-6">
+              <span className={`text-[10px] font-black uppercase italic mb-3 block ${allowClientDocuments ? "text-emerald-600" : "text-slate-400"}`}>
+                {t("allowClientDocumentsLabel")} {allowClientDocuments ? t("notifications.statusOnSuffix") : t("notifications.statusOffSuffix")}
+              </span>
+              <button
+                type="button"
+                onClick={handleToggleAllowClientDocuments}
+                className={`w-full py-3 rounded-xl font-black text-[10px] uppercase italic transition-all shadow-md ${allowClientDocuments ? "bg-red-50 text-red-500 hover:bg-red-500 hover:text-white" : "bg-emerald-500 text-white hover:bg-emerald-600"}`}
+              >
+                {allowClientDocuments ? t("notifications.deactivateBtn") : t("notifications.activateBtn")}
+              </button>
+              <p className="text-[8px] font-bold text-slate-400 italic mt-3">{t("allowClientDocumentsHint")}</p>
             </div>
 
             <div className="bg-amber-50 border-2 border-amber-200 rounded-[22px] p-5">

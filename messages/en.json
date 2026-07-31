@@ -1100,7 +1100,9 @@
       "subtitle": "One last nudge, on the day of the appointment, in addition to the day-before reminder.",
       "label": "2-Hour Reminder",
       "desc": "Optional. Sends a short email about 2 hours before the appointment — useful for busy clients who tend to forget."
-    }
+    },
+    "allowClientDocumentsLabel": "Client Documents",
+    "allowClientDocumentsHint": "Allow clients to attach photos or documents (e.g. an invoice, a defect) directly to the online booking. Max 5 files, 10MB each."
   },
   "calendarPage": {
     "dayShort": [
@@ -1418,7 +1420,13 @@
     "workLocationHint": "Choose where you want to go for this appointment.",
     "defaultWorkLocationName": "Work location",
     "openMapsBtn": "Open in Google Maps",
-    "chooseWorkLocationMsg": "Please choose the work location for your appointment."
+    "chooseWorkLocationMsg": "Please choose the work location for your appointment.",
+    "documentsLabel": "Documents (optional)",
+    "addDocumentsBtn": "Add photos or documents",
+    "uploadingLabel": "Uploading...",
+    "documentsHint": "Max 5 files, 10MB each. E.g. a photo of the issue, an invoice.",
+    "maxDocumentsMsg": "You can attach a maximum of 5 files.",
+    "fileTooLargeMsg": "A file exceeded the 10MB limit and was skipped."
   },
   "programariPage": {
     "successTitle": "Appointments Saved!",

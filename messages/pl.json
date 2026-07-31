@@ -1100,7 +1100,9 @@
       "subtitle": "Ostatnie przypomnienie, w dniu wizyty, oprócz przypomnienia z dnia poprzedniego.",
       "label": "Przypomnienie 2 Godziny Wcześniej",
       "desc": "Opcjonalnie. Wysyła krótki e-mail około 2 godziny przed wizytą — przydatne dla zapracowanych klientów, którzy łatwo zapominają."
-    }
+    },
+    "allowClientDocumentsLabel": "Dokumenty klientów",
+    "allowClientDocumentsHint": "Pozwala klientom dołączyć zdjęcia lub dokumenty (np. fakturę, usterkę) bezpośrednio do rezerwacji online. Maksymalnie 5 plików, po 10MB każdy."
   },
   "calendarPage": {
     "dayShort": [
@@ -1418,7 +1420,13 @@
     "workLocationHint": "Wybierz miejsce, do ktorego chcesz przyjsc na te wizyte.",
     "defaultWorkLocationName": "Lokalizacja pracy",
     "openMapsBtn": "Otworz w Google Maps",
-    "chooseWorkLocationMsg": "Wybierz lokalizacje pracy dla swojej wizyty."
+    "chooseWorkLocationMsg": "Wybierz lokalizacje pracy dla swojej wizyty.",
+    "documentsLabel": "Dokumenty (opcjonalnie)",
+    "addDocumentsBtn": "Dodaj zdjęcia lub dokumenty",
+    "uploadingLabel": "Przesyłanie...",
+    "documentsHint": "Maksymalnie 5 plików, po 10MB każdy. Np. zdjęcie usterki, faktura.",
+    "maxDocumentsMsg": "Możesz dołączyć maksymalnie 5 plików.",
+    "fileTooLargeMsg": "Plik przekroczył limit 10MB i został pominięty."
   },
   "programariPage": {
     "successTitle": "Wizyty zapisane!",

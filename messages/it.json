@@ -1100,7 +1100,9 @@
       "subtitle": "Un ultimo promemoria, il giorno stesso dell'appuntamento, oltre a quello del giorno prima.",
       "label": "Promemoria 2 Ore Prima",
       "desc": "Opzionale. Invia una breve email circa 2 ore prima dell'appuntamento — utile per i clienti impegnati, che dimenticano facilmente."
-    }
+    },
+    "allowClientDocumentsLabel": "Documenti dei clienti",
+    "allowClientDocumentsHint": "Consente ai clienti di allegare foto o documenti (es. una fattura, un difetto) direttamente alla prenotazione online. Massimo 5 file, 10MB ciascuno."
   },
   "calendarPage": {
     "dayShort": [
@@ -1418,7 +1420,13 @@
     "workLocationHint": "Scegli dove vuoi andare per questo appuntamento.",
     "defaultWorkLocationName": "Sede di lavoro",
     "openMapsBtn": "Apri in Google Maps",
-    "chooseWorkLocationMsg": "Scegli la sede di lavoro per il tuo appuntamento."
+    "chooseWorkLocationMsg": "Scegli la sede di lavoro per il tuo appuntamento.",
+    "documentsLabel": "Documenti (opzionale)",
+    "addDocumentsBtn": "Aggiungi foto o documenti",
+    "uploadingLabel": "Caricamento...",
+    "documentsHint": "Massimo 5 file, 10MB ciascuno. Es: una foto del problema, una fattura.",
+    "maxDocumentsMsg": "Puoi allegare massimo 5 file.",
+    "fileTooLargeMsg": "Un file ha superato il limite di 10MB ed è stato ignorato."
   },
   "programariPage": {
     "successTitle": "Appuntamenti salvati!",

@@ -110,9 +110,12 @@ function RezervareContent() {
   const [adminProfile, setAdminProfile] = useState<AdminProfile | null>(null);
   const [selectedWorkLocationId, setSelectedWorkLocationId] = useState("");
   const [adminManualBlocks, setAdminManualBlocks] = useState<Record<string, string[]>>({});
-  const [paymentConfig, setPaymentConfig] = useState<{ required: boolean; onboarded: boolean; slug: string | null }>({
+  const [paymentConfig, setPaymentConfig] = useState<{ required:boolean; onboarded: boolean; slug: string | null }>({
     required: false, onboarded: false, slug: null,
   });
+  const [allowDocuments, setAllowDocuments] = useState(false);
+  const [uploadedDocs, setUploadedDocs] = useState<{name:string;url:string}[]>([]);
+  const [uploadingDoc, setUploadingDoc] = useState(false);
 
   const [appointmentsByDate, setAppointmentsByDate] = useState<Record<string, ExistingAppointment[]>>({});
 
@@ -234,7 +237,7 @@ function RezervareContent() {
       const [staffRes, servicesRes, profileRes] = await Promise.all([
         supabase.from("staff").select("*").eq("user_id", adminId).order("created_at", { ascending: false }),
         supabase.from("services").select("*").eq("user_id", adminId).order("created_at", { ascending: false }),
-        supabase.from("profiles_public").select("working_hours, manual_blocks, has_stripe_account, stripe_onboarded, currency, require_payment_at_booking, slug, avatar_url, full_name, phone, email, work_locations").eq("id", adminId).single(),
+        supabase.from("profiles_public").select("working_hours, manual_blocks, has_stripe_account, stripe_onboarded, currency, require_payment_at_booking, slug, avatar_url, full_name, phone, email, work_locations, allow_client_documents").eq("id", adminId).single(),
       ]);
       const hasTechnicalIssue =
         (staffRes.error && staffRes.error.code !== "PGRST116") ||
@@ -264,6 +267,7 @@ function RezervareContent() {
           onboarded: !!profileRes.data.stripe_onboarded && !!profileRes.data.has_stripe_account,
           slug: profileRes.data.slug || null,
         });
+        setAllowDocuments(!!profileRes.data.allow_client_documents);
       }
       await fetchFeedbacks(adminId);
     } catch (e: any) {
@@ -481,6 +485,42 @@ function RezervareContent() {
     }
   };
 
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
+    if (uploadedDocs.length + files.length > 5) {
+      setPopup({ icon: "⚠️", title: t("attentionTitle"), message: t("maxDocumentsMsg") });
+      e.target.value = "";
+      return;
+    }
+    setUploadingDoc(true);
+    for (const file of files) {
+      if (file.size > 10 * 1024 * 1024) {
+        setPopup({ icon: "⚠️", title: t("attentionTitle"), message: t("fileTooLargeMsg") });
+        continue;
+      }
+      try {
+        const fd = new FormData();
+        fd.append("file", file);
+        fd.append("adminId", adminId);
+        const res = await fetch("/api/upload-booking-document", { method: "POST", body: fd });
+        const json = await res.json();
+        if (res.ok && json.url) {
+          setUploadedDocs((prev) => [...prev, { name: json.name, url: json.url }]);
+        } else {
+          setPopup({ icon: "❌", title: t("errorTitle"), message: json.error || t("errorDefaultMsg") });
+        }
+      } catch {
+        setPopup({ icon: "❌", title: t("errorTitle"), message: t("errorDefaultMsg") });
+      }
+    }
+    setUploadingDoc(false);
+    e.target.value = "";
+  };
+
+  const removeUploadedDoc = (idx: number) => {
+    setUploadedDocs((prev) => prev.filter((_, i) => i !== idx));
+  };
   const trimiteRezervare = async (e: React.FormEvent) => {
     e.preventDefault();
     const newErrors: Record<string, boolean> = {};
@@ -564,6 +604,7 @@ function RezervareContent() {
             data: b.data,
             ora: b.ora,
           })),
+          documente: uploadedDocs,
         }),
       });
 
@@ -1055,6 +1096,28 @@ function RezervareContent() {
                   className="w-full bg-white border-2 border-amber-500 rounded-[25px] py-6 px-8 text-[16px] font-bold outline-none min-h-[100px] resize-none focus:bg-slate-50 transition-all"
                   value={clientInfo.detalii} onChange={(e) => setClientInfo({ ...clientInfo, detalii: e.target.value })} />
               </div>
+              {allowDocuments && (
+                <div className="space-y-3 mt-4">
+                  <label className="text-[12px] font-black uppercase italic text-slate-400 ml-4">{t("documentsLabel")}</label>
+                  <label className="flex items-center justify-center gap-2 w-full bg-white border-2 border-dashed border-amber-400 rounded-[25px] py-6 px-8 cursor-pointer hover:bg-amber-50 transition-all">
+                    <input type="file" multiple className="hidden" onChange={handleFileUpload} disabled={uploadingDoc || uploadedDocs.length >= 5} />
+                    <span className="text-[13px] font-black uppercase italic text-amber-600">
+                      {uploadingDoc ? t("uploadingLabel") : t("addDocumentsBtn")}
+                    </span>
+                  </label>
+                  {uploadedDocs.length > 0 && (
+                    <div className="space-y-2">
+                      {uploadedDocs.map((doc, idx) => (
+                        <div key={idx} className="flex items-center justify-between bg-slate-50 rounded-2xl px-5 py-3">
+                          <span className="text-[12px] font-bold text-slate-700 truncate">{doc.name}</span>
+                          <button type="button" onClick={() => removeUploadedDoc(idx)} className="text-red-500 font-black text-sm ml-3 shrink-0">✕</button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  <p className="text-[9px] font-bold text-slate-400 italic ml-4">{t("documentsHint")}</p>
+                </div>
+              )}
 
               {/* 🔒 Widget Cloudflare Turnstile — verificare silentioasa anti-bot */}
               <div className="flex justify-center">
