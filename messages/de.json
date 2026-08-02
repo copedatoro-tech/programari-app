@@ -462,6 +462,18 @@
         {
           "titlu": "Schnellbuchungs-QR-Code",
           "desc": "Jeder Spezialist hat seinen eigenen QR-Code — der Kunde scannt, wählt nur Datum und Uhrzeit, der Rest ist bereits ausgefüllt."
+        },
+        {
+          "titlu": "Integrierte Online-Zahlung",
+          "desc": "Kunden können direkt bei der Buchung bezahlen, vollständig oder als Anzahlung, über Stripe — sicher und unkompliziert."
+        },
+        {
+          "titlu": "Vom Kunden angehängte Dokumente",
+          "desc": "Kunden können Fotos oder Dokumente direkt zur Buchung hinzufügen — nützlich für Autowerkstätten, Kliniken oder jedes visuelle Detail."
+        },
+        {
+          "titlu": "Verfügbar in 9 Sprachen",
+          "desc": "Die App ist vollständig übersetzt in Rumänisch, Englisch, Französisch, Deutsch, Spanisch, Italienisch, Ungarisch, Portugiesisch und Polnisch."
         }
       ]
     },

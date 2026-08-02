@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -11,7 +11,7 @@ import { motion } from "framer-motion";
 import {
   ArrowRight, ShieldCheck, Mail, BellRing,
   Calendar, Users, Zap, Star, FileText, BarChart2,
-  Phone, CheckCircle2, Package, Smartphone,
+  Phone, CheckCircle2, Package, Smartphone, CreditCard, Paperclip, Globe,
 } from "lucide-react";
 // ✅ Modale legale — deschise direct pe pagina de landing, în loc să
 // navigheze greșit către alte rute (ex. /login)
@@ -66,8 +66,10 @@ export default function LandingPage() {
     <BarChart2 className="w-6 h-6" key="bar" />, <FileText className="w-6 h-6" key="file" />,
     <Star className="w-6 h-6" key="star" />, <Phone className="w-6 h-6" key="phone" />,
     <Smartphone className="w-6 h-6" key="smart" />,
+    <CreditCard className="w-6 h-6" key="card" />, <Paperclip className="w-6 h-6" key="clip" />,
+    <Globe className="w-6 h-6" key="globe" />,
   ];
-  const featureColors = ["bg-amber-500","bg-blue-500","bg-emerald-500","bg-violet-500","bg-rose-500","bg-cyan-500","bg-amber-400","bg-teal-500","bg-indigo-500"];
+  const featureColors = ["bg-amber-500","bg-blue-500","bg-emerald-500","bg-violet-500","bg-rose-500","bg-cyan-500","bg-amber-400","bg-teal-500","bg-indigo-500","bg-green-500","bg-orange-500","bg-sky-500"];
   const stepIcons = ["👤", "⚙️", "🔗", "📊"];
 
   return (

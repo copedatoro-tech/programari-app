@@ -462,6 +462,18 @@
         {
           "titlu": "Gyors Foglalási QR-kód",
           "desc": "Minden szakembernek saját QR-kódja van — az ügyfél beolvassa, csak a dátumot és időpontot választja, a többi már ki van töltve."
+        },
+        {
+          "titlu": "Integrált Online Fizetés",
+          "desc": "Az ügyfelek közvetlenül fizethetnek a foglaláskor, teljes összeggel vagy előleggel, a Stripe-on keresztül — biztonságosan és egyszerűen."
+        },
+        {
+          "titlu": "Ügyfél által Csatolt Dokumentumok",
+          "desc": "Az ügyfelek fotókat vagy dokumentumokat csatolhatnak közvetlenül a foglaláshoz — hasznos autószervizeknek, klinikáknak vagy bármilyen vizuális részlethez."
+        },
+        {
+          "titlu": "9 Nyelven Elérhető",
+          "desc": "Az alkalmazás teljesen le van fordítva románra, angolra, franciára, németre, spanyolra, olaszra, magyarra, portugálra és lengyelre."
         }
       ]
     },

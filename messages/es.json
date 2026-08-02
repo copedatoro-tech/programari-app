@@ -462,6 +462,18 @@
         {
           "titlu": "Código QR de Reserva Rápida",
           "desc": "Cada especialista tiene su propio código QR — el cliente escanea, elige solo la fecha y la hora, el resto ya está completado."
+        },
+        {
+          "titlu": "Pago Online Integrado",
+          "desc": "Los clientes pueden pagar directamente al reservar, en su totalidad o con depósito, a través de Stripe — seguro y sin complicaciones."
+        },
+        {
+          "titlu": "Documentos Adjuntos del Cliente",
+          "desc": "Los clientes pueden adjuntar fotos o documentos directamente a su reserva — útil para talleres, clínicas o cualquier detalle visual necesario."
+        },
+        {
+          "titlu": "Disponible en 9 Idiomas",
+          "desc": "La aplicación está completamente traducida al rumano, inglés, francés, alemán, español, italiano, húngaro, portugués y polaco."
         }
       ]
     },

@@ -462,6 +462,18 @@
         {
           "titlu": "Code QR de Réservation Rapide",
           "desc": "Chaque spécialiste a son propre code QR — le client scanne, choisit seulement la date et l'heure, le reste est déjà rempli."
+        },
+        {
+          "titlu": "Paiement en Ligne Intégré",
+          "desc": "Les clients peuvent payer directement lors de la réservation, en totalité ou avec acompte, via Stripe — sécurisé et sans tracas."
+        },
+        {
+          "titlu": "Documents Joints par le Client",
+          "desc": "Les clients peuvent joindre des photos ou documents directement à leur réservation — utile pour les garages, cliniques ou tout détail visuel nécessaire."
+        },
+        {
+          "titlu": "Disponible en 9 Langues",
+          "desc": "L'application est entièrement traduite en roumain, anglais, français, allemand, espagnol, italien, hongrois, portugais et polonais."
         }
       ]
     },

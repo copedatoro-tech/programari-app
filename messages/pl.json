@@ -462,6 +462,18 @@
         {
           "titlu": "Kod QR do Szybkiej Rezerwacji",
           "desc": "Każdy specjalista ma własny kod QR — klient skanuje, wybiera tylko datę i godzinę, reszta jest już wypełniona."
+        },
+        {
+          "titlu": "Zintegrowana Płatność Online",
+          "desc": "Klienci mogą płacić bezpośrednio przy rezerwacji, w całości lub z zaliczką, przez Stripe — bezpiecznie i bez kłopotów."
+        },
+        {
+          "titlu": "Dokumenty Dołączane przez Klienta",
+          "desc": "Klienci mogą dołączyć zdjęcia lub dokumenty bezpośrednio do rezerwacji — przydatne dla warsztatów, klinik lub innych szczegółów wizualnych."
+        },
+        {
+          "titlu": "Dostępna w 9 Językach",
+          "desc": "Aplikacja jest w pełni przetłumaczona na rumuński, angielski, francuski, niemiecki, hiszpański, włoski, węgierski, portugalski i polski."
         }
       ]
     },

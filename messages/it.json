@@ -462,6 +462,18 @@
         {
           "titlu": "Codice QR di Prenotazione Rapida",
           "desc": "Ogni specialista ha il proprio codice QR — il cliente scansiona, sceglie solo data e ora, il resto è già compilato."
+        },
+        {
+          "titlu": "Pagamento Online Integrato",
+          "desc": "I clienti possono pagare direttamente alla prenotazione, per intero o con acconto, tramite Stripe — sicuro e senza complicazioni."
+        },
+        {
+          "titlu": "Documenti Allegati dal Cliente",
+          "desc": "I clienti possono allegare foto o documenti direttamente alla prenotazione — utile per officine, cliniche o qualsiasi dettaglio visivo necessario."
+        },
+        {
+          "titlu": "Disponibile in 9 Lingue",
+          "desc": "L'app è completamente tradotta in rumeno, inglese, francese, tedesco, spagnolo, italiano, ungherese, portoghese e polacco."
         }
       ]
     },

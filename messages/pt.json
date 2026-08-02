@@ -462,6 +462,18 @@
         {
           "titlu": "Código QR de Marcação Rápida",
           "desc": "Cada especialista tem o seu próprio código QR — o cliente digitaliza, escolhe apenas a data e a hora, o resto já está preenchido."
+        },
+        {
+          "titlu": "Pagamento Online Integrado",
+          "desc": "Os clientes podem pagar diretamente na reserva, na totalidade ou com sinal, através do Stripe — seguro e sem complicações."
+        },
+        {
+          "titlu": "Documentos Anexados pelo Cliente",
+          "desc": "Os clientes podem anexar fotos ou documentos diretamente à reserva — útil para oficinas, clínicas ou qualquer detalhe visual necessário."
+        },
+        {
+          "titlu": "Disponível em 9 Idiomas",
+          "desc": "A aplicação está totalmente traduzida em romeno, inglês, francês, alemão, espanhol, italiano, húngaro, português e polaco."
         }
       ]
     },

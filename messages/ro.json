@@ -462,6 +462,18 @@
         {
           "titlu": "Cod QR de Rezervare Rapidă",
           "desc": "Fiecare specialist are propriul cod QR — clientul scanează, alege doar data și ora, restul e deja completat."
+        },
+        {
+          "titlu": "Plată Online Integrată",
+          "desc": "Clienții pot plăti direct la rezervare, integral sau cu avans, prin Stripe — sigur și fără bătăi de cap."
+        },
+        {
+          "titlu": "Documente Atașate de Client",
+          "desc": "Clienții pot atașa poze sau documente direct la rezervare — util pentru ateliere auto, clinici sau orice detaliu vizual necesar."
+        },
+        {
+          "titlu": "Disponibilă în 9 Limbi",
+          "desc": "Aplicația e tradusă complet în română, engleză, franceză, germană, spaniolă, italiană, maghiară, portugheză și poloneză."
         }
       ]
     },

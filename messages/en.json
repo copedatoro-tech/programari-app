@@ -462,6 +462,18 @@
         {
           "titlu": "Quick Booking QR Code",
           "desc": "Each specialist has their own QR code — the client scans, picks only the date and time, everything else is already filled in."
+        },
+        {
+          "titlu": "Integrated Online Payment",
+          "desc": "Clients can pay directly when booking, in full or as a deposit, through Stripe — secure and hassle-free."
+        },
+        {
+          "titlu": "Client-Attached Documents",
+          "desc": "Clients can attach photos or documents directly to their booking — useful for auto shops, clinics, or any visual detail needed."
+        },
+        {
+          "titlu": "Available in 9 Languages",
+          "desc": "The app is fully translated into Romanian, English, French, German, Spanish, Italian, Hungarian, Portuguese, and Polish."
         }
       ]
     },
