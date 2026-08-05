@@ -686,7 +686,8 @@
     "save": "+ Guardar",
     "all": "Todos ({count})",
     "folders": "Pastas ({count})",
-    "allContacts": "Todos os contactos",
+      "save": "SALVAR",
+      "othersShort": "+ {count} outros",
     "newFolderBtn": "+ Nova pasta",
     "editShort": "✎ Editar",
     "syncing": "A sincronizar base de dados...",
@@ -839,6 +840,7 @@
   "resurse": {
     "workLocationsTitle": "Locais de trabalho",
     "addWorkLocationBtn": "Adicionar local",
+    "deleteWorkLocationBtn": "Remover local de trabalho",
     "saveWorkLocationsBtn": "Salvar locais",
     "noWorkLocationsMsg": "Ainda não adicionou locais de trabalho.",
     "workLocationNameLabel": "Nome do local",

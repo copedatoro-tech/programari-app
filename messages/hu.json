@@ -839,6 +839,7 @@
   "resurse": {
     "workLocationsTitle": "Munkavégzési helyek",
     "addWorkLocationBtn": "Helyszín hozzáadása",
+    "deleteWorkLocationBtn": "Helyszín törlése",
     "saveWorkLocationsBtn": "Helyszínek mentése",
     "noWorkLocationsMsg": "Még nem adtál hozzá munkavégzési helyet.",
     "workLocationNameLabel": "Helyszín neve",
@@ -877,6 +878,7 @@
     "activeServicesTitle": "AKTÍV SZOLGÁLTATÁSOK",
     "teamTitle": "SZAKEMBER CSAPAT",
     "save": "MENTÉS",
+    "othersShort": "+ {count} további",
     "cancel": "MÉGSE",
     "update": "FRISSÍTÉS",
     "close": "BEZÁRÁS",

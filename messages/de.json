@@ -831,6 +831,7 @@
     "workLocationsTitle": "Arbeitsstandorte",
     "workLocationsHint": "Fugen Sie die Standorte hinzu, an denen Kunden zu Terminen kommen konnen. Sie erscheinen auf der offentlichen Buchungsseite und in Kundenbestatigungen.",
     "addWorkLocationBtn": "Adresse hinzufugen",
+    "deleteWorkLocationBtn": "Arbeitsort löschen",
     "removeWorkLocationBtn": "Entfernen",
     "noWorkLocations": "Sie haben noch keinen Arbeitsstandort hinzugefugt.",
     "workLocationNamePlaceholder": "Standortname {n}",
@@ -839,6 +840,7 @@
   "resurse": {
     "workLocationsTitle": "Arbeitsorte",
     "addWorkLocationBtn": "Ort hinzufügen",
+    "deleteWorkLocationBtn": "Arbeitsort löschen",
     "saveWorkLocationsBtn": "Orte speichern",
     "noWorkLocationsMsg": "Noch keine Arbeitsorte hinzugefügt.",
     "workLocationNameLabel": "Name Standort",
@@ -877,6 +879,7 @@
     "activeServicesTitle": "AKTIVE LEISTUNGEN",
     "teamTitle": "FACHKRÄFTE-TEAM",
     "save": "SPEICHERN",
+    "othersShort": "+ {count} weitere",
     "cancel": "ABBRECHEN",
     "update": "AKTUALISIEREN",
     "close": "SCHLIESSEN",

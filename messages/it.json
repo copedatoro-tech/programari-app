@@ -839,6 +839,7 @@
   "resurse": {
     "workLocationsTitle": "Sedi di lavoro",
     "addWorkLocationBtn": "Aggiungi sede",
+    "deleteWorkLocationBtn": "Elimina punto di lavoro",
     "saveWorkLocationsBtn": "Salva sedi",
     "noWorkLocationsMsg": "Nessuna sede aggiunta ancora.",
     "workLocationNameLabel": "Nome sede",
@@ -877,6 +878,7 @@
     "activeServicesTitle": "SERVIZI ATTIVI",
     "teamTitle": "TEAM DI ESPERTI",
     "save": "SALVA",
+    "othersShort": "+ {count} altri",
     "cancel": "ANNULLA",
     "update": "AGGIORNA",
     "close": "CHIUDI",

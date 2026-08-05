@@ -831,6 +831,7 @@
     "workLocationsTitle": "Work locations",
     "workLocationsHint": "Add the locations where clients can come for appointments. They appear on the public booking page and in client confirmations.",
     "addWorkLocationBtn": "Add address",
+    "deleteWorkLocationBtn": "Remove work location",
     "removeWorkLocationBtn": "Remove",
     "noWorkLocations": "You have not added any work location yet.",
     "workLocationNamePlaceholder": "Location name {n}",
@@ -839,6 +840,7 @@
   "resurse": {
     "workLocationsTitle": "Work locations",
     "addWorkLocationBtn": "Add location",
+    "deleteWorkLocationBtn": "Remove work location",
     "saveWorkLocationsBtn": "Save locations",
     "noWorkLocationsMsg": "No work locations added yet.",
     "workLocationNameLabel": "Location name",
@@ -877,6 +879,7 @@
     "activeServicesTitle": "ACTIVE SERVICES",
     "teamTitle": "TEAM OF SPECIALISTS",
     "save": "SAVE",
+    "othersShort": "+ {count} others",
     "cancel": "CANCEL",
     "update": "UPDATE",
     "close": "CLOSE",

@@ -1054,6 +1054,7 @@
     "workLocationsTitle": "Adrese de lucru",
     "workLocationsHint": "Adauga punctele de lucru unde clientii pot veni la programari. Acestea apar pe pagina publica si in confirmarile trimise clientilor.",
     "addWorkLocationBtn": "Adauga adresa",
+    "deleteWorkLocationBtn": "Șterge punctul de lucru",
     "removeWorkLocationBtn": "Sterge",
     "noWorkLocations": "Nu ai adaugat inca nicio adresa de lucru.",
     "workLocationNamePlaceholder": "Denumire locatie {n}",
@@ -1062,6 +1063,7 @@
   "resurse": {
     "workLocationsTitle": "Puncte de lucru",
     "addWorkLocationBtn": "Adaugă punct de lucru",
+    "deleteWorkLocationBtn": "Șterge punctul de lucru",
     "saveWorkLocationsBtn": "Salvează punctele de lucru",
     "noWorkLocationsMsg": "Nu ai adăugat încă puncte de lucru.",
     "workLocationNameLabel": "Denumire punct de lucru",
@@ -1100,6 +1102,7 @@
     "activeServicesTitle": "SERVICII ACTIVE",
     "teamTitle": "ECHIPĂ EXPERȚI",
     "save": "SALVEAZĂ",
+    "othersShort": "+ {count} altele",
     "cancel": "ANULEAZĂ",
     "update": "ACTUALIZEAZĂ",
     "close": "ÎNCHIDE",

@@ -839,6 +839,7 @@
   "resurse": {
     "workLocationsTitle": "Ubicaciones",
     "addWorkLocationBtn": "Agregar ubicación",
+    "deleteWorkLocationBtn": "Eliminar ubicación de trabajo",
     "saveWorkLocationsBtn": "Guardar ubicaciones",
     "noWorkLocationsMsg": "Aún no has agregado ubicaciones.",
     "workLocationNameLabel": "Nombre de la ubicación",
@@ -877,6 +878,7 @@
     "activeServicesTitle": "SERVICIOS ACTIVOS",
     "teamTitle": "EQUIPO DE EXPERTOS",
     "save": "GUARDAR",
+    "othersShort": "+ {count} más",
     "cancel": "CANCELAR",
     "update": "ACTUALIZAR",
     "close": "CERRAR",
