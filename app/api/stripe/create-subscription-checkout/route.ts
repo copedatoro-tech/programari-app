@@ -3,7 +3,6 @@ import Stripe from "stripe";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
-const PLATFORM_FEE_PERCENT = 1;
 
 export async function POST(request: Request) {
   try {
@@ -21,6 +20,7 @@ export async function POST(request: Request) {
 
     const session = await stripe.checkout.sessions.create({
       mode: "subscription",
+      client_reference_id: adminId,
       line_items: [{ price: priceId, quantity: 1 }],
       customer_email: customerEmail || undefined,
       subscription_data: profile?.stripe_account_id ? { transfer_data: { destination: profile.stripe_account_id } } : undefined,

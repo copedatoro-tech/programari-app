@@ -11,6 +11,8 @@ const PRICE_TO_PLAN: Record<string, string> = {
   [process.env.NEXT_PUBLIC_STRIPE_PRICE_PRO || ""]: "CHRONOS PRO",
   [process.env.NEXT_PUBLIC_STRIPE_PRICE_ELITE || ""]: "CHRONOS ELITE",
   [process.env.NEXT_PUBLIC_STRIPE_PRICE_TEAM || ""]: "CHRONOS TEAM",
+  [process.env.NEXT_PUBLIC_STRIPE_PRICE_BUSINESS || ""]: "CHRONOS BUSINESS",
+  "price_1U1AXJ9rzvOUm7SdUw3R4oWJ": "CHRONOS BUSINESS",
 };
 
 // Map Price ID to a monthly appointment limit. Use Infinity for unlimited.
@@ -18,6 +20,8 @@ const PRICE_TO_LIMIT: Record<string, number> = {
   [process.env.NEXT_PUBLIC_STRIPE_PRICE_PRO || ""]: 150,
   [process.env.NEXT_PUBLIC_STRIPE_PRICE_ELITE || ""]: 500,
   [process.env.NEXT_PUBLIC_STRIPE_PRICE_TEAM || ""]: Infinity,
+  [process.env.NEXT_PUBLIC_STRIPE_PRICE_BUSINESS || ""]: 150,
+  "price_1U1AXJ9rzvOUm7SdUw3R4oWJ": 150,
 };
 
 export async function POST(request: Request) {
