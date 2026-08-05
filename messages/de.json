@@ -902,6 +902,12 @@
       "Samstag"
     ],
     "scheduleSavedToast": "Zeitplan erfolgreich gespeichert!",
+    "stripePriceIdLabel": "Stripe Price ID (Abo)",
+    "stripePriceIdPlaceholder": "price_XXXXXXXXXX",
+    "monthlyLimitLabel": "Monatliches Terminlimit (optional)",
+    "monthlyLimitPlaceholder": "z.B. 150",
+    "saveProfileSettingsBtn": "Einstellungen speichern",
+    "buySubscriptionBtn": "Abo kaufen",
     "addIntervalBtn": "+ Zeitraum hinzufügen",
     "removeIntervalBtn": "Entfernen",
     "techErrorBannerMsg": "Vorübergehendes technisches Problem, außerhalb unserer Kontrolle — wird bearbeitet.",

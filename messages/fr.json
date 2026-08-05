@@ -902,6 +902,12 @@
       "Samedi"
     ],
     "scheduleSavedToast": "Horaire enregistré avec succès !",
+    "stripePriceIdLabel": "Stripe Price ID (abonnement)",
+    "stripePriceIdPlaceholder": "price_XXXXXXXXXX",
+    "monthlyLimitLabel": "Limite mensuelle de rendez-vous (optionnel)",
+    "monthlyLimitPlaceholder": "ex: 150",
+    "saveProfileSettingsBtn": "Enregistrer les paramètres",
+    "buySubscriptionBtn": "Acheter l'abonnement",
     "addIntervalBtn": "+ Ajouter un créneau",
     "removeIntervalBtn": "Supprimer",
     "techErrorBannerMsg": "Problème technique temporaire, indépendant de nous — en cours de résolution.",

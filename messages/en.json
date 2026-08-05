@@ -902,6 +902,12 @@
       "Saturday"
     ],
     "scheduleSavedToast": "Schedule saved successfully!",
+    "stripePriceIdLabel": "Stripe Price ID (subscription)",
+    "stripePriceIdPlaceholder": "price_XXXXXXXXXX",
+    "monthlyLimitLabel": "Monthly appointments limit (optional)",
+    "monthlyLimitPlaceholder": "e.g. 150",
+    "saveProfileSettingsBtn": "Save settings",
+    "buySubscriptionBtn": "Buy subscription",
     "addIntervalBtn": "+ Add interval",
     "removeIntervalBtn": "Remove",
     "techErrorBannerMsg": "Temporary technical issue, outside our control — it's being worked on.",

@@ -13,6 +13,13 @@ const PRICE_TO_PLAN: Record<string, string> = {
   [process.env.NEXT_PUBLIC_STRIPE_PRICE_TEAM || ""]: "CHRONOS TEAM",
 };
 
+// Map Price ID to a monthly appointment limit. Use Infinity for unlimited.
+const PRICE_TO_LIMIT: Record<string, number> = {
+  [process.env.NEXT_PUBLIC_STRIPE_PRICE_PRO || ""]: 150,
+  [process.env.NEXT_PUBLIC_STRIPE_PRICE_ELITE || ""]: 500,
+  [process.env.NEXT_PUBLIC_STRIPE_PRICE_TEAM || ""]: Infinity,
+};
+
 export async function POST(request: Request) {
   const body = await request.text();
   const signature = request.headers.get("stripe-signature");
@@ -50,20 +57,28 @@ export async function POST(request: Request) {
           const priceId = subscription.items.data[0]?.price.id;
           const planName = PRICE_TO_PLAN[priceId] || "CHRONOS FREE";
 
+          const updatePayload: Record<string, any> = {
+            plan_type: planName,
+            stripe_customer_id: session.customer as string,
+            stripe_subscription_id: subscriptionId,
+            subscription_status: subscription.status,
+            subscription_current_period_end: new Date(
+              (subscription as any).current_period_end * 1000
+            ).toISOString(),
+            subscription_cancel_at_period_end: subscription.cancel_at_period_end,
+            // ✅ Un abonament plătit real oprește orice trial activ
+            trial_started_at: null,
+          };
+
+          const mappedLimit = PRICE_TO_LIMIT[priceId];
+          if (typeof mappedLimit === "number") {
+            // store null in DB for Infinity (unlimited)
+            updatePayload.monthly_appointment_limit = Number.isFinite(mappedLimit) ? mappedLimit : null;
+          }
+
           const { error } = await supabaseAdmin
             .from("profiles")
-            .update({
-              plan_type: planName,
-              stripe_customer_id: session.customer as string,
-              stripe_subscription_id: subscriptionId,
-              subscription_status: subscription.status,
-              subscription_current_period_end: new Date(
-                (subscription as any).current_period_end * 1000
-              ).toISOString(),
-              subscription_cancel_at_period_end: subscription.cancel_at_period_end,
-              // ✅ Un abonament plătit real oprește orice trial activ
-              trial_started_at: null,
-            })
+            .update(updatePayload)
             .eq("id", userId);
 
           if (error) {

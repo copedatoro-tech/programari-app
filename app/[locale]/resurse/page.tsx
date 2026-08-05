@@ -67,6 +67,8 @@ export default function ResursePage() {
   const [services, setServices]   = useState<any[]>([]);
   const [staff, setStaff]         = useState<any[]>([]);
   const [workLocations, setWorkLocations] = useState<any[]>([]);
+  const [stripePriceId, setStripePriceId] = useState<string | null>(null);
+  const [monthlyLimit, setMonthlyLimit] = useState<number | null>(null);
   const [userPlan, setUserPlan]   = useState("chronos free");
   const [businessCurrency, setBusinessCurrency] = useState("RON");
   const [loading, setLoading]     = useState(true);
@@ -126,7 +128,7 @@ export default function ResursePage() {
 
       const { data: profiles, error: profileError } = await supabase
         .from('profiles')
-        .select('plan_type, currency, work_locations')
+        .select('plan_type, currency, work_locations, stripe_price_id, monthly_appointment_limit')
         .eq('id', uid);
 
       if (profileError) console.error("Eroare profil:", profileError.message);
@@ -136,6 +138,9 @@ export default function ResursePage() {
       setUserPlan(planNormalizat);
       setBusinessCurrency(profile?.currency || "RON");
       setWorkLocations(Array.isArray(profile?.work_locations) ? profile.work_locations : []);
+      const p: any = profile;
+      setStripePriceId(p?.stripe_price_id || null);
+      setMonthlyLimit(typeof p?.monthly_appointment_limit === 'number' ? p.monthly_appointment_limit : null);
 
       const { data: svs, error: errSvs } = await supabase
         .from('services')
@@ -297,6 +302,17 @@ export default function ResursePage() {
   const saveWorkLocations = async () => {
     if (!userId || isDemo) return;
     const { error } = await supabase.from('profiles').update({ work_locations: workLocations }).eq('id', userId);
+    if (error) { alert(error.message); return; }
+    await showToast({ message: t("workLocationsSavedToast"), type: "success" });
+    await fetchResurse(userId);
+  };
+
+  const saveProfileSettings = async () => {
+    if (!userId || isDemo) return;
+    const payload: any = {};
+    if (stripePriceId !== null) payload.stripe_price_id = stripePriceId;
+    if (monthlyLimit !== null) payload.monthly_appointment_limit = monthlyLimit;
+    const { error } = await supabase.from('profiles').update(payload).eq('id', userId);
     if (error) { alert(error.message); return; }
     await showToast({ message: t("workLocationsSavedToast"), type: "success" });
     await fetchResurse(userId);
@@ -709,6 +725,26 @@ export default function ResursePage() {
               </div>
             </div>
             <div className="space-y-4">
+              <div className="grid md:grid-cols-2 gap-4 p-4 bg-slate-50 rounded-lg">
+                <div>
+                  <label className="text-[9px] font-black uppercase text-slate-400">{t("stripePriceIdLabel")}</label>
+                  <input value={stripePriceId || ''} onChange={(e) => setStripePriceId(e.target.value)} className="w-full p-3 rounded-md border" placeholder={t("stripePriceIdPlaceholder")} />
+                </div>
+                <div>
+                  <label className="text-[9px] font-black uppercase text-slate-400">{t("monthlyLimitLabel")}</label>
+                  <input type="number" value={monthlyLimit ?? ''} onChange={(e) => setMonthlyLimit(Number(e.target.value) || null)} className="w-full p-3 rounded-md border" placeholder={t("monthlyLimitPlaceholder")} />
+                </div>
+                <div className="md:col-span-2 flex gap-2 mt-2">
+                  <button onClick={saveProfileSettings} className="px-4 py-2 bg-amber-500 text-black rounded-xl font-black uppercase text-[11px]">{t("saveProfileSettingsBtn")}</button>
+                  <button onClick={() => {
+                    if (!stripePriceId) return;
+                    // Open Stripe checkout to purchase subscription for this price
+                    fetch('/api/stripe/create-subscription-checkout', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ adminId: userId, priceId: stripePriceId }) })
+                      .then(res => res.json())
+                      .then(json => { if (json.url) window.location.href = json.url; else alert(json.error || 'Error'); });
+                  }} className="px-4 py-2 bg-slate-900 text-amber-500 rounded-xl font-black uppercase text-[11px]">{t("buySubscriptionBtn")}</button>
+                </div>
+              </div>
               {workLocations.length === 0 && <div className="text-sm text-slate-400 italic">{t("noWorkLocationsMsg")}</div>}
               {workLocations.map((loc) => (
                 <div key={loc.id} className="p-4 border rounded-xl bg-slate-50">

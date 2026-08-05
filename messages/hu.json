@@ -902,6 +902,12 @@
       "Szombat"
     ],
     "scheduleSavedToast": "Munkarend sikeresen elmentve!",
+    "stripePriceIdLabel": "Stripe Price ID (előfizetés)",
+    "stripePriceIdPlaceholder": "price_XXXXXXXXXX",
+    "monthlyLimitLabel": "Havi időpontkorlát (opcionális)",
+    "monthlyLimitPlaceholder": "pl. 150",
+    "saveProfileSettingsBtn": "Beállítások mentése",
+    "buySubscriptionBtn": "Előfizetés vásárlása",
     "addIntervalBtn": "+ Időszak hozzáadása",
     "removeIntervalBtn": "Eltávolítás",
     "techErrorBannerMsg": "Ideiglenes technikai probléma, rajtunk kívülálló okból — folyamatban a megoldás.",

@@ -902,6 +902,12 @@
       "Sobota"
     ],
     "scheduleSavedToast": "Grafik zapisany pomyślnie!",
+    "stripePriceIdLabel": "Stripe Price ID (subskrypcja)",
+    "stripePriceIdPlaceholder": "price_XXXXXXXXXX",
+    "monthlyLimitLabel": "Miesięczny limit wizyt (opcjonalnie)",
+    "monthlyLimitPlaceholder": "np. 150",
+    "saveProfileSettingsBtn": "Zapisz ustawienia",
+    "buySubscriptionBtn": "Kup subskrypcję",
     "addIntervalBtn": "+ Dodaj przedział",
     "removeIntervalBtn": "Usuń",
     "techErrorBannerMsg": "Tymczasowy problem techniczny, niezależny od nas — trwają prace nad rozwiązaniem.",

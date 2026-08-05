@@ -1085,6 +1085,12 @@
       "Sâmbătă"
     ],
     "scheduleSavedToast": "Program salvat cu succes!",
+    "stripePriceIdLabel": "Stripe Price ID (abonament)",
+    "stripePriceIdPlaceholder": "price_XXXXXXXXXX",
+    "monthlyLimitLabel": "Limită programări lunare (opțional)",
+    "monthlyLimitPlaceholder": "ex: 150",
+    "saveProfileSettingsBtn": "Salvează setările",
+    "buySubscriptionBtn": "Cumpără abonament",
     "addIntervalBtn": "+ Adaugă interval",
     "removeIntervalBtn": "Elimină",
     "techErrorBannerMsg": "Problemă tehnică temporară, independentă de noi — se lucrează la rezolvare.",

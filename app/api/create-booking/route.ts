@@ -106,7 +106,7 @@ export async function POST(request: Request) {
     // â”€â”€ Verificare limita de plan a salonului â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     const { data: profileData } = await supabaseAdmin
       .from("profiles")
-      .select("plan_type, work_locations")
+      .select("plan_type, work_locations, monthly_appointment_limit")
       .eq("id", adminId)
       .single();
 
@@ -135,7 +135,14 @@ export async function POST(request: Request) {
       : null;
 
     const plan = profileData?.plan_type || "CHRONOS FREE";
-    const maxAppointments = PLAN_LIMITS[plan] ?? 30;
+    // If a custom monthly limit is set on the profile, prefer it over the
+    // static PLAN_LIMITS mapping. This allows creating new commercial plans
+    // without changing server code.
+    const pd: any = profileData;
+    const customMonthlyLimit = typeof pd?.monthly_appointment_limit === "number"
+      ? pd.monthly_appointment_limit
+      : undefined;
+    const maxAppointments = customMonthlyLimit ?? (PLAN_LIMITS[plan] ?? 30);
 
     if (maxAppointments !== Infinity) {
       const startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString();
