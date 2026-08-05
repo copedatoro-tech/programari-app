@@ -17,7 +17,7 @@ interface WorkingHourEntry { day: string; start: string; end: string; closed: bo
 type WorkLocation = { id: string; name: string; address: string };
 interface AdminProfile { full_name: string | null; avatar_url: string | null; phone: string | null; email: string | null; work_locations: WorkLocation[] }
 
-const DAY_NAMES_LONG = ["Duminica", "Luni", "Mar?i", "Miercuri", "Joi", "Vineri", "Sâmbata"];
+const DAY_NAMES_LONG = ["Duminica", "Luni", "Mar?i", "Miercuri", "Joi", "Vineri", "SÃ¢mbata"];
 
 type LimitReason = "plan_limit" | "hour_blocked" | "day_closed" | "outside_hours" | "service_overlap" | "already_booked";
 
@@ -122,7 +122,7 @@ function RezervareContent() {
   const [savedUserProfiles, setSavedUserProfiles] = useState<{ nume: string; telefon: string; email: string }[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
 
-  // ?? Token Cloudflare Turnstile — confirma ca cel ce trimite formularul e om, nu bot
+  // ?? Token Cloudflare Turnstile â€” confirma ca cel ce trimite formularul e om, nu bot
   const [turnstileToken, setTurnstileToken] = useState<string>("");
 
   const today = new Date().toISOString().split("T")[0];
@@ -410,14 +410,14 @@ function RezervareContent() {
     });
   };
 
-  // ?? Limita de maxim 5 servicii per rezervare — previne spam-ul de programari
+  // ?? Limita de maxim 5 servicii per rezervare â€” previne spam-ul de programari
   // multiple nelimitate intr-o singura trimitere.
   const addBookingCard = () => {
     if (bookings.length >= MAX_SERVICES_PER_BOOKING) {
       setPopup({
         icon: "??",
         title: t("attentionTitle"),
-        message: `Po?i adauga maxim ${MAX_SERVICES_PER_BOOKING} servicii într-o singura rezervare.`,
+        message: `Po?i adauga maxim ${MAX_SERVICES_PER_BOOKING} servicii Ã®ntr-o singura rezervare.`,
       });
       return;
     }
@@ -453,11 +453,11 @@ function RezervareContent() {
       return;
     }
     // ?? FIX: /api/waitlist cere acum si turnstileToken (la fel ca la
-    // create-booking) — fara el, ruta respinge cererea cu eroare de
+    // create-booking) â€” fara el, ruta respinge cererea cu eroare de
     // securitate. Verificam aici, inainte de a trimite, ca sa dam un mesaj
     // clar userului in loc de o eroare seaca din backend.
     if (!turnstileToken) {
-      setPopup({ icon: "??", title: t("attentionTitle"), message: "Te rugam sa a?tep?i finalizarea verificarii de securitate, apoi încearca din nou." });
+      setPopup({ icon: "??", title: t("attentionTitle"), message: "Te rugam sa a?tep?i finalizarea verificarii de securitate, apoi Ã®ncearca din nou." });
       return;
     }
     setWaitlistSaving(true);
@@ -540,7 +540,7 @@ function RezervareContent() {
 
     // ?? Verificam ca widget-ul Turnstile a confirmat ca nu e bot, inainte sa trimitem orice
     if (!turnstileToken) {
-      setPopup({ icon: "??", title: t("attentionTitle"), message: "Te rugam sa a?tep?i finalizarea verificarii de securitate, apoi încearca din nou." });
+      setPopup({ icon: "??", title: t("attentionTitle"), message: "Te rugam sa a?tep?i finalizarea verificarii de securitate, apoi Ã®ncearca din nou." });
       return;
     }
 
@@ -892,7 +892,7 @@ function RezervareContent() {
                     <Star className="w-4 h-4 text-amber-500" fill="currentColor" strokeWidth={2.5} />
                     <span className="text-white font-black text-sm">{avgRating.toFixed(1)}</span>
                     <span className="text-white/40 text-[10px] font-bold uppercase">
-                      · {feedbacks.length}{t("reviewsCountSuffix")}
+                      Â· {feedbacks.length}{t("reviewsCountSuffix")}
                     </span>
                   </div>
                 ) : (
@@ -1014,7 +1014,7 @@ function RezervareContent() {
                                 className="w-full bg-white border-2 border-amber-500 rounded-[25px] py-4 px-6 text-[14px] font-black uppercase italic text-slate-900 text-left outline-none cursor-pointer hover:shadow-lg transition-all flex items-center justify-between gap-4"
                               >
                                 <span className="truncate">{selectedSpecialist?.name || t("chooseSpecialistBtn")}</span>
-                                <span className="text-amber-500 text-xl font-black leading-none shrink-0">›</span>
+                                <span className="text-amber-500 text-xl font-black leading-none shrink-0">â€º</span>
                               </button>
                             );
                           })()}
@@ -1119,7 +1119,7 @@ function RezervareContent() {
                 </div>
               )}
 
-              {/* ?? Widget Cloudflare Turnstile — verificare silentioasa anti-bot */}
+              {/* ?? Widget Cloudflare Turnstile â€” verificare silentioasa anti-bot */}
               <div className="flex justify-center">
                 <div
                   className="cf-turnstile"

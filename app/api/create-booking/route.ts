@@ -46,7 +46,7 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { turnstileToken, adminId, clientInfo, bookings, documente, workLocation } = body;
 
-    // ── Validari de baza ────────────────────────────────────────────────
+    // â”€â”€ Validari de baza â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     if (!adminId || !clientInfo?.nume || !clientInfo?.telefon || !clientInfo?.email) {
       return NextResponse.json({ error: "Date incomplete." }, { status: 400 });
     }
@@ -65,11 +65,11 @@ export async function POST(request: Request) {
       }
     }
 
-    // 🔒 Validare documente — daca sunt trimise, trebuie sa fie un array
+    // ðŸ”’ Validare documente â€” daca sunt trimise, trebuie sa fie un array
     // valid, cu maxim 5 intrari (aceeasi limita ca la upload); fiecare
     // fisier a fost deja incarcat separat, prin /api/upload-booking-document,
     // care a facut deja verificarile de securitate (dimensiune, extensie,
-    // comutator activ al salonului) — aici doar validam forma datelor.
+    // comutator activ al salonului) â€” aici doar validam forma datelor.
     let safeDocumente: { name: string; url: string }[] = [];
     if (documente !== undefined) {
       if (!Array.isArray(documente) || documente.length > MAX_DOCUMENTS_PER_BOOKING) {
@@ -80,13 +80,13 @@ export async function POST(request: Request) {
         .slice(0, MAX_DOCUMENTS_PER_BOOKING);
     }
 
-    // ── Verificare anti-bot (Cloudflare Turnstile) ──────────────────────
+    // â”€â”€ Verificare anti-bot (Cloudflare Turnstile) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     const turnstileOk = await verifyTurnstile(turnstileToken, ip);
     if (!turnstileOk) {
       return NextResponse.json({ error: "Verificarea de securitate a esuat. Reincearca." }, { status: 400 });
     }
 
-    // ── Rate limiting per IP (maxim 3 rezervari / 24h) ──────────────────
+    // â”€â”€ Rate limiting per IP (maxim 3 rezervari / 24h) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
     const { count, error: countError } = await supabaseAdmin
       .from("booking_rate_limits")
@@ -103,7 +103,7 @@ export async function POST(request: Request) {
       );
     }
 
-    // ── Verificare limita de plan a salonului ───────────────────────────
+    // â”€â”€ Verificare limita de plan a salonului â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     const { data: profileData } = await supabaseAdmin
       .from("profiles")
       .select("plan_type, work_locations")
@@ -136,10 +136,10 @@ export async function POST(request: Request) {
       }
     }
 
-    // ── Inregistram incercarea (pentru rate limiting) ───────────────────
+    // â”€â”€ Inregistram incercarea (pentru rate limiting) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     await supabaseAdmin.from("booking_rate_limits").insert({ ip_address: ip });
 
-    // ── Preluam serviciile si staff-ul, FILTRATE dupa acest salon ───────
+    // â”€â”€ Preluam serviciile si staff-ul, FILTRATE dupa acest salon â”€â”€â”€â”€â”€â”€â”€
     const serviceIds = bookings.map((b: any) => b.serviciu_id);
     const { data: services } = await supabaseAdmin
       .from("services")
@@ -152,7 +152,7 @@ export async function POST(request: Request) {
       .select("id, name")
       .eq("user_id", adminId);
 
-    // 🔒 Respingem explicit daca vreun serviciu_id/specialist_id nu apartine
+    // ðŸ”’ Respingem explicit daca vreun serviciu_id/specialist_id nu apartine
     // acestui salon.
     for (const b of bookings) {
       const svcExists = services?.some((s) => s.id === b.serviciu_id);
@@ -167,7 +167,7 @@ export async function POST(request: Request) {
       }
     }
 
-    // ── Inseram programarile ────────────────────────────────────────────
+    // â”€â”€ Inseram programarile â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     const insertedIds: string[] = [];
     for (const b of bookings) {
       const svc = services?.find((s) => s.id === b.serviciu_id);
@@ -184,7 +184,7 @@ export async function POST(request: Request) {
         date: b.data,
         time: b.ora,
         duration,
-        details: `Serviciu: ${svc?.nume_serviciu || ""}${clientInfo.detalii ? ` | Notă: ${clientInfo.detalii}` : ""}`,
+        details: `Serviciu: ${svc?.nume_serviciu || ""}${clientInfo.detalii ? ` | NotÄƒ: ${clientInfo.detalii}` : ""}`,
         specialist: specialistName,
         angajat_id: b.specialist_id || null,
         serviciu_id: b.serviciu_id,
