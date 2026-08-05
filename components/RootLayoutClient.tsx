@@ -12,6 +12,7 @@ import TermeniModal from "@/components/TermeniModal";
 import CookiesModal from "@/components/CookiesModal";
 import CookieConsentBanner from "@/components/CookieConsentBanner";
 import LocaleSwitcher from "@/components/LocaleSwitcher";
+import CurrencySwitcher from "@/components/CurrencySwitcher";
 import OnboardingTour from "@/components/OnboardingTour";
 import { getActivePlan } from "@/lib/getActivePlan";
 
@@ -282,6 +283,7 @@ export default function RootLayoutClient({ children }: { children: React.ReactNo
 
             <div className="flex items-center gap-3 shrink-0">
               <LocaleSwitcher />
+              <CurrencySwitcher />
 
               <Link href="/abonamente"
                 className="hidden md:flex items-center gap-3 px-4 py-1.5 rounded-[15px] bg-slate-50 border border-slate-100 hover:border-amber-500 transition-all group">

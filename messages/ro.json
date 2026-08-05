@@ -1016,6 +1016,18 @@
     "workLocationAddressPlaceholder": "Strada, numar, oras (pentru link Google Maps)"
   },
   "resurse": {
+    "workLocationsTitle": "Puncte de lucru",
+    "addWorkLocationBtn": "Adaugă punct de lucru",
+    "saveWorkLocationsBtn": "Salvează punctele de lucru",
+    "noWorkLocationsMsg": "Nu ai adăugat încă puncte de lucru.",
+    "workLocationNameLabel": "Denumire punct de lucru",
+    "workLocationAddressLabel": "Adresă (stradă, număr, oraș)",
+    "workLocationServicesLabel": "Servicii disponibile în această locație",
+    "workLocationStaffLabel": "Specialiști care lucrează aici",
+    "saveWorkLocationBtn": "Salvează punctul de lucru",
+    "confirmDeleteWorkLocation": "Sigur vrei să ștergi acest punct de lucru?",
+    "workLocationsSavedToast": "Puncte de lucru salvate",
+    "workLocationDeleteLastError": "Trebuie să păstrezi cel puțin un punct de lucru.",
     "headingLine1": "Gestiune",
     "headingHighlight": "Servicii",
     "headingLine2": "și",

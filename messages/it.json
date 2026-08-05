@@ -833,6 +833,18 @@
     "workLocationAddressPlaceholder": "Via, numero, citta (per link Google Maps)"
   },
   "resurse": {
+    "workLocationsTitle": "Sedi di lavoro",
+    "addWorkLocationBtn": "Aggiungi sede",
+    "saveWorkLocationsBtn": "Salva sedi",
+    "noWorkLocationsMsg": "Nessuna sede aggiunta ancora.",
+    "workLocationNameLabel": "Nome sede",
+    "workLocationAddressLabel": "Indirizzo (via, numero, città)",
+    "workLocationServicesLabel": "Servizi disponibili in questa sede",
+    "workLocationStaffLabel": "Specialisti in questa sede",
+    "saveWorkLocationBtn": "Salva sede",
+    "confirmDeleteWorkLocation": "Sei sicuro di voler eliminare questa sede?",
+    "workLocationsSavedToast": "Sedi salvate",
+    "workLocationDeleteLastError": "Devi mantenere almeno una sede.",
     "headingLine1": "Gestione",
     "headingHighlight": "Servizi",
     "headingLine2": "e",

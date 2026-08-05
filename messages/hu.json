@@ -833,6 +833,18 @@
     "workLocationAddressPlaceholder": "Utca, hazszam, varos (Google Maps linkhez)"
   },
   "resurse": {
+    "workLocationsTitle": "Munkavégzési helyek",
+    "addWorkLocationBtn": "Helyszín hozzáadása",
+    "saveWorkLocationsBtn": "Helyszínek mentése",
+    "noWorkLocationsMsg": "Még nem adtál hozzá munkavégzési helyet.",
+    "workLocationNameLabel": "Helyszín neve",
+    "workLocationAddressLabel": "Cím (utca, szám, város)",
+    "workLocationServicesLabel": "A helyszínen elérhető szolgáltatások",
+    "workLocationStaffLabel": "Itt dolgozó szakemberek",
+    "saveWorkLocationBtn": "Helyszín mentése",
+    "confirmDeleteWorkLocation": "Biztosan törölni szeretnéd ezt a helyszínt?",
+    "workLocationsSavedToast": "Helyszínek mentve",
+    "workLocationDeleteLastError": "Legalább egy helyszínt meg kell tartani.",
     "headingLine1": "Szolgáltatások",
     "headingHighlight": "kezelése",
     "headingLine2": "és",

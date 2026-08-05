@@ -327,6 +327,25 @@ function RezervareContent() {
     return locations.find((loc) => loc.id === selectedWorkLocationId) || locations[0] || null;
   }, [adminProfile?.work_locations, selectedWorkLocationId]);
 
+  // Available services and staff should be filtered by the selected work location
+  const availableServicii = useMemo(() => {
+    const loc = selectedWorkLocation as any;
+    if (!loc) return servicii;
+    if (Array.isArray(loc.service_ids) && loc.service_ids.length > 0) {
+      return servicii.filter((s) => loc.service_ids.includes(s.id));
+    }
+    return servicii;
+  }, [servicii, selectedWorkLocation]);
+
+  const availableSpecialisti = useMemo(() => {
+    const loc = selectedWorkLocation as any;
+    if (!loc) return specialisti;
+    if (Array.isArray(loc.staff_ids) && loc.staff_ids.length > 0) {
+      return specialisti.filter((s) => loc.staff_ids.includes(s.id));
+    }
+    return specialisti;
+  }, [specialisti, selectedWorkLocation]);
+
   useEffect(() => {
     if (adminId) fetchAppointmentsForDate(today, "");
   }, [adminId, today, fetchAppointmentsForDate]);
@@ -605,6 +624,12 @@ function RezervareContent() {
             ora: b.ora,
           })),
           documente: uploadedDocs,
+          workLocation: selectedWorkLocation ? {
+            id: selectedWorkLocation.id,
+            name: selectedWorkLocation.name,
+            address: selectedWorkLocation.address,
+            mapsUrl: toMapsLink(selectedWorkLocation.address),
+          } : null,
         }),
       });
 
@@ -763,7 +788,7 @@ function RezervareContent() {
       {specialistPickerBookingId && (() => {
         const bookingForPicker = bookings.find((b) => b.id === specialistPickerBookingId);
         if (!bookingForPicker) return null;
-        const availableSpecialists = specialisti.filter(s => !bookingForPicker.serviciu_id || s.services.includes(bookingForPicker.serviciu_id));
+        const availableSpecialists = availableSpecialisti.filter(s => !bookingForPicker.serviciu_id || s.services.includes(bookingForPicker.serviciu_id));
         return (
           <div className="fixed inset-0 z-[840] bg-slate-950/55 backdrop-blur-sm flex items-center justify-center p-4"
             onClick={() => setSpecialistPickerBookingId(null)}>
@@ -996,7 +1021,7 @@ function RezervareContent() {
                             value={b.serviciu_id}
                             onChange={(e) => updateBooking(b.id, { serviciu_id: e.target.value, ora: "00:00" })}>
                             <option value="">{t("chooseServiceOpt")}</option>
-                            {servicii
+                            {availableServicii
                               .filter(s => !b.specialist_id || specialisti.find(sp => sp.id === b.specialist_id)?.services.includes(s.id))
                               .map((s) => (
                                 <option key={s.id} value={s.id}>{s.nume_serviciu.toUpperCase()}</option>
@@ -1065,7 +1090,7 @@ function RezervareContent() {
                       )}
 
                       {b.ora !== "00:00" && b.serviciu_id && (() => {
-                        const svc = servicii.find(s => s.id === b.serviciu_id);
+                        const svc = availableServicii.find(s => s.id === b.serviciu_id) || servicii.find(s => s.id === b.serviciu_id);
                         if (!svc?.duration) return null;
                         return (
                           <div className="bg-slate-900 rounded-[20px] px-6 py-3 flex items-center justify-between">

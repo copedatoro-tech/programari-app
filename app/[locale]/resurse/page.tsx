@@ -66,6 +66,7 @@ export default function ResursePage() {
   const router = useRouter();
   const [services, setServices]   = useState<any[]>([]);
   const [staff, setStaff]         = useState<any[]>([]);
+  const [workLocations, setWorkLocations] = useState<any[]>([]);
   const [userPlan, setUserPlan]   = useState("chronos free");
   const [businessCurrency, setBusinessCurrency] = useState("RON");
   const [loading, setLoading]     = useState(true);
@@ -125,7 +126,7 @@ export default function ResursePage() {
 
       const { data: profiles, error: profileError } = await supabase
         .from('profiles')
-        .select('plan_type, currency')
+        .select('plan_type, currency, work_locations')
         .eq('id', uid);
 
       if (profileError) console.error("Eroare profil:", profileError.message);
@@ -134,6 +135,7 @@ export default function ResursePage() {
       const planNormalizat = normalizeazaPlan(profile?.plan_type || "");
       setUserPlan(planNormalizat);
       setBusinessCurrency(profile?.currency || "RON");
+      setWorkLocations(Array.isArray(profile?.work_locations) ? profile.work_locations : []);
 
       const { data: svs, error: errSvs } = await supabase
         .from('services')
@@ -260,6 +262,56 @@ export default function ResursePage() {
     if (error) alert(error.message);
     await fetchResurse(userId);
   }
+
+  // ---------------- Work locations management ----------------
+  const addWorkLocation = () => {
+    if (isDemo) return;
+    const newLoc = { id: `loc-${Date.now()}`, name: '', address: '', staff_ids: [], service_ids: [] };
+    setWorkLocations(prev => [...prev, newLoc]);
+  };
+
+  const updateLocationField = (locId: string, field: string, value: any) => {
+    setWorkLocations(prev => prev.map((l: any) => l.id === locId ? { ...l, [field]: value } : l));
+  };
+
+  const toggleLocationService = (locId: string, serviceId: string) => {
+    setWorkLocations(prev => prev.map((l: any) => {
+      if (l.id !== locId) return l;
+      const list = Array.isArray(l.service_ids) ? [...l.service_ids] : [];
+      const idx = list.indexOf(serviceId);
+      if (idx > -1) list.splice(idx, 1); else list.push(serviceId);
+      return { ...l, service_ids: list };
+    }));
+  };
+
+  const toggleLocationStaff = (locId: string, staffId: string) => {
+    setWorkLocations(prev => prev.map((l: any) => {
+      if (l.id !== locId) return l;
+      const list = Array.isArray(l.staff_ids) ? [...l.staff_ids] : [];
+      const idx = list.indexOf(staffId);
+      if (idx > -1) list.splice(idx, 1); else list.push(staffId);
+      return { ...l, staff_ids: list };
+    }));
+  };
+
+  const saveWorkLocations = async () => {
+    if (!userId || isDemo) return;
+    const { error } = await supabase.from('profiles').update({ work_locations: workLocations }).eq('id', userId);
+    if (error) { alert(error.message); return; }
+    await showToast({ message: t("workLocationsSavedToast"), type: "success" });
+    await fetchResurse(userId);
+  };
+
+  const handleDeleteLocation = async (locId: string) => {
+    if (!userId || isDemo) return;
+    if (workLocations.length <= 1) { alert(t("workLocationDeleteLastError")); return; }
+    if (!confirm(t("confirmDeleteWorkLocation"))) return;
+    const updated = workLocations.filter((l: any) => l.id !== locId);
+    setWorkLocations(updated);
+    const { error } = await supabase.from('profiles').update({ work_locations: updated }).eq('id', userId);
+    if (error) alert(error.message);
+    await fetchResurse(userId);
+  };
 
   const activeazaEditare = (item: any, tip: 'service' | 'staff') => {
     if (isDemo) return;
@@ -646,6 +698,58 @@ export default function ResursePage() {
 
         {/* SECTIUNI ADAUGARE */}
         <div className="space-y-6 mb-16">
+
+          {/* Work locations management */}
+          <div className={`bg-white p-8 rounded-[35px] shadow-xl border border-slate-100 transition-all ${isDemo ? 'opacity-40 pointer-events-none grayscale' : ''}`}>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-[10px] font-black uppercase italic text-amber-600 mb-0 tracking-widest">{t("workLocationsTitle")}</h3>
+              <div className="flex items-center gap-2">
+                <button onClick={addWorkLocation} className="px-4 py-2 bg-amber-500 text-black rounded-xl font-black uppercase text-[11px]">{t("addWorkLocationBtn")}</button>
+                <button onClick={saveWorkLocations} className="px-4 py-2 bg-slate-900 text-amber-500 rounded-xl font-black uppercase text-[11px]">{t("saveWorkLocationsBtn")}</button>
+              </div>
+            </div>
+            <div className="space-y-4">
+              {workLocations.length === 0 && <div className="text-sm text-slate-400 italic">{t("noWorkLocationsMsg")}</div>}
+              {workLocations.map((loc) => (
+                <div key={loc.id} className="p-4 border rounded-xl bg-slate-50">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="md:col-span-1">
+                      <label className="text-[9px] font-black uppercase text-slate-400">{t("workLocationNameLabel")}</label>
+                      <input value={loc.name || ''} onChange={(e) => updateLocationField(loc.id, 'name', e.target.value)} className="w-full p-3 rounded-md border" />
+                      <label className="text-[9px] font-black uppercase text-slate-400 mt-2 block">{t("workLocationAddressLabel")}</label>
+                      <input value={loc.address || ''} onChange={(e) => updateLocationField(loc.id, 'address', e.target.value)} className="w-full p-3 rounded-md border" />
+                    </div>
+                    <div>
+                      <p className="text-[9px] font-black uppercase text-slate-400 mb-2">{t("workLocationServicesLabel")}</p>
+                      <div className="max-h-40 overflow-y-auto grid grid-cols-2 gap-2">
+                        {services.map((s) => (
+                          <label key={s.id} className="flex items-center gap-2 text-sm">
+                            <input type="checkbox" checked={Array.isArray(loc.service_ids) ? loc.service_ids.includes(s.id) : false} onChange={() => toggleLocationService(loc.id, s.id)} />
+                            <span className="truncate">{s.nume_serviciu}</span>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                    <div>
+                      <p className="text-[9px] font-black uppercase text-slate-400 mb-2">{t("workLocationStaffLabel")}</p>
+                      <div className="max-h-40 overflow-y-auto grid grid-cols-2 gap-2">
+                        {staff.map((st) => (
+                          <label key={st.id} className="flex items-center gap-2 text-sm">
+                            <input type="checkbox" checked={Array.isArray(loc.staff_ids) ? loc.staff_ids.includes(st.id) : false} onChange={() => toggleLocationStaff(loc.id, st.id)} />
+                            <span className="truncate">{st.name}</span>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex gap-2 mt-3">
+                    <button onClick={() => saveWorkLocations()} className="px-4 py-2 bg-slate-900 text-amber-500 rounded-xl font-black uppercase text-[11px]">{t("saveWorkLocationBtn")}</button>
+                    <button onClick={() => handleDeleteLocation(loc.id)} className="px-4 py-2 bg-white text-red-500 rounded-xl font-black uppercase text-[11px] border border-red-100">{t("delete")}</button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
 
           {/* Formular SERVICIU */}
           <div className={`bg-white p-8 rounded-[35px] shadow-xl border border-slate-100 transition-all ${isDemo ? 'opacity-40 pointer-events-none grayscale' : ''}`}>

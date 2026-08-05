@@ -833,6 +833,18 @@
     "workLocationAddressPlaceholder": "Street, number, city (for Google Maps link)"
   },
   "resurse": {
+    "workLocationsTitle": "Work locations",
+    "addWorkLocationBtn": "Add location",
+    "saveWorkLocationsBtn": "Save locations",
+    "noWorkLocationsMsg": "No work locations added yet.",
+    "workLocationNameLabel": "Location name",
+    "workLocationAddressLabel": "Address (street, number, city)",
+    "workLocationServicesLabel": "Services available at this location",
+    "workLocationStaffLabel": "Staff working at this location",
+    "saveWorkLocationBtn": "Save location",
+    "confirmDeleteWorkLocation": "Are you sure you want to delete this work location?",
+    "workLocationsSavedToast": "Work locations saved",
+    "workLocationDeleteLastError": "You must keep at least one work location.",
     "headingLine1": "Manage",
     "headingHighlight": "Services",
     "headingLine2": "and",

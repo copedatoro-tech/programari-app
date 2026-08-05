@@ -1,10 +1,11 @@
-import "../globals.css";
+﻿import "../globals.css";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
 import { notFound } from "next/navigation";
 import Script from "next/script";
 import { routing } from "@/i18n/routing";
 import RootLayoutClient from "@/components/RootLayoutClient";
+import { CurrencyProvider } from "@/components/CurrencyProvider";
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
@@ -51,7 +52,9 @@ export default async function LocaleLayout({
       </head>
       <body className="antialiased bg-slate-50 min-h-screen flex flex-col font-sans text-slate-900">
         <NextIntlClientProvider messages={messages}>
-          <RootLayoutClient>{children}</RootLayoutClient>
+          <CurrencyProvider>
+            <RootLayoutClient>{children}</RootLayoutClient>
+          </CurrencyProvider>
         </NextIntlClientProvider>
       </body>
     </html>

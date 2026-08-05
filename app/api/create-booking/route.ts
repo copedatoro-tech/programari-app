@@ -114,12 +114,25 @@ export async function POST(request: Request) {
     const matchedLocation = workLocation?.id
       ? profileLocations.find((loc: any) => String(loc?.id) === String(workLocation.id))
       : null;
-    const selectedWorkLocation = matchedLocation?.address ? {
-      id: String(matchedLocation.id || ""),
-      name: String(matchedLocation.name || ""),
-      address: String(matchedLocation.address || ""),
-      mapsUrl: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(String(matchedLocation.address))}`,
-    } : null;
+    const selectedWorkLocation = matchedLocation?.address
+      ? {
+          id: String(matchedLocation.id || ""),
+          name: String(matchedLocation.name || ""),
+          address: String(matchedLocation.address || ""),
+          mapsUrl: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(String(matchedLocation.address))}`,
+        }
+      : null;
+
+    // If the matched location contains explicit lists of allowed services or staff,
+    // use them to validate the incoming booking selections. If the arrays are
+    // missing or empty, treat as "all allowed" to preserve backwards-compatibility
+    // for existing locations without these fields.
+    const locationServiceIds = Array.isArray(matchedLocation?.service_ids) && matchedLocation.service_ids.length > 0
+      ? matchedLocation.service_ids.map((id: any) => String(id))
+      : null;
+    const locationStaffIds = Array.isArray(matchedLocation?.staff_ids) && matchedLocation.staff_ids.length > 0
+      ? matchedLocation.staff_ids.map((id: any) => String(id))
+      : null;
 
     const plan = profileData?.plan_type || "CHRONOS FREE";
     const maxAppointments = PLAN_LIMITS[plan] ?? 30;
@@ -159,10 +172,20 @@ export async function POST(request: Request) {
       if (!svcExists) {
         return NextResponse.json({ error: "Unul dintre serviciile selectate nu apartine acestui salon." }, { status: 400 });
       }
+      // If the selected work location restricts services, ensure the chosen
+      // service is available in that location.
+      if (locationServiceIds && !locationServiceIds.includes(String(b.serviciu_id))) {
+        return NextResponse.json({ error: "Unul dintre serviciile selectate nu este disponibil in punctul de lucru selectat." }, { status: 400 });
+      }
       if (b.specialist_id) {
         const staffExists = staff?.some((s) => s.id === b.specialist_id);
         if (!staffExists) {
           return NextResponse.json({ error: "Specialistul selectat nu apartine acestui salon." }, { status: 400 });
+        }
+        // If the selected work location restricts staff, ensure the chosen
+        // specialist works at that location.
+        if (locationStaffIds && !locationStaffIds.includes(String(b.specialist_id))) {
+          return NextResponse.json({ error: "Specialistul selectat nu lucreaza in punctul de lucru selectat." }, { status: 400 });
         }
       }
     }

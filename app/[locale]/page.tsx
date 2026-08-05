@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import LocaleSwitcher from "@/components/LocaleSwitcher";
+import CurrencySwitcher from "@/components/CurrencySwitcher";
+import { useCurrency } from "@/components/CurrencyProvider";
 import { supabase } from "@/lib/supabaseClient";
 import Image from "next/image";
 import Link from "next/link";
@@ -24,6 +26,7 @@ export default function LandingPage() {
   const [isChecking, setIsChecking] = useState(true);
   const t = useTranslations("landing");
   const tLayout = useTranslations("layout");
+  const { format } = useCurrency();
 
   // ✅ Stare pentru modalele legale, deschise din footer-ul landing page-ului
   const [modalOpen, setModalOpen] = useState({ gdpr: false, termeni: false, cookies: false });
@@ -57,7 +60,10 @@ export default function LandingPage() {
 
   const features = t.raw("features.items") as { titlu: string; desc: string }[];
   const steps = t.raw("steps.items") as { titlu: string; desc: string }[];
-  const pricingPlans = t.raw("pricing.plans") as { plan: string; price: string; prog: string; features: string[] }[];
+  // ✅ "price" e acum un număr brut în RON (nu mai e string gata format ca
+  // "150 RON"). Conversia și formatarea în valuta selectată se fac la afișare,
+  // prin useCurrency().format(), nu mai sunt hardcodate în fișierele de traducere.
+  const pricingPlans = t.raw("pricing.plans") as { plan: string; price: number; prog: string; features: string[] }[];
   const audienceItems = t.raw("audience.items") as { icon: string; label: string }[];
 
   const featureIcons = [
@@ -85,6 +91,7 @@ export default function LandingPage() {
         </motion.div>
         <motion.div initial={{ opacity:0, x:20 }} animate={{ opacity:1, x:0 }} className="flex items-center gap-3">
           <LocaleSwitcher />
+          <CurrencySwitcher />
           <Link href="/login" className="text-[10px] font-black uppercase italic text-slate-600 hover:text-slate-900 transition-colors px-3 py-2">
             {t("nav.login")}
           </Link>
@@ -481,7 +488,7 @@ export default function LandingPage() {
                   {highlight ? t("pricing.popularBadge") : t("pricing.planBadge")}
                 </div>
                 <h3 className={`text-2xl font-black italic uppercase tracking-tighter mb-1 ${highlight?"text-white":"text-slate-900"}`}>{p.plan}</h3>
-                <p className={`text-3xl font-black tracking-tighter mb-1 ${highlight?"text-white":"text-slate-900"}`}>{p.price}</p>
+                <p className={`text-3xl font-black tracking-tighter mb-1 ${highlight?"text-white":"text-slate-900"}`}>{format(p.price)}</p>
                 <p className={`text-[10px] font-black italic mb-5 ${highlight?"text-amber-400":"text-amber-600"}`}>{p.prog}</p>
                 <div className="space-y-2.5 mb-6">
                   {p.features.map((f,j)=>(

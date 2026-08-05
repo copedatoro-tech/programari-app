@@ -833,6 +833,18 @@
     "workLocationAddressPlaceholder": "Ulica, numer, miasto (do linku Google Maps)"
   },
   "resurse": {
+    "workLocationsTitle": "Miejsca pracy",
+    "addWorkLocationBtn": "Dodaj lokalizację",
+    "saveWorkLocationsBtn": "Zapisz lokalizacje",
+    "noWorkLocationsMsg": "Nie dodano jeszcze żadnych lokalizacji.",
+    "workLocationNameLabel": "Nazwa lokalizacji",
+    "workLocationAddressLabel": "Adres (ulica, numer, miasto)",
+    "workLocationServicesLabel": "Usługi dostępne w tej lokalizacji",
+    "workLocationStaffLabel": "Personel pracujący w tej lokalizacji",
+    "saveWorkLocationBtn": "Zapisz lokalizację",
+    "confirmDeleteWorkLocation": "Czy na pewno chcesz usunąć tę lokalizację?",
+    "workLocationsSavedToast": "Lokalizacje zapisane",
+    "workLocationDeleteLastError": "Musisz zachować co najmniej jedną lokalizację.",
     "headingLine1": "Zarządzanie",
     "headingHighlight": "usługami",
     "headingLine2": "i",
