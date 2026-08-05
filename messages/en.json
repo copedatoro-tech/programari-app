@@ -880,6 +880,14 @@
     "teamTitle": "TEAM OF SPECIALISTS",
     "save": "SAVE",
     "othersShort": "+ {count} others",
+    "currency": {
+      "RON": "Romanian leu",
+      "EUR": "Euro",
+      "USD": "US dollar",
+      "GBP": "Pound sterling",
+      "HUF": "Hungarian forint",
+      "PLN": "Polish zloty"
+    },
     "cancel": "CANCEL",
     "update": "UPDATE",
     "close": "CLOSE",

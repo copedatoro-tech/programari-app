@@ -879,6 +879,14 @@
     "teamTitle": "SZAKEMBER CSAPAT",
     "save": "MENTÉS",
     "othersShort": "+ {count} további",
+    "currency": {
+      "RON": "Román lej",
+      "EUR": "Euro",
+      "USD": "Amerikai dollár",
+      "GBP": "Brit font",
+      "HUF": "Magyar forint",
+      "PLN": "Lengyel zloty"
+    },
     "cancel": "MÉGSE",
     "update": "FRISSÍTÉS",
     "close": "BEZÁRÁS",

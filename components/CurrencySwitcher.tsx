@@ -4,6 +4,7 @@ import { useRef, useState, useEffect } from "react";
 import { ChevronDown } from "lucide-react";
 import { useCurrency } from "@/components/CurrencyProvider";
 import { CURRENCY_INFO, type CurrencyCode } from "@/lib/currency";
+import { useTranslations } from 'next-intl';
 
 const CURRENCY_ORDER: CurrencyCode[] = ["RON", "EUR", "USD", "GBP", "HUF", "PLN"];
 
@@ -21,6 +22,7 @@ export default function CurrencySwitcher() {
   }, [open]);
 
   const currentInfo = CURRENCY_INFO[currency];
+  const tc = useTranslations('currency');
 
   return (
     <div className="relative" ref={ref}>
@@ -29,7 +31,7 @@ export default function CurrencySwitcher() {
         className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-50 border-2 border-slate-100 hover:border-amber-500 transition-all"
       >
         <span className="text-sm font-black text-slate-700">{currentInfo.symbol}</span>
-        <span className="text-[12px] font-black uppercase text-slate-700">{currency}</span>
+        <span className="text-[12px] font-black uppercase text-slate-700">{currency} · {tc?.(currency) ?? currentInfo.label}</span>
         <ChevronDown className={`w-3.5 h-3.5 text-slate-400 transition-transform ${open ? "rotate-180" : ""}`} />
       </button>
       {open && (
@@ -48,7 +50,7 @@ export default function CurrencySwitcher() {
                 }`}
               >
                 <span className="w-5 text-center font-black">{info.symbol}</span>
-                {info.label}
+                {tc?.(cur) ?? info.label}
               </button>
             );
           })}

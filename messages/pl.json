@@ -879,6 +879,14 @@
     "teamTitle": "ZESPÓŁ SPECJALISTÓW",
     "save": "ZAPISZ",
     "othersShort": "+ {count} innych",
+    "currency": {
+      "RON": "Leu rumuński",
+      "EUR": "Euro",
+      "USD": "Dolar amerykański",
+      "GBP": "Funt szterling",
+      "HUF": "Forint węgierski",
+      "PLN": "Zloty polski"
+    },
     "cancel": "ANULUJ",
     "update": "AKTUALIZUJ",
     "close": "ZAMKNIJ",

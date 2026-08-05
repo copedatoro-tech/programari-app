@@ -880,6 +880,14 @@
     "teamTitle": "FACHKRÄFTE-TEAM",
     "save": "SPEICHERN",
     "othersShort": "+ {count} weitere",
+    "currency": {
+      "RON": "Rumänischer Leu",
+      "EUR": "Euro",
+      "USD": "US-Dollar",
+      "GBP": "Britisches Pfund",
+      "HUF": "Ungarischer Forint",
+      "PLN": "Polnischer Zloty"
+    },
     "cancel": "ABBRECHEN",
     "update": "AKTUALISIEREN",
     "close": "SCHLIESSEN",

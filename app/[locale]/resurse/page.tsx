@@ -84,6 +84,8 @@ export default function ResursePage() {
 
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editForm, setEditForm]   = useState<any>(null);
+  const [selectedLocationId, setSelectedLocationId] = useState<string | null>(null);
+  const [locationForm, setLocationForm] = useState<any | null>(null);
 
   // Program individual per specialist
   const [scheduleStaffId, setScheduleStaffId] = useState<string | null>(null);
@@ -268,10 +270,36 @@ export default function ResursePage() {
   }
 
   // ---------------- Work locations management ----------------
-  const addWorkLocation = () => {
+  const openAddLocation = () => {
     if (isDemo) return;
-    const newLoc = { id: `loc-${Date.now()}`, name: '', address: '', staff_ids: [], service_ids: [] };
-    setWorkLocations(prev => [...prev, newLoc]);
+    setSelectedLocationId(null);
+    setLocationForm({ id: `loc-${Date.now()}`, name: '', address: '', staff_ids: [], service_ids: [] });
+  };
+
+  const openEditLocation = (loc: any) => {
+    if (isDemo) return;
+    setSelectedLocationId(loc.id);
+    setLocationForm({ ...loc, service_ids: Array.isArray(loc.service_ids) ? [...loc.service_ids] : [], staff_ids: Array.isArray(loc.staff_ids) ? [...loc.staff_ids] : [] });
+  };
+
+  const cancelLocationEdit = () => {
+    setSelectedLocationId(null);
+    setLocationForm(null);
+  };
+
+  const saveLocation = async () => {
+    if (!userId || isDemo || !locationForm) return;
+    // Update local state
+    setWorkLocations(prev => {
+      const exists = prev.find((p: any) => p.id === locationForm.id);
+      if (exists) return prev.map((p: any) => p.id === locationForm.id ? { ...locationForm } : p);
+      return [...prev, { ...locationForm }];
+    });
+    // Persist via saveWorkLocations helper
+    await saveWorkLocations();
+    // close form
+    setLocationForm(null);
+    setSelectedLocationId(null);
   };
 
   const updateLocationField = (locId: string, field: string, value: any) => {
@@ -708,7 +736,7 @@ export default function ResursePage() {
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-[10px] font-black uppercase italic text-amber-600 mb-0 tracking-widest">{t("workLocationsTitle")}</h3>
               <div className="flex items-center gap-2">
-                <button onClick={addWorkLocation} className="px-4 py-2 bg-amber-500 text-black rounded-xl font-black uppercase text-[11px]">{t("addWorkLocationBtn")}</button>
+                <button onClick={openAddLocation} className="px-4 py-2 bg-amber-500 text-black rounded-xl font-black uppercase text-[11px]">{t("addWorkLocationBtn")}</button>
                 <button onClick={saveWorkLocations} className="px-4 py-2 bg-slate-900 text-amber-500 rounded-xl font-black uppercase text-[11px]">{t("saveWorkLocationsBtn")}</button>
               </div>
             </div>
@@ -716,85 +744,98 @@ export default function ResursePage() {
               {workLocations.length === 0 && <div className="text-sm text-slate-400 italic">{t("noWorkLocationsMsg")}</div>}
               <div className="max-h-[640px] overflow-y-auto space-y-4">
                 {workLocations.map((loc) => (
-                  <div key={loc.id} className="p-4 border rounded-xl bg-slate-50">
-                    {/* Compact header: name, address, badges */}
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="flex-1">
-                        <p className="text-sm font-black uppercase tracking-tight text-slate-900 truncate">{loc.name || t("workLocationNamePlaceholder")}</p>
-                        <p className="text-xs text-slate-500 mt-1 truncate">{loc.address || t("workLocationAddressPlaceholder")}</p>
-
-                        <div className="mt-3 flex flex-wrap items-center gap-2">
-                          {/* services badges (first 3) */}
-                          {(() => {
-                            const sel = Array.isArray(loc.service_ids) ? services.filter(s => loc.service_ids.includes(s.id)).map(s => s.nume_serviciu) : [];
-                            return (
-                              <>
-                                {sel.slice(0,3).map((name, i) => (
-                                  <span key={i} className="px-2 py-1 bg-amber-50 text-amber-700 rounded-full text-[12px] font-black">{name}</span>
-                                ))}
-                                {sel.length > 3 && <span className="text-xs text-slate-500">+ {sel.length - 3} {t("othersShort")}</span>}
-                              </>
-                            );
-                          })()}
-
-                          {/* staff badges (first 3) */}
-                          {(() => {
-                            const sel = Array.isArray(loc.staff_ids) ? staff.filter(st => loc.staff_ids.includes(st.id)).map(st => st.name) : [];
-                            return (
-                              <>
-                                {sel.slice(0,3).map((name, i) => (
-                                  <span key={`st-${i}`} className="px-2 py-1 bg-slate-100 text-slate-700 rounded-full text-[12px] font-black">{name}</span>
-                                ))}
-                                {sel.length > 3 && <span className="text-xs text-slate-500">+ {sel.length - 3} {t("othersShort")}</span>}
-                              </>
-                            );
-                          })()}
-                        </div>
-                      </div>
-
-                      <div className="flex-shrink-0 flex flex-col gap-2">
-                        <button onClick={() => handleDeleteLocation(loc.id)} className="px-3 py-2 bg-white text-red-500 rounded-xl font-black uppercase text-[11px] border border-red-100">{t("deleteWorkLocationBtn")}</button>
+                  <div key={loc.id} className="p-3 border rounded-xl bg-slate-50 flex items-center justify-between">
+                    <div className="flex-1 pr-4">
+                      <p className="text-sm font-black uppercase tracking-tight text-slate-900 truncate">{loc.name || t("workLocationNamePlaceholder")}</p>
+                      <p className="text-xs text-slate-500 mt-1 truncate">{loc.address || t("workLocationAddressPlaceholder")}</p>
+                      <div className="mt-2 flex flex-wrap items-center gap-2">
+                        {(() => {
+                          const sel = Array.isArray(loc.service_ids) ? services.filter(s => loc.service_ids.includes(s.id)).map(s => s.nume_serviciu) : [];
+                          return (
+                            <>
+                              {sel.slice(0,3).map((name, i) => (
+                                <span key={i} className="px-2 py-1 bg-amber-50 text-amber-700 rounded-full text-[12px] font-black">{name}</span>
+                              ))}
+                              {sel.length > 3 && <span className="text-xs text-slate-500">{t("othersShort", { count: sel.length - 3 })}</span>}
+                            </>
+                          );
+                        })()}
+                        {(() => {
+                          const sel = Array.isArray(loc.staff_ids) ? staff.filter(st => loc.staff_ids.includes(st.id)).map(st => st.name) : [];
+                          return (
+                            <>
+                              {sel.slice(0,3).map((name, i) => (
+                                <span key={`st-${i}`} className="px-2 py-1 bg-slate-100 text-slate-700 rounded-full text-[12px] font-black">{name}</span>
+                              ))}
+                              {sel.length > 3 && <span className="text-xs text-slate-500">{t("othersShort", { count: sel.length - 3 })}</span>}
+                            </>
+                          );
+                        })()}
                       </div>
                     </div>
-
-                    {/* Edit area: inputs + scrollable services/staff lists (compact) */}
-                    <div className="mt-3 grid grid-cols-1 md:grid-cols-3 gap-3">
-                      <div className="md:col-span-1">
-                        <label className="text-[9px] font-black uppercase text-slate-400">{t("workLocationNameLabel")}</label>
-                        <input value={loc.name || ''} onChange={(e) => updateLocationField(loc.id, 'name', e.target.value)} className="w-full p-2 rounded-md border text-sm" />
-                        <label className="text-[9px] font-black uppercase text-slate-400 mt-2 block">{t("workLocationAddressLabel")}</label>
-                        <input value={loc.address || ''} onChange={(e) => updateLocationField(loc.id, 'address', e.target.value)} className="w-full p-2 rounded-md border text-sm" />
-                      </div>
-
-                      <div>
-                        <p className="text-[9px] font-black uppercase text-slate-400 mb-2">{t("workLocationServicesLabel")}</p>
-                        <div className="max-h-[160px] overflow-y-auto grid grid-cols-2 gap-2 text-sm">
-                          {services.map((s) => (
-                            <label key={s.id} className="flex items-center gap-2">
-                              <input type="checkbox" className="w-4 h-4" checked={Array.isArray(loc.service_ids) ? loc.service_ids.includes(s.id) : false} onChange={() => toggleLocationService(loc.id, s.id)} />
-                              <span className="truncate">{s.nume_serviciu}</span>
-                            </label>
-                          ))}
-                        </div>
-                      </div>
-
-                      <div>
-                        <p className="text-[9px] font-black uppercase text-slate-400 mb-2">{t("workLocationStaffLabel")}</p>
-                        <div className="max-h-[160px] overflow-y-auto grid grid-cols-2 gap-2 text-sm">
-                          {staff.map((st) => (
-                            <label key={st.id} className="flex items-center gap-2">
-                              <input type="checkbox" className="w-4 h-4" checked={Array.isArray(loc.staff_ids) ? loc.staff_ids.includes(st.id) : false} onChange={() => toggleLocationStaff(loc.id, st.id)} />
-                              <span className="truncate">{st.name}</span>
-                            </label>
-                          ))}
-                        </div>
-                      </div>
+                    <div className="flex-shrink-0 flex gap-2">
+                      <button onClick={() => openEditLocation(loc)} className="px-3 py-2 bg-slate-900 text-amber-500 rounded-xl font-black uppercase text-[11px]">{t("update")}</button>
+                      <button onClick={() => handleDeleteLocation(loc.id)} className="px-3 py-2 bg-white text-red-500 rounded-xl font-black uppercase text-[11px] border border-red-100">{t("deleteWorkLocationBtn")}</button>
                     </div>
                   </div>
                 ))}
               </div>
             </div>
           </div>
+
+          {/* Location form (separate) */}
+          {locationForm && (
+            <div className={`bg-white p-6 rounded-2xl border border-slate-100 mt-6`}>
+              <h4 className="text-[10px] font-black uppercase text-slate-700 mb-3">{selectedLocationId ? t("update") : t("addWorkLocationBtn")}</h4>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="md:col-span-1">
+                  <label className="text-[9px] font-black uppercase text-slate-400">{t("workLocationNameLabel")}</label>
+                  <input value={locationForm.name} onChange={(e) => setLocationForm({ ...locationForm, name: e.target.value })} className="w-full p-2 rounded-md border text-sm" />
+                  <label className="text-[9px] font-black uppercase text-slate-400 mt-2 block">{t("workLocationAddressLabel")}</label>
+                  <input value={locationForm.address} onChange={(e) => setLocationForm({ ...locationForm, address: e.target.value })} className="w-full p-2 rounded-md border text-sm" />
+                </div>
+
+                <div>
+                  <p className="text-[9px] font-black uppercase text-slate-400 mb-2">{t("workLocationServicesLabel")}</p>
+                  <div className="max-h-[160px] overflow-y-auto grid grid-cols-2 gap-2 text-sm border rounded-md p-2">
+                    {services.map((s) => (
+                      <label key={s.id} className="flex items-center gap-2">
+                        <input type="checkbox" className="w-4 h-4" checked={Array.isArray(locationForm.service_ids) ? locationForm.service_ids.includes(s.id) : false} onChange={() => {
+                          const list = Array.isArray(locationForm.service_ids) ? [...locationForm.service_ids] : [];
+                          const idx = list.indexOf(s.id);
+                          if (idx > -1) list.splice(idx, 1); else list.push(s.id);
+                          setLocationForm({ ...locationForm, service_ids: list });
+                        }} />
+                        <span className="truncate">{s.nume_serviciu}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <p className="text-[9px] font-black uppercase text-slate-400 mb-2">{t("workLocationStaffLabel")}</p>
+                  <div className="max-h-[160px] overflow-y-auto grid grid-cols-2 gap-2 text-sm border rounded-md p-2">
+                    {staff.map((st) => (
+                      <label key={st.id} className="flex items-center gap-2">
+                        <input type="checkbox" className="w-4 h-4" checked={Array.isArray(locationForm.staff_ids) ? locationForm.staff_ids.includes(st.id) : false} onChange={() => {
+                          const list = Array.isArray(locationForm.staff_ids) ? [...locationForm.staff_ids] : [];
+                          const idx = list.indexOf(st.id);
+                          if (idx > -1) list.splice(idx, 1); else list.push(st.id);
+                          setLocationForm({ ...locationForm, staff_ids: list });
+                        }} />
+                        <span className="truncate">{st.name}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-4 flex gap-3">
+                <button onClick={saveLocation} className="px-4 py-2 bg-slate-900 text-amber-500 rounded-xl font-black uppercase text-[11px]">{t("save")}</button>
+                <button onClick={cancelLocationEdit} className="px-4 py-2 bg-white text-slate-700 rounded-xl font-black uppercase text-[11px] border border-slate-100">{t("cancel")}</button>
+              </div>
+            </div>
+          )}
 
           {/* Formular SERVICIU */}
           <div className={`bg-white p-8 rounded-[35px] shadow-xl border border-slate-100 transition-all ${isDemo ? 'opacity-40 pointer-events-none grayscale' : ''}`}>

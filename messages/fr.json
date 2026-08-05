@@ -879,6 +879,14 @@
     "teamTitle": "ÉQUIPE D'EXPERTS",
     "save": "ENREGISTRER",
     "othersShort": "+ {count} autres",
+    "currency": {
+      "RON": "Leu roumain",
+      "EUR": "Euro",
+      "USD": "Dollar américain",
+      "GBP": "Livre sterling",
+      "HUF": "Forint hongrois",
+      "PLN": "Zloty polonais"
+    },
     "cancel": "ANNULER",
     "update": "METTRE À JOUR",
     "close": "FERMER",

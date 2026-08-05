@@ -1103,6 +1103,14 @@
     "teamTitle": "ECHIPĂ EXPERȚI",
     "save": "SALVEAZĂ",
     "othersShort": "+ {count} altele",
+    "currency": {
+      "RON": "Leu românesc",
+      "EUR": "Euro",
+      "USD": "Dolar american",
+      "GBP": "Liră sterlină",
+      "HUF": "Forint maghiar",
+      "PLN": "Zlot polonez"
+    },
     "cancel": "ANULEAZĂ",
     "update": "ACTUALIZEAZĂ",
     "close": "ÎNCHIDE",

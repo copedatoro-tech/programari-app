@@ -879,6 +879,14 @@
     "teamTitle": "TEAM DI ESPERTI",
     "save": "SALVA",
     "othersShort": "+ {count} altri",
+    "currency": {
+      "RON": "Leu rumeno",
+      "EUR": "Euro",
+      "USD": "Dollaro americano",
+      "GBP": "Sterlina",
+      "HUF": "Fiorino ungherese",
+      "PLN": "Zloty polacco"
+    },
     "cancel": "ANNULLA",
     "update": "AGGIORNA",
     "close": "CHIUDI",
