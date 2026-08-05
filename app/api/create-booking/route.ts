@@ -44,7 +44,7 @@ export async function POST(request: Request) {
   try {
     const ip = getClientIp(request);
     const body = await request.json();
-    const { turnstileToken, adminId, clientInfo, bookings, documente } = body;
+    const { turnstileToken, adminId, clientInfo, bookings, documente, workLocation } = body;
 
     // ── Validari de baza ────────────────────────────────────────────────
     if (!adminId || !clientInfo?.nume || !clientInfo?.telefon || !clientInfo?.email) {
@@ -106,9 +106,20 @@ export async function POST(request: Request) {
     // ── Verificare limita de plan a salonului ───────────────────────────
     const { data: profileData } = await supabaseAdmin
       .from("profiles")
-      .select("plan_type")
+      .select("plan_type, work_locations")
       .eq("id", adminId)
       .single();
+
+    const profileLocations = Array.isArray(profileData?.work_locations) ? profileData.work_locations : [];
+    const matchedLocation = workLocation?.id
+      ? profileLocations.find((loc: any) => String(loc?.id) === String(workLocation.id))
+      : null;
+    const selectedWorkLocation = matchedLocation?.address ? {
+      id: String(matchedLocation.id || ""),
+      name: String(matchedLocation.name || ""),
+      address: String(matchedLocation.address || ""),
+      mapsUrl: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(String(matchedLocation.address))}`,
+    } : null;
 
     const plan = profileData?.plan_type || "CHRONOS FREE";
     const maxAppointments = PLAN_LIMITS[plan] ?? 30;
@@ -180,6 +191,10 @@ export async function POST(request: Request) {
         status: "pending",
         is_client_booking: true,
         documente: safeDocumente,
+        work_location_id: selectedWorkLocation?.id || null,
+        work_location_name: selectedWorkLocation?.name || null,
+        work_location_address: selectedWorkLocation?.address || null,
+        work_location_maps_url: selectedWorkLocation?.mapsUrl || null,
       };
       const { data: inserted, error } = await supabaseAdmin
         .from("appointments")
