@@ -822,6 +822,10 @@
       "team": {
         "nume": "CHRONOS TEAM",
         "limita": "Korlátlan foglalás"
+      },
+      "business": {
+        "nume": "CHRONOS BUSINESS",
+        "limita": "150 foglalás / hó"
       }
     },
     "workLocationsTitle": "Munkavégzesi helyek",

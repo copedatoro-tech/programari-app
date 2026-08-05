@@ -10,24 +10,27 @@ import SimpleTimePicker from "@/components/SimpleTimePicker";
 
 const LIMITE = {
   STAFF: {
-    "chronos free":  1,
-    "chronos pro":   1,
-    "chronos elite": 5,
-    "chronos team":  50,
+    "chronos free":    1,
+    "chronos pro":     1,
+    "chronos elite":   5,
+    "chronos team":   50,
+    "chronos business": 50,
   },
   SERVICII: {
-    "chronos free":  5,
-    "chronos pro":   15,
-    "chronos elite": 50,
+    "chronos free":    5,
+    "chronos pro":    15,
+    "chronos elite":  50,
     "chronos team":  999,
+    "chronos business": 999,
   },
 };
 
 const PLAN_LABELS: Record<string, string> = {
-  "chronos free":  "CHRONOS FREE",
-  "chronos pro":   "CHRONOS PRO",
-  "chronos elite": "CHRONOS ELITE",
-  "chronos team":  "CHRONOS TEAM",
+  "chronos free":     "CHRONOS FREE",
+  "chronos pro":      "CHRONOS PRO",
+  "chronos elite":    "CHRONOS ELITE",
+  "chronos team":     "CHRONOS TEAM",
+  "chronos business": "CHRONOS BUSINESS",
 };
 
 // Zilele stocate in baza de date (working_hours.day) sunt salvate intotdeauna
@@ -41,9 +44,10 @@ interface ScheduleDay { day: string; start: string; end: string; closed: boolean
 
 function normalizeazaPlan(plan: string): string {
   const p = (plan || "").toLowerCase().trim();
-  if (p.includes("team"))  return "chronos team";
-  if (p.includes("elite")) return "chronos elite";
-  if (p.includes("pro"))   return "chronos pro";
+  if (p.includes("business")) return "chronos business";
+  if (p.includes("team"))     return "chronos team";
+  if (p.includes("elite"))    return "chronos elite";
+  if (p.includes("pro"))      return "chronos pro";
   return "chronos free";
 }
 
@@ -67,8 +71,6 @@ export default function ResursePage() {
   const [services, setServices]   = useState<any[]>([]);
   const [staff, setStaff]         = useState<any[]>([]);
   const [workLocations, setWorkLocations] = useState<any[]>([]);
-  const [stripePriceId, setStripePriceId] = useState<string | null>(null);
-  const [monthlyLimit, setMonthlyLimit] = useState<number | null>(null);
   const [userPlan, setUserPlan]   = useState("chronos free");
   const [businessCurrency, setBusinessCurrency] = useState("RON");
   const [loading, setLoading]     = useState(true);
@@ -128,7 +130,7 @@ export default function ResursePage() {
 
       const { data: profiles, error: profileError } = await supabase
         .from('profiles')
-        .select('plan_type, currency, work_locations, stripe_price_id, monthly_appointment_limit')
+        .select('plan_type, currency, work_locations')
         .eq('id', uid);
 
       if (profileError) console.error("Eroare profil:", profileError.message);
@@ -138,9 +140,6 @@ export default function ResursePage() {
       setUserPlan(planNormalizat);
       setBusinessCurrency(profile?.currency || "RON");
       setWorkLocations(Array.isArray(profile?.work_locations) ? profile.work_locations : []);
-      const p: any = profile;
-      setStripePriceId(p?.stripe_price_id || null);
-      setMonthlyLimit(typeof p?.monthly_appointment_limit === 'number' ? p.monthly_appointment_limit : null);
 
       const { data: svs, error: errSvs } = await supabase
         .from('services')
@@ -302,17 +301,6 @@ export default function ResursePage() {
   const saveWorkLocations = async () => {
     if (!userId || isDemo) return;
     const { error } = await supabase.from('profiles').update({ work_locations: workLocations }).eq('id', userId);
-    if (error) { alert(error.message); return; }
-    await showToast({ message: t("workLocationsSavedToast"), type: "success" });
-    await fetchResurse(userId);
-  };
-
-  const saveProfileSettings = async () => {
-    if (!userId || isDemo) return;
-    const payload: any = {};
-    if (stripePriceId !== null) payload.stripe_price_id = stripePriceId;
-    if (monthlyLimit !== null) payload.monthly_appointment_limit = monthlyLimit;
-    const { error } = await supabase.from('profiles').update(payload).eq('id', userId);
     if (error) { alert(error.message); return; }
     await showToast({ message: t("workLocationsSavedToast"), type: "success" });
     await fetchResurse(userId);
@@ -725,27 +713,7 @@ export default function ResursePage() {
               </div>
             </div>
             <div className="space-y-4">
-              <div className="grid md:grid-cols-2 gap-4 p-4 bg-slate-50 rounded-lg">
-                <div>
-                  <label className="text-[9px] font-black uppercase text-slate-400">{t("stripePriceIdLabel")}</label>
-                  <input value={stripePriceId || ''} onChange={(e) => setStripePriceId(e.target.value)} className="w-full p-3 rounded-md border" placeholder={t("stripePriceIdPlaceholder")} />
-                </div>
-                <div>
-                  <label className="text-[9px] font-black uppercase text-slate-400">{t("monthlyLimitLabel")}</label>
-                  <input type="number" value={monthlyLimit ?? ''} onChange={(e) => setMonthlyLimit(Number(e.target.value) || null)} className="w-full p-3 rounded-md border" placeholder={t("monthlyLimitPlaceholder")} />
-                </div>
-                <div className="md:col-span-2 flex gap-2 mt-2">
-                  <button onClick={saveProfileSettings} className="px-4 py-2 bg-amber-500 text-black rounded-xl font-black uppercase text-[11px]">{t("saveProfileSettingsBtn")}</button>
-                  <button onClick={() => {
-                    if (!stripePriceId) return;
-                    // Open Stripe checkout to purchase subscription for this price
-                    fetch('/api/stripe/create-subscription-checkout', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ adminId: userId, priceId: stripePriceId }) })
-                      .then(res => res.json())
-                      .then(json => { if (json.url) window.location.href = json.url; else alert(json.error || 'Error'); });
-                  }} className="px-4 py-2 bg-slate-900 text-amber-500 rounded-xl font-black uppercase text-[11px]">{t("buySubscriptionBtn")}</button>
-                </div>
-              </div>
-              {workLocations.length === 0 && <div className="text-sm text-slate-400 italic">{t("noWorkLocationsMsg")}</div>}
+                  {workLocations.length === 0 && <div className="text-sm text-slate-400 italic">{t("noWorkLocationsMsg")}</div>}
               {workLocations.map((loc) => (
                 <div key={loc.id} className="p-4 border rounded-xl bg-slate-50">
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

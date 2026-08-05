@@ -3,7 +3,7 @@ import React, { useState, useEffect, useMemo, useRef } from "react";
 import { createBrowserClient } from "@supabase/ssr";
 import { useTranslations, useLocale } from "next-intl";
 import { showToast } from "@/lib/toast";
-import { Crown, Gem, ShieldCheck, Zap } from "lucide-react";
+import { Briefcase, Crown, Gem, ShieldCheck, Zap } from "lucide-react";
 // --- METADATA STATICA PER PLAN (id-uri Stripe - NU se traduc) ---
 // ✅ Am înlocuit stripeLink (Payment Link static) cu priceId, folosit acum
 // prin /api/checkout — permite identificarea userului (client_reference_id)
@@ -12,6 +12,7 @@ const PLAN_META = [
   { id: "CHRONOS PRO", priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_PRO, popular: false, Icon: Zap, accent: "text-amber-600", bg: "bg-amber-50", ring: "border-amber-200" },
   { id: "CHRONOS ELITE", priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_ELITE, popular: true, Icon: Gem, accent: "text-sky-600", bg: "bg-sky-50", ring: "border-sky-200" },
   { id: "CHRONOS TEAM", priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_TEAM, popular: false, Icon: Crown, accent: "text-violet-600", bg: "bg-violet-50", ring: "border-violet-200" },
+  { id: "CHRONOS BUSINESS", priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_BUSINESS, popular: false, Icon: Briefcase, accent: "text-slate-900", bg: "bg-slate-100", ring: "border-slate-200" },
 ];
 // Curs fix aproximativ pentru afisare informativa (nu pentru facturare - plata ramane mereu in RON)
 const RON_TO_EUR = 5;

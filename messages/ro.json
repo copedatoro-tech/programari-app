@@ -832,6 +832,46 @@
             "highlight": "Nelimitat"
           }
         ]
+      },
+      {
+        "name": "CHRONOS BUSINESS",
+        "price": 499,
+        "description": "Pentru companii cu puncte de lucru multiple și gestionare avansată a programărilor.",
+        "buttonText": "ALEGE PLANUL",
+        "features": [
+          {
+            "text": "150 rezervări / lună",
+            "available": true,
+            "highlight": "150"
+          },
+          {
+            "text": "Puncte de lucru multiple",
+            "available": true,
+            "highlight": "Puncte de lucru"
+          },
+          {
+            "text": "Servicii nelimitate",
+            "available": true,
+            "highlight": "nelimitate"
+          },
+          {
+            "text": "Multi-specialist complet",
+            "available": true
+          },
+          {
+            "text": "Plată online la rezervare",
+            "available": true
+          },
+          {
+            "text": "Rapoarte avansate",
+            "available": true,
+            "highlight": "avansate"
+          },
+          {
+            "text": "Confirmări & Reamintiri Email Nelimitat",
+            "available": true
+          }
+        ]
       }
     ],
     "manageSubscriptionBtn": "GESTIONEAZA ABONAMENTUL"
@@ -1005,6 +1045,10 @@
       "team": {
         "nume": "CHRONOS TEAM",
         "limita": "Rezervări nelimitate"
+      },
+      "business": {
+        "nume": "CHRONOS BUSINESS",
+        "limita": "150 rezervări / lună"
       }
     },
     "workLocationsTitle": "Adrese de lucru",
@@ -1087,6 +1131,7 @@
     "scheduleSavedToast": "Program salvat cu succes!",
     "stripePriceIdLabel": "Stripe Price ID (abonament)",
     "stripePriceIdPlaceholder": "price_XXXXXXXXXX",
+    "stripePriceIdHelp": "Introdu Price ID din Stripe pentru planul Business sau Pro. Exemplu: price_1U1AXJ9rzvOUm7SdUw3R4oWJ.",
     "monthlyLimitLabel": "Limită programări lunare (opțional)",
     "monthlyLimitPlaceholder": "ex: 150",
     "saveProfileSettingsBtn": "Salvează setările",

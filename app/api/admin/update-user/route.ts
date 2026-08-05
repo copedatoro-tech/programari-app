@@ -9,7 +9,7 @@ import Stripe from "stripe";
 // instantiaza propriul client.
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
-const VALID_PLANS = ["CHRONOS FREE", "CHRONOS PRO", "CHRONOS ELITE", "CHRONOS TEAM"];
+const VALID_PLANS = ["CHRONOS FREE", "CHRONOS PRO", "CHRONOS ELITE", "CHRONOS TEAM", "CHRONOS BUSINESS"];
 
 export async function POST(req: Request) {
   try {

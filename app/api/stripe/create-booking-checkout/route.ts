@@ -25,12 +25,6 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Acest salon nu are plata online activată." }, { status: 400 });
     }
 
-    const serviceIds = bookings.map((b: any) => b.serviciu_id).filter(Boolean);
-    const { data: services } = await supabaseAdmin
-      .from("services")
-      .select("id, nume_serviciu, price, duration")
-      .in("id", serviceIds);
-
     const currency = (profile.currency || "RON").toLowerCase();
     const profileLocations = Array.isArray(profile.work_locations) ? profile.work_locations : [];
     const matchedLocation = workLocation?.id
@@ -42,6 +36,44 @@ export async function POST(request: Request) {
       address: String(matchedLocation.address),
       mapsUrl: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(String(matchedLocation.address))}`,
     } : null;
+
+    const locationServiceIds = Array.isArray(matchedLocation?.service_ids) && matchedLocation.service_ids.length > 0
+      ? matchedLocation.service_ids.map((id: any) => String(id))
+      : null;
+    const locationStaffIds = Array.isArray(matchedLocation?.staff_ids) && matchedLocation.staff_ids.length > 0
+      ? matchedLocation.staff_ids.map((id: any) => String(id))
+      : null;
+
+    const serviceIds = bookings.map((b: any) => b.serviciu_id).filter(Boolean);
+    const { data: services } = await supabaseAdmin
+      .from("services")
+      .select("id, nume_serviciu, price, duration")
+      .eq("user_id", adminId)
+      .in("id", serviceIds);
+
+    const { data: staff } = await supabaseAdmin
+      .from("staff")
+      .select("id, name")
+      .eq("user_id", adminId);
+
+    for (const b of bookings) {
+      const svcExists = services?.some((s) => s.id === b.serviciu_id);
+      if (!svcExists) {
+        return NextResponse.json({ error: "Unul dintre serviciile selectate nu apartine acestui salon." }, { status: 400 });
+      }
+      if (locationServiceIds && !locationServiceIds.includes(String(b.serviciu_id))) {
+        return NextResponse.json({ error: "Unul dintre serviciile selectate nu este disponibil in punctul de lucru selectat." }, { status: 400 });
+      }
+      if (b.specialist_id) {
+        const staffExists = staff?.some((s) => s.id === b.specialist_id);
+        if (!staffExists) {
+          return NextResponse.json({ error: "Specialistul selectat nu apartine acestui salon." }, { status: 400 });
+        }
+        if (locationStaffIds && !locationStaffIds.includes(String(b.specialist_id))) {
+          return NextResponse.json({ error: "Specialistul selectat nu lucreaza in punctul de lucru selectat." }, { status: 400 });
+        }
+      }
+    }
 
     // ✅ Procentul de avans — 100 = plată integrală (comportament vechi, neschimbat),
     // orice valoare mai mică = client plătește doar acel procent acum, restul la salon

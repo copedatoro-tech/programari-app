@@ -6,6 +6,7 @@ const PLAN_PRICES: Record<string, number> = {
   "CHRONOS PRO": 49,
   "CHRONOS ELITE": 99,
   "CHRONOS TEAM": 199,
+  "CHRONOS BUSINESS": 499,
 };
 
 const REMINDER_DAYS_BEFORE = 7;

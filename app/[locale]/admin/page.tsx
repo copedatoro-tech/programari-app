@@ -5,6 +5,7 @@ const PLAN_PRICES: Record<string, number> = {
   "CHRONOS PRO": 49,
   "CHRONOS ELITE": 99,
   "CHRONOS TEAM": 199,
+  "CHRONOS BUSINESS": 499,
 };
 
 const PLAN_COLORS: Record<string, string> = {
@@ -12,10 +13,11 @@ const PLAN_COLORS: Record<string, string> = {
   "CHRONOS PRO": "bg-amber-100 text-amber-700",
   "CHRONOS ELITE": "bg-sky-100 text-sky-700",
   "CHRONOS TEAM": "bg-violet-100 text-violet-700",
+  "CHRONOS BUSINESS": "bg-slate-100 text-slate-900",
   "START (GRATUIT)": "bg-slate-100 text-slate-600",
 };
 
-const ALL_PLANS = ["CHRONOS FREE", "CHRONOS PRO", "CHRONOS ELITE", "CHRONOS TEAM"];
+const ALL_PLANS = ["CHRONOS FREE", "CHRONOS PRO", "CHRONOS ELITE", "CHRONOS TEAM", "CHRONOS BUSINESS"];
 
 interface Profile {
   id: string;
@@ -230,6 +232,7 @@ export default function AdminPage() {
             <option value="CHRONOS PRO">Pro</option>
             <option value="CHRONOS ELITE">Elite</option>
             <option value="CHRONOS TEAM">Team</option>
+            <option value="CHRONOS BUSINESS">Business</option>
           </select>
         </div>
 

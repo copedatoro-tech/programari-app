@@ -822,6 +822,10 @@
       "team": {
         "nume": "CHRONOS TEAM",
         "limita": "Unbegrenzte Buchungen"
+      },
+      "business": {
+        "nume": "CHRONOS BUSINESS",
+        "limita": "150 Buchungen / Monat"
       }
     },
     "workLocationsTitle": "Arbeitsstandorte",
