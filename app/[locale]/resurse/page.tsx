@@ -289,46 +289,20 @@ export default function ResursePage() {
 
   const saveLocation = async () => {
     if (!userId || isDemo || !locationForm) return;
-    // Update local state
-    setWorkLocations(prev => {
-      const exists = prev.find((p: any) => p.id === locationForm.id);
-      if (exists) return prev.map((p: any) => p.id === locationForm.id ? { ...locationForm } : p);
-      return [...prev, { ...locationForm }];
-    });
-    // Persist via saveWorkLocations helper
-    await saveWorkLocations();
-    // close form
+    const updated = workLocations.some((p: any) => p.id === locationForm.id)
+      ? workLocations.map((p: any) => p.id === locationForm.id ? { ...locationForm } : p)
+      : [...workLocations, { ...locationForm }];
+    setWorkLocations(updated);
+    await saveWorkLocations(updated);
     setLocationForm(null);
     setSelectedLocationId(null);
   };
 
-  const updateLocationField = (locId: string, field: string, value: any) => {
-    setWorkLocations(prev => prev.map((l: any) => l.id === locId ? { ...l, [field]: value } : l));
-  };
 
-  const toggleLocationService = (locId: string, serviceId: string) => {
-    setWorkLocations(prev => prev.map((l: any) => {
-      if (l.id !== locId) return l;
-      const list = Array.isArray(l.service_ids) ? [...l.service_ids] : [];
-      const idx = list.indexOf(serviceId);
-      if (idx > -1) list.splice(idx, 1); else list.push(serviceId);
-      return { ...l, service_ids: list };
-    }));
-  };
-
-  const toggleLocationStaff = (locId: string, staffId: string) => {
-    setWorkLocations(prev => prev.map((l: any) => {
-      if (l.id !== locId) return l;
-      const list = Array.isArray(l.staff_ids) ? [...l.staff_ids] : [];
-      const idx = list.indexOf(staffId);
-      if (idx > -1) list.splice(idx, 1); else list.push(staffId);
-      return { ...l, staff_ids: list };
-    }));
-  };
-
-  const saveWorkLocations = async () => {
+  const saveWorkLocations = async (locations?: any[]) => {
     if (!userId || isDemo) return;
-    const { error } = await supabase.from('profiles').update({ work_locations: workLocations }).eq('id', userId);
+    const payload = locations ?? workLocations;
+    const { error } = await supabase.from('profiles').update({ work_locations: payload }).eq('id', userId);
     if (error) { alert(error.message); return; }
     await showToast({ message: t("workLocationsSavedToast"), type: "success" });
     await fetchResurse(userId);
@@ -737,7 +711,6 @@ export default function ResursePage() {
               <h3 className="text-[10px] font-black uppercase italic text-amber-600 mb-0 tracking-widest">{t("workLocationsTitle")}</h3>
               <div className="flex items-center gap-2">
                 <button onClick={openAddLocation} className="px-4 py-2 bg-amber-500 text-black rounded-xl font-black uppercase text-[11px]">{t("addWorkLocationBtn")}</button>
-                <button onClick={saveWorkLocations} className="px-4 py-2 bg-slate-900 text-amber-500 rounded-xl font-black uppercase text-[11px]">{t("saveWorkLocationsBtn")}</button>
               </div>
             </div>
             <div className="space-y-4">
