@@ -728,6 +728,10 @@
         "buttonText": "ALEGE PLANUL",
         "features": [
           {
+            "text": "1 punct de lucru, pana la 5 specialisti",
+            "available": true
+          },
+          {
             "text": "150 rezervări / lună",
             "available": true,
             "highlight": "150"
@@ -758,6 +762,10 @@
         "description": "Pentru afaceri cu echipă și volum ridicat de clienți.",
         "buttonText": "ALEGE PLANUL",
         "features": [
+          {
+            "text": "1 punct de lucru, pana la 10 specialisti",
+            "available": true
+          },
           {
             "text": "500 rezervări / lună",
             "available": true,
@@ -799,6 +807,10 @@
         "buttonText": "ALEGE PLANUL",
         "features": [
           {
+            "text": "Pana la 3 puncte de lucru si 10 specialisti pe punct de lucru",
+            "available": true
+          },
+          {
             "text": "Rezervări nelimitate",
             "available": true,
             "highlight": "nelimitate"
@@ -832,6 +844,34 @@
             "highlight": "Nelimitat"
           }
         ]
+      },
+      {
+        "name": "CHRONOS BUSINESS",
+        "price": 499,
+        "description": "Pana la 5 puncte de lucru si 20 specialisti pe punct de lucru",
+        "features": [
+          {
+            "text": "Pana la 5 puncte de lucru si 20 specialisti pe punct de lucru",
+            "available": true
+          },
+          {
+            "text": "Rapoarte pe puncte de lucru",
+            "available": true
+          },
+          {
+            "text": "Calendar si programari pe puncte de lucru",
+            "available": true
+          },
+          {
+            "text": "Servicii si specialisti pe fiecare punct de lucru",
+            "available": true
+          },
+          {
+            "text": "Program specialist pe fiecare punct de lucru",
+            "available": true
+          }
+        ],
+        "buttonText": "ALEGE PLANUL"
       }
     ],
     "manageSubscriptionBtn": "GESTIONEAZA ABONAMENTUL"
@@ -1145,7 +1185,11 @@
     "workLocationServicesLabel": "Servicii disponibile in aceasta locatie",
     "workLocationStaffLabel": "Specialisti care lucreaza aici",
     "workLocationsSavedToast": "Punctele de lucru au fost salvate.",
-    "workLocationDeleteLastError": "Trebuie sa existe cel putin un punct de lucru."
+    "workLocationDeleteLastError": "Trebuie sa existe cel putin un punct de lucru.",
+    "planLimitWorkLocations": "Abonamentul tau permite maximum {count} puncte de lucru.",
+    "planLimitSpecialists": "Abonamentul tau permite maximum {count} specialisti.",
+    "planLimitServices": "Abonamentul tau permite maximum {count} servicii.",
+    "planLimitSpecialistsPerLocation": "Acest abonament permite maximum {count} specialisti pe punct de lucru."
   },
   "sugestii": {
     "checkingAccess": "Se verifică accesul...",
@@ -1443,7 +1487,9 @@
     "techErrorBannerMsg": "Problemă tehnică temporară, independentă de noi — se lucrează la rezolvare.",
     "techErrorRetryBtn": "🔄 Reîncearcă",
     "depositPaidLabel": "Avans {paid} RON · rest {rest} RON",
-    "fullyPaidLabel": "Plătit integral"
+    "fullyPaidLabel": "Plătit integral",
+    "allWorkLocationsOpt": "Toate punctele de lucru",
+    "workLocationLabel": "Punct de lucru"
   },
   "rapoarte": {
     "localeCode": "ro-RO",
@@ -1515,7 +1561,13 @@
     "exportExcelBtn": "📊 Export Excel",
     "exportSheetSummary": "Sumar",
     "exportSheetServices": "Top Servicii",
-    "exportSheetStaff": "Performanță Echipă"
+    "exportSheetStaff": "Performanță Echipă",
+    "locationStatsTitle": "Rapoarte pe puncte de lucru",
+    "tableWorkLocation": "Punct de lucru",
+    "tableTopServices": "Top servicii",
+    "tableTopStaff": "Top specialisti",
+    "exportSheetLocations": "Puncte de lucru",
+    "unknownWorkLocation": "Fara locatie"
   },
   "chronosPickers": {
     "localeCode": "ro-RO",
@@ -2016,5 +2068,66 @@
     "GBP": "Lira sterlina",
     "HUF": "Forint maghiar",
     "PLN": "Zlot polonez"
+  },
+  "home": {
+    "pricing": {
+      "plans": [
+        {
+          "plan": "Free",
+          "price": 0,
+          "prog": "30 prog/luna",
+          "features": [
+            "Calendar complet",
+            "Baza clienti",
+            "Gestiune servicii",
+            "Documente atasate"
+          ]
+        },
+        {
+          "plan": "Pro",
+          "price": 49,
+          "prog": "150 prog/luna",
+          "features": [
+            "Tot din Free",
+            "1 punct de lucru",
+            "Pana la 5 specialisti",
+            "Rapoarte de baza"
+          ]
+        },
+        {
+          "plan": "Elite",
+          "price": 99,
+          "prog": "500 prog/luna",
+          "features": [
+            "Tot din Pro",
+            "1 punct de lucru",
+            "Pana la 10 specialisti",
+            "Plata online la rezervare"
+          ]
+        },
+        {
+          "plan": "Team",
+          "price": 199,
+          "prog": "Nelimitat",
+          "features": [
+            "Tot din Elite",
+            "3 puncte de lucru",
+            "10 specialisti pe punct",
+            "Programari nelimitate"
+          ]
+        },
+        {
+          "plan": "Business",
+          "price": 499,
+          "prog": "5 locatii",
+          "features": [
+            "Tot din Team",
+            "5 puncte de lucru",
+            "20 specialisti pe punct",
+            "Rapoarte pe locatii"
+          ]
+        }
+      ]
+    }
   }
 }

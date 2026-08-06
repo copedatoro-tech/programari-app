@@ -11,18 +11,32 @@ import { X } from "lucide-react";
 
 const LIMITE = {
   STAFF: {
-    "chronos free":    1,
-    "chronos pro":     1,
-    "chronos elite":   5,
-    "chronos team":   50,
-    "chronos business": 50,
+    "chronos free": 1,
+    "chronos pro": 5,
+    "chronos elite": 10,
+    "chronos team": 30,
+    "chronos business": 100,
   },
   SERVICII: {
-    "chronos free":    5,
-    "chronos pro":    15,
-    "chronos elite":  50,
-    "chronos team":  999,
+    "chronos free": 5,
+    "chronos pro": 15,
+    "chronos elite": 50,
+    "chronos team": 999,
     "chronos business": 999,
+  },
+  PUNCTE_LUCRU: {
+    "chronos free": 1,
+    "chronos pro": 1,
+    "chronos elite": 1,
+    "chronos team": 3,
+    "chronos business": 5,
+  },
+  STAFF_PER_PUNCT: {
+    "chronos free": 1,
+    "chronos pro": 5,
+    "chronos elite": 10,
+    "chronos team": 10,
+    "chronos business": 20,
   },
 };
 
@@ -224,8 +238,10 @@ export default function ResursePage() {
   }, [editingId, scheduleStaffId, inviteStaff, manageStaff]);
 
   const getLimitaServicii = () => LIMITE.SERVICII[userPlan as keyof typeof LIMITE.SERVICII] ?? LIMITE.SERVICII["chronos free"];
-  const getLimitaStaff     = () => LIMITE.STAFF[userPlan as keyof typeof LIMITE.STAFF]       ?? LIMITE.STAFF["chronos free"];
-  const getPlanLabel      = () => PLAN_LABELS[userPlan] ?? userPlan.toUpperCase();
+  const getLimitaStaff = () => LIMITE.STAFF[userPlan as keyof typeof LIMITE.STAFF] ?? LIMITE.STAFF["chronos free"];
+  const getLimitaPuncteLucru = () => LIMITE.PUNCTE_LUCRU[userPlan as keyof typeof LIMITE.PUNCTE_LUCRU] ?? LIMITE.PUNCTE_LUCRU["chronos free"];
+  const getLimitaStaffPerPunct = () => LIMITE.STAFF_PER_PUNCT[userPlan as keyof typeof LIMITE.STAFF_PER_PUNCT] ?? LIMITE.STAFF_PER_PUNCT["chronos free"];
+  const getPlanLabel = () => PLAN_LABELS[userPlan] ?? userPlan.toUpperCase();
 
   async function handleAddService() {
     if (!newService.name.trim() || !userId || isDemo) return;
@@ -274,6 +290,10 @@ export default function ResursePage() {
   // ---------------- Work locations management ----------------
   const openAddLocation = () => {
     if (isDemo) return;
+    if (workLocations.length >= getLimitaPuncteLucru()) {
+      alert(t("planLimitWorkLocations", { count: getLimitaPuncteLucru() }));
+      return;
+    }
     setSelectedLocationId(null);
     setLocationForm({ id: `loc-${Date.now()}`, name: '', address: '', staff_ids: [], service_ids: [] });
   };
@@ -291,7 +311,20 @@ export default function ResursePage() {
 
   const saveLocation = async () => {
     if (!userId || isDemo || !locationForm) return;
-    const updated = workLocations.some((p: any) => p.id === locationForm.id)
+
+    const isExisting = workLocations.some((p: any) => p.id === locationForm.id);
+    if (!isExisting && workLocations.length >= getLimitaPuncteLucru()) {
+      alert(t("planLimitWorkLocations", { count: getLimitaPuncteLucru() }));
+      return;
+    }
+
+    const selectedStaffCount = Array.isArray(locationForm.staff_ids) ? locationForm.staff_ids.length : 0;
+    if (selectedStaffCount > getLimitaStaffPerPunct()) {
+      alert(t("planLimitSpecialistsPerLocation", { count: getLimitaStaffPerPunct() }));
+      return;
+    }
+
+    const updated = isExisting
       ? workLocations.map((p: any) => p.id === locationForm.id ? { ...locationForm } : p)
       : [...workLocations, { ...locationForm }];
     setWorkLocations(updated);
@@ -753,33 +786,39 @@ export default function ResursePage() {
             </div>
             <div className="space-y-4">
               {workLocations.length === 0 && <div className="text-sm text-slate-400 italic">{t("noWorkLocationsMsg")}</div>}
-              <div className="max-h-[260px] overflow-y-auto space-y-4">
+              <div className="max-h-[520px] overflow-y-auto space-y-4">
                 {workLocations.map((loc) => (
                   <div key={loc.id} className="p-3 border rounded-xl bg-slate-50 flex items-center justify-between">
                     <div className="flex-1 pr-4">
                       <p className="text-sm font-black uppercase tracking-tight text-slate-900 truncate">{loc.name || t("workLocationNamePlaceholder")}</p>
                       <p className="text-xs text-slate-500 mt-1 truncate">{loc.address || t("workLocationAddressPlaceholder")}</p>
-                      <div className="mt-2 flex flex-wrap items-center gap-2">
+                      <div className="mt-3 space-y-2">
                         {(() => {
                           const sel = Array.isArray(loc.service_ids) ? services.filter(s => loc.service_ids.includes(s.id)).map(s => s.nume_serviciu) : [];
                           return (
-                            <>
-                              {sel.slice(0,3).map((name, i) => (
-                                <span key={i} className="px-2 py-1 bg-amber-50 text-amber-700 rounded-full text-[12px] font-black">{name}</span>
-                              ))}
-                              {sel.length > 3 && <span className="text-xs text-slate-500">{t("othersShort", { count: sel.length - 3 })}</span>}
-                            </>
+                            <div>
+                              <p className="text-[9px] font-black uppercase text-slate-400 mb-1">{t("workLocationServicesLabel")}</p>
+                              <div className="flex flex-wrap items-center gap-2">
+                                {sel.slice(0,3).map((name, i) => (
+                                  <span key={i} className="px-2 py-1 bg-amber-50 text-amber-700 rounded-full text-[12px] font-black">{name}</span>
+                                ))}
+                                {sel.length > 3 && <span title={sel.slice(3).join(", ")} className="text-xs text-slate-500 cursor-help">{t("othersShort", { count: sel.length - 3 })}</span>}
+                              </div>
+                            </div>
                           );
                         })()}
                         {(() => {
                           const sel = Array.isArray(loc.staff_ids) ? staff.filter(st => loc.staff_ids.includes(st.id)).map(st => st.name) : [];
                           return (
-                            <>
-                              {sel.slice(0,3).map((name, i) => (
-                                <span key={`st-${i}`} className="px-2 py-1 bg-slate-100 text-slate-700 rounded-full text-[12px] font-black">{name}</span>
-                              ))}
-                              {sel.length > 3 && <span className="text-xs text-slate-500">{t("othersShort", { count: sel.length - 3 })}</span>}
-                            </>
+                            <div>
+                              <p className="text-[9px] font-black uppercase text-slate-400 mb-1">{t("workLocationStaffLabel")}</p>
+                              <div className="flex flex-wrap items-center gap-2">
+                                {sel.slice(0,3).map((name, i) => (
+                                  <span key={`st-${i}`} className="px-2 py-1 bg-slate-100 text-slate-700 rounded-full text-[12px] font-black">{name}</span>
+                                ))}
+                                {sel.length > 3 && <span title={sel.slice(3).join(", ")} className="text-xs text-slate-500 cursor-help">{t("othersShort", { count: sel.length - 3 })}</span>}
+                              </div>
+                            </div>
                           );
                         })()}
                       </div>
@@ -959,7 +998,7 @@ export default function ResursePage() {
             <h2 className="text-[11px] font-black uppercase italic text-slate-400 mb-10 tracking-[0.3em] border-b pb-6">
               {t("activeServicesTitle")} ({services.length} / {getLimitaServicii() >= 999 ? 'âˆž' : getLimitaServicii()})
             </h2>
-            <div className="max-h-[260px] overflow-y-scroll pr-2 space-y-4">
+            <div className="max-h-[420px] overflow-y-scroll pr-2 space-y-4">
               {services.map(s => (
                 <div key={s.id} className="group bg-slate-50 rounded-[28px] border-l-8 border-amber-500 hover:bg-white transition-all border border-transparent hover:border-slate-100 overflow-hidden relative shadow-sm">
                   {editingId === s.id ? (
@@ -1007,7 +1046,7 @@ export default function ResursePage() {
             <h2 className="text-[11px] font-black uppercase italic text-slate-400 mb-10 tracking-[0.3em] border-b pb-6 text-right">
               {t("teamTitle")} ({staff.length} / {getLimitaStaff() >= 999 ? 'âˆž' : getLimitaStaff()})
             </h2>
-            <div className="max-h-[260px] overflow-y-scroll pr-2 space-y-4">
+            <div className="max-h-[650px] overflow-y-scroll pr-2 space-y-4">
               {staff.map(p => (
                 <div key={p.id} className="group bg-slate-900 rounded-[28px] border-l-8 border-slate-700 hover:border-amber-500 transition-all overflow-hidden relative shadow-lg">
                   {editingId === p.id ? (

@@ -975,7 +975,11 @@
     "staffPhotoUploadError": "Erreur lors de l'import de la photo:",
     "staffPhotoAlt": "Photo du specialiste",
     "workLocationNamePlaceholder": "Work location name",
-    "workLocationAddressPlaceholder": "Street, number, city"
+    "workLocationAddressPlaceholder": "Street, number, city",
+    "planLimitWorkLocations": "Votre abonnement permet jusqu'a {count} lieux de travail.",
+    "planLimitSpecialists": "Votre abonnement permet jusqu'a {count} specialistes.",
+    "planLimitServices": "Votre abonnement permet jusqu'a {count} services.",
+    "planLimitSpecialistsPerLocation": "Cet abonnement permet jusqu'a {count} specialistes par lieu de travail."
   },
   "sugestii": {
     "checkingAccess": "Vérification de l'accès...",
@@ -1273,7 +1277,9 @@
     "techErrorBannerMsg": "Problème technique temporaire, indépendant de nous — en cours de résolution.",
     "techErrorRetryBtn": "🔄 Réessayer",
     "depositPaidLabel": "Acompte {paid} RON · reste {rest} RON",
-    "fullyPaidLabel": "Payé intégralement"
+    "fullyPaidLabel": "Payé intégralement",
+    "allWorkLocationsOpt": "Tous les lieux de travail",
+    "workLocationLabel": "Lieu de travail"
   },
   "rapoarte": {
     "localeCode": "fr-FR",
@@ -1345,7 +1351,13 @@
     "exportExcelBtn": "📊 Exporter Excel",
     "exportSheetSummary": "Résumé",
     "exportSheetServices": "Meilleurs Services",
-    "exportSheetStaff": "Performance d'Équipe"
+    "exportSheetStaff": "Performance d'Équipe",
+    "locationStatsTitle": "Rapports par lieu de travail",
+    "tableWorkLocation": "Lieu de travail",
+    "tableTopServices": "Meilleurs services",
+    "tableTopStaff": "Meilleurs specialistes",
+    "exportSheetLocations": "Lieux de travail",
+    "unknownWorkLocation": "Sans lieu"
   },
   "chronosPickers": {
     "localeCode": "fr-FR",
@@ -1634,6 +1646,10 @@
         "buttonText": "CHOISIR",
         "features": [
           {
+            "text": "1 lieu de travail, jusqu'a 5 specialistes",
+            "available": true
+          },
+          {
             "text": "150 réservations / mois",
             "available": true,
             "highlight": "150"
@@ -1664,6 +1680,10 @@
         "description": "Pour les entreprises avec une équipe et un volume élevé de clients.",
         "buttonText": "CHOISIR",
         "features": [
+          {
+            "text": "1 lieu de travail, jusqu'a 10 specialistes",
+            "available": true
+          },
           {
             "text": "500 réservations / mois",
             "available": true,
@@ -1705,6 +1725,10 @@
         "buttonText": "CHOISIR",
         "features": [
           {
+            "text": "Jusqu'a 3 lieux de travail et 10 specialistes par lieu",
+            "available": true
+          },
+          {
             "text": "Réservations illimitées",
             "available": true,
             "highlight": "illimitées"
@@ -1738,6 +1762,34 @@
             "highlight": "Illimités"
           }
         ]
+      },
+      {
+        "name": "CHRONOS BUSINESS",
+        "price": 499,
+        "description": "Jusqu'a 5 lieux de travail et 20 specialistes par lieu",
+        "features": [
+          {
+            "text": "Jusqu'a 5 lieux de travail et 20 specialistes par lieu",
+            "available": true
+          },
+          {
+            "text": "Rapoarte pe puncte de lucru",
+            "available": true
+          },
+          {
+            "text": "Calendar si programari pe puncte de lucru",
+            "available": true
+          },
+          {
+            "text": "Servicii si specialisti pe fiecare punct de lucru",
+            "available": true
+          },
+          {
+            "text": "Program specialist pe fiecare punct de lucru",
+            "available": true
+          }
+        ],
+        "buttonText": "CHOISIR"
       }
     ],
     "manageSubscriptionBtn": "GERER L'ABONNEMENT"
@@ -2029,5 +2081,66 @@
     "GBP": "British pound",
     "HUF": "Hungarian forint",
     "PLN": "Polish zloty"
+  },
+  "home": {
+    "pricing": {
+      "plans": [
+        {
+          "plan": "Free",
+          "price": 0,
+          "prog": "30 reservations/mois",
+          "features": [
+            "Calendrier complet",
+            "Base clients",
+            "Gestion des services",
+            "Documents joints"
+          ]
+        },
+        {
+          "plan": "Pro",
+          "price": 49,
+          "prog": "150 reservations/mois",
+          "features": [
+            "Tout de Free",
+            "1 lieu de travail",
+            "Jusqu'a 5 specialistes",
+            "Rapports de base"
+          ]
+        },
+        {
+          "plan": "Elite",
+          "price": 99,
+          "prog": "500 reservations/mois",
+          "features": [
+            "Tout de Pro",
+            "1 lieu de travail",
+            "Jusqu'a 10 specialistes",
+            "Paiement en ligne a la reservation"
+          ]
+        },
+        {
+          "plan": "Team",
+          "price": 199,
+          "prog": "Illimite",
+          "features": [
+            "Tout de Elite",
+            "3 lieux de travail",
+            "10 specialistes par lieu",
+            "Reservations illimitees"
+          ]
+        },
+        {
+          "plan": "Business",
+          "price": 499,
+          "prog": "5 lieux",
+          "features": [
+            "Tout de Team",
+            "5 lieux de travail",
+            "20 specialistes par lieu",
+            "Rapports par lieu"
+          ]
+        }
+      ]
+    }
   }
 }

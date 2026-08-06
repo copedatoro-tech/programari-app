@@ -975,7 +975,11 @@
     "staffPhotoUploadError": "Error al subir la foto:",
     "staffPhotoAlt": "Foto del especialista",
     "workLocationNamePlaceholder": "Work location name",
-    "workLocationAddressPlaceholder": "Street, number, city"
+    "workLocationAddressPlaceholder": "Street, number, city",
+    "planLimitWorkLocations": "Tu plan permite hasta {count} ubicaciones de trabajo.",
+    "planLimitSpecialists": "Tu plan permite hasta {count} especialistas.",
+    "planLimitServices": "Tu plan permite hasta {count} servicios.",
+    "planLimitSpecialistsPerLocation": "Este plan permite hasta {count} especialistas por ubicacion."
   },
   "sugestii": {
     "checkingAccess": "Verificando el acceso...",
@@ -1273,7 +1277,9 @@
     "techErrorBannerMsg": "Problema técnico temporal, ajeno a nosotros — se está resolviendo.",
     "techErrorRetryBtn": "🔄 Reintentar",
     "depositPaidLabel": "Depósito {paid} RON · resto {rest} RON",
-    "fullyPaidLabel": "Pagado en su totalidad"
+    "fullyPaidLabel": "Pagado en su totalidad",
+    "allWorkLocationsOpt": "Todos los puntos de trabajo",
+    "workLocationLabel": "Punto de trabajo"
   },
   "rapoarte": {
     "localeCode": "es-ES",
@@ -1345,7 +1351,13 @@
     "exportExcelBtn": "📊 Exportar Excel",
     "exportSheetSummary": "Resumen",
     "exportSheetServices": "Mejores Servicios",
-    "exportSheetStaff": "Rendimiento del Equipo"
+    "exportSheetStaff": "Rendimiento del Equipo",
+    "locationStatsTitle": "Informes por punto de trabajo",
+    "tableWorkLocation": "Punto de trabajo",
+    "tableTopServices": "Servicios principales",
+    "tableTopStaff": "Especialistas principales",
+    "exportSheetLocations": "Puntos de trabajo",
+    "unknownWorkLocation": "Sin ubicacion"
   },
   "chronosPickers": {
     "localeCode": "es-ES",
@@ -1634,6 +1646,10 @@
         "buttonText": "ELEGIR PLAN",
         "features": [
           {
+            "text": "1 punto de trabajo, hasta 5 especialistas",
+            "available": true
+          },
+          {
             "text": "150 citas / mes",
             "available": true,
             "highlight": "150"
@@ -1664,6 +1680,10 @@
         "description": "Para negocios con equipo y alto volumen de clientes.",
         "buttonText": "ELEGIR PLAN",
         "features": [
+          {
+            "text": "1 punto de trabajo, hasta 10 especialistas",
+            "available": true
+          },
           {
             "text": "500 citas / mes",
             "available": true,
@@ -1705,6 +1725,10 @@
         "buttonText": "ELEGIR PLAN",
         "features": [
           {
+            "text": "Hasta 3 puntos de trabajo y 10 especialistas por punto",
+            "available": true
+          },
+          {
             "text": "Citas ilimitadas",
             "available": true,
             "highlight": "ilimitadas"
@@ -1738,6 +1762,34 @@
             "highlight": "Ilimitados"
           }
         ]
+      },
+      {
+        "name": "CHRONOS BUSINESS",
+        "price": 499,
+        "description": "Hasta 5 puntos de trabajo y 20 especialistas por punto",
+        "features": [
+          {
+            "text": "Hasta 5 puntos de trabajo y 20 especialistas por punto",
+            "available": true
+          },
+          {
+            "text": "Rapoarte pe puncte de lucru",
+            "available": true
+          },
+          {
+            "text": "Calendar si programari pe puncte de lucru",
+            "available": true
+          },
+          {
+            "text": "Servicii si specialisti pe fiecare punct de lucru",
+            "available": true
+          },
+          {
+            "text": "Program specialist pe fiecare punct de lucru",
+            "available": true
+          }
+        ],
+        "buttonText": "ELEGIR PLAN"
       }
     ],
     "manageSubscriptionBtn": "GESTIONAR SUSCRIPCION"
@@ -2029,5 +2081,66 @@
     "GBP": "British pound",
     "HUF": "Hungarian forint",
     "PLN": "Polish zloty"
+  },
+  "home": {
+    "pricing": {
+      "plans": [
+        {
+          "plan": "Free",
+          "price": 0,
+          "prog": "30 reservas/mes",
+          "features": [
+            "Calendario completo",
+            "Base de clientes",
+            "Gestion de servicios",
+            "Documentos adjuntos"
+          ]
+        },
+        {
+          "plan": "Pro",
+          "price": 49,
+          "prog": "150 reservas/mes",
+          "features": [
+            "Todo de Free",
+            "1 punto de trabajo",
+            "Hasta 5 especialistas",
+            "Informes basicos"
+          ]
+        },
+        {
+          "plan": "Elite",
+          "price": 99,
+          "prog": "500 reservas/mes",
+          "features": [
+            "Todo de Pro",
+            "1 punto de trabajo",
+            "Hasta 10 especialistas",
+            "Pago online al reservar"
+          ]
+        },
+        {
+          "plan": "Team",
+          "price": 199,
+          "prog": "Ilimitado",
+          "features": [
+            "Todo de Elite",
+            "3 puntos de trabajo",
+            "10 especialistas por punto",
+            "Reservas ilimitadas"
+          ]
+        },
+        {
+          "plan": "Business",
+          "price": 499,
+          "prog": "5 ubicaciones",
+          "features": [
+            "Todo de Team",
+            "5 puntos de trabajo",
+            "20 especialistas por punto",
+            "Informes por ubicacion"
+          ]
+        }
+      ]
+    }
   }
 }

@@ -101,10 +101,11 @@ type Prog = {
   telefon?: string; motiv?: string; poza?: string; documente: DocAtt[];
   expertId?: string; serviciuId?: string; duration?: number; isOnline?: boolean;
   totalPrice?: number; amountPaid?: number; paymentStatus?: string;
-  workLocationName?: string; workLocationAddress?: string; workLocationMapsUrl?: string;
+  workLocationId?: string; workLocationName?: string; workLocationAddress?: string; workLocationMapsUrl?: string;
 };
 type ViewMode = "day"|"week"|"month"|"year";
 type ManualBlocks = Record<string, string[]>;
+type WorkLocationRow = { id: string; name: string; address?: string; maps_url?: string; service_ids?: string[]; staff_ids?: string[] };
 interface StaffRow   { id: string; name: string; services: string[]; working_hours?: any }
 interface ServiceRow { id: string; nume_serviciu: string; price: number; duration: number }
 interface WorkingHour{ day: string; start: string; end: string; closed: boolean }
@@ -148,7 +149,7 @@ function mapRow(it: any): Prog {
     expertId: it.angajat_id??"", serviciuId: it.serviciu_id??"",
     duration: it.duration??0, isOnline: it.is_client_booking??false,
     totalPrice: it.total_price??0, amountPaid: it.amount_paid??0, paymentStatus: it.payment_status??"unpaid",
-    workLocationName: it.work_location_name??"", workLocationAddress: it.work_location_address??"", workLocationMapsUrl: it.work_location_maps_url??"",
+    workLocationId: it.work_location_id??"", workLocationName: it.work_location_name??"", workLocationAddress: it.work_location_address??"", workLocationMapsUrl: it.work_location_maps_url??"",
   };
 }
 // ─── Sanitizare nume fișier (diacritice RO + caractere speciale) ──────────────
@@ -1106,8 +1107,9 @@ function CalendarContent() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedExpert, setSelectedExpert] = useState("");
   const [selectedServiciu, setSelectedServiciu] = useState("");
+  const [selectedWorkLocation, setSelectedWorkLocation] = useState("");
   const [editForm, setEditForm] = useState<Prog|null>(null);
-  const [newForm, setNewForm] = useState<{date:string;time:string;nume:string;telefon:string;email:string;serviciuId:string;expertId:string;motiv:string}|null>(null);
+  const [newForm, setNewForm] = useState<{date:string;time:string;nume:string;telefon:string;email:string;serviciuId:string;expertId:string;motiv:string;workLocationId:string}|null>(null);
   const [customMsg, setCustomMsg] = useState("");
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showTimePicker, setShowTimePicker] = useState(false);
@@ -1122,7 +1124,7 @@ function CalendarContent() {
   const userId = session?.user?.id;
   const {data:profile,refetch:refetchProfile,isError:profileIsError} = useQuery({
     queryKey:["profile",userId],enabled:!!userId,staleTime:1000*60*5,
-    queryFn:async()=>{const{data}=await supabase.from("profiles").select("plan_type,trial_started_at,manual_blocks,working_hours,notification_settings").eq("id",userId!).single();return data;},
+    queryFn:async()=>{const{data}=await supabase.from("profiles").select("plan_type,trial_started_at,manual_blocks,working_hours,notification_settings,work_locations").eq("id",userId!).single();return data;},
   });
   const notifSettings: NotificationSettings = useMemo(() => {
     const raw = profile?.notification_settings;
@@ -1144,7 +1146,7 @@ function CalendarContent() {
   const {data:programari=[],isLoading,refetch:refetchAppts} = useQuery<Prog[]>({
     queryKey:["appointments",userId,dateRange.start,dateRange.end],enabled:!!userId,staleTime:1000*60*2,
     queryFn:async()=>{
-      const{data,error}=await supabase.from("appointments").select("id,title,prenume,nume,email,date,time,details,phone,poza,file_url,documente,angajat_id,serviciu_id,duration,is_client_booking,total_price,amount_paid,payment_status,work_location_name,work_location_address,work_location_maps_url").eq("user_id",userId!).gte("date",dateRange.start).lte("date",dateRange.end).order("date",{ascending:true});
+      const{data,error}=await supabase.from("appointments").select("id,title,prenume,nume,email,date,time,details,phone,poza,file_url,documente,angajat_id,serviciu_id,duration,is_client_booking,total_price,amount_paid,payment_status,work_location_id,work_location_name,work_location_address,work_location_maps_url").eq("user_id",userId!).gte("date",dateRange.start).lte("date",dateRange.end).order("date",{ascending:true});
       if(error)return[];return(data??[]).map(mapRow);
     },
   });
@@ -1166,11 +1168,12 @@ function CalendarContent() {
   },[userId,notifSettings.sound_enabled,notifSettings.volume,notifSettings.in_app_enabled,notifSettings.system_enabled]);
   const adminWorkingHours = useMemo<WorkingHour[]>(()=>parseWH(profile?.working_hours),[profile?.working_hours]);
   const adminManualBlocks = useMemo<ManualBlocks>(()=>{const r=profile?.manual_blocks;if(!r||typeof r!=="object"||Array.isArray(r))return{};return r as ManualBlocks;},[profile?.manual_blocks]);
+  const workLocations = useMemo<WorkLocationRow[]>(()=>{const r=profile?.work_locations;return Array.isArray(r)?r:[];},[profile?.work_locations]);
   const userSub = useMemo(()=>{if(!profile)return null;let plan=(profile.plan_type||"CHRONOS FREE").toUpperCase();if(profile.trial_started_at&&Date.now()-new Date(profile.trial_started_at).getTime()<10*24*60*60*1000)plan="CHRONOS TEAM";return{plan};},[profile]);
   const hasWA = userSub?.plan.includes("ELITE")||userSub?.plan.includes("TEAM");
   const programariByDate = useMemo(()=>{const m:Record<string,Prog[]>={};programari.forEach(p=>{if(!p.data)return;if(!m[p.data])m[p.data]=[];m[p.data].push(p);});return m;},[programari]);
   const serviceById = useMemo(()=>{const m:Record<string,ServiceRow>={};rawServices.forEach(s=>{m[s.id]=s;});return m;},[rawServices]);
-  const filteredProg = useMemo(()=>programari.filter(p=>{const ms=!debouncedSearch||p.nume.toLowerCase().includes(debouncedSearch.toLowerCase())||p.telefon?.includes(debouncedSearch);return ms&&(!selectedExpert||p.expertId===selectedExpert)&&(!selectedServiciu||p.serviciuId===selectedServiciu);}),[programari,debouncedSearch,selectedExpert,selectedServiciu]);
+  const filteredProg = useMemo(()=>programari.filter(p=>{const ms=!debouncedSearch||p.nume.toLowerCase().includes(debouncedSearch.toLowerCase())||p.telefon?.includes(debouncedSearch);return ms&&(!selectedExpert||p.expertId===selectedExpert)&&(!selectedServiciu||p.serviciuId===selectedServiciu)&&(!selectedWorkLocation||p.workLocationId===selectedWorkLocation);}),[programari,debouncedSearch,selectedExpert,selectedServiciu,selectedWorkLocation]);
   useEffect(()=>{const timer=setTimeout(()=>setDebouncedSearch(searchTerm),250);return()=>clearTimeout(timer);},[searchTerm]);
   const handleSearch = useCallback((q:string)=>{if(!q.trim()){setSearchResults([]);return;}setSearchResults(programari.filter(p=>p.nume.toLowerCase().includes(q.toLowerCase())||p.telefon?.includes(q)||p.email?.toLowerCase().includes(q.toLowerCase())).slice(0,8));},[programari]);
   const openEdit = useCallback((p:Prog)=>{setEditForm({...p});setShowDatePicker(false);setShowTimePicker(false);setShowSearchDrop(false);},[]);
@@ -1185,12 +1188,18 @@ function CalendarContent() {
       await showToast({message:t("specialistConflictError"),type:"error"});
       return;
     }
+    const locEdit = workLocations.find(l=>l.id===editForm.workLocationId);
+    const mapsEdit = locEdit?.maps_url || (locEdit?.address ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(locEdit.address)}` : null);
     const{error}=await supabase.from("appointments").update({
       title:editForm.nume, prenume:editForm.nume, nume:editForm.nume,
       email:editForm.email||null, date:editForm.data, time:editForm.ora,
       duration:svc?.duration||editForm.duration||0,
       phone:editForm.telefon||null, details:editForm.motiv||null,
       angajat_id:editForm.expertId||null, serviciu_id:editForm.serviciuId||null,
+      work_location_id: editForm.workLocationId||null,
+      work_location_name: locEdit?.name||null,
+      work_location_address: locEdit?.address||null,
+      work_location_maps_url: mapsEdit,
       documente: editForm.documente||[],
     }).eq("id",editForm.id);
     if(error){await showToast({message:error.message,type:"error"});return;}
@@ -1283,6 +1292,7 @@ function CalendarContent() {
                     <span style={{fontSize:11,fontWeight:700}}>🕐 {editForm.ora||"—"}</span>
                   </button>
                 </div>
+                <div style={{background:"#f8fafc",border:"1.5px solid #e2e8f0",borderRadius:12,padding:"7px 10px"}}><p style={{fontSize:7,fontWeight:700,color:"#94a3b8",textTransform:"uppercase",marginBottom:2}}>{t("workLocationLabel")}</p><select style={{width:"100%",background:"transparent",border:"none",fontSize:11,fontWeight:700,color:"#1e293b",outline:"none",cursor:"pointer"}} value={editForm.workLocationId||""} onChange={e=>{const id=e.target.value;const loc=workLocations.find(l=>l.id===id);setEditForm(p=>p?{...p,workLocationId:id,workLocationName:loc?.name||"",workLocationAddress:loc?.address||"",workLocationMapsUrl:loc?.maps_url||""}:null);}}><option value="">{t("allWorkLocationsOpt")}</option>{workLocations.map(loc=><option key={loc.id} value={loc.id}>{loc.name}</option>)}</select></div>
                 <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:6}}>
                   {[{label:t("editModal.phoneLabel"),key:"telefon"},{label:t("editModal.emailLabel"),key:"email"}].map(f=>(
                     <div key={f.key} id={f.key==="telefon"?"onboarding-prog-phone":"onboarding-prog-email"} style={{background:"#f8fafc",border:"1.5px solid #e2e8f0",borderRadius:12,padding:"7px 10px"}}>
@@ -1361,6 +1371,7 @@ function CalendarContent() {
           <div style={{background:"#fff",width:"100%",maxWidth:480,borderRadius:24,overflow:"hidden",boxShadow:"0 24px 60px rgba(0,0,0,0.22)",padding:20,display:"flex",flexDirection:"column",gap:10}} onClick={e=>e.stopPropagation()}>
             <div style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}><h2 style={{fontSize:16,fontWeight:700,color:"#1e293b",margin:0}}>{t("newModal.title")}</h2><button onClick={()=>setNewForm(null)} style={{width:32,height:32,background:"#f1f5f9",border:"none",borderRadius:10,cursor:"pointer",fontSize:14,fontWeight:700,color:"#64748b"}} className="hover:bg-red-500 hover:text-white transition-all">✕</button></div>
             <div style={{background:"#fffbeb",border:"1.5px solid #fcd34d",borderRadius:14,padding:"10px 14px"}}><p style={{fontSize:13,fontWeight:700,color:"#92400e",margin:0}}>📅 {newForm.date} · {newForm.time}</p></div>
+            <div style={{background:"#f8fafc",border:"1.5px solid #e2e8f0",borderRadius:14,padding:"10px 14px"}}><p style={{fontSize:8,fontWeight:700,color:"#94a3b8",textTransform:"uppercase",marginBottom:4}}>{t("workLocationLabel")}</p><select style={{width:"100%",background:"transparent",border:"none",fontSize:12,fontWeight:700,color:"#1e293b",outline:"none",cursor:"pointer"}} value={newForm.workLocationId||""} onChange={e=>setNewForm(p=>p?{...p,workLocationId:e.target.value,serviciuId:"",expertId:""}:null)}><option value="">{t("allWorkLocationsOpt")}</option>{workLocations.map(loc=><option key={loc.id} value={loc.id}>{loc.name}</option>)}</select></div>
             <div style={{background:"#f8fafc",border:"1.5px solid #e2e8f0",borderRadius:14,padding:"10px 14px"}}><p style={{fontSize:8,fontWeight:700,color:"#94a3b8",textTransform:"uppercase",marginBottom:4}}>{t("newModal.nameLabel")}</p><input style={{width:"100%",background:"transparent",border:"none",fontSize:14,fontWeight:700,color:"#1e293b",outline:"none"}} placeholder={t("newModal.namePlaceholder")} value={newForm.nume} onChange={e=>setNewForm(p=>p?{...p,nume:e.target.value}:null)}/></div>
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>{[{label:t("newModal.phoneLabel"),key:"telefon"},{label:t("newModal.emailLabel"),key:"email"}].map(f=>(<div key={f.key} style={{background:"#f8fafc",border:"1.5px solid #e2e8f0",borderRadius:14,padding:"10px 14px"}}><p style={{fontSize:8,fontWeight:700,color:"#94a3b8",textTransform:"uppercase",marginBottom:4}}>{f.label}</p><input style={{width:"100%",background:"transparent",border:"none",fontSize:12,fontWeight:700,color:"#1e293b",outline:"none"}} value={(newForm as any)[f.key]} onChange={e=>setNewForm(p=>p?{...p,[f.key]:e.target.value}:null)}/></div>))}</div>
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
@@ -1404,7 +1415,9 @@ function CalendarContent() {
                     await showToast({message:t("specialistConflictError"),type:"error"});
                     return;
                   }
-                  const{error}=await supabase.from("appointments").insert({title:newForm.nume,prenume:newForm.nume,nume:newForm.nume,email:newForm.email||null,date:newForm.date,time:newForm.time,phone:newForm.telefon||null,details:newForm.motiv||null,angajat_id:newForm.expertId||null,serviciu_id:newForm.serviciuId||null,user_id:userId,duration:durNew});
+                  const locNew=workLocations.find(l=>l.id===newForm.workLocationId);
+                  const mapsNew=locNew?.maps_url || (locNew?.address ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(locNew.address)}` : null);
+                  const{error}=await supabase.from("appointments").insert({title:newForm.nume,prenume:newForm.nume,nume:newForm.nume,email:newForm.email||null,date:newForm.date,time:newForm.time,phone:newForm.telefon||null,details:newForm.motiv||null,angajat_id:newForm.expertId||null,serviciu_id:newForm.serviciuId||null,work_location_id:newForm.workLocationId||null,work_location_name:locNew?.name||null,work_location_address:locNew?.address||null,work_location_maps_url:mapsNew,user_id:userId,duration:durNew});
                   if(error){await showToast({message:error.message,type:"error"});return;}
                   qClient.invalidateQueries({queryKey:["appointments",userId]});
                   await showToast({message:t("newModal.addedToast"),type:"success"});
@@ -1428,6 +1441,7 @@ function CalendarContent() {
             <p style={{fontSize:8,fontWeight:700,color:"#94a3b8",textTransform:"uppercase",letterSpacing:"0.08em",margin:0}}>{isLoading?t("syncing"):t("synced")}</p>
           </div>
         </div>
+        {workLocations.length > 0 && (<select value={selectedWorkLocation} onChange={e=>setSelectedWorkLocation(e.target.value)} style={{flexShrink:0,background:"#f8fafc",border:"1.5px solid #e2e8f0",borderRadius:10,padding:"7px 10px",fontSize:11,fontWeight:700,color:"#334155",outline:"none"}}><option value="">{t("allWorkLocationsOpt")}</option>{workLocations.map(loc=><option key={loc.id} value={loc.id}>{loc.name}</option>)}</select>)}
         <div className="hidden md:block" style={{flexShrink:0,padding:"5px 12px",background:"#f8fafc",borderRadius:10,border:"1.5px solid #e2e8f0"}}>
           <span style={{fontSize:11,fontWeight:700,color:"#334155",textTransform:"capitalize"}}>{dateTitles[viewMode]}</span>
         </div>
@@ -1484,7 +1498,7 @@ function CalendarContent() {
           <DayView selectedDate={selectedDate} programari={filteredProg} rawStaff={rawStaff} rawServices={rawServices} serviceById={serviceById}
             onEdit={openEdit} adminWorkingHours={viewWorkingHours} adminManualBlocks={adminManualBlocks} selectedExpert={selectedExpert} selectedServiciu={selectedServiciu}
             onSelectServiciu={handleSelectServiciu}
-            onAddNew={(time,date)=>setNewForm({date,time,nume:"",telefon:"",email:"",serviciuId:"",expertId:selectedExpert||rawStaff[0]?.id||"",motiv:""})}/>
+            onAddNew={(time,date)=>setNewForm({date,time,nume:"",telefon:"",email:"",serviciuId:"",expertId:selectedExpert||rawStaff[0]?.id||"",motiv:"",workLocationId:selectedWorkLocation||workLocations[0]?.id||""})}/>
         )}
         {viewMode==="week"&&(
           <WeekView selectedDate={selectedDate} programariByDate={programariByDate} rawStaff={rawStaff} rawServices={rawServices} serviceById={serviceById}

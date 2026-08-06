@@ -18,7 +18,7 @@ const queryClient = new QueryClient({
 type DocumentAttachment = { id: number; name: string; url: string };
 type StaffRow  = { id: string; name: string; services: string[] };
 type ServiceRow = { id: string; nume_serviciu: string; price: number; duration: number };
-type WorkingHourEntry = { day: string; start: string; end: string; closed: boolean };
+type WorkingHourEntry = { day: string; start: string; end: string; closed: boolean; work_location_id?: string };
 
 const LIMITE_ABONAMENTE: Record<string, number> = {
   "chronos free": 30, "start (gratuit)": 30,
@@ -88,7 +88,7 @@ function ProgramariContent() {
     queryFn: async () => {
       if (!userId) return null;
       const { data } = await supabase.from("profiles")
-        .select("plan_type, trial_started_at, working_hours, manual_blocks").eq("id", userId).single();
+        .select("plan_type, trial_started_at, working_hours, manual_blocks, work_locations").eq("id", userId).single();
       return data;
     },
     enabled: !!userId,

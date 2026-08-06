@@ -469,7 +469,7 @@ export default function LandingPage() {
 
       {/* ── PLANURI ──────────────────────────────────────────────────────── */}
       <section className="bg-white py-24 px-6 border-t border-slate-100">
-        <div className="max-w-5xl mx-auto">
+        <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-5xl font-black italic uppercase tracking-tighter mb-4">
               {t("pricing.heading")} <span className="text-amber-500">{t("pricing.headingHighlight")}</span>
@@ -477,9 +477,9 @@ export default function LandingPage() {
             <p className="text-slate-400 text-xs font-bold uppercase italic">{t("pricing.subtitle")}</p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-5">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-5">
             {pricingPlans.map((p,i)=>{
-              const highlight = i === 2;
+              const highlight = p.plan === "Team" || p.plan === "CHRONOS TEAM";
               return (
               <motion.div key={i}
                 initial={{ opacity:0, y:20 }} whileInView={{ opacity:1, y:0 }} viewport={{ once:true }} transition={{ delay: i*0.08 }}

@@ -21,6 +21,8 @@ type Appointment = {
   phone?: string;
   telefon?: string;
   user_id: string;
+  work_location_id?: string;
+  work_location_name?: string;
 };
 
 type Service = {
@@ -36,6 +38,12 @@ type Staff = {
   user_id: string;
 };
 
+type WorkLocation = {
+  id: string;
+  name: string;
+  address?: string;
+};
+
 function RapoarteContent() {
   const t = useTranslations("rapoarte");
   const localeCode = t("localeCode");
@@ -44,6 +52,7 @@ function RapoarteContent() {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [services, setServices] = useState<Service[]>([]);
   const [staff, setStaff] = useState<Staff[]>([]);
+  const [workLocations, setWorkLocations] = useState<WorkLocation[]>([]);
   const [loading, setLoading] = useState(true);
   const [userName, setUserName] = useState<string>("");
   const [planType, setPlanType] = useState<string>("CHRONOS FREE");
@@ -64,7 +73,7 @@ function RapoarteContent() {
         supabase.from('appointments').select('*').eq('user_id', user.id),
         supabase.from('services').select('*').eq('user_id', user.id),
         supabase.from('staff').select('*').eq('user_id', user.id),
-        supabase.from('profiles').select('full_name, email, plan_type').eq('id', user.id).maybeSingle(),
+        supabase.from('profiles').select('full_name, email, plan_type, work_locations').eq('id', user.id).maybeSingle(),
       ]);
 
       if (apptsRes.data) setAppointments(apptsRes.data);
@@ -73,6 +82,7 @@ function RapoarteContent() {
       if (profileRes.data) {
         setUserName(profileRes.data.full_name || user.email || "");
         setPlanType((profileRes.data.plan_type || "CHRONOS FREE").toUpperCase());
+        setWorkLocations(Array.isArray(profileRes.data.work_locations) ? profileRes.data.work_locations : []);
       }
     } catch (err) {
       console.error("Eroare sincronizare:", err);
@@ -179,6 +189,24 @@ function RapoarteContent() {
     const displayMax = actualMax <= 5 ? 5 : Math.ceil(actualMax / 10) * 10;
     const yThresholds = [displayMax, Math.round(displayMax * 0.5), 0];
 
+    const locationPerformance: Record<string, { name: string; count: number; revenue: number; services: Record<string, number>; staff: Record<string, number> }> = {};
+    workLocations.forEach((loc) => {
+      locationPerformance[loc.id] = { name: loc.name, count: 0, revenue: 0, services: {}, staff: {} };
+    });
+
+    appointments.forEach((a) => {
+      const locId = a.work_location_id || "unknown";
+      const locName = a.work_location_name || t("unknownWorkLocation");
+      if (!locationPerformance[locId]) locationPerformance[locId] = { name: locName, count: 0, revenue: 0, services: {}, staff: {} };
+      const srv = services.find((s) => s.id === a.serviciu_id);
+      const st = staff.find((s) => s.id === a.angajat_id);
+      const price = Number(srv?.price) || 0;
+      locationPerformance[locId].count++;
+      locationPerformance[locId].revenue += price;
+      if (srv?.nume_serviciu) locationPerformance[locId].services[srv.nume_serviciu] = (locationPerformance[locId].services[srv.nume_serviciu] || 0) + 1;
+      if (st?.name) locationPerformance[locId].staff[st.name] = (locationPerformance[locId].staff[st.name] || 0) + 1;
+    });
+
     const serviceRevenue: Record<string, { nume: string; total: number }> = {};
     appointments.forEach(a => {
       const srv = services.find(s => s.id === a.serviciu_id);
@@ -194,6 +222,7 @@ function RapoarteContent() {
       yThresholds,
       topServices: Object.values(serviceRevenue).sort((a, b) => b.total - a.total).slice(0, 5),
       staffStats: Object.values(staffPerformance).sort((a, b) => b.revenue - a.revenue),
+      locationStats: Object.values(locationPerformance).sort((a, b) => b.revenue - a.revenue),
       totalCount: appointments.length,
       totalRevenue,
       mediePeZi: appointments.length > 0 ? (appointments.length / 7).toFixed(1) : "0",
@@ -201,7 +230,7 @@ function RapoarteContent() {
       totalClientiUnici,
       valoareMedie,
     };
-  }, [appointments, services, staff, weekdaysSun0, t]);
+  }, [appointments, services, staff, workLocations, weekdaysSun0, t]);
 
   // ✅ Generator de insights reale, bazate pe date — fără comparații între specialiști individuali
   const insights = useMemo(() => {
@@ -277,6 +306,22 @@ function RapoarteContent() {
       const ws2 = XLSX.utils.aoa_to_sheet(servicesData);
       ws2["!cols"] = [{ wch: 28 }, { wch: 16 }];
       XLSX.utils.book_append_sheet(wb, ws2, t("exportSheetServices"));
+    }
+
+    if (stats.locationStats.length > 0) {
+      const locationData = [
+        [t("tableWorkLocation"), t("tableAppts"), t("tableRevenue"), t("tableTopServices"), t("tableTopStaff")],
+        ...stats.locationStats.map((l) => [
+          l.name,
+          l.count,
+          l.revenue,
+          Object.entries(l.services).sort((a, b) => b[1] - a[1]).slice(0, 3).map(([name, count]) => `${name} (${count})`).join(", "),
+          Object.entries(l.staff).sort((a, b) => b[1] - a[1]).slice(0, 3).map(([name, count]) => `${name} (${count})`).join(", "),
+        ]),
+      ];
+      const wsLoc = XLSX.utils.aoa_to_sheet(locationData);
+      wsLoc["!cols"] = [{ wch: 28 }, { wch: 14 }, { wch: 16 }, { wch: 40 }, { wch: 40 }];
+      XLSX.utils.book_append_sheet(wb, wsLoc, t("exportSheetLocations"));
     }
 
     if (isTeam && stats.staffStats.length > 0) {
@@ -437,6 +482,36 @@ function RapoarteContent() {
               )}
             </div>
           </div>
+
+          {stats.locationStats.length > 0 && (
+            <div className="mt-10 bg-white p-10 rounded-[45px] shadow-md border border-slate-100">
+              <h3 className="text-lg font-black uppercase italic mb-8 tracking-tighter border-l-8 border-amber-500 pl-4">{t("locationStatsTitle")}</h3>
+              <div className="overflow-x-auto">
+                <table className="w-full text-left">
+                  <thead>
+                    <tr className="text-[10px] font-black uppercase italic text-slate-400 border-b border-slate-100">
+                      <th className="pb-4">{t("tableWorkLocation")}</th>
+                      <th className="pb-4">{t("tableAppts")}</th>
+                      <th className="pb-4">{t("tableRevenue")}</th>
+                      <th className="pb-4">{t("tableTopServices")}</th>
+                      <th className="pb-4">{t("tableTopStaff")}</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-50">
+                    {stats.locationStats.map((l, i) => (
+                      <tr key={i} className="text-sm font-bold align-top">
+                        <td className="py-4 italic uppercase">{l.name}</td>
+                        <td className="py-4">{l.count}</td>
+                        <td className="py-4 text-emerald-600">{l.revenue} RON</td>
+                        <td className="py-4 text-slate-500">{Object.entries(l.services).sort((a, b) => b[1] - a[1]).slice(0, 3).map(([name, count]) => `${name} (${count})`).join(", ") || "-"}</td>
+                        <td className="py-4 text-slate-500">{Object.entries(l.staff).sort((a, b) => b[1] - a[1]).slice(0, 3).map(([name, count]) => `${name} (${count})`).join(", ") || "-"}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
 
           {isTeam && (
             <div className="mt-10 bg-white p-10 rounded-[45px] shadow-md border border-slate-100">

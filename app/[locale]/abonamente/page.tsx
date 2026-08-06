@@ -109,7 +109,8 @@ export default function AbonamentePage() {
           setManualGrantExpiresAt(profile.manual_grant_expires_at || null);
           const rawPlan = (profile.plan_type || "CHRONOS FREE").toUpperCase().trim();
           let dbPlan = "CHRONOS FREE";
-          if (rawPlan.includes("TEAM")) dbPlan = "CHRONOS TEAM";
+          if (rawPlan.includes("BUSINESS")) dbPlan = "CHRONOS BUSINESS";
+          else if (rawPlan.includes("TEAM")) dbPlan = "CHRONOS TEAM";
           else if (rawPlan.includes("ELITE")) dbPlan = "CHRONOS ELITE";
           else if (rawPlan.includes("PRO")) dbPlan = "CHRONOS PRO";
           else dbPlan = "CHRONOS FREE";

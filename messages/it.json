@@ -975,7 +975,11 @@
     "staffPhotoUploadError": "Errore caricamento foto:",
     "staffPhotoAlt": "Foto specialista",
     "workLocationNamePlaceholder": "Nome punto di lavoro",
-    "workLocationAddressPlaceholder": "Via, numero, citta"
+    "workLocationAddressPlaceholder": "Via, numero, citta",
+    "planLimitWorkLocations": "Il tuo piano consente fino a {count} punti di lavoro.",
+    "planLimitSpecialists": "Il tuo piano consente fino a {count} specialisti.",
+    "planLimitServices": "Il tuo piano consente fino a {count} servizi.",
+    "planLimitSpecialistsPerLocation": "Questo piano consente fino a {count} specialisti per punto di lavoro."
   },
   "sugestii": {
     "checkingAccess": "Verifica dell'accesso...",
@@ -1273,7 +1277,9 @@
     "techErrorBannerMsg": "Problema tecnico temporaneo, indipendente da noi — in fase di risoluzione.",
     "techErrorRetryBtn": "🔄 Riprova",
     "depositPaidLabel": "Acconto {paid} RON · resto {rest} RON",
-    "fullyPaidLabel": "Pagato per intero"
+    "fullyPaidLabel": "Pagato per intero",
+    "allWorkLocationsOpt": "Tutte le sedi",
+    "workLocationLabel": "Sede"
   },
   "rapoarte": {
     "localeCode": "it-IT",
@@ -1345,7 +1351,13 @@
     "exportExcelBtn": "📊 Esporta Excel",
     "exportSheetSummary": "Riepilogo",
     "exportSheetServices": "Migliori Servizi",
-    "exportSheetStaff": "Performance del Team"
+    "exportSheetStaff": "Performance del Team",
+    "locationStatsTitle": "Report per sede",
+    "tableWorkLocation": "Sede",
+    "tableTopServices": "Servizi principali",
+    "tableTopStaff": "Specialisti principali",
+    "exportSheetLocations": "Sedi",
+    "unknownWorkLocation": "Nessuna sede"
   },
   "chronosPickers": {
     "localeCode": "it-IT",
@@ -1634,6 +1646,10 @@
         "buttonText": "SCEGLI PIANO",
         "features": [
           {
+            "text": "1 sede di lavoro, fino a 5 specialisti",
+            "available": true
+          },
+          {
             "text": "150 appuntamenti / mese",
             "available": true,
             "highlight": "150"
@@ -1664,6 +1680,10 @@
         "description": "Per attività con un team e un alto volume di clienti.",
         "buttonText": "SCEGLI PIANO",
         "features": [
+          {
+            "text": "1 sede di lavoro, fino a 10 specialisti",
+            "available": true
+          },
           {
             "text": "500 appuntamenti / mese",
             "available": true,
@@ -1705,6 +1725,10 @@
         "buttonText": "SCEGLI PIANO",
         "features": [
           {
+            "text": "Fino a 3 sedi e 10 specialisti per sede",
+            "available": true
+          },
+          {
             "text": "Appuntamenti illimitati",
             "available": true,
             "highlight": "illimitati"
@@ -1738,6 +1762,34 @@
             "highlight": "Illimitati"
           }
         ]
+      },
+      {
+        "name": "CHRONOS BUSINESS",
+        "price": 499,
+        "description": "Fino a 5 sedi e 20 specialisti per sede",
+        "features": [
+          {
+            "text": "Fino a 5 sedi e 20 specialisti per sede",
+            "available": true
+          },
+          {
+            "text": "Rapoarte pe puncte de lucru",
+            "available": true
+          },
+          {
+            "text": "Calendar si programari pe puncte de lucru",
+            "available": true
+          },
+          {
+            "text": "Servicii si specialisti pe fiecare punct de lucru",
+            "available": true
+          },
+          {
+            "text": "Program specialist pe fiecare punct de lucru",
+            "available": true
+          }
+        ],
+        "buttonText": "SCEGLI PIANO"
       }
     ],
     "manageSubscriptionBtn": "GESTISCI ABBONAMENTO"
@@ -2029,5 +2081,66 @@
     "GBP": "Sterlina britannica",
     "HUF": "Fiorino ungherese",
     "PLN": "Zloty polacco"
+  },
+  "home": {
+    "pricing": {
+      "plans": [
+        {
+          "plan": "Free",
+          "price": 0,
+          "prog": "30 prenotazioni/mese",
+          "features": [
+            "Calendario completo",
+            "Database clienti",
+            "Gestione servizi",
+            "Documenti allegati"
+          ]
+        },
+        {
+          "plan": "Pro",
+          "price": 49,
+          "prog": "150 prenotazioni/mese",
+          "features": [
+            "Tutto da Free",
+            "1 sede",
+            "Fino a 5 specialisti",
+            "Report base"
+          ]
+        },
+        {
+          "plan": "Elite",
+          "price": 99,
+          "prog": "500 prenotazioni/mese",
+          "features": [
+            "Tutto da Pro",
+            "1 sede",
+            "Fino a 10 specialisti",
+            "Pagamento online alla prenotazione"
+          ]
+        },
+        {
+          "plan": "Team",
+          "price": 199,
+          "prog": "Illimitato",
+          "features": [
+            "Tutto da Elite",
+            "3 sedi",
+            "10 specialisti per sede",
+            "Prenotazioni illimitate"
+          ]
+        },
+        {
+          "plan": "Business",
+          "price": 499,
+          "prog": "5 sedi",
+          "features": [
+            "Tutto da Team",
+            "5 sedi",
+            "20 specialisti per sede",
+            "Report per sede"
+          ]
+        }
+      ]
+    }
   }
 }

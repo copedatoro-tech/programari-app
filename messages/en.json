@@ -962,7 +962,11 @@
     "workLocationServicesLabel": "Services available at this location",
     "workLocationStaffLabel": "Specialists working here",
     "workLocationsSavedToast": "Work locations saved.",
-    "workLocationDeleteLastError": "At least one work location is required."
+    "workLocationDeleteLastError": "At least one work location is required.",
+    "planLimitWorkLocations": "Your plan allows up to {count} work locations.",
+    "planLimitSpecialists": "Your plan allows up to {count} specialists.",
+    "planLimitServices": "Your plan allows up to {count} services.",
+    "planLimitSpecialistsPerLocation": "This plan allows up to {count} specialists per work location."
   },
   "sugestii": {
     "checkingAccess": "Checking access...",
@@ -1260,7 +1264,9 @@
     "techErrorBannerMsg": "Temporary technical issue, outside our control — it's being worked on.",
     "techErrorRetryBtn": "🔄 Retry",
     "depositPaidLabel": "Deposit {paid} RON · remaining {rest} RON",
-    "fullyPaidLabel": "Fully paid"
+    "fullyPaidLabel": "Fully paid",
+    "allWorkLocationsOpt": "All work locations",
+    "workLocationLabel": "Work location"
   },
   "rapoarte": {
     "localeCode": "en-US",
@@ -1332,7 +1338,13 @@
     "exportExcelBtn": "📊 Export Excel",
     "exportSheetSummary": "Summary",
     "exportSheetServices": "Top Services",
-    "exportSheetStaff": "Team Performance"
+    "exportSheetStaff": "Team Performance",
+    "locationStatsTitle": "Reports by work location",
+    "tableWorkLocation": "Work location",
+    "tableTopServices": "Top services",
+    "tableTopStaff": "Top specialists",
+    "exportSheetLocations": "Work locations",
+    "unknownWorkLocation": "No location"
   },
   "chronosPickers": {
     "localeCode": "en-US",
@@ -1621,6 +1633,10 @@
         "buttonText": "CHOOSE PLAN",
         "features": [
           {
+            "text": "1 work location, up to 5 specialists",
+            "available": true
+          },
+          {
             "text": "150 bookings / month",
             "available": true,
             "highlight": "150"
@@ -1651,6 +1667,10 @@
         "description": "For businesses with a team and high client volume.",
         "buttonText": "CHOOSE PLAN",
         "features": [
+          {
+            "text": "1 work location, up to 10 specialists",
+            "available": true
+          },
           {
             "text": "500 bookings / month",
             "available": true,
@@ -1692,6 +1712,10 @@
         "buttonText": "CHOOSE PLAN",
         "features": [
           {
+            "text": "Up to 3 work locations and 10 specialists per location",
+            "available": true
+          },
+          {
             "text": "Unlimited bookings",
             "available": true,
             "highlight": "Unlimited"
@@ -1725,6 +1749,34 @@
             "highlight": "Unlimited"
           }
         ]
+      },
+      {
+        "name": "CHRONOS BUSINESS",
+        "price": 499,
+        "description": "Up to 5 work locations and 20 specialists per location",
+        "features": [
+          {
+            "text": "Up to 5 work locations and 20 specialists per location",
+            "available": true
+          },
+          {
+            "text": "Rapoarte pe puncte de lucru",
+            "available": true
+          },
+          {
+            "text": "Calendar si programari pe puncte de lucru",
+            "available": true
+          },
+          {
+            "text": "Servicii si specialisti pe fiecare punct de lucru",
+            "available": true
+          },
+          {
+            "text": "Program specialist pe fiecare punct de lucru",
+            "available": true
+          }
+        ],
+        "buttonText": "CHOOSE PLAN"
       }
     ],
     "manageSubscriptionBtn": "MANAGE SUBSCRIPTION"
@@ -2016,5 +2068,66 @@
     "GBP": "British pound",
     "HUF": "Hungarian forint",
     "PLN": "Polish zloty"
+  },
+  "home": {
+    "pricing": {
+      "plans": [
+        {
+          "plan": "Free",
+          "price": 0,
+          "prog": "30 bookings/month",
+          "features": [
+            "Full calendar",
+            "Client database",
+            "Service management",
+            "Attached documents"
+          ]
+        },
+        {
+          "plan": "Pro",
+          "price": 49,
+          "prog": "150 bookings/month",
+          "features": [
+            "Everything in Free",
+            "1 work location",
+            "Up to 5 specialists",
+            "Basic reports"
+          ]
+        },
+        {
+          "plan": "Elite",
+          "price": 99,
+          "prog": "500 bookings/month",
+          "features": [
+            "Everything in Pro",
+            "1 work location",
+            "Up to 10 specialists",
+            "Online payment at booking"
+          ]
+        },
+        {
+          "plan": "Team",
+          "price": 199,
+          "prog": "Unlimited",
+          "features": [
+            "Everything in Elite",
+            "3 work locations",
+            "10 specialists per location",
+            "Unlimited bookings"
+          ]
+        },
+        {
+          "plan": "Business",
+          "price": 499,
+          "prog": "5 locations",
+          "features": [
+            "Everything in Team",
+            "5 work locations",
+            "20 specialists per location",
+            "Location reports"
+          ]
+        }
+      ]
+    }
   }
 }

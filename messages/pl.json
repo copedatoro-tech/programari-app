@@ -975,7 +975,11 @@
     "staffPhotoUploadError": "Blad przesylania zdjecia:",
     "staffPhotoAlt": "Zdjecie specjalisty",
     "workLocationNamePlaceholder": "Work location name",
-    "workLocationAddressPlaceholder": "Street, number, city"
+    "workLocationAddressPlaceholder": "Street, number, city",
+    "planLimitWorkLocations": "Twoj plan pozwala na maksymalnie {count} lokalizacji pracy.",
+    "planLimitSpecialists": "Twoj plan pozwala na maksymalnie {count} specjalistow.",
+    "planLimitServices": "Twoj plan pozwala na maksymalnie {count} uslug.",
+    "planLimitSpecialistsPerLocation": "Ten plan pozwala na maksymalnie {count} specjalistow na lokalizacje."
   },
   "sugestii": {
     "checkingAccess": "Sprawdzanie dostępu...",
@@ -1273,7 +1277,9 @@
     "techErrorBannerMsg": "Tymczasowy problem techniczny, niezależny od nas — trwają prace nad rozwiązaniem.",
     "techErrorRetryBtn": "🔄 Spróbuj ponownie",
     "depositPaidLabel": "Zaliczka {paid} RON · pozostało {rest} RON",
-    "fullyPaidLabel": "Zapłacone w całości"
+    "fullyPaidLabel": "Zapłacone w całości",
+    "allWorkLocationsOpt": "Wszystkie lokalizacje",
+    "workLocationLabel": "Lokalizacja"
   },
   "rapoarte": {
     "localeCode": "pl-PL",
@@ -1345,7 +1351,13 @@
     "exportExcelBtn": "📊 Eksportuj Excel",
     "exportSheetSummary": "Podsumowanie",
     "exportSheetServices": "Najlepsze Usługi",
-    "exportSheetStaff": "Wydajność Zespołu"
+    "exportSheetStaff": "Wydajność Zespołu",
+    "locationStatsTitle": "Raporty wedlug lokalizacji",
+    "tableWorkLocation": "Lokalizacja",
+    "tableTopServices": "Najlepsze uslugi",
+    "tableTopStaff": "Najlepsi specjalisci",
+    "exportSheetLocations": "Lokalizacje",
+    "unknownWorkLocation": "Brak lokalizacji"
   },
   "chronosPickers": {
     "localeCode": "pl-PL",
@@ -1634,6 +1646,10 @@
         "buttonText": "WYBIERZ PLAN",
         "features": [
           {
+            "text": "1 lokalizacja, do 5 specjalistow",
+            "available": true
+          },
+          {
             "text": "150 wizyt / miesiąc",
             "available": true,
             "highlight": "150"
@@ -1664,6 +1680,10 @@
         "description": "Dla firm z zespołem i dużą liczbą klientów.",
         "buttonText": "WYBIERZ PLAN",
         "features": [
+          {
+            "text": "1 lokalizacja, do 10 specjalistow",
+            "available": true
+          },
           {
             "text": "500 wizyt / miesiąc",
             "available": true,
@@ -1705,6 +1725,10 @@
         "buttonText": "WYBIERZ PLAN",
         "features": [
           {
+            "text": "Do 3 lokalizacji i 10 specjalistow na lokalizacje",
+            "available": true
+          },
+          {
             "text": "Nielimitowane wizyty",
             "available": true,
             "highlight": "Nielimitowane"
@@ -1738,6 +1762,34 @@
             "highlight": "Nieograniczone"
           }
         ]
+      },
+      {
+        "name": "CHRONOS BUSINESS",
+        "price": 499,
+        "description": "Do 5 lokalizacji i 20 specjalistow na lokalizacje",
+        "features": [
+          {
+            "text": "Do 5 lokalizacji i 20 specjalistow na lokalizacje",
+            "available": true
+          },
+          {
+            "text": "Rapoarte pe puncte de lucru",
+            "available": true
+          },
+          {
+            "text": "Calendar si programari pe puncte de lucru",
+            "available": true
+          },
+          {
+            "text": "Servicii si specialisti pe fiecare punct de lucru",
+            "available": true
+          },
+          {
+            "text": "Program specialist pe fiecare punct de lucru",
+            "available": true
+          }
+        ],
+        "buttonText": "WYBIERZ PLAN"
       }
     ],
     "manageSubscriptionBtn": "ZARZADZAJ SUBSKRYPCJA"
@@ -2029,5 +2081,66 @@
     "GBP": "British pound",
     "HUF": "Hungarian forint",
     "PLN": "Polish zloty"
+  },
+  "home": {
+    "pricing": {
+      "plans": [
+        {
+          "plan": "Free",
+          "price": 0,
+          "prog": "30 rezerwacji/miesiac",
+          "features": [
+            "Pelny kalendarz",
+            "Baza klientow",
+            "Zarzadzanie uslugami",
+            "Zalaczone dokumenty"
+          ]
+        },
+        {
+          "plan": "Pro",
+          "price": 49,
+          "prog": "150 rezerwacji/miesiac",
+          "features": [
+            "Wszystko z Free",
+            "1 lokalizacja",
+            "Do 5 specjalistow",
+            "Raporty podstawowe"
+          ]
+        },
+        {
+          "plan": "Elite",
+          "price": 99,
+          "prog": "500 rezerwacji/miesiac",
+          "features": [
+            "Wszystko z Pro",
+            "1 lokalizacja",
+            "Do 10 specjalistow",
+            "Platnosc online przy rezerwacji"
+          ]
+        },
+        {
+          "plan": "Team",
+          "price": 199,
+          "prog": "Bez limitu",
+          "features": [
+            "Wszystko z Elite",
+            "3 lokalizacje",
+            "10 specjalistow na lokalizacje",
+            "Rezerwacje bez limitu"
+          ]
+        },
+        {
+          "plan": "Business",
+          "price": 499,
+          "prog": "5 lokalizacji",
+          "features": [
+            "Wszystko z Team",
+            "5 lokalizacji",
+            "20 specjalistow na lokalizacje",
+            "Raporty wedlug lokalizacji"
+          ]
+        }
+      ]
+    }
   }
 }

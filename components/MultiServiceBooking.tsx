@@ -8,7 +8,8 @@ import { ChronosTimePicker, ChronosDatePicker } from "@/components/ChronosDateTi
 // ─── Tipuri ────────────────────────────────────────────────────────────────────
 interface ServiceRow   { id: string; nume_serviciu: string; price: number; duration: number }
 interface StaffRow     { id: string; name: string; services: string[]; working_hours?: any }
-interface WorkingHour  { day: string; start: string; end: string; closed: boolean }
+interface WorkingHour  { day: string; start: string; end: string; closed: boolean; work_location_id?: string }
+interface WorkLocationRow { id: string; name: string; address?: string; maps_url?: string; service_ids?: string[]; staff_ids?: string[] }
 interface ExistingAppt { time: string; duration: number }
 
 function parseWH(raw: any): WorkingHour[] {
@@ -36,6 +37,7 @@ export interface MultiServiceBookingProps {
   documenteAtasate?: any[];
   documente?:        any[];
   presetDate?:       string | null;
+  workLocations?:     WorkLocationRow[];
   validateClientData: () => boolean;
   onSuccess?:        () => void;
   onCancel?:         () => void;
@@ -269,12 +271,14 @@ function SlotRow({
 
 // ─── Componenta principală ────────────────────────────────────────────────────
 export default function MultiServiceBooking({
-  adminId, servicii, specialisti, adminWorkingHours, adminManualBlocks,
+  adminId, servicii, specialisti, adminWorkingHours, adminManualBlocks, workLocations = [],
   clientData, pozaProfil, presetDate, validateClientData, onSuccess, documente,
 }: MultiServiceBookingProps) {
   const t = useTranslations("multiServiceBooking");
   const localeCode = t("localeCode");
   const today = new Date().toISOString().split("T")[0];
+  const availableWorkLocations = workLocations;
+  void availableWorkLocations;
 
   const [slots, setSlots] = useState<ServiceSlot[]>([
     { slotId: uid(), serviciu_id: "", specialist_id: "", data: today, ora: "00:00" },

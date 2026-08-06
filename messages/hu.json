@@ -975,7 +975,11 @@
     "staffPhotoUploadError": "Hiba a foto feltoltesekor:",
     "staffPhotoAlt": "Szakember foto",
     "workLocationNamePlaceholder": "Work location name",
-    "workLocationAddressPlaceholder": "Street, number, city"
+    "workLocationAddressPlaceholder": "Street, number, city",
+    "planLimitWorkLocations": "A csomagod legfeljebb {count} munkapontot engedelyez.",
+    "planLimitSpecialists": "A csomagod legfeljebb {count} szakembert engedelyez.",
+    "planLimitServices": "A csomagod legfeljebb {count} szolgaltatast engedelyez.",
+    "planLimitSpecialistsPerLocation": "Ez a csomag legfeljebb {count} szakembert engedelyez munkapontonk?nt."
   },
   "sugestii": {
     "checkingAccess": "Hozzáférés ellenőrzése...",
@@ -1273,7 +1277,9 @@
     "techErrorBannerMsg": "Ideiglenes technikai probléma, rajtunk kívülálló okból — folyamatban a megoldás.",
     "techErrorRetryBtn": "🔄 Újra próbálom",
     "depositPaidLabel": "Előleg {paid} RON · hátra {rest} RON",
-    "fullyPaidLabel": "Teljesen kifizetve"
+    "fullyPaidLabel": "Teljesen kifizetve",
+    "allWorkLocationsOpt": "Osszes helyszin",
+    "workLocationLabel": "Helyszin"
   },
   "rapoarte": {
     "localeCode": "hu-HU",
@@ -1345,7 +1351,13 @@
     "exportExcelBtn": "📊 Excel Exportálása",
     "exportSheetSummary": "Összegzés",
     "exportSheetServices": "Legjobb Szolgáltatások",
-    "exportSheetStaff": "Csapatteljesítmény"
+    "exportSheetStaff": "Csapatteljesítmény",
+    "locationStatsTitle": "Riportok helyszinenkent",
+    "tableWorkLocation": "Helyszin",
+    "tableTopServices": "Top szolgaltatasok",
+    "tableTopStaff": "Top szakemberek",
+    "exportSheetLocations": "Helyszinek",
+    "unknownWorkLocation": "Nincs helyszin"
   },
   "chronosPickers": {
     "localeCode": "hu-HU",
@@ -1634,6 +1646,10 @@
         "buttonText": "CSOMAG KIVÁLASZTÁSA",
         "features": [
           {
+            "text": "1 munkav?gz?si hely, legfeljebb 5 szakember",
+            "available": true
+          },
+          {
             "text": "150 időpont / hó",
             "available": true,
             "highlight": "150"
@@ -1664,6 +1680,10 @@
         "description": "Csapattal működő, magas ügyfélforgalmú vállalkozásoknak.",
         "buttonText": "CSOMAG KIVÁLASZTÁSA",
         "features": [
+          {
+            "text": "1 munkav?gz?si hely, legfeljebb 10 szakember",
+            "available": true
+          },
           {
             "text": "500 időpont / hó",
             "available": true,
@@ -1705,6 +1725,10 @@
         "buttonText": "CSOMAG KIVÁLASZTÁSA",
         "features": [
           {
+            "text": "Legfeljebb 3 helysz?n ?s helysz?nenk?nt 10 szakember",
+            "available": true
+          },
+          {
             "text": "Korlátlan időpontok",
             "available": true,
             "highlight": "Korlátlan"
@@ -1738,6 +1762,34 @@
             "highlight": "Korlátlan"
           }
         ]
+      },
+      {
+        "name": "CHRONOS BUSINESS",
+        "price": 499,
+        "description": "Legfeljebb 5 helysz?n ?s helysz?nenk?nt 20 szakember",
+        "features": [
+          {
+            "text": "Legfeljebb 5 helysz?n ?s helysz?nenk?nt 20 szakember",
+            "available": true
+          },
+          {
+            "text": "Rapoarte pe puncte de lucru",
+            "available": true
+          },
+          {
+            "text": "Calendar si programari pe puncte de lucru",
+            "available": true
+          },
+          {
+            "text": "Servicii si specialisti pe fiecare punct de lucru",
+            "available": true
+          },
+          {
+            "text": "Program specialist pe fiecare punct de lucru",
+            "available": true
+          }
+        ],
+        "buttonText": "CSOMAG KIVÁLASZTÁSA"
       }
     ],
     "manageSubscriptionBtn": "ELOFIZETES KEZELESE"
@@ -2029,5 +2081,66 @@
     "GBP": "British pound",
     "HUF": "Hungarian forint",
     "PLN": "Polish zloty"
+  },
+  "home": {
+    "pricing": {
+      "plans": [
+        {
+          "plan": "Free",
+          "price": 0,
+          "prog": "30 foglalas/honap",
+          "features": [
+            "Teljes naptar",
+            "Ugyfeladatbazis",
+            "Szolgaltataskezeles",
+            "Csatolt dokumentumok"
+          ]
+        },
+        {
+          "plan": "Pro",
+          "price": 49,
+          "prog": "150 foglalas/honap",
+          "features": [
+            "Minden a Free csomagbol",
+            "1 helyszin",
+            "Legfeljebb 5 szakember",
+            "Alap riportok"
+          ]
+        },
+        {
+          "plan": "Elite",
+          "price": 99,
+          "prog": "500 foglalas/honap",
+          "features": [
+            "Minden a Pro csomagbol",
+            "1 helyszin",
+            "Legfeljebb 10 szakember",
+            "Online fizetes foglalaskor"
+          ]
+        },
+        {
+          "plan": "Team",
+          "price": 199,
+          "prog": "Korl?tlan",
+          "features": [
+            "Minden az Elite csomagbol",
+            "3 helyszin",
+            "10 szakember helyszinenkent",
+            "Korl?tlan foglalas"
+          ]
+        },
+        {
+          "plan": "Business",
+          "price": 499,
+          "prog": "5 helyszin",
+          "features": [
+            "Minden a Team csomagbol",
+            "5 helyszin",
+            "20 szakember helyszinenkent",
+            "Riportok helyszinenkent"
+          ]
+        }
+      ]
+    }
   }
 }
