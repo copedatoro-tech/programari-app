@@ -509,7 +509,7 @@
       "plans": [
         {
           "plan": "Free",
-          "price": "Free",
+          "price": 0,
           "prog": "30 appt/month",
           "features": [
             "Full calendar",
@@ -520,7 +520,7 @@
         },
         {
           "plan": "Pro",
-          "price": "49 RON/mo",
+          "price": 49,
           "prog": "150 appt/month",
           "features": [
             "Everything in Free",
@@ -531,7 +531,7 @@
         },
         {
           "plan": "Elite",
-          "price": "99 RON/mo",
+          "price": 99,
           "prog": "500 appt/month",
           "features": [
             "Everything in Pro",
@@ -543,7 +543,7 @@
         },
         {
           "plan": "Team",
-          "price": "199 RON/mo",
+          "price": 199,
           "prog": "Unlimited",
           "features": [
             "Everything in Elite",
@@ -822,35 +822,17 @@
       "team": {
         "nume": "CHRONOS TEAM",
         "limita": "Unlimited bookings"
-      },
-      "business": {
-        "nume": "CHRONOS BUSINESS",
-        "limita": "150 bookings / month"
       }
     },
     "workLocationsTitle": "Work locations",
     "workLocationsHint": "Add the locations where clients can come for appointments. They appear on the public booking page and in client confirmations.",
     "addWorkLocationBtn": "Add address",
-    "deleteWorkLocationBtn": "Remove work location",
     "removeWorkLocationBtn": "Remove",
     "noWorkLocations": "You have not added any work location yet.",
     "workLocationNamePlaceholder": "Location name {n}",
     "workLocationAddressPlaceholder": "Street, number, city (for Google Maps link)"
   },
   "resurse": {
-    "workLocationsTitle": "Work locations",
-    "addWorkLocationBtn": "Add location",
-    "deleteWorkLocationBtn": "Remove work location",
-    "saveWorkLocationsBtn": "Save locations",
-    "noWorkLocationsMsg": "No work locations added yet.",
-    "workLocationNameLabel": "Location name",
-    "workLocationAddressLabel": "Address (street, number, city)",
-    "workLocationServicesLabel": "Services available at this location",
-    "workLocationStaffLabel": "Staff working at this location",
-    "saveWorkLocationBtn": "Save location",
-    "confirmDeleteWorkLocation": "Are you sure you want to delete this work location?",
-    "workLocationsSavedToast": "Work locations saved",
-    "workLocationDeleteLastError": "You must keep at least one work location.",
     "headingLine1": "Manage",
     "headingHighlight": "Services",
     "headingLine2": "and",
@@ -879,7 +861,6 @@
     "activeServicesTitle": "ACTIVE SERVICES",
     "teamTitle": "TEAM OF SPECIALISTS",
     "save": "SAVE",
-    "othersShort": "+ {count} others",
     "cancel": "CANCEL",
     "update": "UPDATE",
     "close": "CLOSE",
@@ -909,12 +890,6 @@
       "Saturday"
     ],
     "scheduleSavedToast": "Schedule saved successfully!",
-    "stripePriceIdLabel": "Stripe Price ID (subscription)",
-    "stripePriceIdPlaceholder": "price_XXXXXXXXXX",
-    "monthlyLimitLabel": "Monthly appointments limit (optional)",
-    "monthlyLimitPlaceholder": "e.g. 150",
-    "saveProfileSettingsBtn": "Save settings",
-    "buySubscriptionBtn": "Buy subscription",
     "addIntervalBtn": "+ Add interval",
     "removeIntervalBtn": "Remove",
     "techErrorBannerMsg": "Temporary technical issue, outside our control — it's being worked on.",
@@ -974,7 +949,20 @@
     "staffPhotoRemoveBtn": "Remove photo",
     "staffPhotoImageOnly": "Please choose an image file.",
     "staffPhotoUploadError": "Photo upload error:",
-    "staffPhotoAlt": "Specialist photo"
+    "staffPhotoAlt": "Specialist photo",
+    "workLocationsTitle": "Work locations",
+    "addWorkLocationBtn": "Add work location",
+    "othersShort": "+ {count} others",
+    "deleteWorkLocationBtn": "Remove work location",
+    "noWorkLocationsMsg": "No work locations saved.",
+    "workLocationNamePlaceholder": "Work location name",
+    "workLocationAddressPlaceholder": "Street, number, city",
+    "workLocationNameLabel": "Work location name",
+    "workLocationAddressLabel": "Address (street, number, city)",
+    "workLocationServicesLabel": "Services available at this location",
+    "workLocationStaffLabel": "Specialists working here",
+    "workLocationsSavedToast": "Work locations saved.",
+    "workLocationDeleteLastError": "At least one work location is required."
   },
   "sugestii": {
     "checkingAccess": "Checking access...",

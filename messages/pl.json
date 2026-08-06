@@ -837,19 +837,19 @@
     "workLocationAddressPlaceholder": "Ulica, numer, miasto (do linku Google Maps)"
   },
   "resurse": {
-    "workLocationsTitle": "Miejsca pracy",
-    "addWorkLocationBtn": "Dodaj lokalizację",
-    "deleteWorkLocationBtn": "Usun lokalizacje",
+    "workLocationsTitle": "Work locations",
+    "addWorkLocationBtn": "Add work location",
+    "deleteWorkLocationBtn": "Remove work location",
     "saveWorkLocationsBtn": "Zapisz lokalizacje",
-    "noWorkLocationsMsg": "Nie dodano jeszcze żadnych lokalizacji.",
-    "workLocationNameLabel": "Nazwa lokalizacji",
-    "workLocationAddressLabel": "Adres (ulica, numer, miasto)",
-    "workLocationServicesLabel": "Usługi dostępne w tej lokalizacji",
-    "workLocationStaffLabel": "Personel pracujący w tej lokalizacji",
+    "noWorkLocationsMsg": "No work locations saved.",
+    "workLocationNameLabel": "Work location name",
+    "workLocationAddressLabel": "Address (street, number, city)",
+    "workLocationServicesLabel": "Services available at this location",
+    "workLocationStaffLabel": "Specialists working here",
     "saveWorkLocationBtn": "Zapisz lokalizację",
     "confirmDeleteWorkLocation": "Czy na pewno chcesz usunąć tę lokalizację?",
-    "workLocationsSavedToast": "Lokalizacje zapisane",
-    "workLocationDeleteLastError": "Musisz zachować co najmniej jedną lokalizację.",
+    "workLocationsSavedToast": "Work locations saved.",
+    "workLocationDeleteLastError": "At least one work location is required.",
     "headingLine1": "Zarządzanie",
     "headingHighlight": "usługami",
     "headingLine2": "i",
@@ -878,7 +878,7 @@
     "activeServicesTitle": "AKTYWNE USŁUGI",
     "teamTitle": "ZESPÓŁ SPECJALISTÓW",
     "save": "ZAPISZ",
-    "othersShort": "+ {count} innych",
+    "othersShort": "+ {count} others",
     "cancel": "ANULUJ",
     "update": "AKTUALIZUJ",
     "close": "ZAMKNIJ",
@@ -973,7 +973,9 @@
     "staffPhotoRemoveBtn": "Usun zdjecie",
     "staffPhotoImageOnly": "Wybierz plik obrazu.",
     "staffPhotoUploadError": "Blad przesylania zdjecia:",
-    "staffPhotoAlt": "Zdjecie specjalisty"
+    "staffPhotoAlt": "Zdjecie specjalisty",
+    "workLocationNamePlaceholder": "Work location name",
+    "workLocationAddressPlaceholder": "Street, number, city"
   },
   "sugestii": {
     "checkingAccess": "Sprawdzanie dostępu...",
@@ -2021,11 +2023,11 @@
     "acceptAllBtn": "Zaakceptuj wszystko"
   },
   "currency": {
-    "RON": "Lej rumunski",
+    "RON": "Romanian leu",
     "EUR": "Euro",
-    "USD": "Dolar amerykanski",
-    "GBP": "Funt brytyjski",
-    "HUF": "Forint wegierski",
-    "PLN": "Zloty polski"
+    "USD": "US dollar",
+    "GBP": "British pound",
+    "HUF": "Hungarian forint",
+    "PLN": "Polish zloty"
   }
 }

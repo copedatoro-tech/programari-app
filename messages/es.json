@@ -837,19 +837,19 @@
     "workLocationAddressPlaceholder": "Calle, numero, ciudad (para enlace de Google Maps)"
   },
   "resurse": {
-    "workLocationsTitle": "Ubicaciones",
-    "addWorkLocationBtn": "Agregar ubicación",
-    "deleteWorkLocationBtn": "Eliminar ubicacion de trabajo",
+    "workLocationsTitle": "Work locations",
+    "addWorkLocationBtn": "Add work location",
+    "deleteWorkLocationBtn": "Remove work location",
     "saveWorkLocationsBtn": "Guardar ubicaciones",
-    "noWorkLocationsMsg": "Aún no has agregado ubicaciones.",
-    "workLocationNameLabel": "Nombre de la ubicación",
-    "workLocationAddressLabel": "Dirección (calle, número, ciudad)",
-    "workLocationServicesLabel": "Servicios disponibles en esta ubicación",
-    "workLocationStaffLabel": "Personal que trabaja en esta ubicación",
+    "noWorkLocationsMsg": "No work locations saved.",
+    "workLocationNameLabel": "Work location name",
+    "workLocationAddressLabel": "Address (street, number, city)",
+    "workLocationServicesLabel": "Services available at this location",
+    "workLocationStaffLabel": "Specialists working here",
     "saveWorkLocationBtn": "Guardar ubicación",
     "confirmDeleteWorkLocation": "¿Estás seguro de que deseas eliminar esta ubicación?",
-    "workLocationsSavedToast": "Ubicaciones guardadas",
-    "workLocationDeleteLastError": "Debes mantener al menos una ubicación.",
+    "workLocationsSavedToast": "Work locations saved.",
+    "workLocationDeleteLastError": "At least one work location is required.",
     "headingLine1": "Gestión de",
     "headingHighlight": "Servicios",
     "headingLine2": "y",
@@ -878,7 +878,7 @@
     "activeServicesTitle": "SERVICIOS ACTIVOS",
     "teamTitle": "EQUIPO DE EXPERTOS",
     "save": "GUARDAR",
-    "othersShort": "+ {count} mas",
+    "othersShort": "+ {count} others",
     "cancel": "CANCELAR",
     "update": "ACTUALIZAR",
     "close": "CERRAR",
@@ -973,7 +973,9 @@
     "staffPhotoRemoveBtn": "Eliminar foto",
     "staffPhotoImageOnly": "Elige un archivo de imagen.",
     "staffPhotoUploadError": "Error al subir la foto:",
-    "staffPhotoAlt": "Foto del especialista"
+    "staffPhotoAlt": "Foto del especialista",
+    "workLocationNamePlaceholder": "Work location name",
+    "workLocationAddressPlaceholder": "Street, number, city"
   },
   "sugestii": {
     "checkingAccess": "Verificando el acceso...",
@@ -2021,11 +2023,11 @@
     "acceptAllBtn": "Aceptar todo"
   },
   "currency": {
-    "RON": "Leu rumano",
+    "RON": "Romanian leu",
     "EUR": "Euro",
-    "USD": "Dolar estadounidense",
-    "GBP": "Libra esterlina",
-    "HUF": "Forinto hungaro",
-    "PLN": "Zloty polaco"
+    "USD": "US dollar",
+    "GBP": "British pound",
+    "HUF": "Hungarian forint",
+    "PLN": "Polish zloty"
   }
 }

@@ -837,19 +837,19 @@
     "workLocationAddressPlaceholder": "Via, numero, citta (per link Google Maps)"
   },
   "resurse": {
-    "workLocationsTitle": "Sedi di lavoro",
-    "addWorkLocationBtn": "Aggiungi sede",
+    "workLocationsTitle": "Punti di lavoro",
+    "addWorkLocationBtn": "Aggiungi punto di lavoro",
     "deleteWorkLocationBtn": "Elimina punto di lavoro",
     "saveWorkLocationsBtn": "Salva sedi",
-    "noWorkLocationsMsg": "Nessuna sede aggiunta ancora.",
-    "workLocationNameLabel": "Nome sede",
-    "workLocationAddressLabel": "Indirizzo (via, numero, città)",
+    "noWorkLocationsMsg": "Nessun punto di lavoro salvato.",
+    "workLocationNameLabel": "Nome punto di lavoro",
+    "workLocationAddressLabel": "Indirizzo (via, numero, citta)",
     "workLocationServicesLabel": "Servizi disponibili in questa sede",
-    "workLocationStaffLabel": "Specialisti in questa sede",
+    "workLocationStaffLabel": "Specialisti che lavorano qui",
     "saveWorkLocationBtn": "Salva sede",
     "confirmDeleteWorkLocation": "Sei sicuro di voler eliminare questa sede?",
-    "workLocationsSavedToast": "Sedi salvate",
-    "workLocationDeleteLastError": "Devi mantenere almeno una sede.",
+    "workLocationsSavedToast": "Punti di lavoro salvati.",
+    "workLocationDeleteLastError": "Serve almeno un punto di lavoro.",
     "headingLine1": "Gestione",
     "headingHighlight": "Servizi",
     "headingLine2": "e",
@@ -973,7 +973,9 @@
     "staffPhotoRemoveBtn": "Rimuovi foto",
     "staffPhotoImageOnly": "Scegli un file immagine.",
     "staffPhotoUploadError": "Errore caricamento foto:",
-    "staffPhotoAlt": "Foto specialista"
+    "staffPhotoAlt": "Foto specialista",
+    "workLocationNamePlaceholder": "Nome punto di lavoro",
+    "workLocationAddressPlaceholder": "Via, numero, citta"
   },
   "sugestii": {
     "checkingAccess": "Verifica dell'accesso...",

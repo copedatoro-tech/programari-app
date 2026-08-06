@@ -837,19 +837,19 @@
     "workLocationAddressPlaceholder": "Rue, numero, ville (pour le lien Google Maps)"
   },
   "resurse": {
-    "workLocationsTitle": "Lieux de travail",
-    "addWorkLocationBtn": "Ajouter un lieu",
-    "deleteWorkLocationBtn": "Supprimer le lieu de travail",
+    "workLocationsTitle": "Work locations",
+    "addWorkLocationBtn": "Add work location",
+    "deleteWorkLocationBtn": "Remove work location",
     "saveWorkLocationsBtn": "Enregistrer les lieux",
-    "noWorkLocationsMsg": "Aucun lieu de travail ajouté pour le moment.",
-    "workLocationNameLabel": "Nom du lieu",
-    "workLocationAddressLabel": "Adresse (rue, numéro, ville)",
-    "workLocationServicesLabel": "Services disponibles à cet endroit",
-    "workLocationStaffLabel": "Personnel travaillant ici",
+    "noWorkLocationsMsg": "No work locations saved.",
+    "workLocationNameLabel": "Work location name",
+    "workLocationAddressLabel": "Address (street, number, city)",
+    "workLocationServicesLabel": "Services available at this location",
+    "workLocationStaffLabel": "Specialists working here",
     "saveWorkLocationBtn": "Enregistrer le lieu",
     "confirmDeleteWorkLocation": "Voulez-vous vraiment supprimer ce lieu de travail ?",
-    "workLocationsSavedToast": "Lieux enregistrés",
-    "workLocationDeleteLastError": "Vous devez conserver au moins un lieu de travail.",
+    "workLocationsSavedToast": "Work locations saved.",
+    "workLocationDeleteLastError": "At least one work location is required.",
     "headingLine1": "Gestion",
     "headingHighlight": "Services",
     "headingLine2": "et",
@@ -878,7 +878,7 @@
     "activeServicesTitle": "SERVICES ACTIFS",
     "teamTitle": "ÉQUIPE D'EXPERTS",
     "save": "ENREGISTRER",
-    "othersShort": "+ {count} autres",
+    "othersShort": "+ {count} others",
     "cancel": "ANNULER",
     "update": "METTRE À JOUR",
     "close": "FERMER",
@@ -973,7 +973,9 @@
     "staffPhotoRemoveBtn": "Supprimer photo",
     "staffPhotoImageOnly": "Veuillez choisir un fichier image.",
     "staffPhotoUploadError": "Erreur lors de l'import de la photo:",
-    "staffPhotoAlt": "Photo du specialiste"
+    "staffPhotoAlt": "Photo du specialiste",
+    "workLocationNamePlaceholder": "Work location name",
+    "workLocationAddressPlaceholder": "Street, number, city"
   },
   "sugestii": {
     "checkingAccess": "Vérification de l'accès...",
@@ -2021,11 +2023,11 @@
     "acceptAllBtn": "Tout accepter"
   },
   "currency": {
-    "RON": "Leu roumain",
+    "RON": "Romanian leu",
     "EUR": "Euro",
-    "USD": "Dollar americain",
-    "GBP": "Livre sterling",
-    "HUF": "Forint hongrois",
-    "PLN": "Zloty polonais"
+    "USD": "US dollar",
+    "GBP": "British pound",
+    "HUF": "Hungarian forint",
+    "PLN": "Polish zloty"
   }
 }

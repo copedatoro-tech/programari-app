@@ -838,19 +838,19 @@
     "workLocationAddressPlaceholder": "Strasse, Nummer, Stadt (fur Google-Maps-Link)"
   },
   "resurse": {
-    "workLocationsTitle": "Arbeitsorte",
-    "addWorkLocationBtn": "Ort hinzufügen",
-    "deleteWorkLocationBtn": "Arbeitsort loeschen",
+    "workLocationsTitle": "Work locations",
+    "addWorkLocationBtn": "Add work location",
+    "deleteWorkLocationBtn": "Remove work location",
     "saveWorkLocationsBtn": "Orte speichern",
-    "noWorkLocationsMsg": "Noch keine Arbeitsorte hinzugefügt.",
-    "workLocationNameLabel": "Name Standort",
-    "workLocationAddressLabel": "Adresse (Straße, Nummer, Stadt)",
-    "workLocationServicesLabel": "Verfügbare Leistungen an diesem Ort",
-    "workLocationStaffLabel": "Mitarbeiter an diesem Standort",
+    "noWorkLocationsMsg": "No work locations saved.",
+    "workLocationNameLabel": "Work location name",
+    "workLocationAddressLabel": "Address (street, number, city)",
+    "workLocationServicesLabel": "Services available at this location",
+    "workLocationStaffLabel": "Specialists working here",
     "saveWorkLocationBtn": "Standort speichern",
     "confirmDeleteWorkLocation": "Möchten Sie diesen Standort wirklich löschen?",
-    "workLocationsSavedToast": "Arbeitsorte gespeichert",
-    "workLocationDeleteLastError": "Mindestens ein Arbeitsort muss bestehen bleiben.",
+    "workLocationsSavedToast": "Work locations saved.",
+    "workLocationDeleteLastError": "At least one work location is required.",
     "headingLine1": "Verwaltung",
     "headingHighlight": "Leistungen",
     "headingLine2": "und",
@@ -879,7 +879,7 @@
     "activeServicesTitle": "AKTIVE LEISTUNGEN",
     "teamTitle": "FACHKRÄFTE-TEAM",
     "save": "SPEICHERN",
-    "othersShort": "+ {count} weitere",
+    "othersShort": "+ {count} others",
     "cancel": "ABBRECHEN",
     "update": "AKTUALISIEREN",
     "close": "SCHLIESSEN",
@@ -974,7 +974,9 @@
     "staffPhotoRemoveBtn": "Foto entfernen",
     "staffPhotoImageOnly": "Bitte eine Bilddatei auswahlen.",
     "staffPhotoUploadError": "Fehler beim Hochladen des Fotos:",
-    "staffPhotoAlt": "Spezialistenfoto"
+    "staffPhotoAlt": "Spezialistenfoto",
+    "workLocationNamePlaceholder": "Work location name",
+    "workLocationAddressPlaceholder": "Street, number, city"
   },
   "sugestii": {
     "checkingAccess": "Zugriff wird überprüft...",
@@ -2022,11 +2024,11 @@
     "acceptAllBtn": "Alle akzeptieren"
   },
   "currency": {
-    "RON": "Rumanischer Leu",
+    "RON": "Romanian leu",
     "EUR": "Euro",
-    "USD": "US-Dollar",
-    "GBP": "Britisches Pfund",
-    "HUF": "Ungarischer Forint",
-    "PLN": "Polnischer Zloty"
+    "USD": "US dollar",
+    "GBP": "British pound",
+    "HUF": "Hungarian forint",
+    "PLN": "Polish zloty"
   }
 }

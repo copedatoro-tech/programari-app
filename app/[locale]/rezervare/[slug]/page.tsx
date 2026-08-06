@@ -8,16 +8,16 @@ import { supabase } from "@/lib/supabaseClient";
 import { useTranslations } from "next-intl";
 import LocaleSwitcher from "@/components/LocaleSwitcher";
 import { ChronosTimePicker, ChronosDatePicker } from "@/components/ChronosDateTimePickers";
-import { CalendarDays, Clock3, Star } from "lucide-react";
+import { CalendarDays, Clock3, Star, X, Check } from "lucide-react";
 
 interface StaffRow { id: string; name: string; services: string[]; working_hours?: any; photo_url?: string | null }
 interface ServiceRow { id: string; nume_serviciu: string; price: number; duration: number }
 interface ExistingAppointment { time: string; duration: number }
-interface WorkingHourEntry { day: string; start: string; end: string; closed: boolean }
+interface WorkingHourEntry { day: string; start: string; end: string; closed: boolean; work_location_id?: string }
 type WorkLocation = { id: string; name: string; address: string };
 interface AdminProfile { full_name: string | null; avatar_url: string | null; phone: string | null; email: string | null; work_locations: WorkLocation[] }
 
-const DAY_NAMES_LONG = ["Duminica", "Luni", "Mar?i", "Miercuri", "Joi", "Vineri", "Sâmbata"];
+const DAY_NAMES_LONG = ["Duminică", "Luni", "Marți", "Miercuri", "Joi", "Vineri", "Sâmbătă"];
 
 type LimitReason = "plan_limit" | "hour_blocked" | "day_closed" | "outside_hours" | "service_overlap" | "already_booked";
 
@@ -66,7 +66,9 @@ function ChronosPopup({ icon, title, message, onClose }: { icon: string; title: 
   return (
     <div className="fixed inset-0 bg-slate-950/60 backdrop-blur-md z-[800] flex items-center justify-center p-6" onClick={onClose}>
       <div className="bg-white w-full max-w-[400px] rounded-[40px] p-10 text-center shadow-2xl border-[4px] border-amber-500 relative" onClick={(e) => e.stopPropagation()}>
-        <button onClick={onClose} className="absolute top-4 right-6 text-slate-300 hover:text-red-500 text-xl font-black transition-colors">?</button>
+        <button onClick={onClose} className="absolute top-4 right-6 text-slate-300 hover:text-red-500 transition-colors">
+          <X className="w-6 h-6" strokeWidth={3} />
+        </button>
         <div className="text-5xl mb-4">{icon}</div>
         <h3 className="text-xl font-black uppercase italic mb-3 text-slate-900">{title}</h3>
         <p className="text-slate-500 font-bold text-sm leading-relaxed mb-6 italic">{message}</p>
@@ -81,7 +83,9 @@ function SuccessPopup({ onClose }: { onClose: () => void }) {
   return (
     <div className="fixed inset-0 bg-slate-950/60 backdrop-blur-md z-[800] flex items-center justify-center p-6" onClick={onClose}>
       <div className="bg-white w-full max-w-[380px] rounded-[40px] p-10 text-center shadow-2xl border-[4px] border-amber-500 relative" onClick={(e) => e.stopPropagation()}>
-        <button onClick={onClose} className="absolute top-4 right-6 text-slate-300 hover:text-red-500 text-xl font-black transition-colors">?</button>
+        <button onClick={onClose} className="absolute top-4 right-6 text-slate-300 hover:text-red-500 transition-colors">
+          <X className="w-6 h-6" strokeWidth={3} />
+        </button>
         <Star className="w-12 h-12 mx-auto mb-4 text-amber-500" fill="currentColor" strokeWidth={2.5} />
         <h3 className="text-amber-500 font-black uppercase italic text-2xl mb-2">{t("thanksTitle")}</h3>
         <p className="text-slate-700 font-bold italic">{t("thanksText")}</p>
@@ -109,6 +113,7 @@ function RezervareContent() {
   const [adminWorkingHours, setAdminWorkingHours] = useState<WorkingHourEntry[]>([]);
   const [adminProfile, setAdminProfile] = useState<AdminProfile | null>(null);
   const [selectedWorkLocationId, setSelectedWorkLocationId] = useState("");
+  const [showWorkLocationPicker, setShowWorkLocationPicker] = useState(false);
   const [adminManualBlocks, setAdminManualBlocks] = useState<Record<string, string[]>>({});
   const [paymentConfig, setPaymentConfig] = useState<{ required:boolean; onboarded: boolean; slug: string | null }>({
     required: false, onboarded: false, slug: null,
@@ -122,7 +127,7 @@ function RezervareContent() {
   const [savedUserProfiles, setSavedUserProfiles] = useState<{ nume: string; telefon: string; email: string }[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
 
-  // ?? Token Cloudflare Turnstile — confirma ca cel ce trimite formularul e om, nu bot
+  // 🔒 Token Cloudflare Turnstile — confirmă că cel ce trimite formularul e om, nu bot
   const [turnstileToken, setTurnstileToken] = useState<string>("");
 
   const today = new Date().toISOString().split("T")[0];
@@ -158,7 +163,7 @@ function RezervareContent() {
   const [mesajFeedback, setMesajFeedback] = useState("");
   const [incarcareFeedback, setIncarcareFeedback] = useState(false);
 
-  // ? Registram callback-urile globale pentru widget-ul Turnstile
+  // 🔒 Înregistrăm callback-urile globale pentru widget-ul Turnstile
   useEffect(() => {
     window.onTurnstileSuccess = (token: string) => setTurnstileToken(token);
     window.onTurnstileExpired = () => setTurnstileToken("");
@@ -368,21 +373,21 @@ function RezervareContent() {
   useEffect(() => {
     const platit = searchParams.get("platit");
     if (platit === "success") {
-      setPopup({ icon: "?", title: t("successTitle"), message: t("successText") });
+      setPopup({ icon: "✅", title: t("successTitle"), message: t("successText") });
       window.history.replaceState(null, "", window.location.pathname);
       window.scrollTo({ top: 0, behavior: "smooth" });
       setTimeout(() => setPopup(null), 3500);
     } else if (platit === "anulat") {
-      setPopup({ icon: "??", title: t("attentionTitle"), message: t("errorDefaultMsg") });
+      setPopup({ icon: "⚠️", title: t("attentionTitle"), message: t("errorDefaultMsg") });
       window.history.replaceState(null, "", window.location.pathname);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
 
-  // ?? Nota securitate: canalul realtime de mai jos NU mai asculta tabelul "profiles"
-  // direct (RLS blocheaza acum accesul public la tabelul original). Configurarea
-  // salonului se reimprospateaza printr-un polling usor la fiecare 60s, in useEffect-ul
-  // separat de mai jos. Ramane neschimbat doar realtime-ul pentru "appointments" si
+  // 🔒 Notă securitate: canalul realtime de mai jos NU mai ascultă tabelul "profiles"
+  // direct (RLS blochează acum accesul public la tabelul original). Configurarea
+  // salonului se reîmprospătează printr-un polling ușor la fiecare 60s, în useEffect-ul
+  // separat de mai jos. Rămâne neschimbat doar realtime-ul pentru "appointments" și
   // "feedbacks", care nu sunt afectate.
   useEffect(() => {
     if (!adminId) return;
@@ -429,14 +434,14 @@ function RezervareContent() {
     });
   };
 
-  // ?? Limita de maxim 5 servicii per rezervare — previne spam-ul de programari
-  // multiple nelimitate intr-o singura trimitere.
+  // ⚠️ Limita de maxim 5 servicii per rezervare — previne spam-ul de programări
+  // multiple nelimitate într-o singură trimitere.
   const addBookingCard = () => {
     if (bookings.length >= MAX_SERVICES_PER_BOOKING) {
       setPopup({
-        icon: "??",
+        icon: "⚠️",
         title: t("attentionTitle"),
-        message: `Po?i adauga maxim ${MAX_SERVICES_PER_BOOKING} servicii într-o singura rezervare.`,
+        message: `Poți adăuga maxim ${MAX_SERVICES_PER_BOOKING} servicii într-o singură rezervare.`,
       });
       return;
     }
@@ -454,13 +459,13 @@ function RezervareContent() {
 
   const getLimitPopupContent = (reason: LimitReason) => {
     switch (reason) {
-      case "hour_blocked": return { icon: "??", title: t("popupHourBlockedTitle"), message: t("popupHourBlockedMsg") };
-      case "day_closed": return { icon: "???", title: t("popupDayClosedTitle"), message: t("popupDayClosedMsg") };
-      case "outside_hours": return { icon: "?", title: t("popupOutsideHoursTitle"), message: t("popupOutsideHoursMsg") };
-      case "service_overlap": return { icon: "??", title: t("popupOverlapTitle"), message: t("popupOverlapMsg") };
-      case "plan_limit": return { icon: "??", title: t("popupPlanLimitTitle"), message: t("popupPlanLimitMsg") };
-      case "already_booked": return { icon: "??", title: t("popupAlreadyBookedTitle"), message: t("popupAlreadyBookedMsg") };
-      default: return { icon: "??", title: t("popupDefaultTitle"), message: t("popupDefaultMsg") };
+      case "hour_blocked": return { icon: "⏰", title: t("popupHourBlockedTitle"), message: t("popupHourBlockedMsg") };
+      case "day_closed": return { icon: "🚫", title: t("popupDayClosedTitle"), message: t("popupDayClosedMsg") };
+      case "outside_hours": return { icon: "🕐", title: t("popupOutsideHoursTitle"), message: t("popupOutsideHoursMsg") };
+      case "service_overlap": return { icon: "⚠️", title: t("popupOverlapTitle"), message: t("popupOverlapMsg") };
+      case "plan_limit": return { icon: "🚫", title: t("popupPlanLimitTitle"), message: t("popupPlanLimitMsg") };
+      case "already_booked": return { icon: "⚠️", title: t("popupAlreadyBookedTitle"), message: t("popupAlreadyBookedMsg") };
+      default: return { icon: "⚠️", title: t("popupDefaultTitle"), message: t("popupDefaultMsg") };
     }
   };
 
@@ -468,15 +473,15 @@ function RezervareContent() {
     if (!waitlistModal || !adminId) return;
     const b = bookings.find((x) => x.id === waitlistModal.bookingId);
     if (!b || !clientInfo.nume.trim() || !clientInfo.email.trim()) {
-      setPopup({ icon: "??", title: t("attentionTitle"), message: t("attentionMsg") });
+      setPopup({ icon: "⚠️", title: t("attentionTitle"), message: t("attentionMsg") });
       return;
     }
-    // ?? FIX: /api/waitlist cere acum si turnstileToken (la fel ca la
-    // create-booking) — fara el, ruta respinge cererea cu eroare de
-    // securitate. Verificam aici, inainte de a trimite, ca sa dam un mesaj
-    // clar userului in loc de o eroare seaca din backend.
+    // ⚠️ FIX: /api/waitlist cere acum și turnstileToken (la fel ca la
+    // create-booking) — fără el, ruta respinge cererea cu eroare de
+    // securitate. Verificăm aici, înainte de a trimite, ca să dăm un mesaj
+    // clar userului în loc de o eroare seacă din backend.
     if (!turnstileToken) {
-      setPopup({ icon: "??", title: t("attentionTitle"), message: "Te rugam sa a?tep?i finalizarea verificarii de securitate, apoi încearca din nou." });
+      setPopup({ icon: "⏳", title: t("attentionTitle"), message: "Te rugăm să aștepți finalizarea verificării de securitate, apoi încearcă din nou." });
       return;
     }
     setWaitlistSaving(true);
@@ -498,7 +503,7 @@ function RezervareContent() {
       if (!res.ok) throw new Error();
       setWaitlistJoined(true);
     } catch {
-      setPopup({ icon: "?", title: t("errorTitle"), message: t("errorDefaultMsg") });
+      setPopup({ icon: "❌", title: t("errorTitle"), message: t("errorDefaultMsg") });
     } finally {
       setWaitlistSaving(false);
     }
@@ -508,14 +513,14 @@ function RezervareContent() {
     const files = Array.from(e.target.files || []);
     if (files.length === 0) return;
     if (uploadedDocs.length + files.length > 5) {
-      setPopup({ icon: "??", title: t("attentionTitle"), message: t("maxDocumentsMsg") });
+      setPopup({ icon: "⚠️", title: t("attentionTitle"), message: t("maxDocumentsMsg") });
       e.target.value = "";
       return;
     }
     setUploadingDoc(true);
     for (const file of files) {
       if (file.size > 10 * 1024 * 1024) {
-        setPopup({ icon: "??", title: t("attentionTitle"), message: t("fileTooLargeMsg") });
+        setPopup({ icon: "⚠️", title: t("attentionTitle"), message: t("fileTooLargeMsg") });
         continue;
       }
       try {
@@ -527,10 +532,10 @@ function RezervareContent() {
         if (res.ok && json.url) {
           setUploadedDocs((prev) => [...prev, { name: json.name, url: json.url }]);
         } else {
-          setPopup({ icon: "?", title: t("errorTitle"), message: json.error || t("errorDefaultMsg") });
+          setPopup({ icon: "❌", title: t("errorTitle"), message: json.error || t("errorDefaultMsg") });
         }
       } catch {
-        setPopup({ icon: "?", title: t("errorTitle"), message: t("errorDefaultMsg") });
+        setPopup({ icon: "❌", title: t("errorTitle"), message: t("errorDefaultMsg") });
       }
     }
     setUploadingDoc(false);
@@ -550,23 +555,23 @@ function RezervareContent() {
     const invalidBookings = bookings.some(b => !b.serviciu_id || b.ora === "00:00");
     const needsLocation = (adminProfile?.work_locations || []).length > 1 && !selectedWorkLocation;
     if (invalidBookings || needsLocation) {
-      setPopup({ icon: "??", title: t("incompleteTitle"), message: needsLocation ? t("chooseWorkLocationMsg") : t("incompleteMsg") });
+      setPopup({ icon: "⚠️", title: t("incompleteTitle"), message: needsLocation ? t("chooseWorkLocationMsg") : t("incompleteMsg") });
       setErrors(newErrors);
       return;
     }
 
     if (Object.keys(newErrors).length > 0) { setErrors(newErrors); return; }
 
-    // ?? Verificam ca widget-ul Turnstile a confirmat ca nu e bot, inainte sa trimitem orice
+    // 🔒 Verificăm că widget-ul Turnstile a confirmat că nu e bot, înainte să trimitem orice
     if (!turnstileToken) {
-      setPopup({ icon: "??", title: t("attentionTitle"), message: "Te rugam sa a?tep?i finalizarea verificarii de securitate, apoi încearca din nou." });
+      setPopup({ icon: "⏳", title: t("attentionTitle"), message: "Te rugăm să aștepți finalizarea verificării de securitate, apoi încearcă din nou." });
       return;
     }
 
     setLoading(true);
     try {
       if (paymentConfig.required && paymentConfig.onboarded) {
-        // Fluxul cu plata online ramane pe ruta Stripe existenta
+        // Fluxul cu plata online rămâne pe ruta Stripe existentă
         const res = await fetch("/api/stripe/create-booking-checkout", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -594,7 +599,7 @@ function RezervareContent() {
         });
         const checkoutData = await res.json();
         if (!res.ok || !checkoutData.url) {
-          setPopup({ icon: "?", title: t("errorTitle"), message: checkoutData.error || t("errorDefaultMsg") });
+          setPopup({ icon: "❌", title: t("errorTitle"), message: checkoutData.error || t("errorDefaultMsg") });
           setLoading(false);
           return;
         }
@@ -602,8 +607,8 @@ function RezervareContent() {
         return;
       }
 
-      // ?? Fluxul fara plata trece acum prin API-ul securizat /api/create-booking,
-      // care verifica Turnstile, limita de servicii, rate limiting per IP si
+      // 🔒 Fluxul fără plată trece acum prin API-ul securizat /api/create-booking,
+      // care verifică Turnstile, limita de servicii, rate limiting per IP și
       // limita de plan a salonului, pe server (nu se mai poate ocoli din browser).
       const res = await fetch("/api/create-booking", {
         method: "POST",
@@ -639,7 +644,7 @@ function RezervareContent() {
         if (result.code === "plan_limit") {
           setPopup(getLimitPopupContent("plan_limit"));
         } else {
-          setPopup({ icon: "?", title: t("errorTitle"), message: result.error || t("errorDefaultMsg") });
+          setPopup({ icon: "❌", title: t("errorTitle"), message: result.error || t("errorDefaultMsg") });
         }
         setLoading(false);
         return;
@@ -652,7 +657,7 @@ function RezervareContent() {
       setTrimis(true);
       window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (err: any) {
-      setPopup({ icon: "?", title: t("errorTitle"), message: err?.message || t("errorDefaultMsg") });
+      setPopup({ icon: "❌", title: t("errorTitle"), message: err?.message || t("errorDefaultMsg") });
     } finally {
       setLoading(false);
     }
@@ -660,7 +665,7 @@ function RezervareContent() {
 
   const trimiteFeedback = async () => {
     if (!adminId || rating === 0 || !numeFeedback.trim() || !mesajFeedback.trim()) {
-      setPopup({ icon: "??", title: t("incompleteFieldsTitle"), message: t("incompleteFieldsMsg") });
+      setPopup({ icon: "⚠️", title: t("incompleteFieldsTitle"), message: t("incompleteFieldsMsg") });
       return;
     }
     setIncarcareFeedback(true);
@@ -681,8 +686,11 @@ function RezervareContent() {
     if (!activeBooking?.specialist_id) return adminWorkingHours;
     const staffMember = specialisti.find(s => s.id === activeBooking.specialist_id);
     const staffWH = parseWH(staffMember?.working_hours);
-    return staffWH.length > 0 ? staffWH : adminWorkingHours;
-  }, [activeBooking?.specialist_id, specialisti, adminWorkingHours]);
+    const locationFilteredStaffWH = selectedWorkLocationId
+      ? staffWH.filter((h) => !h.work_location_id || h.work_location_id === selectedWorkLocationId)
+      : staffWH;
+    return locationFilteredStaffWH.length > 0 ? locationFilteredStaffWH : adminWorkingHours;
+  }, [activeBooking?.specialist_id, specialisti, adminWorkingHours, selectedWorkLocationId]);
 
   const avgRating = feedbacks.length > 0
     ? (feedbacks.reduce((sum, f) => sum + (f.stele || 0), 0) / feedbacks.length)
@@ -694,7 +702,7 @@ function RezervareContent() {
       <main className="min-h-screen bg-slate-50 flex items-center justify-center p-6 text-center">
         <div className="fixed top-4 right-4 z-[700]"><LocaleSwitcher /></div>
         <div className="max-w-md">
-          <div className="text-6xl mb-4">??</div>
+          <div className="text-6xl mb-4">⚠️</div>
           <h2 className="text-2xl font-black uppercase italic text-slate-900 mb-3">{t("techErrorTitle")}</h2>
           <p className="text-slate-500 font-medium mb-6">{t("techErrorMsg")}</p>
           <button
@@ -712,7 +720,7 @@ function RezervareContent() {
     return (
       <main className="min-h-screen bg-slate-50 flex items-center justify-center p-6 text-center">
         <div className="fixed top-4 right-4 z-[700]"><LocaleSwitcher /></div>
-        <div><div className="text-6xl mb-4">?</div><h2 className="text-2xl font-black uppercase italic">{t("invalidLink")}</h2></div>
+        <div><div className="text-6xl mb-4">❌</div><h2 className="text-2xl font-black uppercase italic">{t("invalidLink")}</h2></div>
       </main>
     );
   }
@@ -785,6 +793,52 @@ function RezervareContent() {
       {popup && <ChronosPopup {...popup} onClose={() => setPopup(null)} />}
       {feedbackTrimisSucces && <SuccessPopup onClose={() => setFeedbackTrimisSucces(false)} />}
 
+      {showWorkLocationPicker && (adminProfile?.work_locations?.length || 0) > 1 && (
+        <div
+          className="fixed inset-0 z-[835] bg-slate-950/55 backdrop-blur-sm flex items-center justify-center p-4"
+          onClick={() => setShowWorkLocationPicker(false)}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="bg-white w-full max-w-2xl rounded-[36px] p-6 md:p-8 shadow-2xl border-t-[8px] border-amber-500 max-h-[82vh] flex flex-col"
+          >
+            <div className="flex items-start justify-between gap-4 mb-5">
+              <div>
+                <p className="text-[10px] font-black uppercase italic text-slate-400 tracking-widest">{t("workLocationTitle")}</p>
+                <h3 className="text-2xl font-black uppercase italic text-slate-900 tracking-tighter">{t("workLocationHint")}</h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowWorkLocationPicker(false)}
+                className="w-10 h-10 rounded-xl bg-slate-100 text-slate-400 flex items-center justify-center hover:bg-red-500 hover:text-white transition-all"
+              >
+                <X className="w-5 h-5" strokeWidth={3} />
+              </button>
+            </div>
+
+            <div className="overflow-y-auto pr-2 space-y-3">
+              {adminProfile?.work_locations.map((loc) => {
+                const selected = selectedWorkLocationId === loc.id;
+                return (
+                  <button
+                    key={loc.id}
+                    type="button"
+                    onClick={() => {
+                      setSelectedWorkLocationId(loc.id);
+                      setShowWorkLocationPicker(false);
+                    }}
+                    className={`w-full text-left rounded-[24px] border-2 p-5 transition-all ${selected ? "border-amber-500 bg-amber-50 shadow-lg" : "border-slate-200 bg-white hover:border-amber-300"}`}
+                  >
+                    <p className="text-sm font-black text-slate-900 uppercase italic">{loc.name || t("defaultWorkLocationName")}</p>
+                    <p className="text-xs font-bold text-slate-500 mt-1">{loc.address}</p>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
+
       {specialistPickerBookingId && (() => {
         const bookingForPicker = bookings.find((b) => b.id === specialistPickerBookingId);
         if (!bookingForPicker) return null;
@@ -798,7 +852,9 @@ function RezervareContent() {
                   <span className="text-[9px] font-black uppercase italic text-amber-500 tracking-widest">{t("expertLabel")}</span>
                   <h3 className="text-xl md:text-2xl font-black uppercase italic text-slate-900 tracking-tighter">{t("chooseSpecialistBtn")}</h3>
                 </div>
-                <button type="button" onClick={() => setSpecialistPickerBookingId(null)} className="w-10 h-10 rounded-xl bg-slate-100 text-slate-400 font-black hover:bg-red-500 hover:text-white transition-all">x</button>
+                <button type="button" onClick={() => setSpecialistPickerBookingId(null)} className="w-10 h-10 rounded-xl bg-slate-100 text-slate-400 flex items-center justify-center hover:bg-red-500 hover:text-white transition-all">
+                  <X className="w-5 h-5" strokeWidth={3} />
+                </button>
               </div>
               <div className="overflow-y-auto pr-1">
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 pb-1">
@@ -811,7 +867,9 @@ function RezervareContent() {
                       <span className="relative w-9 h-9 block">
                         <span className="absolute left-1/2 top-1 -translate-x-1/2 w-3.5 h-3.5 rounded-full border-[3px] border-current"></span>
                         <span className="absolute left-1/2 bottom-1 -translate-x-1/2 w-7 h-4 rounded-t-full border-[3px] border-current border-b-0"></span>
-                        <span className="absolute -right-1 bottom-0 w-4 h-4 rounded-full bg-white text-amber-500 text-[11px] font-black flex items-center justify-center shadow-sm">?</span>
+                        <span className="absolute -right-1 bottom-0 w-4 h-4 rounded-full bg-white text-amber-500 flex items-center justify-center shadow-sm">
+                          <Check className="w-2.5 h-2.5" strokeWidth={4} />
+                        </span>
                       </span>
                     </div>
                     <span className="text-[9px] font-black uppercase italic text-slate-700 text-center leading-tight">{t("firstAvailOpt")}</span>
@@ -849,7 +907,9 @@ function RezervareContent() {
           <div onClick={(e) => e.stopPropagation()} className="bg-white w-full max-w-sm rounded-[35px] p-8 shadow-2xl text-center">
             {waitlistJoined ? (
               <>
-                <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4 text-white text-3xl">?</div>
+                <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4 text-white">
+                  <Check className="w-8 h-8" strokeWidth={3} />
+                </div>
                 <h3 className="text-lg font-black uppercase italic text-slate-900 mb-2">{tWaitlist("joinedTitle")}</h3>
                 <p className="text-slate-500 text-sm mb-6">{tWaitlist("joinedMsg")}</p>
                 <button onClick={() => { setWaitlistModal(null); setWaitlistJoined(false); }}
@@ -880,7 +940,7 @@ function RezervareContent() {
 
       {trimis ? (
         <div className="w-full max-w-2xl bg-white rounded-[55px] p-20 text-center shadow-2xl border-t-8 border-amber-500 relative z-10">
-          <div className="text-6xl mb-6">?</div>
+          <div className="text-6xl mb-6">✅</div>
           <h2 className="text-3xl font-black uppercase italic mb-4">{t("successTitle")}</h2>
           <p className="text-slate-500 font-bold mb-8">{t("successText")}</p>
           <button onClick={() => { window.location.href = window.location.origin + window.location.pathname; }} className="w-full max-w-xs bg-slate-900 text-white py-5 rounded-2xl font-black uppercase italic hover:bg-amber-500 hover:text-black transition-all">{t("retryBtn")}</button>
@@ -904,7 +964,7 @@ function RezervareContent() {
                   <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
                     {adminProfile?.phone && (
                       <a href={toWaLink(adminProfile.phone)} target="_blank" rel="noopener noreferrer" className="px-4 py-2 bg-white/10 hover:bg-[#25D366] hover:text-white rounded-full text-[10px] font-black uppercase italic transition-colors flex items-center gap-1.5">
-                        <span>??</span> {adminProfile.phone}
+                        <span>📱</span> {adminProfile.phone}
                       </a>
                     )}
                     {adminProfile?.email && (
@@ -963,41 +1023,33 @@ function RezervareContent() {
 
               {(adminProfile?.work_locations?.length || 0) > 0 && (
                 <div className="bg-slate-50 border-2 border-slate-100 rounded-[35px] p-6 space-y-4">
-                  <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-                    <div>
-                      <p className="text-[10px] font-black uppercase italic text-slate-400 tracking-widest">{t("workLocationTitle")}</p>
-                      <p className="text-xs font-bold text-slate-500 italic">{t("workLocationHint")}</p>
-                    </div>
-                    {selectedWorkLocation?.address && (
-                      <a href={toMapsLink(selectedWorkLocation.address)} target="_blank" rel="noopener noreferrer" className="bg-slate-900 text-amber-500 px-5 py-3 rounded-2xl text-[10px] font-black uppercase italic hover:bg-amber-500 hover:text-slate-900 transition-all">
-                        {t("openMapsBtn")}
-                      </a>
-                    )}
+                  <div>
+                    <p className="text-[10px] font-black uppercase italic text-slate-400 tracking-widest">{t("workLocationTitle")}</p>
+                    <p className="text-xs font-bold text-slate-500 italic">{t("workLocationHint")}</p>
                   </div>
 
-                  {adminProfile?.work_locations.length === 1 ? (
-                    <div className="bg-white rounded-[25px] border-2 border-amber-200 p-5">
-                      <p className="text-sm font-black text-slate-900 uppercase italic">{adminProfile.work_locations[0].name || t("defaultWorkLocationName")}</p>
-                      <p className="text-xs font-bold text-slate-500 mt-1">{adminProfile.work_locations[0].address}</p>
+                  <div className="bg-white rounded-[25px] border-2 border-amber-200 p-5 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                    <div className="min-w-0">
+                      <p className="text-sm font-black text-slate-900 uppercase italic">{selectedWorkLocation?.name || t("defaultWorkLocationName")}</p>
+                      <p className="text-xs font-bold text-slate-500 mt-1">{selectedWorkLocation?.address || ""}</p>
                     </div>
-                  ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {adminProfile?.work_locations.map((loc) => {
-                        const selected = selectedWorkLocationId === loc.id;
-                        return (
-                          <button
-                            key={loc.id}
-                            type="button"
-                            onClick={() => setSelectedWorkLocationId(loc.id)}
-                            className={`text-left rounded-[25px] border-2 p-5 transition-all ${selected ? "border-amber-500 bg-amber-50 shadow-lg" : "border-slate-200 bg-white hover:border-amber-300"}`}
-                          >
-                            <p className="text-sm font-black text-slate-900 uppercase italic">{loc.name || t("defaultWorkLocationName")}</p>
-                            <p className="text-xs font-bold text-slate-500 mt-1">{loc.address}</p>
-                          </button>
-                        );
-                      })}
+                    <div className="flex flex-col sm:flex-row gap-2 shrink-0">
+                      {(adminProfile?.work_locations?.length || 0) > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => setShowWorkLocationPicker(true)}
+                          className="bg-amber-500 text-slate-950 px-5 py-3 rounded-2xl text-[10px] font-black uppercase italic hover:bg-slate-900 hover:text-amber-500 transition-all"
+                        >
+                          {t("workLocationTitle")}
+                        </button>
+                      )}
+                      {selectedWorkLocation?.address && (
+                        <a href={toMapsLink(selectedWorkLocation.address)} target="_blank" rel="noopener noreferrer" className="bg-slate-900 text-amber-500 px-5 py-3 rounded-2xl text-[10px] font-black uppercase italic hover:bg-amber-500 hover:text-slate-900 transition-all text-center">
+                          {t("openMapsBtn")}
+                        </a>
+                      )}
                     </div>
-                  )}
+                  </div>
                 </div>
               )}
 
@@ -1010,7 +1062,9 @@ function RezervareContent() {
                       {t("serviceCardLabel", { n: index + 1 })}
                     </div>
                     {index > 0 && (
-                      <button type="button" onClick={() => removeBookingCard(b.id)} className="absolute -top-4 -right-4 bg-red-500 text-white w-10 h-10 rounded-full font-black hover:bg-slate-900 transition-colors shadow-lg">?</button>
+                      <button type="button" onClick={() => removeBookingCard(b.id)} className="absolute -top-4 -right-4 bg-red-500 text-white w-10 h-10 rounded-full flex items-center justify-center hover:bg-slate-900 transition-colors shadow-lg">
+                        <X className="w-5 h-5" strokeWidth={3} />
+                      </button>
                     )}
                     <div className="space-y-6">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1060,7 +1114,7 @@ function RezervareContent() {
                           <button type="button"
                             onClick={() => {
                               if (!b.serviciu_id) {
-                                setPopup({ icon: "??", title: t("attentionTitle"), message: t("attentionMsg") });
+                                setPopup({ icon: "⚠️", title: t("attentionTitle"), message: t("attentionMsg") });
                                 return;
                               }
                               fetchAppointmentsForDate(b.data, b.specialist_id);
@@ -1095,7 +1149,7 @@ function RezervareContent() {
                         return (
                           <div className="bg-slate-900 rounded-[20px] px-6 py-3 flex items-center justify-between">
                             <p className="text-[10px] font-black text-amber-500 uppercase italic">{t("reservedIntervalLabel")}</p>
-                            <p className="text-white font-black text-sm italic">{b.ora} ? {addMinutesToTime(b.ora, svc.duration)}</p>
+                            <p className="text-white font-black text-sm italic">{b.ora} → {addMinutesToTime(b.ora, svc.duration)}</p>
                           </div>
                         );
                       })()}
@@ -1110,7 +1164,7 @@ function RezervareContent() {
                   </button>
                 ) : (
                   <p className="text-center text-[10px] font-black uppercase italic text-slate-300">
-                    Limita maxima: {MAX_SERVICES_PER_BOOKING} servicii per rezervare
+                    Limita maximă: {MAX_SERVICES_PER_BOOKING} servicii per rezervare
                   </p>
                 )}
               </div>
@@ -1135,7 +1189,9 @@ function RezervareContent() {
                       {uploadedDocs.map((doc, idx) => (
                         <div key={idx} className="flex items-center justify-between bg-slate-50 rounded-2xl px-5 py-3">
                           <span className="text-[12px] font-bold text-slate-700 truncate">{doc.name}</span>
-                          <button type="button" onClick={() => removeUploadedDoc(idx)} className="text-red-500 font-black text-sm ml-3 shrink-0">?</button>
+                          <button type="button" onClick={() => removeUploadedDoc(idx)} className="text-red-500 ml-3 shrink-0 flex items-center">
+                            <X className="w-4 h-4" strokeWidth={3} />
+                          </button>
                         </div>
                       ))}
                     </div>
@@ -1144,7 +1200,7 @@ function RezervareContent() {
                 </div>
               )}
 
-              {/* ?? Widget Cloudflare Turnstile — verificare silentioasa anti-bot */}
+              {/* 🔒 Widget Cloudflare Turnstile — verificare silențioasă anti-bot */}
               <div className="flex justify-center">
                 <div
                   className="cf-turnstile"
@@ -1227,4 +1283,3 @@ export default function RezervarePage() {
     </Suspense>
   );
 }
-

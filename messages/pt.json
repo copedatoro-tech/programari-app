@@ -837,19 +837,19 @@
     "workLocationAddressPlaceholder": "Rua, numero, cidade (para link Google Maps)"
   },
   "resurse": {
-    "workLocationsTitle": "Locais de trabalho",
-    "addWorkLocationBtn": "Adicionar local",
-    "deleteWorkLocationBtn": "Remover local de trabalho",
+    "workLocationsTitle": "Work locations",
+    "addWorkLocationBtn": "Add work location",
+    "deleteWorkLocationBtn": "Remove work location",
     "saveWorkLocationsBtn": "Salvar locais",
-    "noWorkLocationsMsg": "Ainda não adicionou locais de trabalho.",
-    "workLocationNameLabel": "Nome do local",
-    "workLocationAddressLabel": "Endereço (rua, número, cidade)",
-    "workLocationServicesLabel": "Serviços disponíveis neste local",
-    "workLocationStaffLabel": "Profissionais que trabalham aqui",
+    "noWorkLocationsMsg": "No work locations saved.",
+    "workLocationNameLabel": "Work location name",
+    "workLocationAddressLabel": "Address (street, number, city)",
+    "workLocationServicesLabel": "Services available at this location",
+    "workLocationStaffLabel": "Specialists working here",
     "saveWorkLocationBtn": "Salvar local",
     "confirmDeleteWorkLocation": "Tem a certeza de que pretende eliminar este local?",
-    "workLocationsSavedToast": "Locais guardados",
-    "workLocationDeleteLastError": "Deve manter pelo menos um local.",
+    "workLocationsSavedToast": "Work locations saved.",
+    "workLocationDeleteLastError": "At least one work location is required.",
     "headingLine1": "Gestão de",
     "headingHighlight": "Serviços",
     "headingLine2": "e",
@@ -973,7 +973,9 @@
     "staffPhotoImageOnly": "Escolha um arquivo de imagem.",
     "staffPhotoUploadError": "Erro ao carregar foto:",
     "staffPhotoAlt": "Foto do especialista",
-    "othersShort": "+ {count} outros"
+    "othersShort": "+ {count} others",
+    "workLocationNamePlaceholder": "Work location name",
+    "workLocationAddressPlaceholder": "Street, number, city"
   },
   "sugestii": {
     "checkingAccess": "A verificar o acesso...",
@@ -2021,11 +2023,11 @@
     "acceptAllBtn": "Aceitar tudo"
   },
   "currency": {
-    "RON": "Leu romeno",
+    "RON": "Romanian leu",
     "EUR": "Euro",
-    "USD": "Dolar americano",
-    "GBP": "Libra esterlina",
-    "HUF": "Forint hungaro",
-    "PLN": "Zloty polaco"
+    "USD": "US dollar",
+    "GBP": "British pound",
+    "HUF": "Hungarian forint",
+    "PLN": "Polish zloty"
   }
 }

@@ -837,19 +837,19 @@
     "workLocationAddressPlaceholder": "Utca, hazszam, varos (Google Maps linkhez)"
   },
   "resurse": {
-    "workLocationsTitle": "Munkavégzési helyek",
-    "addWorkLocationBtn": "Helyszín hozzáadása",
-    "deleteWorkLocationBtn": "Helyszin torlese",
+    "workLocationsTitle": "Work locations",
+    "addWorkLocationBtn": "Add work location",
+    "deleteWorkLocationBtn": "Remove work location",
     "saveWorkLocationsBtn": "Helyszínek mentése",
-    "noWorkLocationsMsg": "Még nem adtál hozzá munkavégzési helyet.",
-    "workLocationNameLabel": "Helyszín neve",
-    "workLocationAddressLabel": "Cím (utca, szám, város)",
-    "workLocationServicesLabel": "A helyszínen elérhető szolgáltatások",
-    "workLocationStaffLabel": "Itt dolgozó szakemberek",
+    "noWorkLocationsMsg": "No work locations saved.",
+    "workLocationNameLabel": "Work location name",
+    "workLocationAddressLabel": "Address (street, number, city)",
+    "workLocationServicesLabel": "Services available at this location",
+    "workLocationStaffLabel": "Specialists working here",
     "saveWorkLocationBtn": "Helyszín mentése",
     "confirmDeleteWorkLocation": "Biztosan törölni szeretnéd ezt a helyszínt?",
-    "workLocationsSavedToast": "Helyszínek mentve",
-    "workLocationDeleteLastError": "Legalább egy helyszínt meg kell tartani.",
+    "workLocationsSavedToast": "Work locations saved.",
+    "workLocationDeleteLastError": "At least one work location is required.",
     "headingLine1": "Szolgáltatások",
     "headingHighlight": "kezelése",
     "headingLine2": "és",
@@ -878,7 +878,7 @@
     "activeServicesTitle": "AKTÍV SZOLGÁLTATÁSOK",
     "teamTitle": "SZAKEMBER CSAPAT",
     "save": "MENTÉS",
-    "othersShort": "+ {count} tovabbi",
+    "othersShort": "+ {count} others",
     "cancel": "MÉGSE",
     "update": "FRISSÍTÉS",
     "close": "BEZÁRÁS",
@@ -973,7 +973,9 @@
     "staffPhotoRemoveBtn": "Foto torlese",
     "staffPhotoImageOnly": "Kerjuk, kepfajlt valasszon.",
     "staffPhotoUploadError": "Hiba a foto feltoltesekor:",
-    "staffPhotoAlt": "Szakember foto"
+    "staffPhotoAlt": "Szakember foto",
+    "workLocationNamePlaceholder": "Work location name",
+    "workLocationAddressPlaceholder": "Street, number, city"
   },
   "sugestii": {
     "checkingAccess": "Hozzáférés ellenőrzése...",
@@ -2021,11 +2023,11 @@
     "acceptAllBtn": "Osszes elfogadasa"
   },
   "currency": {
-    "RON": "Roman lej",
+    "RON": "Romanian leu",
     "EUR": "Euro",
-    "USD": "Amerikai dollar",
-    "GBP": "Angol font",
-    "HUF": "Magyar forint",
-    "PLN": "Lengyel zloty"
+    "USD": "US dollar",
+    "GBP": "British pound",
+    "HUF": "Hungarian forint",
+    "PLN": "Polish zloty"
   }
 }

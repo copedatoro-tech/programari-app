@@ -7,6 +7,7 @@ import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 import { showToast } from "@/lib/toast";
 import SimpleTimePicker from "@/components/SimpleTimePicker";
+import { X } from "lucide-react";
 
 const LIMITE = {
   STAFF: {
@@ -36,11 +37,11 @@ const PLAN_LABELS: Record<string, string> = {
 // Zilele stocate in baza de date (working_hours.day) sunt salvate intotdeauna
 // in romana, indiferent de limba interfetei - la fel ca la profilul general
 // (adminWorkingHours), pentru consecventa cu tot restul aplicatiei.
-const RO_DAY_NAMES = ["Duminică","Luni","Marți","Miercuri","Joi","Vineri","Sâmbătă"];
+const RO_DAY_NAMES = ["DuminicÄƒ","Luni","MarÈ›i","Miercuri","Joi","Vineri","SÃ¢mbÄƒtÄƒ"];
 // Ordinea de afisare in interfata: Luni -> Duminica (mai naturala pentru un program de lucru)
 const DISPLAY_ORDER = [1, 2, 3, 4, 5, 6, 0];
 
-interface ScheduleDay { day: string; start: string; end: string; closed: boolean }
+interface ScheduleDay { day: string; start: string; end: string; closed: boolean; work_location_id?: string }
 
 function normalizeazaPlan(plan: string): string {
   const p = (plan || "").toLowerCase().trim();
@@ -57,7 +58,7 @@ function parseStaffWH(raw: any): ScheduleDay[] {
   return Array.isArray(raw) ? raw : [];
 }
 
-// ✅ Generează o parolă temporară, ușor de citit/dictat, pentru contul specialistului
+// âœ… GenereazÄƒ o parolÄƒ temporarÄƒ, uÈ™or de citit/dictat, pentru contul specialistului
 function generateTempPassword(): string {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
   let pass = "";
@@ -90,10 +91,11 @@ export default function ResursePage() {
   // Program individual per specialist
   const [scheduleStaffId, setScheduleStaffId] = useState<string | null>(null);
   const [scheduleByDay, setScheduleByDay] = useState<Record<string, { start: string; end: string }[]>>({});
+  const [selectedScheduleLocationId, setSelectedScheduleLocationId] = useState("");
   const [savingSchedule, setSavingSchedule] = useState(false);
   const scheduleModalRef = useRef<HTMLDivElement>(null);
 
-  // ✅ Invitare cont specialist
+  // âœ… Invitare cont specialist
   const [inviteStaff, setInviteStaff] = useState<any | null>(null);
   const [inviteEmail, setInviteEmail] = useState('');
   const [invitePhone, setInvitePhone] = useState('');
@@ -103,7 +105,7 @@ export default function ResursePage() {
   const [inviteDone, setInviteDone] = useState(false);
   const inviteModalRef = useRef<HTMLDivElement>(null);
 
-  // ✅ Gestionare cont existent (corectare email / resetare parolă / dezactivare)
+  // âœ… Gestionare cont existent (corectare email / resetare parolÄƒ / dezactivare)
   const [manageStaff, setManageStaff] = useState<any | null>(null);
   const [manageEmail, setManageEmail] = useState('');
   const [managePassword, setManagePassword] = useState('');
@@ -156,8 +158,8 @@ export default function ResursePage() {
         .order('created_at', { ascending: false });
 
       if (errSvs) setErrorMsg(`${t("dbErrorPrefix")}${errSvs.message}`);
-      // ✅ Dacă ambele interogări principale eșuează, e o problemă tehnică reală,
-      // nu doar o listă goală (caz normal pentru un cont nou)
+      // âœ… DacÄƒ ambele interogÄƒri principale eÈ™ueazÄƒ, e o problemÄƒ tehnicÄƒ realÄƒ,
+      // nu doar o listÄƒ goalÄƒ (caz normal pentru un cont nou)
       if (errSvs && errStf) setTechnicalError(true);
       setServices(svs ?? []);
       setStaff(stf ?? []);
@@ -181,7 +183,7 @@ export default function ResursePage() {
           { id: 'd1', nume_serviciu: 'Tuns (Exemplu)', price: '50', duration: '30' },
           { id: 'd2', nume_serviciu: 'Barba (Exemplu)', price: '30', duration: '15' }
         ]);
-        setStaff([{ id: 's1', name: 'ECHIPĂ EXPERȚI CHRONOS', phone: '0700000000', email: 'expert@chronos.ro', services: [] }]);
+        setStaff([{ id: 's1', name: 'ECHIPÄ‚ EXPERÈšI CHRONOS', phone: '0700000000', email: 'expert@chronos.ro', services: [] }]);
         setLoading(false);
         return;
       }
@@ -394,18 +396,14 @@ export default function ResursePage() {
     setEditForm({ ...editForm, services: lista });
   };
 
-  // Deschide modalul de program pentru un specialist — grupăm intrările existente pe zi,
-  // ca să suportăm mai multe intervale separate în aceeași zi (ex: 02-03, 14-15, 20-21)
+  // Deschide modalul de program pentru un specialist â€” grupÄƒm intrÄƒrile existente pe zi,
+  // ca sÄƒ suportÄƒm mai multe intervale separate Ã®n aceeaÈ™i zi (ex: 02-03, 14-15, 20-21)
   const openScheduleModal = (staffMember: any) => {
     if (isDemo) return;
-    const existing = parseStaffWH(staffMember.working_hours);
-    const grouped: Record<string, { start: string; end: string }[]> = {};
-    existing.forEach((entry) => {
-      if (entry.closed) return; // zilele închise explicit rămân fără intervale (= închise)
-      if (!grouped[entry.day]) grouped[entry.day] = [];
-      grouped[entry.day].push({ start: entry.start, end: entry.end });
-    });
-    setScheduleByDay(grouped);
+        const options = getScheduleLocationOptions();
+    const initialLocationId = options[0]?.id || "";
+    setSelectedScheduleLocationId(initialLocationId);
+    setScheduleByDay(buildScheduleForLocation(staffMember, initialLocationId));
     setScheduleStaffId(staffMember.id);
   };
 
@@ -422,7 +420,7 @@ export default function ResursePage() {
     }));
   };
 
-  // ✅ Comutare rapidă: un click transformă ziua din deschisă în închisă (sau invers)
+  // âœ… Comutare rapidÄƒ: un click transformÄƒ ziua din deschisÄƒ Ã®n Ã®nchisÄƒ (sau invers)
   const toggleDayClosed = (day: string) => {
     setScheduleByDay(prev => {
       const isCurrentlyClosed = (prev[day] || []).length === 0;
@@ -448,25 +446,65 @@ export default function ResursePage() {
     setScheduleByDay({});
   };
 
+  const getScheduleLocationOptions = () => {
+    return Array.isArray(workLocations) ? workLocations : [];
+  };
+
+  const buildScheduleForLocation = (staffMember: any, locationId: string) => {
+    const existing = parseStaffWH(staffMember?.working_hours);
+    const options = getScheduleLocationOptions();
+    const defaultLocationId = options[0]?.id || "";
+    const grouped: Record<string, { start: string; end: string }[]> = {};
+
+    existing.forEach((entry) => {
+      if (entry.closed) return;
+      const entryLocationId = entry.work_location_id || defaultLocationId;
+      if (locationId && entryLocationId !== locationId) return;
+      if (!grouped[entry.day]) grouped[entry.day] = [];
+      grouped[entry.day].push({ start: entry.start, end: entry.end });
+    });
+
+    return grouped;
+  };
+
+  const handleScheduleLocationChange = (locationId: string) => {
+    const staffMember = staff.find((item) => item.id === scheduleStaffId);
+    setSelectedScheduleLocationId(locationId);
+    if (staffMember) {
+      setScheduleByDay(buildScheduleForLocation(staffMember, locationId));
+    }
+  };
+
   const hasAnySchedule = Object.values(scheduleByDay).some(intervals => intervals.length > 0);
 
   const saveSchedule = async () => {
     if (!scheduleStaffId || !userId || isDemo) return;
     setSavingSchedule(true);
-    // Transformăm în formatul plat, salvat în baza de date — o zi poate apărea
-    // de mai multe ori, o dată per interval; zilele fără intervale = închise
+    // TransformÄƒm Ã®n formatul plat, salvat Ã®n baza de date â€” o zi poate apÄƒrea
+    // de mai multe ori, o datÄƒ per interval; zilele fÄƒrÄƒ intervale = Ã®nchise
+    const locationId = selectedScheduleLocationId || "";
+    const staffMember = staff.find((item) => item.id === scheduleStaffId);
+    const options = getScheduleLocationOptions();
+    const defaultLocationId = options[0]?.id || "";
+    const previous = parseStaffWH(staffMember?.working_hours);
+
+    const preserved = previous.filter((entry) => {
+      const entryLocationId = entry.work_location_id || defaultLocationId;
+      return locationId ? entryLocationId !== locationId : Boolean(entry.work_location_id);
+    });
+
     const flat: ScheduleDay[] = [];
     RO_DAY_NAMES.forEach((day) => {
       const intervals = scheduleByDay[day] || [];
       if (intervals.length === 0) {
-        flat.push({ day, start: "00:00", end: "00:00", closed: true });
+        flat.push({ day, start: "00:00", end: "00:00", closed: true, work_location_id: locationId });
       } else {
-        intervals.forEach((iv) => flat.push({ day, start: iv.start, end: iv.end, closed: false }));
+        intervals.forEach((iv) => flat.push({ day, start: iv.start, end: iv.end, closed: false, work_location_id: locationId }));
       }
     });
     const { error } = await supabase
       .from('staff')
-      .update({ working_hours: flat })
+      .update({ working_hours: [...preserved, ...flat] })
       .eq('id', scheduleStaffId);
     setSavingSchedule(false);
     if (error) { alert(error.message); return; }
@@ -477,7 +515,7 @@ export default function ResursePage() {
 
   const scheduleStaffMember = staff.find(s => s.id === scheduleStaffId);
 
-  // ✅ Deschide modalul de invitare cont pentru un specialist
+  // âœ… Deschide modalul de invitare cont pentru un specialist
   const openInviteModal = (staffMember: any) => {
     if (isDemo) return;
     setInviteStaff(staffMember);
@@ -494,7 +532,7 @@ export default function ResursePage() {
     setInviteError('');
     try {
       const { data: { session } } = await supabase.auth.getSession();
-      if (!session) { setInviteError('Sesiune expirată. Reîncarcă pagina.'); setInviteLoading(false); return; }
+      if (!session) { setInviteError('Sesiune expiratÄƒ. ReÃ®ncarcÄƒ pagina.'); setInviteLoading(false); return; }
 
       const res = await fetch('/api/staff/create-account', {
         method: 'POST',
@@ -514,9 +552,9 @@ export default function ResursePage() {
         setInviteLoading(false);
         return;
       }
-      // ✅ Salvăm și telefonul completat/corectat în modal, dacă diferă de cel existent —
-      // ca linkul de WhatsApp să funcționeze corect data viitoare, fără să mai depindă
-      // doar de ce era salvat inițial pe specialist
+      // âœ… SalvÄƒm È™i telefonul completat/corectat Ã®n modal, dacÄƒ diferÄƒ de cel existent â€”
+      // ca linkul de WhatsApp sÄƒ funcÈ›ioneze corect data viitoare, fÄƒrÄƒ sÄƒ mai depindÄƒ
+      // doar de ce era salvat iniÈ›ial pe specialist
       if (invitePhone.trim() && invitePhone.trim() !== inviteStaff.phone) {
         await supabase.from('staff').update({ phone: invitePhone.trim() }).eq('id', inviteStaff.id);
       }
@@ -541,7 +579,7 @@ export default function ResursePage() {
     } catch {}
   };
 
-  // ✅ Trimite datele de acces direct pe WhatsApp, la numărul din modal
+  // âœ… Trimite datele de acces direct pe WhatsApp, la numÄƒrul din modal
   const sendInviteOnWhatsApp = () => {
     const rawPhone = invitePhone || '';
     const digits = rawPhone.replace(/\D/g, '');
@@ -559,7 +597,7 @@ export default function ResursePage() {
     window.open(`https://wa.me/${normalized}?text=${encodeURIComponent(text)}`, '_blank');
   };
 
-  // ✅ Alternativă pe email — mereu disponibilă, indiferent dacă specialistul are telefon salvat sau nu
+  // âœ… AlternativÄƒ pe email â€” mereu disponibilÄƒ, indiferent dacÄƒ specialistul are telefon salvat sau nu
   const sendInviteOnEmail = () => {
     if (!inviteEmail.trim()) return;
     const subject = t("staffPortal.emailSubject");
@@ -572,7 +610,7 @@ export default function ResursePage() {
     window.location.href = `mailto:${inviteEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
   };
 
-  // ✅ Deschide modalul de gestionare pentru un specialist cu cont deja activ
+  // âœ… Deschide modalul de gestionare pentru un specialist cu cont deja activ
   const openManageModal = (staffMember: any) => {
     if (isDemo) return;
     setManageStaff(staffMember);
@@ -588,7 +626,7 @@ export default function ResursePage() {
     return session ? { Authorization: `Bearer ${session.access_token}` } : null;
   };
 
-  // ✅ Corectează email-ul greșit și/sau resetează parola contului deja creat
+  // âœ… CorecteazÄƒ email-ul greÈ™it È™i/sau reseteazÄƒ parola contului deja creat
   const handleUpdateAccount = async () => {
     if (!manageStaff) return;
     setManageLoading(true);
@@ -626,7 +664,7 @@ export default function ResursePage() {
     }
   };
 
-  // ✅ Dezactivează (șterge) contul unui specialist care a plecat din echipă
+  // âœ… DezactiveazÄƒ (È™terge) contul unui specialist care a plecat din echipÄƒ
   const handleDeactivateAccount = async () => {
     if (!manageStaff) return;
     setManageLoading(true);
@@ -770,7 +808,7 @@ export default function ResursePage() {
 
                 <div>
                   <p className="text-[9px] font-black uppercase text-slate-400 mb-2">{t("workLocationServicesLabel")}</p>
-                  <div className="max-h-[180px] overflow-y-auto grid grid-cols-2 gap-2 text-sm border rounded-md p-2">
+                  <div className="max-h-[112px] overflow-y-auto pr-2 grid grid-cols-1 md:grid-cols-2 gap-2 text-sm border rounded-md p-2">
                     {services.map((s) => (
                       <label key={s.id} className="flex items-center gap-2">
                         <input type="checkbox" className="w-4 h-4" checked={Array.isArray(locationForm.service_ids) ? locationForm.service_ids.includes(s.id) : false} onChange={() => {
@@ -787,7 +825,7 @@ export default function ResursePage() {
 
                 <div>
                   <p className="text-[9px] font-black uppercase text-slate-400 mb-2">{t("workLocationStaffLabel")}</p>
-                  <div className="max-h-[180px] overflow-y-auto grid grid-cols-2 gap-2 text-sm border rounded-md p-2">
+                  <div className="max-h-[112px] overflow-y-auto pr-2 grid grid-cols-1 md:grid-cols-2 gap-2 text-sm border rounded-md p-2">
                     {staff.map((st) => (
                       <label key={st.id} className="flex items-center gap-2">
                         <input type="checkbox" className="w-4 h-4" checked={Array.isArray(locationForm.staff_ids) ? locationForm.staff_ids.includes(st.id) : false} onChange={() => {
@@ -919,9 +957,9 @@ export default function ResursePage() {
           {/* Servicii Lista */}
           <div className="bg-white p-10 rounded-[50px] shadow-xl border border-slate-50 relative">
             <h2 className="text-[11px] font-black uppercase italic text-slate-400 mb-10 tracking-[0.3em] border-b pb-6">
-              {t("activeServicesTitle")} ({services.length} / {getLimitaServicii() >= 999 ? '∞' : getLimitaServicii()})
+              {t("activeServicesTitle")} ({services.length} / {getLimitaServicii() >= 999 ? 'âˆž' : getLimitaServicii()})
             </h2>
-            <div className="space-y-4">
+            <div className="max-h-[260px] overflow-y-scroll pr-2 space-y-4">
               {services.map(s => (
                 <div key={s.id} className="group bg-slate-50 rounded-[28px] border-l-8 border-amber-500 hover:bg-white transition-all border border-transparent hover:border-slate-100 overflow-hidden relative shadow-sm">
                   {editingId === s.id ? (
@@ -951,11 +989,11 @@ export default function ResursePage() {
                       <div>
                         <p className="font-black uppercase italic text-[13px] text-slate-900 group-hover:text-amber-600 transition-colors">{s.nume_serviciu}</p>
                         <p className="text-[10px] font-bold text-slate-400 mt-1 uppercase italic tracking-widest">
-                          {s.price} {businessCurrency} — {Math.floor(s.duration / 60) > 0 ? `${Math.floor(s.duration / 60)}${t("hourUnit")} ` : ''}{s.duration % 60} {t("minuteUnit")}
+                          {s.price} {businessCurrency} - {Math.floor(s.duration / 60) > 0 ? `${Math.floor(s.duration / 60)}${t("hourUnit")} ` : ""}{s.duration % 60} {t("minuteUnit")}
                         </p>
                       </div>
                       {!isDemo && (
-                        <button onClick={e => { e.stopPropagation(); handleDelete(s.id, 'services'); }} className="bg-white text-red-500 w-10 h-10 flex items-center justify-center rounded-xl shadow-md border border-red-100 hover:bg-red-500 hover:text-white transition-all">✕</button>
+                        <button onClick={e => { e.stopPropagation(); handleDelete(s.id, 'services'); }} className="bg-white text-red-500 w-10 h-10 flex items-center justify-center rounded-xl shadow-md border border-red-100 hover:bg-red-500 hover:text-white transition-all"><X className="w-4 h-4" strokeWidth={3} /></button>
                       )}
                     </div>
                   )}
@@ -967,9 +1005,9 @@ export default function ResursePage() {
           {/* Experti Lista */}
           <div className="bg-white p-10 rounded-[50px] shadow-xl border border-slate-50 relative">
             <h2 className="text-[11px] font-black uppercase italic text-slate-400 mb-10 tracking-[0.3em] border-b pb-6 text-right">
-              {t("teamTitle")} ({staff.length} / {getLimitaStaff() >= 999 ? '∞' : getLimitaStaff()})
+              {t("teamTitle")} ({staff.length} / {getLimitaStaff() >= 999 ? 'âˆž' : getLimitaStaff()})
             </h2>
-            <div className="space-y-4">
+            <div className="max-h-[260px] overflow-y-scroll pr-2 space-y-4">
               {staff.map(p => (
                 <div key={p.id} className="group bg-slate-900 rounded-[28px] border-l-8 border-slate-700 hover:border-amber-500 transition-all overflow-hidden relative shadow-lg">
                   {editingId === p.id ? (
@@ -1054,9 +1092,7 @@ export default function ResursePage() {
                           <button
                             onClick={e => { e.stopPropagation(); openScheduleModal(p); }}
                             className="bg-slate-800 text-amber-500 px-3 py-2 flex items-center justify-center rounded-xl border border-slate-700 hover:bg-amber-500 hover:text-slate-900 transition-all text-[9px] font-black uppercase italic whitespace-nowrap"
-                          >
-                            🗓️ {t("scheduleBtn")}
-                          </button>
+                          >{t("scheduleBtn")}</button>
                         )}
                         {!isDemo && (
                           p.auth_user_id ? (
@@ -1078,13 +1114,11 @@ export default function ResursePage() {
                               onClick={e => { e.stopPropagation(); router.push('/abonamente'); }}
                               title={t("staffPortal.teamOnlyHint")}
                               className="bg-slate-800/50 text-slate-500 px-3 py-2 flex items-center justify-center rounded-xl border border-slate-700 hover:border-amber-500 hover:text-amber-500 transition-all text-[9px] font-black uppercase italic whitespace-nowrap"
-                            >
-                              🔒 {t("staffPortal.teamOnlyBadge")}
-                            </button>
+                            >{t("staffPortal.teamOnlyBadge")}</button>
                           )
                         )}
                         {!isDemo && (
-                          <button onClick={e => { e.stopPropagation(); handleDelete(p.id, 'staff'); }} className="bg-slate-800 text-red-400 w-10 h-10 flex items-center justify-center rounded-xl border border-slate-700 hover:bg-red-500 hover:text-white transition-all">✕</button>
+                          <button onClick={e => { e.stopPropagation(); handleDelete(p.id, 'staff'); }} className="bg-slate-800 text-red-400 w-10 h-10 flex items-center justify-center rounded-xl border border-slate-700 hover:bg-red-500 hover:text-white transition-all"><X className="w-4 h-4" strokeWidth={3} /></button>
                         )}
                       </div>
                     </div>
@@ -1108,8 +1142,25 @@ export default function ResursePage() {
                   {t("scheduleModalSubtitle")} {scheduleStaffMember.name}
                 </h3>
               </div>
-              <button onClick={() => setScheduleStaffId(null)} className="w-10 h-10 flex items-center justify-center bg-slate-100 rounded-xl font-black text-slate-400 hover:bg-red-500 hover:text-white transition-all">✕</button>
+              <button onClick={() => setScheduleStaffId(null)} className="px-4 py-3 flex items-center justify-center bg-slate-100 rounded-xl font-black text-slate-500 hover:bg-red-500 hover:text-white transition-all text-[10px] uppercase italic">INCHIDE</button>
             </div>
+
+            {workLocations.length > 0 && (
+              <div className="mt-6 mb-4 p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                <p className="text-[10px] font-black uppercase italic text-slate-400 mb-2">
+                  Seteaza programul specialistului pentru punctul de lucru ales
+                </p>
+                <select
+                  value={selectedScheduleLocationId}
+                  onChange={(e) => handleScheduleLocationChange(e.target.value)}
+                  className="w-full px-4 py-3 rounded-xl border-2 border-slate-100 bg-white text-slate-900 text-[11px] font-black uppercase italic outline-none focus:border-amber-500"
+                >
+                  {getScheduleLocationOptions().map((loc: any) => (
+                    <option key={loc.id} value={loc.id}>{loc.name || "Punct de lucru"}</option>
+                  ))}
+                </select>
+              </div>
+            )}
 
             {!hasAnySchedule ? (
               <div className="my-8 p-8 bg-amber-50 border-2 border-dashed border-amber-200 rounded-[30px] text-center">
@@ -1118,8 +1169,7 @@ export default function ResursePage() {
                   onClick={setDefaultSchedule}
                   className="px-6 py-3 bg-slate-900 text-amber-500 rounded-xl font-black text-[10px] uppercase italic hover:bg-amber-500 hover:text-slate-900 transition-all"
                 >
-                  {t("openDayLabel")} 09:00-18:00 →
-                </button>
+                  {t("openDayLabel")} 09:00-18:00</button>
               </div>
             ) : (
               <div className="space-y-3 my-6">
@@ -1163,12 +1213,9 @@ export default function ResursePage() {
                           <SimpleTimePicker value={iv.start} onChange={(v) => updateInterval(dayRo, idx, "start", v)} />
                           <span className="text-[9px] font-black text-slate-400 uppercase">{t("toLabel")}</span>
                           <SimpleTimePicker value={iv.end} onChange={(v) => updateInterval(dayRo, idx, "end", v)} />
-                          <button
-                            onClick={() => removeInterval(dayRo, idx)}
+                          <button onClick={() => removeInterval(dayRo, idx)}
                             className="ml-auto px-3 py-1.5 rounded-lg text-[9px] font-black uppercase italic text-red-400 hover:bg-red-50 transition-all"
-                          >
-                            ✕ {t("removeIntervalBtn")}
-                          </button>
+                          >ELIMINA</button>
                         </div>
                       ))}
                     </div>
@@ -1179,9 +1226,7 @@ export default function ResursePage() {
 
             <div className="flex gap-3 mt-6 pt-6 border-t border-slate-100">
               {hasAnySchedule && (
-                <button onClick={clearSchedule} className="px-5 py-4 bg-slate-100 text-slate-500 rounded-xl font-black text-[10px] uppercase italic hover:bg-slate-200 transition-all">
-                  ↺
-                </button>
+                <button onClick={clearSchedule} className="px-5 py-4 bg-slate-100 text-slate-500 rounded-xl font-black text-[10px] uppercase italic hover:bg-slate-200 transition-all">RESET ORAR</button>
               )}
               <button onClick={() => setScheduleStaffId(null)} className="flex-1 py-4 bg-slate-100 text-slate-500 rounded-xl font-black text-[11px] uppercase italic hover:bg-slate-200 transition-all">
                 {t("closeBtn")}
@@ -1198,7 +1243,7 @@ export default function ResursePage() {
         </div>
       )}
 
-      {/* MODAL GESTIONARE CONT EXISTENT (corectare email / resetare parolă / dezactivare) */}
+      {/* MODAL GESTIONARE CONT EXISTENT (corectare email / resetare parolÄƒ / dezactivare) */}
       {manageStaff && (
         <div className="fixed inset-0 bg-slate-900/70 backdrop-blur-md z-[200] flex items-center justify-center p-4">
           <div ref={manageModalRef} className="bg-white w-full max-w-md rounded-[40px] p-8 md:p-10 shadow-2xl border-t-[10px] border-emerald-500 max-h-[85vh] overflow-y-auto">
@@ -1209,7 +1254,7 @@ export default function ResursePage() {
                   {t("staffPortal.manageTitle", { name: manageStaff.name })}
                 </h3>
               </div>
-              <button onClick={() => { setManageStaff(null); setConfirmingDeactivate(false); }} className="w-10 h-10 flex items-center justify-center bg-slate-100 rounded-xl font-black text-slate-400 hover:bg-red-500 hover:text-white transition-all">✕</button>
+              <button onClick={() => { setManageStaff(null); setConfirmingDeactivate(false); }} className="w-10 h-10 flex items-center justify-center bg-slate-100 rounded-xl font-black text-slate-400 hover:bg-red-500 hover:text-white transition-all">âœ•</button>
             </div>
 
             {!confirmingDeactivate ? (
@@ -1239,7 +1284,7 @@ export default function ResursePage() {
                         title={t("staffPortal.generateNewPasswordTitle")}
                         className="px-4 bg-slate-100 rounded-2xl font-black text-slate-500 hover:bg-slate-200 transition-all"
                       >
-                        🔄
+                        ðŸ”„
                       </button>
                     </div>
                   </div>
@@ -1268,7 +1313,7 @@ export default function ResursePage() {
               </>
             ) : (
               <div className="text-center py-4">
-                <div className="w-16 h-16 bg-red-100 text-red-500 rounded-full flex items-center justify-center text-3xl mx-auto mb-4">⚠️</div>
+                <div className="w-16 h-16 bg-red-100 text-red-500 rounded-full flex items-center justify-center text-3xl mx-auto mb-4">âš ï¸</div>
                 <p className="font-black uppercase italic text-slate-900 mb-2">{t("staffPortal.confirmDeactivateTitle")}</p>
                 <p className="text-[11px] font-bold text-slate-400 italic mb-6 leading-relaxed">
                   {t("staffPortal.confirmDeactivateText", { name: manageStaff.name })}
@@ -1308,12 +1353,12 @@ export default function ResursePage() {
                   {t("staffPortal.inviteTitle", { name: inviteStaff.name })}
                 </h3>
               </div>
-              <button onClick={() => setInviteStaff(null)} className="w-10 h-10 flex items-center justify-center bg-slate-100 rounded-xl font-black text-slate-400 hover:bg-red-500 hover:text-white transition-all">✕</button>
+              <button onClick={() => setInviteStaff(null)} className="w-10 h-10 flex items-center justify-center bg-slate-100 rounded-xl font-black text-slate-400 hover:bg-red-500 hover:text-white transition-all">âœ•</button>
             </div>
 
             {inviteDone ? (
               <div className="text-center py-4">
-                <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center text-3xl mx-auto mb-4">✓</div>
+                <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center text-3xl mx-auto mb-4">âœ“</div>
                 <p className="font-black uppercase italic text-slate-900 mb-2">{t("staffPortal.successTitle")}</p>
                 <p className="text-[11px] font-bold text-slate-400 italic mb-6">{t("staffPortal.successSubtitle")}</p>
 
@@ -1387,7 +1432,7 @@ export default function ResursePage() {
                         title={t("staffPortal.regeneratePasswordTitle")}
                         className="px-4 bg-slate-100 rounded-2xl font-black text-slate-500 hover:bg-slate-200 transition-all"
                       >
-                        🔄
+                        ðŸ”„
                       </button>
                     </div>
                   </div>

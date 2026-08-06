@@ -509,7 +509,7 @@
       "plans": [
         {
           "plan": "Free",
-          "price": "Gratuit",
+          "price": 0,
           "prog": "30 prog/lună",
           "features": [
             "Calendar complet",
@@ -520,7 +520,7 @@
         },
         {
           "plan": "Pro",
-          "price": "49 RON/lună",
+          "price": 49,
           "prog": "150 prog/lună",
           "features": [
             "Tot din Free",
@@ -531,7 +531,7 @@
         },
         {
           "plan": "Elite",
-          "price": "99 RON/lună",
+          "price": 99,
           "prog": "500 prog/lună",
           "features": [
             "Tot din Pro",
@@ -543,7 +543,7 @@
         },
         {
           "plan": "Team",
-          "price": "199 RON/lună",
+          "price": 199,
           "prog": "Nelimitat",
           "features": [
             "Tot din Elite",
@@ -832,46 +832,6 @@
             "highlight": "Nelimitat"
           }
         ]
-      },
-      {
-        "name": "CHRONOS BUSINESS",
-        "price": 499,
-        "description": "Pentru companii cu puncte de lucru multiple și gestionare avansată a programărilor.",
-        "buttonText": "ALEGE PLANUL",
-        "features": [
-          {
-            "text": "150 rezervări / lună",
-            "available": true,
-            "highlight": "150"
-          },
-          {
-            "text": "Puncte de lucru multiple",
-            "available": true,
-            "highlight": "Puncte de lucru"
-          },
-          {
-            "text": "Servicii nelimitate",
-            "available": true,
-            "highlight": "nelimitate"
-          },
-          {
-            "text": "Multi-specialist complet",
-            "available": true
-          },
-          {
-            "text": "Plată online la rezervare",
-            "available": true
-          },
-          {
-            "text": "Rapoarte avansate",
-            "available": true,
-            "highlight": "avansate"
-          },
-          {
-            "text": "Confirmări & Reamintiri Email Nelimitat",
-            "available": true
-          }
-        ]
       }
     ],
     "manageSubscriptionBtn": "GESTIONEAZA ABONAMENTUL"
@@ -1045,35 +1005,17 @@
       "team": {
         "nume": "CHRONOS TEAM",
         "limita": "Rezervări nelimitate"
-      },
-      "business": {
-        "nume": "CHRONOS BUSINESS",
-        "limita": "150 rezervări / lună"
       }
     },
     "workLocationsTitle": "Adrese de lucru",
     "workLocationsHint": "Adauga punctele de lucru unde clientii pot veni la programari. Acestea apar pe pagina publica si in confirmarile trimise clientilor.",
     "addWorkLocationBtn": "Adauga adresa",
-    "deleteWorkLocationBtn": "Șterge punctul de lucru",
     "removeWorkLocationBtn": "Sterge",
     "noWorkLocations": "Nu ai adaugat inca nicio adresa de lucru.",
     "workLocationNamePlaceholder": "Denumire locatie {n}",
     "workLocationAddressPlaceholder": "Strada, numar, oras (pentru link Google Maps)"
   },
   "resurse": {
-    "workLocationsTitle": "Puncte de lucru",
-    "addWorkLocationBtn": "Adaugă punct de lucru",
-    "deleteWorkLocationBtn": "Sterge punctul de lucru",
-    "saveWorkLocationsBtn": "Salvează punctele de lucru",
-    "noWorkLocationsMsg": "Nu ai adăugat încă puncte de lucru.",
-    "workLocationNameLabel": "Denumire punct de lucru",
-    "workLocationAddressLabel": "Adresă (stradă, număr, oraș)",
-    "workLocationServicesLabel": "Servicii disponibile în această locație",
-    "workLocationStaffLabel": "Specialiști care lucrează aici",
-    "saveWorkLocationBtn": "Salvează punctul de lucru",
-    "confirmDeleteWorkLocation": "Sigur vrei să ștergi acest punct de lucru?",
-    "workLocationsSavedToast": "Puncte de lucru salvate",
-    "workLocationDeleteLastError": "Trebuie să păstrezi cel puțin un punct de lucru.",
     "headingLine1": "Gestiune",
     "headingHighlight": "Servicii",
     "headingLine2": "și",
@@ -1102,7 +1044,6 @@
     "activeServicesTitle": "SERVICII ACTIVE",
     "teamTitle": "ECHIPĂ EXPERȚI",
     "save": "SALVEAZĂ",
-    "othersShort": "+ {count} altele",
     "cancel": "ANULEAZĂ",
     "update": "ACTUALIZEAZĂ",
     "close": "ÎNCHIDE",
@@ -1132,13 +1073,6 @@
       "Sâmbătă"
     ],
     "scheduleSavedToast": "Program salvat cu succes!",
-    "stripePriceIdLabel": "Stripe Price ID (abonament)",
-    "stripePriceIdPlaceholder": "price_XXXXXXXXXX",
-    "stripePriceIdHelp": "Introdu Price ID din Stripe pentru planul Business sau Pro. Exemplu: price_1U1AXJ9rzvOUm7SdUw3R4oWJ.",
-    "monthlyLimitLabel": "Limită programări lunare (opțional)",
-    "monthlyLimitPlaceholder": "ex: 150",
-    "saveProfileSettingsBtn": "Salvează setările",
-    "buySubscriptionBtn": "Cumpără abonament",
     "addIntervalBtn": "+ Adaugă interval",
     "removeIntervalBtn": "Elimină",
     "techErrorBannerMsg": "Problemă tehnică temporară, independentă de noi — se lucrează la rezolvare.",
@@ -1198,7 +1132,20 @@
     "staffPhotoRemoveBtn": "Sterge poza",
     "staffPhotoImageOnly": "Te rugam sa alegi un fisier imagine.",
     "staffPhotoUploadError": "Eroare la incarcarea pozei:",
-    "staffPhotoAlt": "Poza specialist"
+    "staffPhotoAlt": "Poza specialist",
+    "workLocationsTitle": "Puncte de lucru",
+    "addWorkLocationBtn": "Adauga punct de lucru",
+    "othersShort": "+ {count} altele",
+    "deleteWorkLocationBtn": "Sterge punctul de lucru",
+    "noWorkLocationsMsg": "Nu exista puncte de lucru salvate.",
+    "workLocationNamePlaceholder": "Denumire punct de lucru",
+    "workLocationAddressPlaceholder": "Strada, numar, oras",
+    "workLocationNameLabel": "Denumire punct de lucru",
+    "workLocationAddressLabel": "Adresa (strada, numar, oras)",
+    "workLocationServicesLabel": "Servicii disponibile in aceasta locatie",
+    "workLocationStaffLabel": "Specialisti care lucreaza aici",
+    "workLocationsSavedToast": "Punctele de lucru au fost salvate.",
+    "workLocationDeleteLastError": "Trebuie sa existe cel putin un punct de lucru."
   },
   "sugestii": {
     "checkingAccess": "Se verifică accesul...",
