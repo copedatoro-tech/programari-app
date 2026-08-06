@@ -66,7 +66,7 @@ function SettingsContent() {
   const weekdayLetters = t.raw("weekdayLetters") as string[];
 
   const isEliteOrTeam = useMemo(() => {
-    return userPlan.includes("ELITE") || userPlan.includes("TEAM");
+    return userPlan.includes("ELITE") || userPlan.includes("TEAM") || userPlan.includes("BUSINESS");
   }, [userPlan]);
 
   useEffect(() => {

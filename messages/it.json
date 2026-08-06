@@ -509,8 +509,8 @@
       "plans": [
         {
           "plan": "Free",
-          "price": "Gratis",
-          "prog": "30 app./mese",
+          "price": 0,
+          "prog": "30 prenotazioni/mese",
           "features": [
             "Calendario completo",
             "Database clienti",
@@ -520,36 +520,46 @@
         },
         {
           "plan": "Pro",
-          "price": "49 RON/mese",
-          "prog": "150 app./mese",
+          "price": 49,
+          "prog": "150 prenotazioni/mese",
           "features": [
             "Tutto da Free",
-            "150 prenotazioni / mese",
-            "15 servizi",
-            "Report di base"
+            "1 sede",
+            "Fino a 5 specialisti",
+            "Report base"
           ]
         },
         {
           "plan": "Elite",
-          "price": "99 RON/mese",
-          "prog": "500 app./mese",
+          "price": 99,
+          "prog": "500 prenotazioni/mese",
           "features": [
             "Tutto da Pro",
-            "Link prenotazione + Codice QR",
-            "Pagamento online alla prenotazione",
-            "Notifiche email automatiche",
-            "Notifiche agli specialisti"
+            "1 sede",
+            "Fino a 10 specialisti",
+            "Pagamento online alla prenotazione"
           ]
         },
         {
           "plan": "Team",
-          "price": "199 RON/mese",
+          "price": 199,
           "prog": "Illimitato",
           "features": [
             "Tutto da Elite",
-            "Appuntamenti illimitati",
-            "Supporto multi-specialista completo",
-            "10 giorni di prova gratuita"
+            "3 sedi",
+            "10 specialisti per sede",
+            "Prenotazioni illimitate"
+          ]
+        },
+        {
+          "plan": "Business",
+          "price": 499,
+          "prog": "5 sedi",
+          "features": [
+            "Tutto da Team",
+            "5 sedi",
+            "20 specialisti per sede",
+            "Report per sede"
           ]
         }
       ],
@@ -967,7 +977,9 @@
       "phoneHint": "Facoltativo, ma necessario se vuoi inviare i dati di accesso via WhatsApp.",
       "teamOnlyBadge": "Solo Team",
       "teamOnlyHint": "Il portale specialista è disponibile solo nel piano Chronos Team. Clicca per aggiornare.",
-      "phoneLabel": "Telefono dello Specialista"
+      "phoneLabel": "Telefono dello Specialista",
+      "teamOrBusinessBadge": "Team o Business",
+      "teamOrBusinessHint": "Il portale specialista e disponibile nei piani Chronos Team e Chronos Business."
     },
     "staffPhotoUploadBtn": "Carica foto",
     "staffPhotoRemoveBtn": "Rimuovi foto",

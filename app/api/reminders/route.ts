@@ -178,7 +178,7 @@ export async function GET(request: Request) {
   (profiles || []).forEach((p) => { planByUser[p.id] = (p.plan_type || "").toUpperCase(); });
   const hasWhatsAppAccess = (userId: string) => {
     const plan = planByUser[userId] || "";
-    return plan.includes("ELITE") || plan.includes("TEAM");
+    return plan.includes("ELITE") || plan.includes("TEAM") || plan.includes("BUSINESS");
   };
 
   let sentEmail = 0;

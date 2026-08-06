@@ -347,7 +347,8 @@ function RapoarteContent() {
   const isFree = planType.includes("FREE");
   const isPro = planType.includes("PRO");
   const isElite = planType.includes("ELITE");
-  const isTeam = planType.includes("TEAM");
+  const isBusiness = planType.includes("BUSINESS");
+  const isTeam = planType.includes("TEAM") || isBusiness;
 
   if (isFree) {
     return (
@@ -463,7 +464,7 @@ function RapoarteContent() {
               <h3 className="text-lg font-black uppercase italic mb-10 tracking-tighter border-l-8 border-emerald-500 pl-4">{t("topServicesTitle")}</h3>
               {(!isElite && !isTeam) ? (
                 <div className="flex-1 flex items-center justify-center text-center p-4">
-                  <p className="text-[10px] font-black uppercase italic text-slate-400">{t("topServicesLocked")}</p>
+                  <p className="text-[10px] font-black uppercase italic text-slate-400">{isBusiness ? "" : t("topServicesLocked")}</p>
                 </div>
               ) : (
                 <div className="space-y-6">

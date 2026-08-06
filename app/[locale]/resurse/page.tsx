@@ -242,6 +242,7 @@ export default function ResursePage() {
   const getLimitaPuncteLucru = () => LIMITE.PUNCTE_LUCRU[userPlan as keyof typeof LIMITE.PUNCTE_LUCRU] ?? LIMITE.PUNCTE_LUCRU["chronos free"];
   const getLimitaStaffPerPunct = () => LIMITE.STAFF_PER_PUNCT[userPlan as keyof typeof LIMITE.STAFF_PER_PUNCT] ?? LIMITE.STAFF_PER_PUNCT["chronos free"];
   const getPlanLabel = () => PLAN_LABELS[userPlan] ?? userPlan.toUpperCase();
+  const hasTeamFeatures = () => userPlan === 'chronos team' || userPlan === 'chronos business';
 
   async function handleAddService() {
     if (!newService.name.trim() || !userId || isDemo) return;
@@ -1141,7 +1142,7 @@ export default function ResursePage() {
                             >
                               {t("staffPortal.activeAccountBadge")}
                             </button>
-                          ) : userPlan === 'chronos team' ? (
+                          ) : hasTeamFeatures() ? (
                             <button
                               onClick={e => { e.stopPropagation(); openInviteModal(p); }}
                               className="bg-slate-800 text-blue-400 px-3 py-2 flex items-center justify-center rounded-xl border border-slate-700 hover:bg-blue-500 hover:text-white transition-all text-[9px] font-black uppercase italic whitespace-nowrap"
@@ -1151,9 +1152,9 @@ export default function ResursePage() {
                           ) : (
                             <button
                               onClick={e => { e.stopPropagation(); router.push('/abonamente'); }}
-                              title={t("staffPortal.teamOnlyHint")}
+                              title={t("staffPortal.teamOrBusinessHint")}
                               className="bg-slate-800/50 text-slate-500 px-3 py-2 flex items-center justify-center rounded-xl border border-slate-700 hover:border-amber-500 hover:text-amber-500 transition-all text-[9px] font-black uppercase italic whitespace-nowrap"
-                            >{t("staffPortal.teamOnlyBadge")}</button>
+                            >{t("staffPortal.teamOrBusinessBadge")}</button>
                           )
                         )}
                         {!isDemo && (

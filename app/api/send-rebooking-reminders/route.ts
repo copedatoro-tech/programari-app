@@ -52,7 +52,7 @@ export async function GET(request: Request) {
 
     for (const profile of eligibleProfiles) {
       const plan = (profile.plan_type || "").toUpperCase();
-      if (!plan.includes("ELITE") && !plan.includes("TEAM")) continue; // functie disponibila doar ELITE/TEAM
+      if (!plan.includes("ELITE") && !plan.includes("TEAM") && !plan.includes("BUSINESS")) continue; // functie disponibila doar ELITE/TEAM
       if (!profile.slug) continue; // fără pagină publică, nu are rost linkul
 
       const defaultDays = profile.rebooking_reminder_days || 30;

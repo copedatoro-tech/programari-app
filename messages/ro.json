@@ -510,35 +510,34 @@
         {
           "plan": "Free",
           "price": 0,
-          "prog": "30 prog/lună",
+          "prog": "30 prog/luna",
           "features": [
             "Calendar complet",
-            "Bază date clienți",
+            "Baza clienti",
             "Gestiune servicii",
-            "Documente atașate"
+            "Documente atasate"
           ]
         },
         {
           "plan": "Pro",
           "price": 49,
-          "prog": "150 prog/lună",
+          "prog": "150 prog/luna",
           "features": [
             "Tot din Free",
-            "150 rezervări / lună",
-            "15 servicii",
-            "Rapoarte de bază"
+            "1 punct de lucru",
+            "Pana la 5 specialisti",
+            "Rapoarte de baza"
           ]
         },
         {
           "plan": "Elite",
           "price": 99,
-          "prog": "500 prog/lună",
+          "prog": "500 prog/luna",
           "features": [
             "Tot din Pro",
-            "Link rezervări + Cod QR",
-            "Plată online la rezervare",
-            "Notificări email automate",
-            "Notificări specialiști"
+            "1 punct de lucru",
+            "Pana la 10 specialisti",
+            "Plata online la rezervare"
           ]
         },
         {
@@ -547,9 +546,20 @@
           "prog": "Nelimitat",
           "features": [
             "Tot din Elite",
-            "Programări nelimitate",
-            "Multi-specialist complet",
-            "10 zile trial gratuit"
+            "3 puncte de lucru",
+            "10 specialisti pe punct",
+            "Programari nelimitate"
+          ]
+        },
+        {
+          "plan": "Business",
+          "price": 499,
+          "prog": "5 locatii",
+          "features": [
+            "Tot din Team",
+            "5 puncte de lucru",
+            "20 specialisti pe punct",
+            "Rapoarte pe locatii"
           ]
         }
       ],
@@ -1166,7 +1176,9 @@
       "phoneHint": "Opțional, dar necesar dacă vrei să trimiți datele de acces pe WhatsApp.",
       "teamOnlyBadge": "Doar Team",
       "teamOnlyHint": "Portalul de specialist e disponibil doar pe planul Chronos Team. Apasă pentru a face upgrade.",
-      "phoneLabel": "Telefon Specialist"
+      "phoneLabel": "Telefon Specialist",
+      "teamOrBusinessBadge": "Team sau Business",
+      "teamOrBusinessHint": "Portalul de specialist este disponibil pe planurile Chronos Team si Chronos Business."
     },
     "staffPhotoUploadBtn": "Incarca poza",
     "staffPhotoRemoveBtn": "Sterge poza",

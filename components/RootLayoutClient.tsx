@@ -222,6 +222,7 @@ export default function RootLayoutClient({ children }: { children: React.ReactNo
 
   const planVisual = (() => {
     const plan = activePlan.toUpperCase();
+    if (plan.includes("BUSINESS")) return { Icon: Crown, color: "text-emerald-600", bg: "bg-emerald-50", border: "border-emerald-100" };
     if (plan.includes("TEAM")) return { Icon: Crown, color: "text-violet-600", bg: "bg-violet-50", border: "border-violet-100" };
     if (plan.includes("ELITE")) return { Icon: Gem, color: "text-sky-600", bg: "bg-sky-50", border: "border-sky-100" };
     if (plan.includes("PRO")) return { Icon: Zap, color: "text-amber-600", bg: "bg-amber-50", border: "border-amber-100" };

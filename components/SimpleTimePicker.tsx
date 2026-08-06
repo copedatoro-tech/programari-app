@@ -1,93 +1,125 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 
 interface SimpleTimePickerProps {
-  value: string; // "HH:MM"
+  value: string;
   onChange: (v: string) => void;
 }
 
 const HOURS = Array.from({ length: 24 }, (_, i) => String(i).padStart(2, "0"));
 const MINUTES = ["00", "15", "30", "45"];
 
-// ℹ️ Selector simplu de oră, cu stilul vizual al aplicației (negru+portocaliu) —
-// pentru setări generale de program (nu ține cont de disponibilitate/suprapuneri,
-// spre deosebire de ChronosTimePicker, folosit la rezervări).
 export default function SimpleTimePicker({ value, onChange }: SimpleTimePickerProps) {
   const [open, setOpen] = useState(false);
-  const [h, m] = (value || "09:00").split(":");
-  const boxRef = useRef<HTMLDivElement>(null);
+  const [draftHour, setDraftHour] = useState("09");
+  const [draftMinute, setDraftMinute] = useState("00");
+  const panelRef = useRef<HTMLDivElement>(null);
+
+  const [hour = "09", minute = "00"] = (value || "09:00").split(":");
 
   useEffect(() => {
-    function onClickOutside(e: MouseEvent) {
-      if (boxRef.current && !boxRef.current.contains(e.target as Node)) setOpen(false);
-    }
-    if (open) document.addEventListener("mousedown", onClickOutside);
-    return () => document.removeEventListener("mousedown", onClickOutside);
-  }, [open]);
+    if (!open) return;
+    setDraftHour(hour || "09");
+    setDraftMinute(minute || "00");
 
-  const selectHour = (newH: string) => onChange(`${newH}:${m}`);
-  const selectMinute = (newM: string) => onChange(`${h}:${newM}`);
+    function onClickOutside(event: MouseEvent) {
+      if (panelRef.current && !panelRef.current.contains(event.target as Node)) {
+        setOpen(false);
+      }
+    }
+
+    document.addEventListener("mousedown", onClickOutside);
+    return () => document.removeEventListener("mousedown", onClickOutside);
+  }, [open, hour, minute]);
+
+  const save = () => {
+    onChange(`${draftHour}:${draftMinute}`);
+    setOpen(false);
+  };
 
   return (
-    <div ref={boxRef} style={{ position: "relative" }}>
+    <>
       <button
         type="button"
-        onClick={() => setOpen((o) => !o)}
-        style={{
-          padding: "8px 14px", borderRadius: 10, border: "2px solid #0f172a",
-          background: "#0f172a", color: "#f59e0b",
-          fontSize: 13, fontWeight: 900, fontStyle: "italic", cursor: "pointer",
-          minWidth: 76, textAlign: "center",
-        }}
+        onClick={() => setOpen(true)}
+        className="min-w-[88px] rounded-2xl bg-slate-950 px-4 py-3 text-center text-[13px] font-black italic text-amber-500 shadow-sm ring-1 ring-slate-800 transition-all hover:bg-amber-500 hover:text-slate-950"
       >
-        {h}:{m}
+        {hour}:{minute}
       </button>
 
       {open && (
-        <div style={{
-          position: "absolute", top: "calc(100% + 6px)", left: 0, zIndex: 200,
-          background: "#fff", border: "1.5px solid #e2e8f0", borderRadius: 14,
-          boxShadow: "0 12px 32px rgba(0,0,0,0.16)", display: "flex", overflow: "hidden",
-        }}>
-          <div style={{ maxHeight: 220, overflowY: "auto", borderRight: "1px solid #f1f5f9" }}>
-            {HOURS.map((hh) => (
+        <div className="fixed inset-0 z-[260] flex items-center justify-center bg-slate-950/35 px-4 backdrop-blur-sm">
+          <div
+            ref={panelRef}
+            className="w-full max-w-sm rounded-[32px] border-t-[8px] border-amber-500 bg-white p-6 shadow-2xl"
+          >
+            <div className="mb-5 flex items-center justify-between gap-4">
+              <div>
+                <p className="text-[9px] font-black uppercase italic tracking-widest text-amber-500">Program</p>
+                <h4 className="text-xl font-black uppercase italic tracking-tight text-slate-950">
+                  {draftHour}:{draftMinute}
+                </h4>
+              </div>
               <button
-                key={hh}
                 type="button"
-                onClick={() => selectHour(hh)}
-                style={{
-                  display: "block", width: 56, padding: "8px 0", border: "none", cursor: "pointer",
-                  background: hh === h ? "#0f172a" : "transparent",
-                  color: hh === h ? "#f59e0b" : "#334155",
-                  fontSize: 12, fontWeight: 700,
-                }}
-                className="hover:bg-slate-50 transition-colors"
+                onClick={() => setOpen(false)}
+                className="rounded-2xl bg-slate-100 px-4 py-3 text-[10px] font-black uppercase italic text-slate-500 transition-all hover:bg-red-500 hover:text-white"
               >
-                {hh}
+                Inchide
               </button>
-            ))}
-          </div>
-          <div style={{ maxHeight: 220, overflowY: "auto" }}>
-            {MINUTES.map((mm) => (
-              <button
-                key={mm}
-                type="button"
-                onClick={() => { selectMinute(mm); setOpen(false); }}
-                style={{
-                  display: "block", width: 56, padding: "8px 0", border: "none", cursor: "pointer",
-                  background: mm === m ? "#0f172a" : "transparent",
-                  color: mm === m ? "#f59e0b" : "#334155",
-                  fontSize: 12, fontWeight: 700,
-                }}
-                className="hover:bg-slate-50 transition-colors"
-              >
-                {mm}
-              </button>
-            ))}
+            </div>
+
+            <div className="space-y-5">
+              <div>
+                <p className="mb-2 text-[9px] font-black uppercase italic tracking-widest text-slate-400">Ora</p>
+                <div className="grid max-h-48 grid-cols-6 gap-2 overflow-y-auto pr-1">
+                  {HOURS.map((item) => {
+                    const active = item === draftHour;
+                    return (
+                      <button
+                        key={item}
+                        type="button"
+                        onClick={() => setDraftHour(item)}
+                        className={`rounded-xl px-2 py-2 text-[11px] font-black italic transition-all ${active ? "bg-slate-950 text-amber-500 shadow-md" : "bg-slate-100 text-slate-600 hover:bg-amber-100"}`}
+                      >
+                        {item}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div>
+                <p className="mb-2 text-[9px] font-black uppercase italic tracking-widest text-slate-400">Minute</p>
+                <div className="grid grid-cols-4 gap-2">
+                  {MINUTES.map((item) => {
+                    const active = item === draftMinute;
+                    return (
+                      <button
+                        key={item}
+                        type="button"
+                        onClick={() => setDraftMinute(item)}
+                        className={`rounded-xl px-3 py-3 text-[12px] font-black italic transition-all ${active ? "bg-slate-950 text-amber-500 shadow-md" : "bg-slate-100 text-slate-600 hover:bg-amber-100"}`}
+                      >
+                        {item}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={save}
+              className="mt-6 w-full rounded-2xl bg-slate-950 py-4 text-[11px] font-black uppercase italic text-amber-500 shadow-lg transition-all hover:bg-amber-500 hover:text-slate-950"
+            >
+              Salveaza ora
+            </button>
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 }

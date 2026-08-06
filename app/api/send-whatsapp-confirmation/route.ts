@@ -33,7 +33,7 @@ export async function POST(request: Request) {
       .maybeSingle();
 
     const plan = (profile?.plan_type || "").toUpperCase();
-    const hasAccess = plan.includes("ELITE") || plan.includes("TEAM");
+    const hasAccess = plan.includes("ELITE") || plan.includes("TEAM") || plan.includes("BUSINESS");
 
     if (!hasAccess) {
       // Nu e o eroare reală — doar salonul nu are planul necesar. Răspundem

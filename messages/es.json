@@ -509,47 +509,57 @@
       "plans": [
         {
           "plan": "Free",
-          "price": "Gratis",
-          "prog": "30 citas/mes",
+          "price": 0,
+          "prog": "30 reservas/mes",
           "features": [
             "Calendario completo",
-            "Base de datos de clientes",
-            "Gestión de servicios",
+            "Base de clientes",
+            "Gestion de servicios",
             "Documentos adjuntos"
           ]
         },
         {
           "plan": "Pro",
-          "price": "49 RON/mes",
-          "prog": "150 citas/mes",
+          "price": 49,
+          "prog": "150 reservas/mes",
           "features": [
             "Todo de Free",
-            "150 reservas / mes",
-            "15 servicios",
+            "1 punto de trabajo",
+            "Hasta 5 especialistas",
             "Informes basicos"
           ]
         },
         {
           "plan": "Elite",
-          "price": "99 RON/mes",
-          "prog": "500 citas/mes",
+          "price": 99,
+          "prog": "500 reservas/mes",
           "features": [
             "Todo de Pro",
-            "Enlace de reserva + Codigo QR",
-            "Pago online al reservar",
-            "Notificaciones automáticas por email",
-            "Notificaciones a especialistas"
+            "1 punto de trabajo",
+            "Hasta 10 especialistas",
+            "Pago online al reservar"
           ]
         },
         {
           "plan": "Team",
-          "price": "199 RON/mes",
+          "price": 199,
           "prog": "Ilimitado",
           "features": [
             "Todo de Elite",
-            "Citas ilimitadas",
-            "Soporte multi-especialista completo",
-            "10 días de prueba gratis"
+            "3 puntos de trabajo",
+            "10 especialistas por punto",
+            "Reservas ilimitadas"
+          ]
+        },
+        {
+          "plan": "Business",
+          "price": 499,
+          "prog": "5 ubicaciones",
+          "features": [
+            "Todo de Team",
+            "5 puntos de trabajo",
+            "20 especialistas por punto",
+            "Informes por ubicacion"
           ]
         }
       ],
@@ -967,7 +977,9 @@
       "phoneHint": "Opcional, pero necesario si quieres enviar los datos de acceso por WhatsApp.",
       "teamOnlyBadge": "Solo Team",
       "teamOnlyHint": "El portal del especialista solo está disponible en el plan Chronos Team. Haz clic para actualizar.",
-      "phoneLabel": "Teléfono del Especialista"
+      "phoneLabel": "Teléfono del Especialista",
+      "teamOrBusinessBadge": "Team o Business",
+      "teamOrBusinessHint": "El portal del especialista esta disponible en Chronos Team y Chronos Business."
     },
     "staffPhotoUploadBtn": "Subir foto",
     "staffPhotoRemoveBtn": "Eliminar foto",

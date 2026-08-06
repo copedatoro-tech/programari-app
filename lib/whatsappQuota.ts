@@ -19,7 +19,7 @@ export async function checkAndConsumeWhatsAppQuota(
   const normalizedPlan = (plan || "").toUpperCase();
 
   // Team — nelimitat, nu ținem evidența
-  if (normalizedPlan.includes("TEAM")) {
+  if (normalizedPlan.includes("TEAM") || normalizedPlan.includes("BUSINESS")) {
     return { allowed: true };
   }
 

@@ -509,47 +509,57 @@
       "plans": [
         {
           "plan": "Free",
-          "price": "Kostenlos",
-          "prog": "30 Termine/Monat",
+          "price": 0,
+          "prog": "30 Buchungen/Monat",
           "features": [
-            "Vollständiger Kalender",
+            "Vollstaendiger Kalender",
             "Kundendatenbank",
-            "Leistungsverwaltung",
-            "Angehängte Dokumente"
+            "Serviceverwaltung",
+            "Angehaengte Dokumente"
           ]
         },
         {
           "plan": "Pro",
-          "price": "49 RON/Monat",
-          "prog": "150 Termine/Monat",
+          "price": 49,
+          "prog": "150 Buchungen/Monat",
           "features": [
             "Alles aus Free",
-            "150 Buchungen / Monat",
-            "15 Dienstleistungen",
+            "1 Arbeitsort",
+            "Bis zu 5 Spezialisten",
             "Basisberichte"
           ]
         },
         {
           "plan": "Elite",
-          "price": "99 RON/Monat",
-          "prog": "500 Termine/Monat",
+          "price": 99,
+          "prog": "500 Buchungen/Monat",
           "features": [
             "Alles aus Pro",
-            "Buchungslink + QR-Code",
-            "Online-Zahlung bei Buchung",
-            "Automatische E-Mail-Benachrichtigungen",
-            "Mitarbeiterbenachrichtigungen"
+            "1 Arbeitsort",
+            "Bis zu 10 Spezialisten",
+            "Online-Zahlung bei Buchung"
           ]
         },
         {
           "plan": "Team",
-          "price": "199 RON/Monat",
+          "price": 199,
           "prog": "Unbegrenzt",
           "features": [
             "Alles aus Elite",
-            "Unbegrenzte Termine",
-            "Vollständige Multi-Fachkraft-Unterstützung",
-            "10 Tage kostenlose Testphase"
+            "3 Arbeitsorte",
+            "10 Spezialisten pro Arbeitsort",
+            "Unbegrenzte Buchungen"
+          ]
+        },
+        {
+          "plan": "Business",
+          "price": 499,
+          "prog": "5 Standorte",
+          "features": [
+            "Alles aus Team",
+            "5 Arbeitsorte",
+            "20 Spezialisten pro Arbeitsort",
+            "Berichte nach Standort"
           ]
         }
       ],
@@ -968,7 +978,9 @@
       "phoneHint": "Optional, aber erforderlich, wenn Sie die Zugangsdaten per WhatsApp senden möchten.",
       "teamOnlyBadge": "Nur Team",
       "teamOnlyHint": "Das Spezialisten-Portal ist nur im Chronos Team Plan verfügbar. Klicken Sie zum Upgrade.",
-      "phoneLabel": "Telefon des Spezialisten"
+      "phoneLabel": "Telefon des Spezialisten",
+      "teamOrBusinessBadge": "Team oder Business",
+      "teamOrBusinessHint": "Das Spezialistenportal ist in Chronos Team und Chronos Business verfuegbar."
     },
     "staffPhotoUploadBtn": "Foto hochladen",
     "staffPhotoRemoveBtn": "Foto entfernen",

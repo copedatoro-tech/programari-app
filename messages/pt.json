@@ -509,47 +509,57 @@
       "plans": [
         {
           "plan": "Free",
-          "price": "Grátis",
-          "prog": "30 marcações/mês",
+          "price": 0,
+          "prog": "30 reservas/mes",
           "features": [
-            "Calendário completo",
-            "Base de dados de clientes",
-            "Gestão de serviços",
+            "Calendario completo",
+            "Base de clientes",
+            "Gestao de servicos",
             "Documentos anexados"
           ]
         },
         {
           "plan": "Pro",
-          "price": "49 RON/mês",
-          "prog": "150 marcações/mês",
+          "price": 49,
+          "prog": "150 reservas/mes",
           "features": [
             "Tudo do Free",
-            "150 reservas / mes",
-            "15 servicos",
+            "1 local de trabalho",
+            "Ate 5 especialistas",
             "Relatorios basicos"
           ]
         },
         {
           "plan": "Elite",
-          "price": "99 RON/mês",
-          "prog": "500 marcações/mês",
+          "price": 99,
+          "prog": "500 reservas/mes",
           "features": [
             "Tudo do Pro",
-            "Link de reserva + Codigo QR",
-            "Pagamento online na reserva",
-            "Notificações automáticas por email",
-            "Notificacoes para especialistas"
+            "1 local de trabalho",
+            "Ate 10 especialistas",
+            "Pagamento online na reserva"
           ]
         },
         {
           "plan": "Team",
-          "price": "199 RON/mês",
+          "price": 199,
           "prog": "Ilimitado",
           "features": [
             "Tudo do Elite",
-            "Marcações ilimitadas",
-            "Suporte multi-especialista completo",
-            "10 dias de teste grátis"
+            "3 locais de trabalho",
+            "10 especialistas por local",
+            "Reservas ilimitadas"
+          ]
+        },
+        {
+          "plan": "Business",
+          "price": 499,
+          "prog": "5 locais",
+          "features": [
+            "Tudo do Team",
+            "5 locais de trabalho",
+            "20 especialistas por local",
+            "Relatorios por local"
           ]
         }
       ],
@@ -966,7 +976,9 @@
       "phoneHint": "Opcional, mas necessário se quiser enviar os dados de acesso via WhatsApp.",
       "teamOnlyBadge": "Apenas Team",
       "teamOnlyHint": "O portal do especialista só está disponível no plano Chronos Team. Clique para atualizar.",
-      "phoneLabel": "Telefone do Especialista"
+      "phoneLabel": "Telefone do Especialista",
+      "teamOrBusinessBadge": "Team ou Business",
+      "teamOrBusinessHint": "O portal do especialista esta disponivel nos planos Chronos Team e Chronos Business."
     },
     "staffPhotoUploadBtn": "Carregar foto",
     "staffPhotoRemoveBtn": "Remover foto",

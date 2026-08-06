@@ -509,47 +509,57 @@
       "plans": [
         {
           "plan": "Free",
-          "price": "Za darmo",
-          "prog": "30 wizyt/mies.",
+          "price": 0,
+          "prog": "30 rezerwacji/miesiac",
           "features": [
-            "Pełny kalendarz",
-            "Baza danych klientów",
-            "Zarządzanie usługami",
-            "Załączone dokumenty"
+            "Pelny kalendarz",
+            "Baza klientow",
+            "Zarzadzanie uslugami",
+            "Zalaczone dokumenty"
           ]
         },
         {
           "plan": "Pro",
-          "price": "49 RON/mies.",
-          "prog": "150 wizyt/mies.",
+          "price": 49,
+          "prog": "150 rezerwacji/miesiac",
           "features": [
             "Wszystko z Free",
-            "150 rezerwacji / miesiac",
-            "15 uslug",
-            "Podstawowe raporty"
+            "1 lokalizacja",
+            "Do 5 specjalistow",
+            "Raporty podstawowe"
           ]
         },
         {
           "plan": "Elite",
-          "price": "99 RON/mies.",
-          "prog": "500 wizyt/mies.",
+          "price": 99,
+          "prog": "500 rezerwacji/miesiac",
           "features": [
             "Wszystko z Pro",
-            "Link rezerwacji + Kod QR",
-            "Platnosc online przy rezerwacji",
-            "Automatyczne powiadomienia e-mail",
-            "Powiadomienia dla specjalistow"
+            "1 lokalizacja",
+            "Do 10 specjalistow",
+            "Platnosc online przy rezerwacji"
           ]
         },
         {
           "plan": "Team",
-          "price": "199 RON/mies.",
+          "price": 199,
           "prog": "Bez limitu",
           "features": [
             "Wszystko z Elite",
-            "Nieograniczona liczba wizyt",
-            "Pełne wsparcie wielu specjalistów",
-            "10 dni darmowego okresu próbnego"
+            "3 lokalizacje",
+            "10 specjalistow na lokalizacje",
+            "Rezerwacje bez limitu"
+          ]
+        },
+        {
+          "plan": "Business",
+          "price": 499,
+          "prog": "5 lokalizacji",
+          "features": [
+            "Wszystko z Team",
+            "5 lokalizacji",
+            "20 specjalistow na lokalizacje",
+            "Raporty wedlug lokalizacji"
           ]
         }
       ],
@@ -967,7 +977,9 @@
       "phoneHint": "Opcjonalne, ale wymagane, jeśli chcesz wysłać dane dostępowe przez WhatsApp.",
       "teamOnlyBadge": "Tylko Team",
       "teamOnlyHint": "Portal specjalisty jest dostępny tylko w planie Chronos Team. Kliknij, aby ulepszyć.",
-      "phoneLabel": "Telefon Specjalisty"
+      "phoneLabel": "Telefon Specjalisty",
+      "teamOrBusinessBadge": "Team lub Business",
+      "teamOrBusinessHint": "Portal specjalisty jest dostepny w planach Chronos Team i Chronos Business."
     },
     "staffPhotoUploadBtn": "Dodaj zdjecie",
     "staffPhotoRemoveBtn": "Usun zdjecie",

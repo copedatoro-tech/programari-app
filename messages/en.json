@@ -510,7 +510,7 @@
         {
           "plan": "Free",
           "price": 0,
-          "prog": "30 appt/month",
+          "prog": "30 bookings/month",
           "features": [
             "Full calendar",
             "Client database",
@@ -521,24 +521,23 @@
         {
           "plan": "Pro",
           "price": 49,
-          "prog": "150 appt/month",
+          "prog": "150 bookings/month",
           "features": [
             "Everything in Free",
-            "150 bookings / month",
-            "15 services",
+            "1 work location",
+            "Up to 5 specialists",
             "Basic reports"
           ]
         },
         {
           "plan": "Elite",
           "price": 99,
-          "prog": "500 appt/month",
+          "prog": "500 bookings/month",
           "features": [
             "Everything in Pro",
-            "Booking link + QR code",
-            "Online payment at booking",
-            "Automatic email notifications",
-            "Staff notifications"
+            "1 work location",
+            "Up to 10 specialists",
+            "Online payment at booking"
           ]
         },
         {
@@ -547,9 +546,20 @@
           "prog": "Unlimited",
           "features": [
             "Everything in Elite",
-            "Unlimited appointments",
-            "Full multi-specialist support",
-            "10-day free trial"
+            "3 work locations",
+            "10 specialists per location",
+            "Unlimited bookings"
+          ]
+        },
+        {
+          "plan": "Business",
+          "price": 499,
+          "prog": "5 locations",
+          "features": [
+            "Everything in Team",
+            "5 work locations",
+            "20 specialists per location",
+            "Location reports"
           ]
         }
       ],
@@ -943,7 +953,9 @@
       "phoneHint": "Optional, but required if you want to send the access details via WhatsApp.",
       "teamOnlyBadge": "Team Only",
       "teamOnlyHint": "The specialist portal is only available on the Chronos Team plan. Click to upgrade.",
-      "phoneLabel": "Specialist Phone"
+      "phoneLabel": "Specialist Phone",
+      "teamOrBusinessBadge": "Team or Business",
+      "teamOrBusinessHint": "The specialist portal is available on Chronos Team and Chronos Business plans."
     },
     "staffPhotoUploadBtn": "Upload photo",
     "staffPhotoRemoveBtn": "Remove photo",

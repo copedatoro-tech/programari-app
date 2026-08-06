@@ -509,47 +509,57 @@
       "plans": [
         {
           "plan": "Free",
-          "price": "Ingyenes",
-          "prog": "30 időpont/hó",
+          "price": 0,
+          "prog": "30 foglalas/honap",
           "features": [
-            "Teljes naptár",
-            "Ügyféladatbázis",
-            "Szolgáltatáskezelés",
+            "Teljes naptar",
+            "Ugyfeladatbazis",
+            "Szolgaltataskezeles",
             "Csatolt dokumentumok"
           ]
         },
         {
           "plan": "Pro",
-          "price": "49 RON/hó",
-          "prog": "150 időpont/hó",
+          "price": 49,
+          "prog": "150 foglalas/honap",
           "features": [
-            "Minden a Free-bol",
-            "150 foglalas / honap",
-            "15 szolgaltatas",
-            "Alapjelentesek"
+            "Minden a Free csomagbol",
+            "1 helyszin",
+            "Legfeljebb 5 szakember",
+            "Alap riportok"
           ]
         },
         {
           "plan": "Elite",
-          "price": "99 RON/hó",
-          "prog": "500 időpont/hó",
+          "price": 99,
+          "prog": "500 foglalas/honap",
           "features": [
-            "Minden a Pro-bol",
-            "Foglalasi link + QR-kod",
-            "Online fizetes foglalaskor",
-            "Automatikus email értesítések",
-            "Szakember ertesitesek"
+            "Minden a Pro csomagbol",
+            "1 helyszin",
+            "Legfeljebb 10 szakember",
+            "Online fizetes foglalaskor"
           ]
         },
         {
           "plan": "Team",
-          "price": "199 RON/hó",
-          "prog": "Korlátlan",
+          "price": 199,
+          "prog": "Korl?tlan",
           "features": [
-            "Minden az Elite-ből",
-            "Korlátlan időpontok",
-            "Teljes multi-szakember támogatás",
-            "10 napos ingyenes próba"
+            "Minden az Elite csomagbol",
+            "3 helyszin",
+            "10 szakember helyszinenkent",
+            "Korl?tlan foglalas"
+          ]
+        },
+        {
+          "plan": "Business",
+          "price": 499,
+          "prog": "5 helyszin",
+          "features": [
+            "Minden a Team csomagbol",
+            "5 helyszin",
+            "20 szakember helyszinenkent",
+            "Riportok helyszinenkent"
           ]
         }
       ],
@@ -967,7 +977,9 @@
       "phoneHint": "Opcionális, de szükséges, ha WhatsAppon szeretné elküldeni a hozzáférési adatokat.",
       "teamOnlyBadge": "Csak Team",
       "teamOnlyHint": "A szakember portál csak a Chronos Team csomagban érhető el. Kattintson a frissítéshez.",
-      "phoneLabel": "Szakember Telefonszáma"
+      "phoneLabel": "Szakember Telefonszáma",
+      "teamOrBusinessBadge": "Team vagy Business",
+      "teamOrBusinessHint": "A szakember portal elerheto a Chronos Team es Chronos Business csomagokban."
     },
     "staffPhotoUploadBtn": "Foto feltoltese",
     "staffPhotoRemoveBtn": "Foto torlese",

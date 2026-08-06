@@ -83,7 +83,7 @@ export async function GET(request: Request) {
     if (!profile?.reminder_2h_enabled) continue; // doar cine a activat explicit opțiunea
 
     const plan = (profile.plan_type || "").toUpperCase();
-    if (!plan.includes("ELITE") && !plan.includes("TEAM")) continue; // functie disponibila doar ELITE/TEAM
+    if (!plan.includes("ELITE") && !plan.includes("TEAM") && !plan.includes("BUSINESS")) continue; // functie disponibila doar ELITE/TEAM
     if (!appt.email) continue; // fără email, nu avem cum trimite
 
     const clientName = appt.title || appt.prenume || appt.nume || "Client";

@@ -23,7 +23,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Parola trebuie să aibă minim 6 caractere." }, { status: 400 });
     }
 
-    // ✅ Portalul de specialist e disponibil DOAR pentru planul Chronos Team —
+    // ✅ Portalul de specialist e disponibil DOAR pentru planul Chronos Team sau Chronos Business —
     // verificăm planul apelantului (administratorul), nu al specialistului
     const { data: callerProfile } = await supabaseAdmin
       .from("profiles")
@@ -37,7 +37,7 @@ export async function POST(request: Request) {
     const hasAccess = trialActive || plan.includes("TEAM");
 
     if (!hasAccess) {
-      return NextResponse.json({ error: "Portalul de specialist este disponibil doar pentru planul Chronos Team." }, { status: 403 });
+      return NextResponse.json({ error: "Portalul de specialist este disponibil doar pentru planul Chronos Team sau Chronos Business." }, { status: 403 });
     }
 
     // ✅ Confirmăm că specialistul aparține salonului celui care face cererea
