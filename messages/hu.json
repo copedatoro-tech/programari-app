@@ -839,7 +839,7 @@
   "resurse": {
     "workLocationsTitle": "Munkavégzési helyek",
     "addWorkLocationBtn": "Helyszín hozzáadása",
-    "deleteWorkLocationBtn": "Helyszín törlése",
+    "deleteWorkLocationBtn": "Helyszin torlese",
     "saveWorkLocationsBtn": "Helyszínek mentése",
     "noWorkLocationsMsg": "Még nem adtál hozzá munkavégzési helyet.",
     "workLocationNameLabel": "Helyszín neve",
@@ -878,15 +878,7 @@
     "activeServicesTitle": "AKTÍV SZOLGÁLTATÁSOK",
     "teamTitle": "SZAKEMBER CSAPAT",
     "save": "MENTÉS",
-    "othersShort": "+ {count} további",
-    "currency": {
-      "RON": "Román lej",
-      "EUR": "Euro",
-      "USD": "Amerikai dollár",
-      "GBP": "Brit font",
-      "HUF": "Magyar forint",
-      "PLN": "Lengyel zloty"
-    },
+    "othersShort": "+ {count} tovabbi",
     "cancel": "MÉGSE",
     "update": "FRISSÍTÉS",
     "close": "BEZÁRÁS",
@@ -2027,5 +2019,13 @@
     "message": "Alapveto technikai sutiket hasznalunk a fiokod mukodesehez. Kivalaszthatod, mely opciokat fogadod el.",
     "essentialOnlyBtn": "Csak alapvetok",
     "acceptAllBtn": "Osszes elfogadasa"
+  },
+  "currency": {
+    "RON": "Roman lej",
+    "EUR": "Euro",
+    "USD": "Amerikai dollar",
+    "GBP": "Angol font",
+    "HUF": "Magyar forint",
+    "PLN": "Lengyel zloty"
   }
 }

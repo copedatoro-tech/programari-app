@@ -1063,7 +1063,7 @@
   "resurse": {
     "workLocationsTitle": "Puncte de lucru",
     "addWorkLocationBtn": "Adaugă punct de lucru",
-    "deleteWorkLocationBtn": "Șterge punctul de lucru",
+    "deleteWorkLocationBtn": "Sterge punctul de lucru",
     "saveWorkLocationsBtn": "Salvează punctele de lucru",
     "noWorkLocationsMsg": "Nu ai adăugat încă puncte de lucru.",
     "workLocationNameLabel": "Denumire punct de lucru",
@@ -1103,14 +1103,6 @@
     "teamTitle": "ECHIPĂ EXPERȚI",
     "save": "SALVEAZĂ",
     "othersShort": "+ {count} altele",
-    "currency": {
-      "RON": "Leu românesc",
-      "EUR": "Euro",
-      "USD": "Dolar american",
-      "GBP": "Liră sterlină",
-      "HUF": "Forint maghiar",
-      "PLN": "Zlot polonez"
-    },
     "cancel": "ANULEAZĂ",
     "update": "ACTUALIZEAZĂ",
     "close": "ÎNCHIDE",
@@ -2069,5 +2061,13 @@
     "message": "Folosim cookie-uri tehnice esentiale pentru functionarea contului tau. Poti alege ce optiuni accepti.",
     "essentialOnlyBtn": "Doar esentiale",
     "acceptAllBtn": "Accept toate"
+  },
+  "currency": {
+    "RON": "Leu romanesc",
+    "EUR": "Euro",
+    "USD": "Dolar american",
+    "GBP": "Lira sterlina",
+    "HUF": "Forint maghiar",
+    "PLN": "Zlot polonez"
   }
 }

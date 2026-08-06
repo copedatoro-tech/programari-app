@@ -879,14 +879,6 @@
     "teamTitle": "TEAM DI ESPERTI",
     "save": "SALVA",
     "othersShort": "+ {count} altri",
-    "currency": {
-      "RON": "Leu rumeno",
-      "EUR": "Euro",
-      "USD": "Dollaro americano",
-      "GBP": "Sterlina",
-      "HUF": "Fiorino ungherese",
-      "PLN": "Zloty polacco"
-    },
     "cancel": "ANNULLA",
     "update": "AGGIORNA",
     "close": "CHIUDI",
@@ -2027,5 +2019,13 @@
     "message": "Utilizziamo cookie tecnici essenziali per il funzionamento del tuo account. Puoi scegliere quali opzioni accettare.",
     "essentialOnlyBtn": "Solo essenziali",
     "acceptAllBtn": "Accetta tutto"
+  },
+  "currency": {
+    "RON": "Leu rumeno",
+    "EUR": "Euro",
+    "USD": "Dollaro statunitense",
+    "GBP": "Sterlina britannica",
+    "HUF": "Fiorino ungherese",
+    "PLN": "Zloty polacco"
   }
 }

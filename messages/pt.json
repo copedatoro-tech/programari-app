@@ -683,11 +683,10 @@
     "phonePlaceholder": "TELEFONE *",
     "emailPlaceholder": "EMAIL (OPCIONAL)",
     "notesPlaceholder": "NOTAS OU DETALHES ESPECIAIS...",
-    "save": "+ Guardar",
+    "save": "SALVAR",
     "all": "Todos ({count})",
     "folders": "Pastas ({count})",
-      "save": "SALVAR",
-      "othersShort": "+ {count} outros",
+    "othersShort": "+ {count} outros",
     "newFolderBtn": "+ Nova pasta",
     "editShort": "✎ Editar",
     "syncing": "A sincronizar base de dados...",
@@ -973,7 +972,8 @@
     "staffPhotoRemoveBtn": "Remover foto",
     "staffPhotoImageOnly": "Escolha um arquivo de imagem.",
     "staffPhotoUploadError": "Erro ao carregar foto:",
-    "staffPhotoAlt": "Foto do especialista"
+    "staffPhotoAlt": "Foto do especialista",
+    "othersShort": "+ {count} outros"
   },
   "sugestii": {
     "checkingAccess": "A verificar o acesso...",
@@ -2019,5 +2019,13 @@
     "message": "Utilizamos cookies tecnicos essenciais para o funcionamento da sua conta. Pode escolher que opcoes aceitar.",
     "essentialOnlyBtn": "Apenas essenciais",
     "acceptAllBtn": "Aceitar tudo"
+  },
+  "currency": {
+    "RON": "Leu romeno",
+    "EUR": "Euro",
+    "USD": "Dolar americano",
+    "GBP": "Libra esterlina",
+    "HUF": "Forint hungaro",
+    "PLN": "Zloty polaco"
   }
 }

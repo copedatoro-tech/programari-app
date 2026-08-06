@@ -840,7 +840,7 @@
   "resurse": {
     "workLocationsTitle": "Arbeitsorte",
     "addWorkLocationBtn": "Ort hinzufügen",
-    "deleteWorkLocationBtn": "Arbeitsort löschen",
+    "deleteWorkLocationBtn": "Arbeitsort loeschen",
     "saveWorkLocationsBtn": "Orte speichern",
     "noWorkLocationsMsg": "Noch keine Arbeitsorte hinzugefügt.",
     "workLocationNameLabel": "Name Standort",
@@ -880,14 +880,6 @@
     "teamTitle": "FACHKRÄFTE-TEAM",
     "save": "SPEICHERN",
     "othersShort": "+ {count} weitere",
-    "currency": {
-      "RON": "Rumänischer Leu",
-      "EUR": "Euro",
-      "USD": "US-Dollar",
-      "GBP": "Britisches Pfund",
-      "HUF": "Ungarischer Forint",
-      "PLN": "Polnischer Zloty"
-    },
     "cancel": "ABBRECHEN",
     "update": "AKTUALISIEREN",
     "close": "SCHLIESSEN",
@@ -2028,5 +2020,13 @@
     "message": "Wir verwenden essentielle technische Cookies, damit Ihr Konto funktioniert. Sie koennen waehlen, welche Optionen Sie akzeptieren.",
     "essentialOnlyBtn": "Nur essentielle",
     "acceptAllBtn": "Alle akzeptieren"
+  },
+  "currency": {
+    "RON": "Rumanischer Leu",
+    "EUR": "Euro",
+    "USD": "US-Dollar",
+    "GBP": "Britisches Pfund",
+    "HUF": "Ungarischer Forint",
+    "PLN": "Polnischer Zloty"
   }
 }

@@ -715,7 +715,7 @@ export default function ResursePage() {
             </div>
             <div className="space-y-4">
               {workLocations.length === 0 && <div className="text-sm text-slate-400 italic">{t("noWorkLocationsMsg")}</div>}
-              <div className="max-h-[640px] overflow-y-auto space-y-4">
+              <div className="max-h-[260px] overflow-y-auto space-y-4">
                 {workLocations.map((loc) => (
                   <div key={loc.id} className="p-3 border rounded-xl bg-slate-50 flex items-center justify-between">
                     <div className="flex-1 pr-4">
@@ -770,7 +770,7 @@ export default function ResursePage() {
 
                 <div>
                   <p className="text-[9px] font-black uppercase text-slate-400 mb-2">{t("workLocationServicesLabel")}</p>
-                  <div className="max-h-[160px] overflow-y-auto grid grid-cols-2 gap-2 text-sm border rounded-md p-2">
+                  <div className="max-h-[180px] overflow-y-auto grid grid-cols-2 gap-2 text-sm border rounded-md p-2">
                     {services.map((s) => (
                       <label key={s.id} className="flex items-center gap-2">
                         <input type="checkbox" className="w-4 h-4" checked={Array.isArray(locationForm.service_ids) ? locationForm.service_ids.includes(s.id) : false} onChange={() => {
@@ -787,7 +787,7 @@ export default function ResursePage() {
 
                 <div>
                   <p className="text-[9px] font-black uppercase text-slate-400 mb-2">{t("workLocationStaffLabel")}</p>
-                  <div className="max-h-[160px] overflow-y-auto grid grid-cols-2 gap-2 text-sm border rounded-md p-2">
+                  <div className="max-h-[180px] overflow-y-auto grid grid-cols-2 gap-2 text-sm border rounded-md p-2">
                     {staff.map((st) => (
                       <label key={st.id} className="flex items-center gap-2">
                         <input type="checkbox" className="w-4 h-4" checked={Array.isArray(locationForm.staff_ids) ? locationForm.staff_ids.includes(st.id) : false} onChange={() => {

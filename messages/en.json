@@ -880,14 +880,6 @@
     "teamTitle": "TEAM OF SPECIALISTS",
     "save": "SAVE",
     "othersShort": "+ {count} others",
-    "currency": {
-      "RON": "Romanian leu",
-      "EUR": "Euro",
-      "USD": "US dollar",
-      "GBP": "Pound sterling",
-      "HUF": "Hungarian forint",
-      "PLN": "Polish zloty"
-    },
     "cancel": "CANCEL",
     "update": "UPDATE",
     "close": "CLOSE",
@@ -2028,5 +2020,13 @@
     "message": "We use essential technical cookies for your account to function. You can choose which options to accept.",
     "essentialOnlyBtn": "Essential only",
     "acceptAllBtn": "Accept all"
+  },
+  "currency": {
+    "RON": "Romanian leu",
+    "EUR": "Euro",
+    "USD": "US dollar",
+    "GBP": "British pound",
+    "HUF": "Hungarian forint",
+    "PLN": "Polish zloty"
   }
 }

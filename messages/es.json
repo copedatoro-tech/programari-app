@@ -839,7 +839,7 @@
   "resurse": {
     "workLocationsTitle": "Ubicaciones",
     "addWorkLocationBtn": "Agregar ubicación",
-    "deleteWorkLocationBtn": "Eliminar ubicación de trabajo",
+    "deleteWorkLocationBtn": "Eliminar ubicacion de trabajo",
     "saveWorkLocationsBtn": "Guardar ubicaciones",
     "noWorkLocationsMsg": "Aún no has agregado ubicaciones.",
     "workLocationNameLabel": "Nombre de la ubicación",
@@ -878,15 +878,7 @@
     "activeServicesTitle": "SERVICIOS ACTIVOS",
     "teamTitle": "EQUIPO DE EXPERTOS",
     "save": "GUARDAR",
-    "othersShort": "+ {count} más",
-    "currency": {
-      "RON": "Leu rumano",
-      "EUR": "Euro",
-      "USD": "Dólar estadounidense",
-      "GBP": "Libra esterlina",
-      "HUF": "Forinto húngaro",
-      "PLN": "Zloty polaco"
-    },
+    "othersShort": "+ {count} mas",
     "cancel": "CANCELAR",
     "update": "ACTUALIZAR",
     "close": "CERRAR",
@@ -2027,5 +2019,13 @@
     "message": "Usamos cookies tecnicas esenciales para que tu cuenta funcione. Puedes elegir que opciones aceptar.",
     "essentialOnlyBtn": "Solo esenciales",
     "acceptAllBtn": "Aceptar todo"
+  },
+  "currency": {
+    "RON": "Leu rumano",
+    "EUR": "Euro",
+    "USD": "Dolar estadounidense",
+    "GBP": "Libra esterlina",
+    "HUF": "Forinto hungaro",
+    "PLN": "Zloty polaco"
   }
 }
