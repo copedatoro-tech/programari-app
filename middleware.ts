@@ -83,8 +83,9 @@ export async function middleware(req: NextRequest) {
     return NextResponse.redirect(url)
   }
 
+  // ✅ Pagina principală a aplicației este acum Calendarul (nu Programări).
   if (pathname === '/login' || pathname === '/register' || pathname === '/forgot-password') {
-    url.pathname = withLocale('/programari')
+    url.pathname = withLocale('/programari/calendar')
     return NextResponse.redirect(url)
   }
 

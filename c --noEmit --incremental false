@@ -1,0 +1,6 @@
+warning: in the working copy of 'app/[locale]/programari/calendar/page.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'middleware.ts', LF will be replaced by CRLF the next time Git touches it
+ app/[locale]/programari/calendar/page.tsx | 270 [32m+++++++++++++++++++++++[m[31m-------[m
+ components/RootLayoutClient.tsx           |   8 [32m+[m[31m-[m
+ middleware.ts                             |   3 [32m+[m[31m-[m
+ 3 files changed, 216 insertions(+), 65 deletions(-)

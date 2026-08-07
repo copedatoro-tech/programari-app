@@ -9,7 +9,7 @@ import { useTranslations } from "next-intl";
 import { ChronosTimePicker, ChronosDatePicker } from "@/components/ChronosDateTimePickers";
 // ─── Constants ────────────────────────────────────────────────────────────────
 const SLOT_H = 56;
-const TIME_COL_W = 68;
+const TIME_COL_W = 52;
 // ─── Utils ────────────────────────────────────────────────────────────────────
 function sameDay(a: Date, b: Date) {
   return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
@@ -42,6 +42,20 @@ function parseWH(d: any): WorkingHour[] {
   if (!d) return [];
   if (typeof d === "string") { try { return JSON.parse(d); } catch { return []; } }
   return Array.isArray(d) ? d : [];
+}
+// ✅ Blocare timp per specialist — folosim același format ca la blocarea
+// generală din Setări (Record<dată, listă de sloturi de 15 min>), dar stocat
+// direct pe rândul specialistului din tabela "staff", nu pe tot business-ul.
+function parseStaffBlocks(d: any): Record<string, string[]> {
+  if (!d || typeof d !== "object" || Array.isArray(d)) return {};
+  return d as Record<string, string[]>;
+}
+function generateSlotRange(start: string, end: string): string[] {
+  const out: string[] = [];
+  const s = timeToMin(start), e = timeToMin(end);
+  if (e <= s) return out;
+  for (let m = s; m < e; m += 15) out.push(`${String(Math.floor(m/60)).padStart(2,"0")}:${String(m%60).padStart(2,"0")}`);
+  return out;
 }
 function isWorkingSlot(slot: string, start: string, end: string) {
   const s = timeToMin(slot), ws = timeToMin(start), we = timeToMin(end === "00:00" ? "24:00" : end);
@@ -106,7 +120,7 @@ type Prog = {
 type ViewMode = "day"|"week"|"month"|"year";
 type ManualBlocks = Record<string, string[]>;
 type WorkLocationRow = { id: string; name: string; address?: string; maps_url?: string; service_ids?: string[]; staff_ids?: string[] };
-interface StaffRow   { id: string; name: string; services: string[]; working_hours?: any }
+interface StaffRow   { id: string; name: string; services: string[]; working_hours?: any; manual_blocks?: any; can_view_client_contact?: boolean }
 interface ServiceRow { id: string; nume_serviciu: string; price: number; duration: number }
 interface WorkingHour{ day: string; start: string; end: string; closed: boolean }
 type NotificationSettings = { in_app_enabled: boolean; system_enabled: boolean; sound_enabled: boolean; volume: number };
@@ -251,7 +265,7 @@ function TimeColumn({ slots, whStart, whEnd, isClosed }: { slots: string[]; whSt
         return (
           <div key={slot} style={{
             height:SLOT_H, display:"flex", alignItems:"flex-start", justifyContent:"flex-end",
-            paddingRight:10, paddingTop:4, userSelect:"none",
+            paddingRight:6, paddingTop:4, userSelect:"none",
             borderTop: isHour ? "1.5px solid #94a3b8" : isHalf ? "1px solid #cbd5e1" : "1px solid #e2e8f0",
             background: isWork ? "#fafbfc" : "#f1f5f9",
           }}>
@@ -526,12 +540,13 @@ function SummaryBar({ programari, rawServices, selectedDate, selectedExpert, sel
   );
 }
 // ─── DayView ──────────────────────────────────────────────────────────────────
-function DayView({ selectedDate, programari, rawStaff, rawServices, serviceById, onEdit, adminWorkingHours, adminManualBlocks, selectedExpert, selectedServiciu, onSelectServiciu, onAddNew }: {
+function DayView({ selectedDate, programari, rawStaff, rawServices, serviceById, onEdit, adminWorkingHours, adminManualBlocks, selectedExpert, selectedServiciu, onSelectServiciu, onAddNew, onSwipeDay, onBlocksSaved, userId }: {
   selectedDate: Date; programari: Prog[]; rawStaff: StaffRow[];
   rawServices: ServiceRow[]; serviceById: Record<string,ServiceRow>;
-  onEdit: (p: Prog) => void; onAddNew: (time: string, date: string) => void;
+  onEdit: (p: Prog) => void; onAddNew: (time: string, date: string, staffId: string) => void;
   adminWorkingHours: WorkingHour[]; adminManualBlocks: ManualBlocks; selectedExpert: string; selectedServiciu: string;
   onSelectServiciu: (id: string) => void;
+  onSwipeDay: (dir: number) => void; onBlocksSaved: () => void; userId: string | undefined;
 }) {
   const t = useTranslations("calendarPage");
   const dayLong = t.raw("dayLong") as string[];
@@ -578,36 +593,79 @@ function DayView({ selectedDate, programari, rawStaff, rawServices, serviceById,
     if (selectedServiciu&&p.serviciuId!==selectedServiciu) return false;
     return true;
   }), [programari,dateKey,selectedExpert,selectedServiciu]);
-  const dayApptsLayout = useMemo(() => {
-    const getDur = (p: Prog) => serviceById[p.serviciuId||""]?.duration || 30;
-    const sorted = [...dayAppts].sort((a,b)=>timeToMin(a.ora)-timeToMin(b.ora));
-    const result: { prog: Prog; col: number; totalCols: number }[] = [];
-    let cluster: Prog[] = [];
-    let clusterEnd = -Infinity;
-    const flush = () => {
-      if (!cluster.length) return;
-      const colsEnd: number[] = [];
-      const colOf: Record<string, number> = {};
-      cluster.forEach(p => {
-        const s = timeToMin(p.ora), e = s + getDur(p);
-        let placed = -1;
-        for (let c=0;c<colsEnd.length;c++) { if (colsEnd[c] <= s) { colsEnd[c]=e; placed=c; break; } }
-        if (placed===-1) { colsEnd.push(e); placed = colsEnd.length-1; }
-        colOf[String(p.id)] = placed;
-      });
-      const totalCols = colsEnd.length;
-      cluster.forEach(p => result.push({ prog:p, col: colOf[String(p.id)], totalCols }));
-      cluster = [];
-    };
-    sorted.forEach(p => {
-      const s = timeToMin(p.ora), e = s + getDur(p);
-      if (s >= clusterEnd) { flush(); clusterEnd = e; }
-      else clusterEnd = Math.max(clusterEnd, e);
-      cluster.push(p);
-    });
-    flush();
-    return result;
-  }, [dayAppts, serviceById]);
+  // ✅ Coloane pe specialist (stil Mero/Fresha) — fiecare specialist activ în
+  // ziua curentă primește propria coloană verticală, în loc de suprapuneri
+  // grupate pe interval orar. Dacă e filtrat un singur specialist, apare o
+  // singură coloană. Programările fără specialist asignat merg într-o coloană
+  // separată "—", afișată ultima.
+  const dayStaffList = useMemo(() => {
+    if (selectedExpert) {
+      const st = rawStaff.find(s => s.id === selectedExpert);
+      return st ? [st] : [];
+    }
+    const withAppts = rawStaff.filter(s => dayAppts.some(p => p.expertId === s.id));
+    return withAppts.length ? withAppts : rawStaff;
+  }, [selectedExpert, rawStaff, dayAppts]);
+  const hasUnassigned = useMemo(
+    () => dayAppts.some(p => !p.expertId || !dayStaffList.some(s => s.id === p.expertId)),
+    [dayAppts, dayStaffList]
+  );
+  const colIndexOf = useMemo(() => {
+    const m: Record<string, number> = {};
+    dayStaffList.forEach((s, i) => { m[s.id] = i; });
+    return m;
+  }, [dayStaffList]);
+  const totalCols = Math.max(dayStaffList.length + (hasUnassigned ? 1 : 0), 1);
+  const MIN_COL_W = 92;
+  const gridMinWidth = TIME_COL_W + totalCols * MIN_COL_W;
+  // ✅ Blocările per specialist (salvate pe staff.manual_blocks), citite pentru
+  // ziua curentă — folosite ca să dezactivăm sloturile blocate din fiecare
+  // coloană și să le desenăm hașurat.
+  const staffBlocksBySlot = useMemo(() => {
+    const m: Record<string, Record<string,string[]>> = {};
+    rawStaff.forEach(s => { m[s.id] = parseStaffBlocks(s.manual_blocks); });
+    return m;
+  }, [rawStaff]);
+  const [slotMenu, setSlotMenu] = useState<{ x:number; y:number; time:string; staffId:string } | null>(null);
+  const [blockPopup, setBlockPopup] = useState<{ date:string; staffId:string; start:string; end:string } | null>(null);
+  const [savingBlock, setSavingBlock] = useState(false);
+  const touchStartRef = useRef<{ x:number; y:number; atLeftEdge:boolean; atRightEdge:boolean } | null>(null);
+  const handleTouchStart = (e: React.TouchEvent) => {
+    const el = scrollRef.current;
+    const t = e.touches[0];
+    const atLeftEdge = el ? el.scrollLeft <= 2 : true;
+    const atRightEdge = el ? el.scrollLeft + el.clientWidth >= el.scrollWidth - 2 : true;
+    touchStartRef.current = { x: t.clientX, y: t.clientY, atLeftEdge, atRightEdge };
+  };
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    const start = touchStartRef.current;
+    touchStartRef.current = null;
+    if (!start) return;
+    const t = e.changedTouches[0];
+    const dx = t.clientX - start.x, dy = t.clientY - start.y;
+    // ✅ Doar dacă gestul e clar orizontal și pornește de la marginea la care
+    // ar duce oricum scroll-ul de coloane (sau dacă e o singură coloană, oricând)
+    if (Math.abs(dx) < 60 || Math.abs(dx) < Math.abs(dy) * 1.5) return;
+    if (dx < 0 && start.atRightEdge) onSwipeDay(1);
+    else if (dx > 0 && start.atLeftEdge) onSwipeDay(-1);
+  };
+  const confirmBlockTime = async () => {
+    if (!blockPopup) return;
+    setSavingBlock(true);
+    const slotsToBlock = generateSlotRange(blockPopup.start, blockPopup.end);
+    if (blockPopup.staffId) {
+      const staffMember = rawStaff.find(s => s.id === blockPopup.staffId);
+      const existing = parseStaffBlocks(staffMember?.manual_blocks);
+      const merged = { ...existing, [blockPopup.date]: Array.from(new Set([...(existing[blockPopup.date]||[]), ...slotsToBlock])) };
+      await supabase.from("staff").update({ manual_blocks: merged }).eq("id", blockPopup.staffId);
+    } else if (userId) {
+      const merged = { ...adminManualBlocks, [blockPopup.date]: Array.from(new Set([...(adminManualBlocks[blockPopup.date]||[]), ...slotsToBlock])) };
+      await supabase.from("profiles").update({ manual_blocks: merged }).eq("id", userId);
+    }
+    setSavingBlock(false);
+    setBlockPopup(null);
+    onBlocksSaved();
+  };
   const handleMouseEnter = (p: Prog, e: React.MouseEvent) => {
     if (hoverTimer.current) clearTimeout(hoverTimer.current);
     const currentTarget = e.currentTarget as HTMLElement;
@@ -625,7 +683,30 @@ function DayView({ selectedDate, programari, rawStaff, rawServices, serviceById,
         <AppointmentHoverCard prog={hoverCard.prog} anchorRect={hoverCard.rect} serviceById={serviceById}
           rawStaff={rawStaff} staffColorIndex={staffMap[hoverCard.prog.expertId||""]??0} onClose={()=>setHoverCard(null)} />
       )}
-      <div ref={scrollRef} style={{ flex:1, overflowY:"auto", overflowX:"hidden" }}>
+      <div ref={scrollRef} style={{ flex:1, overflowY:"auto", overflowX:"auto" }}
+        onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
+        <div style={{ minWidth: gridMinWidth }}>
+          {dayStaffList.length>0&&(
+            <div style={{ display:"flex", position:"sticky", top:0, zIndex:30, background:"#fff", borderBottom:"2px solid #e2e8f0" }}>
+              <div style={{ width:TIME_COL_W, flexShrink:0, borderRight:"2px solid #e2e8f0", background:"#fff" }} />
+              {dayStaffList.map((s,i) => {
+                const color = SC[staffMap[s.id]??(i%SC.length)];
+                return (
+                  <div key={s.id} style={{ flex:1, minWidth:MIN_COL_W, display:"flex", alignItems:"center", gap:4, padding:"6px 6px", borderLeft:"1px solid #f1f5f9" }}>
+                    <span style={{ width:18, height:18, borderRadius:"50%", background:color.border, display:"flex", alignItems:"center", justifyContent:"center", fontSize:9, fontWeight:700, color:"#fff", flexShrink:0 }}>
+                      {s.name.charAt(0).toUpperCase()}
+                    </span>
+                    <span style={{ fontSize:10, fontWeight:700, color:"#334155", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{s.name}</span>
+                  </div>
+                );
+              })}
+              {hasUnassigned&&(
+                <div style={{ flex:1, minWidth:MIN_COL_W, display:"flex", alignItems:"center", padding:"6px 6px", borderLeft:"1px solid #f1f5f9" }}>
+                  <span style={{ fontSize:10, fontWeight:700, color:"#94a3b8" }}>—</span>
+                </div>
+              )}
+            </div>
+          )}
         <div style={{ display:"flex", height:gridH, position:"relative" }}>
           <div style={{ position:"sticky", left:0, zIndex:20 }}>
             <TimeColumn slots={slots} whStart={whStart} whEnd={whEnd} isClosed={isClosed} />
@@ -668,25 +749,37 @@ function DayView({ selectedDate, programari, rawStaff, rawServices, serviceById,
                 </div>
               </div>
             )}
-            {slots.map((slot,i) => {
+            {slots.flatMap((slot,i) => {
               const isPastSlot = dateKey === todayKeyRef && timeToMin(slot) <= nowMinutesRef;
-              const slotDisabled = isClosed || isPastSlot;
-              return (
-                <button key={`e-${slot}`} onClick={()=>{ if(!slotDisabled) onAddNew(slot,dateKey); }}
-                  disabled={slotDisabled}
-                  style={{position:"absolute",left:0,right:0,top:i*SLOT_H,height:SLOT_H,zIndex:5,background:"transparent",border:"none",cursor:slotDisabled?"not-allowed":"pointer"}}
-                  className={slotDisabled?"":"group hover:bg-amber-50 transition-all"}>
-                  {!slotDisabled && <span style={{position:"absolute",left:10,top:"50%",transform:"translateY(-50%)",fontSize:10,fontWeight:700,color:"#f59e0b",opacity:0}} className="group-hover:opacity-100 transition-opacity">+ {slot}</span>}
-                </button>
-              );
+              const baseDisabled = isClosed || isPastSlot;
+              return Array.from({ length: totalCols }, (_, colI) => {
+                const staffIdForCol = colI < dayStaffList.length ? dayStaffList[colI].id : "";
+                const isBlocked = !!staffIdForCol && (staffBlocksBySlot[staffIdForCol]?.[dateKey] || []).includes(slot);
+                const disabled = baseDisabled || isBlocked;
+                return (
+                  <button key={`e-${slot}-${colI}`}
+                    onClick={(e)=>{ if(disabled) return; const rect=(e.currentTarget as HTMLElement).getBoundingClientRect(); setSlotMenu({ x:rect.left, y:rect.bottom, time:slot, staffId:staffIdForCol }); }}
+                    disabled={disabled}
+                    style={{
+                      position:"absolute", left:`calc(${colI} * 100% / ${totalCols})`, width:`calc(100% / ${totalCols})`,
+                      top:i*SLOT_H, height:SLOT_H, zIndex:5,
+                      background: isBlocked ? "repeating-linear-gradient(45deg,rgba(220,38,38,0.16) 0px,rgba(220,38,38,0.16) 4px,transparent 4px,transparent 9px)" : "transparent",
+                      border:"none", cursor:disabled?"not-allowed":"pointer",
+                    }}
+                    className={disabled?"":"group hover:bg-amber-50 transition-all"}>
+                    {!disabled && <span style={{position:"absolute",left:6,top:"50%",transform:"translateY(-50%)",fontSize:9,fontWeight:700,color:"#f59e0b",opacity:0}} className="group-hover:opacity-100 transition-opacity">+</span>}
+                  </button>
+                );
+              });
             })}
-            {dayApptsLayout.map(({prog:p, col, totalCols}) => {
+            {dayAppts.map((p) => {
               const svc = serviceById[p.serviciuId||""];
               const endTime = svc?.duration?addMinutesToTime(p.ora,svc.duration):null;
               const topPx = ((timeToMin(p.ora)-firstMin)/15)*SLOT_H;
               const heightPx = Math.max(((svc?.duration||30)/15)*SLOT_H-3,40);
               const ci = staffMap[p.expertId||""]??0;
               const color = SC[ci];
+              const col = p.expertId && colIndexOf[p.expertId]!=null ? colIndexOf[p.expertId] : totalCols-1;
               return (
                 <button key={p.id}
                   onClick={()=>{setHoverCard(null);onEdit(p);}}
@@ -694,26 +787,26 @@ function DayView({ selectedDate, programari, rawStaff, rawServices, serviceById,
                   onMouseLeave={handleMouseLeave}
                   style={{
                     position:"absolute", top:topPx+2, height:heightPx, zIndex:15,
-                    left:`calc(8px + ${col} * (100% - 8px) / ${totalCols})`,
-                    width:`calc((100% - 8px) / ${totalCols} - 4px)`,
-                    background:"#fff", borderRadius:7,
+                    left:`calc(4px + ${col} * (100% - 4px) / ${totalCols})`,
+                    width:`calc((100% - 4px) / ${totalCols} - 3px)`,
+                    background:"#fff", borderRadius:6,
                     borderTop:"1px solid rgba(0,0,0,0.07)",
                     borderRight:"1px solid rgba(0,0,0,0.07)",
                     borderBottom:"1px solid rgba(0,0,0,0.07)",
-                    borderLeft:`4px solid ${color.border}`,
+                    borderLeft:`3px solid ${color.border}`,
                     boxShadow:"0 1px 6px rgba(0,0,0,0.10), 0 0 0 1px rgba(0,0,0,0.06)",
-                    padding:"5px 10px", textAlign:"left", cursor:"pointer",
+                    padding:"4px 6px", textAlign:"left", cursor:"pointer",
                     transition:"all 0.15s", overflow:"hidden",
                   }}
                   className="hover:brightness-95 hover:shadow-md transition-all">
-                  <p style={{fontSize:10,fontWeight:700,color:color.border,lineHeight:1.3,marginBottom:1,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
+                  <p style={{fontSize:9,fontWeight:700,color:color.border,lineHeight:1.25,marginBottom:1,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
                     {p.ora}{endTime?` → ${endTime}`:""}{p.isOnline?" 🌐":""}
                   </p>
-                  <p style={{fontSize:13,fontWeight:700,color:"#1e293b",lineHeight:1.3,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
+                  <p style={{fontSize:11,fontWeight:700,color:"#1e293b",lineHeight:1.25,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
                     {p.nume}
                   </p>
                   {svc&&heightPx>56&&(
-                    <p style={{fontSize:11,color:"#64748b",lineHeight:1.2,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
+                    <p style={{fontSize:9,color:"#64748b",lineHeight:1.15,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
                       {svc.nume_serviciu}
                     </p>
                   )}
@@ -722,9 +815,61 @@ function DayView({ selectedDate, programari, rawStaff, rawServices, serviceById,
             })}
           </div>
         </div>
+        </div>
       </div>
       <SummaryBar programari={programari} rawServices={rawServices} selectedDate={selectedDate}
         selectedExpert={selectedExpert} selectedServiciu={selectedServiciu} onSelectServiciu={onSelectServiciu}/>
+      {slotMenu && (
+        <div style={{ position:"fixed", inset:0, zIndex:400 }} onClick={()=>setSlotMenu(null)}>
+          <div onClick={e=>e.stopPropagation()} style={{
+            position:"fixed",
+            top:Math.min(slotMenu.y, (typeof window!=="undefined"?window.innerHeight:800)-110),
+            left:Math.min(slotMenu.x, (typeof window!=="undefined"?window.innerWidth:400)-200),
+            background:"#fff", borderRadius:14, boxShadow:"0 12px 32px rgba(0,0,0,0.2)", border:"1.5px solid #e2e8f0",
+            overflow:"hidden", minWidth:190,
+          }}>
+            <button onClick={()=>{ onAddNew(slotMenu.time, dateKey, slotMenu.staffId); setSlotMenu(null); }}
+              style={{ width:"100%", textAlign:"left", padding:"11px 14px", fontSize:11, fontWeight:700, color:"#1e293b", background:"transparent", border:"none", cursor:"pointer", borderBottom:"1px solid #f1f5f9" }}
+              className="hover:bg-slate-50 transition-colors">
+              📅 Programare — {slotMenu.time}
+            </button>
+            <button onClick={()=>{ setBlockPopup({ date:dateKey, staffId:slotMenu.staffId, start:slotMenu.time, end:addMinutesToTime(slotMenu.time,60) }); setSlotMenu(null); }}
+              style={{ width:"100%", textAlign:"left", padding:"11px 14px", fontSize:11, fontWeight:700, color:"#dc2626", background:"transparent", border:"none", cursor:"pointer" }}
+              className="hover:bg-red-50 transition-colors">
+              🔒 Blochează timp
+            </button>
+          </div>
+        </div>
+      )}
+      {blockPopup && (
+        <div style={{ position:"fixed", inset:0, background:"rgba(15,23,42,0.6)", zIndex:410, display:"flex", alignItems:"center", justifyContent:"center", padding:16 }} onClick={()=>setBlockPopup(null)}>
+          <div onClick={e=>e.stopPropagation()} style={{ background:"#fff", borderRadius:20, padding:22, width:"100%", maxWidth:340, boxShadow:"0 24px 60px rgba(0,0,0,0.25)" }}>
+            <p style={{ fontSize:13, fontWeight:700, color:"#1e293b", marginBottom:4 }}>Blochează un interval</p>
+            <p style={{ fontSize:10, fontWeight:700, color:"#94a3b8", marginBottom:14 }}>
+              {blockPopup.date}{blockPopup.staffId ? ` · ${rawStaff.find(s=>s.id===blockPopup.staffId)?.name || ""}` : " · tot programul"}
+            </p>
+            <div style={{ display:"flex", gap:8, marginBottom:16 }}>
+              <div style={{ flex:1 }}>
+                <p style={{ fontSize:9, fontWeight:700, color:"#94a3b8", textTransform:"uppercase", marginBottom:4 }}>De la</p>
+                <input type="time" value={blockPopup.start} onChange={e=>setBlockPopup(p=>p?{...p,start:e.target.value}:null)}
+                  style={{ width:"100%", padding:"8px 10px", borderRadius:10, border:"1.5px solid #e2e8f0", fontSize:12, fontWeight:700, color:"#1e293b" }} />
+              </div>
+              <div style={{ flex:1 }}>
+                <p style={{ fontSize:9, fontWeight:700, color:"#94a3b8", textTransform:"uppercase", marginBottom:4 }}>Până la</p>
+                <input type="time" value={blockPopup.end} onChange={e=>setBlockPopup(p=>p?{...p,end:e.target.value}:null)}
+                  style={{ width:"100%", padding:"8px 10px", borderRadius:10, border:"1.5px solid #e2e8f0", fontSize:12, fontWeight:700, color:"#1e293b" }} />
+              </div>
+            </div>
+            <div style={{ display:"flex", gap:8 }}>
+              <button onClick={()=>setBlockPopup(null)} style={{ flex:1, padding:"10px", borderRadius:10, background:"#f1f5f9", border:"none", fontWeight:700, fontSize:11, color:"#64748b", cursor:"pointer" }}>Anulează</button>
+              <button disabled={savingBlock} onClick={confirmBlockTime}
+                style={{ flex:1, padding:"10px", borderRadius:10, background:"#dc2626", border:"none", fontWeight:700, fontSize:11, color:"#fff", cursor:"pointer", opacity:savingBlock?0.6:1 }}>
+                {savingBlock ? "..." : "Blochează"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -1133,7 +1278,7 @@ function CalendarContent() {
   }, [profile?.notification_settings]);
   const {data:rawStaff=[]} = useQuery<StaffRow[]>({
     queryKey:["staff",userId],enabled:!!userId,staleTime:1000*60*10,
-    queryFn:async()=>{const{data}=await supabase.from("staff").select("id,name,services,working_hours").eq("user_id",userId!);return data??[];},
+    queryFn:async()=>{const{data}=await supabase.from("staff").select("id,name,services,working_hours,manual_blocks").eq("user_id",userId!);return data??[];},
   });
   const {data:rawServices=[]} = useQuery<ServiceRow[]>({
     queryKey:["services",userId],enabled:!!userId,staleTime:1000*60*10,
@@ -1428,7 +1573,7 @@ function CalendarContent() {
         </div>
       )}
 
-      <div style={{flexShrink:0,background:"#fff",borderBottom:"2px solid #e2e8f0",padding:"8px 14px",display:"flex",alignItems:"center",gap:10}}>
+      <div style={{flexShrink:0,background:"#fff",borderBottom:"2px solid #e2e8f0",padding:"8px 14px",display:"flex",alignItems:"center",gap:10,flexWrap:"wrap",rowGap:8}}>
         <Link href="/programari" style={{flexShrink:0}}>
           <div style={{width:34,height:34,background:"#f1f5f9",borderRadius:10,display:"flex",alignItems:"center",justifyContent:"center",fontSize:16,fontWeight:700,color:"#334155",cursor:"pointer",border:"none",transition:"all 0.15s"}} className="hover:bg-slate-900 hover:text-white">←</div>
         </Link>
@@ -1441,11 +1586,11 @@ function CalendarContent() {
             <p style={{fontSize:8,fontWeight:700,color:"#94a3b8",textTransform:"uppercase",letterSpacing:"0.08em",margin:0}}>{isLoading?t("syncing"):t("synced")}</p>
           </div>
         </div>
-        {workLocations.length > 0 && (<select value={selectedWorkLocation} onChange={e=>setSelectedWorkLocation(e.target.value)} style={{flexShrink:0,background:"#f8fafc",border:"1.5px solid #e2e8f0",borderRadius:10,padding:"7px 10px",fontSize:11,fontWeight:700,color:"#334155",outline:"none"}}><option value="">{t("allWorkLocationsOpt")}</option>{workLocations.map(loc=><option key={loc.id} value={loc.id}>{loc.name}</option>)}</select>)}
+        {workLocations.length > 0 && (<select value={selectedWorkLocation} onChange={e=>setSelectedWorkLocation(e.target.value)} style={{flexShrink:0,background:"#f8fafc",border:"1.5px solid #e2e8f0",borderRadius:10,padding:"7px 10px",fontSize:11,fontWeight:700,color:"#334155",outline:"none"}} className="hidden sm:block"><option value="">{t("allWorkLocationsOpt")}</option>{workLocations.map(loc=><option key={loc.id} value={loc.id}>{loc.name}</option>)}</select>)}
         <div className="hidden md:block" style={{flexShrink:0,padding:"5px 12px",background:"#f8fafc",borderRadius:10,border:"1.5px solid #e2e8f0"}}>
           <span style={{fontSize:11,fontWeight:700,color:"#334155",textTransform:"capitalize"}}>{dateTitles[viewMode]}</span>
         </div>
-        <div id="onboarding-calendar-search" style={{flex:1,maxWidth:280,position:"relative"}}>
+        <div id="onboarding-calendar-search" style={{flex:"1 1 160px",minWidth:120,maxWidth:280,position:"relative"}}>
           <span style={{position:"absolute",left:10,top:"50%",transform:"translateY(-50%)",fontSize:13,color:"#94a3b8"}}>🔍</span>
           <input type="text" placeholder={t("searchPlaceholder")} value={searchTerm}
             onChange={e=>{setSearchTerm(e.target.value);handleSearch(e.target.value);}}
@@ -1498,7 +1643,10 @@ function CalendarContent() {
           <DayView selectedDate={selectedDate} programari={filteredProg} rawStaff={rawStaff} rawServices={rawServices} serviceById={serviceById}
             onEdit={openEdit} adminWorkingHours={viewWorkingHours} adminManualBlocks={adminManualBlocks} selectedExpert={selectedExpert} selectedServiciu={selectedServiciu}
             onSelectServiciu={handleSelectServiciu}
-            onAddNew={(time,date)=>setNewForm({date,time,nume:"",telefon:"",email:"",serviciuId:"",expertId:selectedExpert||rawStaff[0]?.id||"",motiv:"",workLocationId:selectedWorkLocation||workLocations[0]?.id||""})}/>
+            onSwipeDay={(dir)=>setSelectedDate(d=>addDays(d,dir))}
+            onBlocksSaved={()=>{ qClient.invalidateQueries({queryKey:["staff",userId]}); refetchProfile(); }}
+            userId={userId}
+            onAddNew={(time,date,staffId)=>setNewForm({date,time,nume:"",telefon:"",email:"",serviciuId:"",expertId:staffId||selectedExpert||rawStaff[0]?.id||"",motiv:"",workLocationId:selectedWorkLocation||workLocations[0]?.id||""})}/>
         )}
         {viewMode==="week"&&(
           <WeekView selectedDate={selectedDate} programariByDate={programariByDate} rawStaff={rawStaff} rawServices={rawServices} serviceById={serviceById}

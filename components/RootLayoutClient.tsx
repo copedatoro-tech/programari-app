@@ -51,8 +51,8 @@ export default function RootLayoutClient({ children }: { children: React.ReactNo
 
   const getPageTitle = () => {
     switch (path) {
-      case "/programari":          return t("pageTitles.programari");
       case "/programari/calendar": return t("pageTitles.calendar");
+      case "/programari":          return t("pageTitles.programari");
       case "/clienti":             return t("pageTitles.clienti");
       case "/lista-asteptare":     return t("nav.listaAsteptare");
       case "/resurse":             return t("pageTitles.resurse");
@@ -230,9 +230,11 @@ export default function RootLayoutClient({ children }: { children: React.ReactNo
   })();
   const ActivePlanIcon = planVisual.Icon;
 
+  // ✅ Calendarul este acum prima intrare din meniu și pagina principală a
+  // aplicației (redirect implicit după autentificare — vezi middleware.ts).
   const menuItems = [
-    { href: "/programari",          icon: "📅", label: t("nav.programari") },
     { href: "/programari/calendar", icon: "🗓️", label: t("nav.calendar") },
+    { href: "/programari",          icon: "📅", label: t("nav.programari") },
     { href: "/clienti",             icon: "👥", label: t("nav.clienti") },
     { href: "/lista-asteptare",     icon: "📋", label: t("nav.listaAsteptare") },
     { href: "/resurse",             icon: "📦", label: t("nav.servicii") },
@@ -265,7 +267,7 @@ export default function RootLayoutClient({ children }: { children: React.ReactNo
       {!isPublicPage && (
         <header className="w-full bg-white border-b-2 border-slate-100 sticky top-0 z-[100] shadow-sm h-16 flex items-center">
           <div className="max-w-7xl w-full mx-auto px-6 flex justify-between items-center h-full gap-4">
-            <Link href="/programari" className="flex items-center gap-3 h-full py-1 group shrink-0">
+            <Link href="/programari/calendar" className="flex items-center gap-3 h-full py-1 group shrink-0">
               <div className="h-full aspect-square flex items-center justify-center transition-transform group-hover:scale-105">
                 <Image src="/logo-chronos.png" alt="Logo" width={56} height={56} priority className="object-contain h-full w-auto" />
               </div>
