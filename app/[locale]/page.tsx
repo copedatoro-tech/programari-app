@@ -87,7 +87,7 @@ export default function LandingPage() {
         <div className="flex items-center justify-between gap-3">
           <motion.div initial={{ opacity:0, x:-20 }} animate={{ opacity:1, x:0 }} className="flex items-center gap-2 min-w-0">
             <Image src="/logo-chronos.png" alt="Chronos Logo" width={32} height={32} className="shrink-0" />
-            <span className="font-black text-sm sm:text-base tracking-tighter italic uppercase">
+            <span className="font-black text-[12px] sm:text-base tracking-tighter italic uppercase">
               CHRONOS<span className="text-amber-500">.</span>
             </span>
           </motion.div>
@@ -95,10 +95,10 @@ export default function LandingPage() {
           <button
             type="button"
             onClick={() => setMobileMenuOpen((open) => !open)}
-            className="sm:hidden h-9 px-3 rounded-xl bg-slate-900 text-white text-[9px] font-black uppercase italic tracking-widest flex items-center gap-1.5 shadow-sm"
+            className="sm:hidden h-8 px-2.5 rounded-xl bg-slate-900 text-white text-[8px] font-black uppercase italic tracking-widest flex items-center gap-1.5 shadow-sm"
             aria-label="Meniu"
           >
-            {mobileMenuOpen ? <X className="w-3.5 h-3.5" /> : <Menu className="w-3.5 h-3.5" />}
+            {mobileMenuOpen ? <X className="w-3 h-3" /> : <Menu className="w-3 h-3" />}
             MENIU
           </button>
 
@@ -475,7 +475,8 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-6 sm:mb-10 md:mb-16">
             <h2 className="text-[18px] sm:text-3xl md:text-5xl font-black italic uppercase tracking-tight leading-[1.12] break-words mb-4">
-              {t("steps.heading")} <span className="text-amber-500">{t("steps.headingHighlight")}</span>
+              <span className="block">{t("steps.heading")}</span>
+              <span className="block text-amber-500 mt-1 whitespace-nowrap">{t("steps.headingHighlight")}</span>
             </h2>
             <p className="text-slate-400 text-[10px] sm:text-xs font-bold uppercase italic leading-relaxed">{t("steps.subtitle")}</p>
           </div>

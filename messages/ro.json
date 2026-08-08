@@ -478,8 +478,8 @@
       ]
     },
     "steps": {
-      "heading": "PORNEȘTI ÎN",
-      "headingHighlight": "4 PAȘI SIMPLI",
+      "heading": "PORNE?TI ?N",
+      "headingHighlight": "4 PA?I SIMPLI",
       "subtitle": "De la zero la afacere organizată în mai puțin de o oră",
       "items": [
         {
@@ -660,7 +660,9 @@
           "notifDesc": "Portal individual — fiecare angajat, propriile programări"
         }
       ],
-      "closingText": "Nu mai ești tu recepția. Chronos e."
+      "closingText": "Nu mai ești tu recepția. Chronos e.",
+      "closingLine1": "Nu mai e?ti tu recep?ia.",
+      "closingLine2": "Chronos este."
     }
   },
   "abonamente": {
