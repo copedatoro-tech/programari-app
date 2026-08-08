@@ -130,14 +130,14 @@ export default function LoginPage() {
   };
 
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center gap-3 p-3 sm:p-6 bg-slate-50 font-sans text-slate-900">
-      <div className="w-full max-w-sm sm:max-w-md flex justify-end z-50">
+    <main className="min-h-screen flex flex-col items-center justify-start sm:justify-center gap-2 p-2 sm:p-6 bg-slate-50 font-sans text-slate-900">
+      <div className="w-full max-w-xs sm:max-w-md flex justify-end z-50">
         <LocaleSwitcher />
       </div>
 
-      <div className="w-full max-w-sm sm:max-w-md bg-white rounded-[28px] sm:rounded-[40px] shadow-2xl shadow-slate-200/60 border-4 border-white overflow-hidden transform sm:hover:scale-[1.01] transition-all duration-500">
+      <div className="w-full max-w-xs sm:max-w-md bg-white rounded-[22px] sm:rounded-[40px] shadow-2xl shadow-slate-200/60 border-4 border-white overflow-hidden transform sm:hover:scale-[1.01] transition-all duration-500">
 
-        <div className="bg-slate-900 px-4 py-7 sm:py-12 text-center relative flex flex-col items-center overflow-hidden">
+        <div className="bg-slate-900 px-3 py-4 sm:px-4 sm:py-12 text-center relative flex flex-col items-center overflow-hidden">
           <div className="absolute top-0 right-0 w-48 h-48 bg-amber-500/10 rounded-full -mr-20 -mt-20 blur-3xl z-0"></div>
           <div className="absolute bottom-0 left-0 w-32 h-32 bg-amber-500/5 rounded-full -ml-16 -mb-16 blur-2xl z-0"></div>
 
@@ -148,19 +148,19 @@ export default function LoginPage() {
             height={140}
             style={{ height: "auto" }}
             priority
-            className="object-contain relative z-10 mb-4 sm:mb-6 drop-shadow-2xl"
+            className="object-contain relative z-10 mb-2 sm:mb-6 drop-shadow-2xl"
           />
 
-          <h2 className="text-xl sm:text-3xl font-black uppercase text-white italic tracking-tighter relative z-10 leading-tight max-w-[260px]">
+          <h2 className="text-[16px] sm:text-3xl font-black uppercase text-white italic tracking-tighter relative z-10 leading-tight max-w-[220px]">
             {t("title")} <span className="text-amber-500">{t("titleHighlight")}</span>
           </h2>
-          <p className="text-[7px] sm:text-[9px] font-black text-slate-400 uppercase tracking-[0.22em] sm:tracking-[0.3em] italic mt-2 sm:mt-3 relative z-10">
+          <p className="text-[6px] sm:text-[9px] font-black text-slate-400 uppercase tracking-[0.18em] sm:tracking-[0.3em] italic mt-1.5 sm:mt-3 relative z-10">
             {t("subtitle")}
           </p>
         </div>
 
         {needsMfa ? (
-          <form onSubmit={handleVerifyMfa} className="p-5 sm:p-10 space-y-4 sm:space-y-5 bg-white">
+          <form onSubmit={handleVerifyMfa} className="p-4 sm:p-10 space-y-3 sm:space-y-5 bg-white">
             <p className="text-center text-slate-500 text-sm font-medium mb-2">
               {t("mfaPrompt")}
             </p>
@@ -193,7 +193,7 @@ export default function LoginPage() {
               placeholder={t("emailPlaceholder")}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full p-3.5 sm:p-5 bg-slate-50 border-2 border-slate-100 rounded-xl sm:rounded-2xl font-bold text-[10px] sm:text-[11px] uppercase italic tracking-wider focus:border-amber-500 outline-none transition-all"
+              className="w-full p-3 sm:p-5 bg-slate-50 border-2 border-slate-100 rounded-xl sm:rounded-2xl font-bold text-[9px] sm:text-[11px] uppercase italic tracking-wider focus:border-amber-500 outline-none transition-all"
             />
             <div className="relative group text-right">
               <input
@@ -202,11 +202,11 @@ export default function LoginPage() {
                 placeholder={t("passwordPlaceholder")}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full p-3.5 sm:p-5 bg-slate-50 border-2 border-slate-100 rounded-xl sm:rounded-2xl font-bold text-[10px] sm:text-[11px] uppercase italic tracking-wider focus:border-amber-500 outline-none transition-all"
+                className="w-full p-3 sm:p-5 bg-slate-50 border-2 border-slate-100 rounded-xl sm:rounded-2xl font-bold text-[9px] sm:text-[11px] uppercase italic tracking-wider focus:border-amber-500 outline-none transition-all"
               />
               <Link
                 href="/forgot-password"
-                className="inline-block mt-2 text-[9px] font-black uppercase italic text-slate-400 hover:text-amber-500 transition-colors mr-2"
+                className="inline-block mt-1 text-[8px] sm:text-[9px] font-black uppercase italic text-slate-400 hover:text-amber-500 transition-colors mr-2"
               >
                 {t("forgotPassword")}
               </Link>
@@ -216,18 +216,18 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-slate-900 text-white p-3.5 sm:p-5 rounded-xl sm:rounded-2xl font-black italic uppercase tracking-widest hover:bg-slate-800 border-b-4 border-slate-700 active:border-b-0 active:translate-y-1 transition-all text-[10px] sm:text-xs disabled:opacity-60 disabled:cursor-not-allowed"
+            className="w-full bg-slate-900 text-white p-3 sm:p-5 rounded-xl sm:rounded-2xl font-black italic uppercase tracking-widest hover:bg-slate-800 border-b-4 border-slate-700 active:border-b-0 active:translate-y-1 transition-all text-[9px] sm:text-xs disabled:opacity-60 disabled:cursor-not-allowed"
           >
             {loading ? t("checking") : t("loginBtn")}
           </button>
 
-          <div className="pt-4 border-t-2 border-slate-50 flex flex-col items-center gap-3 text-center">
-            <p className="text-[10px] font-black uppercase italic text-slate-400 mt-2">
+          <div className="pt-2 sm:pt-4 border-t-2 border-slate-50 flex flex-col items-center gap-2 sm:gap-3 text-center">
+            <p className="text-[8px] sm:text-[10px] font-black uppercase italic text-slate-400 mt-1 sm:mt-2">
               {t("noAccount")}
             </p>
             <Link
               href="/register"
-              className="w-full py-2.5 sm:py-3 text-[10px] sm:text-[11px] font-black uppercase italic bg-amber-500 text-slate-900 rounded-xl border-b-4 border-amber-600 hover:bg-amber-600 transition-all text-center"
+              className="w-full py-2 sm:py-3 text-[9px] sm:text-[11px] font-black uppercase italic bg-amber-500 text-slate-900 rounded-xl border-b-4 border-amber-600 hover:bg-amber-600 transition-all text-center"
             >
               {t("createAccount")}
             </Link>
