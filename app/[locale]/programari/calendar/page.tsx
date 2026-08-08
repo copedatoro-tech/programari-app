@@ -8,8 +8,8 @@ import { showToast, showConfirm } from "@/lib/toast";
 import { useTranslations } from "next-intl";
 import { ChronosTimePicker, ChronosDatePicker } from "@/components/ChronosDateTimePickers";
 // ─── Constants ────────────────────────────────────────────────────────────────
-const SLOT_H = 56;
-const TIME_COL_W = 52;
+const SLOT_H = 42;
+const TIME_COL_W = 44;
 // ─── Utils ────────────────────────────────────────────────────────────────────
 function sameDay(a: Date, b: Date) {
   return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
@@ -658,7 +658,7 @@ function DayView({ selectedDate, programari, rawStaff, rawServices, serviceById,
     return m;
   }, [dayStaffList]);
   const totalCols = Math.max(dayStaffList.length + (hasUnassigned ? 1 : 0), 1);
-  const MIN_COL_W = 118;
+  const MIN_COL_W = 96;
   const gridMinWidth = TIME_COL_W + totalCols * MIN_COL_W;
   // ✅ Blocările per specialist (salvate pe staff.manual_blocks), citite pentru
   // ziua curentă — folosite ca să dezactivăm sloturile blocate din fiecare
@@ -786,7 +786,7 @@ function DayView({ selectedDate, programari, rawStaff, rawServices, serviceById,
               {dayStaffList.map((s,i) => {
                 const color = SC[staffMap[s.id]??(i%SC.length)];
                 return (
-                  <div key={s.id} style={{ flex:1, minWidth:MIN_COL_W, display:"flex", alignItems:"center", gap:4, padding:"6px 6px", borderLeft:"1px solid #f1f5f9" }}>
+                  <div key={s.id} style={{ flex:1, minWidth:MIN_COL_W, display:"flex", alignItems:"center", gap:3, padding:"4px 4px", borderLeft:"1px solid #f1f5f9", overflow:"hidden" }}>
                     <span style={{ width:18, height:18, borderRadius:"50%", background:color.border, display:"flex", alignItems:"center", justifyContent:"center", fontSize:9, fontWeight:700, color:"#fff", flexShrink:0 }}>
                       {s.name.charAt(0).toUpperCase()}
                     </span>
