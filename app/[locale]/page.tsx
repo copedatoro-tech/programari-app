@@ -40,7 +40,7 @@ export default function LandingPage() {
         const sessionPromise = supabase.auth.getSession().then(r => r.data.session);
         const session = await Promise.race([sessionPromise, timeout]);
         const isDemo = localStorage.getItem("chronos_demo") === "true";
-        if (session || isDemo) router.replace("/programari");
+        if (session || isDemo) router.replace("/programari/calendar");
         else setIsChecking(false);
       } catch {
         setIsChecking(false);

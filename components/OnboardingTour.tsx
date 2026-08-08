@@ -8,7 +8,7 @@ const TOUR_STEPS: { path: string; key: string }[] = [
   { path: "/profil", key: "profil" },
   { path: "/settings", key: "settings" },
   { path: "/resurse", key: "resurse" },
-  { path: "/programari", key: "programari" },
+  { path: "/programari/calendar", key: "programari" },
   { path: "/programari/calendar", key: "calendar" },
   { path: "/clienti", key: "clienti" },
   { path: "/rapoarte", key: "rapoarte" },
@@ -246,7 +246,7 @@ export default function OnboardingTour({ userId }: { userId: string }) {
   };
   const finishAndGo = () => {
     setStatus("hidden");
-    router.push("/programari" as any);
+    router.push("/programari/calendar" as any);
   };
   const finishAndOpenPlans = () => {
     setStatus("hidden");
