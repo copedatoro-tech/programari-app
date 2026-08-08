@@ -95,10 +95,10 @@ export default function LandingPage() {
           <button
             type="button"
             onClick={() => setMobileMenuOpen((open) => !open)}
-            className="sm:hidden h-10 px-4 rounded-xl bg-slate-900 text-white text-[10px] font-black uppercase italic tracking-widest flex items-center gap-2 shadow-sm"
+            className="sm:hidden h-9 px-3 rounded-xl bg-slate-900 text-white text-[9px] font-black uppercase italic tracking-widest flex items-center gap-1.5 shadow-sm"
             aria-label="Meniu"
           >
-            {mobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
+            {mobileMenuOpen ? <X className="w-3.5 h-3.5" /> : <Menu className="w-3.5 h-3.5" />}
             MENIU
           </button>
 
@@ -136,7 +136,7 @@ export default function LandingPage() {
         </motion.div>
 
         <motion.h1 initial={{ opacity:0, y:10 }} animate={{ opacity:1, y:0 }} transition={{ delay:0.1 }}
-          className="text-[19px] sm:text-4xl md:text-6xl font-black italic uppercase tracking-tight leading-[1.12] mb-4 sm:mb-6 max-w-4xl break-words">
+          className="text-[18px] sm:text-4xl md:text-6xl font-black italic uppercase tracking-tight leading-[1.12] mb-4 sm:mb-6 max-w-4xl break-words">
           <span className="block mb-3">{t("hero.titleLine1")} <span className="text-amber-600">{t("hero.titleHighlight1")}</span></span>
           <span className="block text-slate-400">{t("hero.titleLine2")}</span>
         </motion.h1>
@@ -398,8 +398,9 @@ export default function LandingPage() {
 
         <div className="max-w-6xl mx-auto relative">
           <div className="text-center mb-6 sm:mb-10 md:mb-16">
-            <h2 className="text-[20px] sm:text-3xl md:text-5xl font-black italic uppercase tracking-tight leading-[1.12] break-words text-white mb-4">
-              {t("personalValue.heading1")} <span className="text-amber-500">{t("personalValue.heading2")}</span>
+            <h2 className="text-[18px] sm:text-3xl md:text-5xl font-black italic uppercase tracking-tight leading-[1.12] break-words text-white mb-4">
+              <span className="block">{t("personalValue.heading1")}</span>
+              <span className="block text-amber-500 mt-1">{t("personalValue.heading2")}</span>
             </h2>
             <p className="text-slate-400 text-[10px] sm:text-xs font-bold uppercase italic max-w-xl mx-auto leading-relaxed">{t("personalValue.subtitle")}</p>
           </div>
@@ -447,7 +448,7 @@ export default function LandingPage() {
       <section className="bg-white py-8 sm:py-14 md:py-24 px-4 sm:px-6 border-y border-slate-100">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-6 sm:mb-10 md:mb-16">
-            <h2 className="text-[20px] sm:text-3xl md:text-5xl font-black italic uppercase tracking-tight leading-[1.12] break-words mb-4">
+            <h2 className="text-[18px] sm:text-3xl md:text-5xl font-black italic uppercase tracking-tight leading-[1.12] break-words mb-4">
               {t("features.heading1")}<br/><span className="text-amber-500">{t("features.heading2")}</span>
             </h2>
             <p className="text-slate-400 text-[10px] sm:text-xs font-bold uppercase italic leading-relaxed">{t("features.subtitle")}</p>
@@ -473,7 +474,7 @@ export default function LandingPage() {
       <section className="py-8 sm:py-14 md:py-24 px-4 sm:px-6 bg-slate-50">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-6 sm:mb-10 md:mb-16">
-            <h2 className="text-[20px] sm:text-3xl md:text-5xl font-black italic uppercase tracking-tight leading-[1.12] break-words mb-4">
+            <h2 className="text-[18px] sm:text-3xl md:text-5xl font-black italic uppercase tracking-tight leading-[1.12] break-words mb-4">
               {t("steps.heading")} <span className="text-amber-500">{t("steps.headingHighlight")}</span>
             </h2>
             <p className="text-slate-400 text-[10px] sm:text-xs font-bold uppercase italic leading-relaxed">{t("steps.subtitle")}</p>
@@ -498,7 +499,7 @@ export default function LandingPage() {
       <section className="bg-white py-8 sm:py-14 md:py-24 px-4 sm:px-6 border-t border-slate-100">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-6 sm:mb-10 md:mb-16">
-            <h2 className="text-[20px] sm:text-3xl md:text-5xl font-black italic uppercase tracking-tight leading-[1.12] break-words mb-4">
+            <h2 className="text-[18px] sm:text-3xl md:text-5xl font-black italic uppercase tracking-tight leading-[1.12] break-words mb-4">
               {t("pricing.heading")} <span className="text-amber-500">{t("pricing.headingHighlight")}</span>
             </h2>
             <p className="text-slate-400 text-[10px] sm:text-xs font-bold uppercase italic leading-relaxed">{t("pricing.subtitle")}</p>
@@ -543,8 +544,9 @@ export default function LandingPage() {
       <section className="py-8 sm:py-14 md:py-24 px-4 sm:px-6 bg-slate-50">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-6 sm:mb-10 md:mb-16">
-            <h2 className="text-[20px] sm:text-3xl md:text-5xl font-black italic uppercase tracking-tight leading-[1.12] break-words mb-4">
-              {t("audience.heading")} <span className="text-amber-500">{t("audience.headingHighlight")}</span>
+            <h2 className="text-[18px] sm:text-3xl md:text-5xl font-black italic uppercase tracking-tight leading-[1.12] break-words mb-4">
+              <span className="block">{t("audience.heading")}</span>
+              <span className="block text-amber-500 mt-1">{t("audience.headingHighlight")}</span>
             </h2>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-4">
@@ -564,7 +566,7 @@ export default function LandingPage() {
       <section className="bg-slate-900 py-24 px-6 text-center">
         <div className="max-w-3xl mx-auto">
           <motion.div initial={{ opacity:0, y:20 }} whileInView={{ opacity:1, y:0 }} viewport={{ once:true }}>
-            <h2 className="text-[20px] sm:text-3xl md:text-5xl font-black italic uppercase tracking-tight leading-[1.12] break-words text-white mb-6">
+            <h2 className="text-[18px] sm:text-3xl md:text-5xl font-black italic uppercase tracking-tight leading-[1.12] break-words text-white mb-6">
               {t("finalCta.heading1")}<br/><span className="text-amber-500">{t("finalCta.heading2")}</span>
             </h2>
             <p className="text-slate-400 text-sm font-bold uppercase italic mb-10 leading-relaxed">
