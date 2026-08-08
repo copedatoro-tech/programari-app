@@ -68,7 +68,7 @@ export default function LoginPage() {
         return;
       }
 
-      router.push("/programari");
+      router.push("/programari/calendar");
       router.refresh();
     } catch {
       setMfaError("Eroare neașteptată.");
@@ -118,7 +118,7 @@ export default function LoginPage() {
           }
         }
 
-        router.push("/programari");
+        router.push("/programari/calendar");
         router.refresh();
       } else {
         alert(t("sessionNotCreated"));

@@ -234,7 +234,7 @@ export default function RootLayoutClient({ children }: { children: React.ReactNo
   // aplicației (redirect implicit după autentificare — vezi middleware.ts).
   const menuItems = [
     { href: "/programari/calendar", icon: "🗓️", label: t("nav.calendar") },
-    { href: "/programari",          icon: "📅", label: t("nav.programari") },
+    { href: "/programari/calendar",          icon: "📅", label: t("nav.programari") },
     { href: "/clienti",             icon: "👥", label: t("nav.clienti") },
     { href: "/lista-asteptare",     icon: "📋", label: t("nav.listaAsteptare") },
     { href: "/resurse",             icon: "📦", label: t("nav.servicii") },

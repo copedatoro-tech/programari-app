@@ -386,7 +386,7 @@ function FilterDropdownButton({ label, allLabel, placeholder, items, selectedId,
   }, [items, query]);
 
   return (
-    <div ref={boxRef} style={{ position: "relative", flexShrink: 0 }}>
+    <div ref={boxRef} className="chronos-filter-dropdown" style={{ position: "relative", flexShrink: 0 }}>
       <button onClick={() => setOpen(o => !o)}
         style={{
           display: "flex", alignItems: "center", gap: 7, padding: "8px 16px", borderRadius: 999,
@@ -403,7 +403,7 @@ function FilterDropdownButton({ label, allLabel, placeholder, items, selectedId,
       </button>
 
       {open && (
-        <div style={{
+        <div className="chronos-filter-dropdown-menu" style={{
           position: "absolute", top: "calc(100% + 6px)", left: 0, width: 240, background: "#fff",
           border: "1.5px solid #e2e8f0", borderRadius: 14, boxShadow: "0 12px 32px rgba(0,0,0,0.14)",
           zIndex: 60, overflow: "hidden",
@@ -510,7 +510,7 @@ function FilterBar({ rawStaff, rawServices, workLocations, programari, selectedE
   });
 
   return (
-    <div style={{ flexShrink:0, background:"#fff", borderBottom:"2px solid #e2e8f0", padding:"8px 14px", display:"flex", alignItems:"center", gap:10, flexWrap:"wrap" }}>
+    <div className="chronos-calendar-filters" style={{ flexShrink:0, background:"#fff", borderBottom:"2px solid #e2e8f0", padding:"8px 14px", display:"flex", alignItems:"center", gap:10, flexWrap:"wrap" }}>
       {workLocations.length>0&&(
         <FilterDropdownButton label={t("filterWorkLocations")} allLabel={t("allWorkLocationsOpt")} placeholder={t("searchWorkLocationPlaceholder")}
           items={locationItems} selectedId={selectedWorkLocation}
@@ -1560,7 +1560,7 @@ function CalendarContent() {
   const btnStyle=(active:boolean):React.CSSProperties=>({padding:"6px 12px",borderRadius:8,fontSize:10,fontWeight:700,textTransform:"uppercase",border:"none",cursor:"pointer",transition:"all 0.15s",background:active?"#0f172a":"#f1f5f9",color:active?"#fff":"#64748b"});
 
   return (
-    <div style={{display:"flex",flexDirection:"column",height:"100vh",background:"#f8fafc",overflow:"hidden"}}>
+    <div className="chronos-calendar-page" style={{display:"flex",flexDirection:"column",height:"100vh",background:"#f8fafc",overflow:"hidden"}}>
       {editForm&&(
         <>
           {showDatePicker&&(<div style={{position:"fixed",inset:0,zIndex:900,background:"rgba(0,0,0,0.5)",backdropFilter:"blur(4px)",display:"flex",alignItems:"center",justifyContent:"center",padding:16}} onClick={()=>setShowDatePicker(false)}><div onClick={e=>e.stopPropagation()}><ChronosDatePicker value={editForm.data} onChange={v=>{setEditForm(p=>p?{...p,data:v,ora:""}:null);setShowDatePicker(false);}} onClose={()=>setShowDatePicker(false)} workingHours={editWorkingHours}/></div></div>)}
@@ -1730,7 +1730,7 @@ function CalendarContent() {
         </div>
       )}
 
-      <div style={{flexShrink:0,background:"#fff",borderBottom:"2px solid #e2e8f0",padding:"8px 14px",display:"flex",alignItems:"center",gap:10,flexWrap:"wrap",rowGap:8}}>
+      <div className="chronos-calendar-toolbar" style={{flexShrink:0,background:"#fff",borderBottom:"2px solid #e2e8f0",padding:"8px 14px",display:"flex",alignItems:"center",gap:10,flexWrap:"wrap",rowGap:8}}>
         <Link href="/programari" style={{flexShrink:0}}>
           <div style={{width:34,height:34,background:"#f1f5f9",borderRadius:10,display:"flex",alignItems:"center",justifyContent:"center",fontSize:16,fontWeight:700,color:"#334155",cursor:"pointer",border:"none",transition:"all 0.15s"}} className="hover:bg-slate-900 hover:text-white">←</div>
         </Link>
@@ -1747,7 +1747,7 @@ function CalendarContent() {
         <div className="hidden md:block" style={{flexShrink:0,padding:"5px 12px",background:"#f8fafc",borderRadius:10,border:"1.5px solid #e2e8f0"}}>
           <span style={{fontSize:11,fontWeight:700,color:"#334155",textTransform:"capitalize"}}>{dateTitles[viewMode]}</span>
         </div>
-        <div id="onboarding-calendar-search" style={{flex:"1 1 160px",minWidth:120,maxWidth:280,position:"relative"}}>
+        <div id="onboarding-calendar-search" className="chronos-calendar-search" style={{flex:"1 1 160px",minWidth:120,maxWidth:280,position:"relative"}}>
           <span style={{position:"absolute",left:10,top:"50%",transform:"translateY(-50%)",fontSize:13,color:"#94a3b8"}}>🔍</span>
           <input type="text" placeholder={t("searchPlaceholder")} value={searchTerm}
             onChange={e=>{setSearchTerm(e.target.value);handleSearch(e.target.value);}}
@@ -1761,14 +1761,14 @@ function CalendarContent() {
             </div>
           )}
         </div>
-        <div id="onboarding-calendar-view-toggle" style={{display:"flex",background:"#f1f5f9",padding:3,borderRadius:10,gap:2,marginLeft:"auto",flexShrink:0}}>
+        <div id="onboarding-calendar-view-toggle" className="chronos-calendar-view-toggle" style={{display:"flex",background:"#f1f5f9",padding:3,borderRadius:10,gap:2,marginLeft:"auto",flexShrink:0}}>
           {(["day","week","month","year"] as ViewMode[]).map(opt=>(
             <button key={opt} onClick={()=>setViewMode(opt)} style={btnStyle(viewMode===opt)}>
               {opt==="day"?t("viewDay"):opt==="week"?t("viewWeek"):opt==="month"?t("viewMonth"):t("viewYear")}
             </button>
           ))}
         </div>
-        <div style={{display:"flex",alignItems:"center",gap:4,flexShrink:0}}>
+        <div className="chronos-calendar-nav" style={{display:"flex",alignItems:"center",gap:4,flexShrink:0}}>
           <button onClick={()=>nav(-1)} style={{width:32,height:32,background:"#f1f5f9",border:"1.5px solid #e2e8f0",borderRadius:8,cursor:"pointer",fontSize:16,fontWeight:700,color:"#334155",display:"flex",alignItems:"center",justifyContent:"center"}} className="hover:bg-slate-200 transition-all">‹</button>
           <button onClick={()=>setSelectedDate(new Date())} style={{padding:"4px 10px",background:"transparent",border:"none",cursor:"pointer",fontSize:10,fontWeight:700,color:"#64748b"}} className="hover:text-amber-600 transition-colors">{t("todayBtn")}</button>
           <button onClick={()=>nav(1)} style={{width:32,height:32,background:"#f1f5f9",border:"1.5px solid #e2e8f0",borderRadius:8,cursor:"pointer",fontSize:16,fontWeight:700,color:"#334155",display:"flex",alignItems:"center",justifyContent:"center"}} className="hover:bg-slate-200 transition-all">›</button>
