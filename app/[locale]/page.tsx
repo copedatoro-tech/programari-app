@@ -102,34 +102,34 @@ export default function LandingPage() {
       </nav>
 
       {/* ── HERO ─────────────────────────────────────────────────────────── */}
-      <section className="px-6 pt-6 pb-16 max-w-7xl mx-auto flex flex-col items-center text-center">
+      <section className="px-4 sm:px-6 pt-4 sm:pt-6 pb-10 sm:pb-16 max-w-7xl mx-auto flex flex-col items-center text-center">
         <motion.div initial={{ opacity:0, y:10 }} animate={{ opacity:1, y:0 }}
-          className="inline-flex items-center gap-2 px-4 py-1.5 mb-6 rounded-full bg-amber-50 border border-amber-200 text-[9px] font-black uppercase italic text-amber-700 tracking-[0.15em]">
+          className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 mb-4 sm:mb-6 rounded-full bg-amber-50 border border-amber-200 text-[8px] sm:text-[9px] font-black uppercase italic text-amber-700 tracking-[0.12em] sm:tracking-[0.15em]">
           {t("hero.badge")}
         </motion.div>
 
         <motion.h1 initial={{ opacity:0, y:10 }} animate={{ opacity:1, y:0 }} transition={{ delay:0.1 }}
-          className="text-[26px] sm:text-4xl md:text-6xl font-black italic uppercase tracking-tight leading-[1.02] mb-6 max-w-4xl break-words [overflow-wrap:anywhere]">
+          className="text-[23px] sm:text-4xl md:text-6xl font-black italic uppercase tracking-tight leading-[1.04] mb-4 sm:mb-6 max-w-4xl break-words [overflow-wrap:anywhere]">
           <span className="block mb-3">{t("hero.titleLine1")} <span className="text-amber-600">{t("hero.titleHighlight1")}</span></span>
           <span className="block text-slate-400">{t("hero.titleLine2")}</span>
         </motion.h1>
 
         <motion.p initial={{ opacity:0, y:10 }} animate={{ opacity:1, y:0 }} transition={{ delay:0.2 }}
-          className="max-w-2xl text-slate-600 text-[11px] md:text-sm font-bold uppercase italic tracking-wide mb-10 leading-relaxed">
+          className="max-w-2xl text-slate-600 text-[10px] sm:text-[11px] md:text-sm font-bold uppercase italic tracking-wide mb-7 sm:mb-10 leading-relaxed">
           {t("hero.subtitle")}
         </motion.p>
 
         <motion.div initial={{ opacity:0, scale:0.95 }} animate={{ opacity:1, scale:1 }} transition={{ delay:0.3 }}
-          className="flex flex-col items-center gap-4 w-full max-w-lg mb-16">
+          className="flex flex-col items-center gap-3 sm:gap-4 w-full max-w-lg mb-10 sm:mb-16">
           <Link href="/register"
-            className="w-full h-[90px] bg-amber-500 text-slate-950 rounded-[28px] font-black italic uppercase tracking-widest hover:bg-amber-400 shadow-2xl shadow-amber-500/30 transition-all flex flex-col items-center justify-center active:scale-95 border-b-8 border-amber-700 hover:border-amber-600 group">
-            <span className="text-xl md:text-2xl flex items-center gap-3">
+            className="w-full h-[68px] sm:h-[90px] bg-amber-500 text-slate-950 rounded-[22px] sm:rounded-[28px] font-black italic uppercase tracking-widest hover:bg-amber-400 shadow-2xl shadow-amber-500/30 transition-all flex flex-col items-center justify-center active:scale-95 border-b-4 sm:border-b-8 border-amber-700 hover:border-amber-600 group">
+            <span className="text-sm sm:text-xl md:text-2xl flex items-center gap-2 sm:gap-3">
               {t("hero.ctaMain")}
               <motion.div animate={{ x:[0,5,0] }} transition={{ repeat:Infinity, duration:1.5 }}>
                 <ArrowRight className="w-6 h-6" />
               </motion.div>
             </span>
-            <span className="text-[10px] font-black tracking-[0.3em] mt-1 opacity-70">{t("hero.ctaSub")}</span>
+            <span className="text-[8px] sm:text-[10px] font-black tracking-[0.18em] sm:tracking-[0.3em] mt-1 opacity-70">{t("hero.ctaSub")}</span>
           </Link>
           <p className="text-[9px] font-black text-slate-500 uppercase italic tracking-widest">
             {t("hero.disclaimer")}
@@ -365,23 +365,23 @@ export default function LandingPage() {
       </section>
 
       {/* ── VALOARE PERSONALĂ — timp liber recâștigat ───────────────────── */}
-      <section className="bg-slate-950 py-24 px-6 overflow-hidden relative">
+      <section className="bg-slate-950 py-14 sm:py-20 md:py-24 px-4 sm:px-6 overflow-hidden relative">
         <div className="absolute top-0 right-0 w-96 h-96 bg-amber-500/10 rounded-full blur-[120px]" />
         <div className="absolute bottom-0 left-0 w-96 h-96 bg-blue-500/10 rounded-full blur-[120px]" />
 
         <div className="max-w-6xl mx-auto relative">
-          <div className="text-center mb-16">
+          <div className="text-center mb-9 sm:mb-12 md:mb-16">
             <h2 className="text-[26px] sm:text-3xl md:text-5xl font-black italic uppercase tracking-tight leading-[1.05] break-words [overflow-wrap:anywhere] text-white mb-4">
               {t("personalValue.heading1")} <span className="text-amber-500">{t("personalValue.heading2")}</span>
             </h2>
             <p className="text-slate-400 text-xs font-bold uppercase italic max-w-xl mx-auto">{t("personalValue.subtitle")}</p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
             {[0, 1, 2].map((i) => (
               <motion.div key={i}
                 initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.15 }}
-                className="bg-slate-900 border border-white/5 rounded-[30px] p-6 relative overflow-hidden">
+                className="bg-slate-900 border border-white/5 rounded-[24px] sm:rounded-[30px] p-4 sm:p-6 relative overflow-hidden">
                 <div className="text-4xl mb-4">{t(`personalValue.scenarios.${i}.emoji`)}</div>
                 <p className="text-slate-400 text-[11px] font-bold uppercase italic mb-6 leading-relaxed">
                   {t(`personalValue.scenarios.${i}.situation`)}
@@ -417,9 +417,9 @@ export default function LandingPage() {
       </section>
 
       {/* ── CE CONȚINE CHRONOS ────────────────────────────────────────────── */}
-      <section className="bg-white py-24 px-6 border-y border-slate-100">
+      <section className="bg-white py-14 sm:py-20 md:py-24 px-4 sm:px-6 border-y border-slate-100">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
+          <div className="text-center mb-9 sm:mb-12 md:mb-16">
             <h2 className="text-[26px] sm:text-3xl md:text-5xl font-black italic uppercase tracking-tight leading-[1.05] break-words [overflow-wrap:anywhere] mb-4">
               {t("features.heading1")}<br/><span className="text-amber-500">{t("features.heading2")}</span>
             </h2>
@@ -430,7 +430,7 @@ export default function LandingPage() {
             {features.map((f,i)=>(
               <motion.div key={i}
                 initial={{ opacity:0, y:20 }} whileInView={{ opacity:1, y:0 }} viewport={{ once:true }} transition={{ delay: i*0.05 }}
-                className="bg-slate-50 border border-slate-100 rounded-[30px] p-7 hover:border-amber-300 hover:shadow-lg transition-all group">
+                className="bg-slate-50 border border-slate-100 rounded-[24px] sm:rounded-[30px] p-4 sm:p-7 hover:border-amber-300 hover:shadow-lg transition-all group">
                 <div className={`w-12 h-12 ${featureColors[i]} rounded-2xl flex items-center justify-center text-white mb-5 shadow-lg group-hover:scale-110 transition-transform`}>
                   {featureIcons[i]}
                 </div>
@@ -443,9 +443,9 @@ export default function LandingPage() {
       </section>
 
       {/* ── CUM FUNCȚIONEAZĂ ─────────────────────────────────────────────── */}
-      <section className="py-24 px-6 bg-slate-50">
+      <section className="py-14 sm:py-20 md:py-24 px-4 sm:px-6 bg-slate-50">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
+          <div className="text-center mb-9 sm:mb-12 md:mb-16">
             <h2 className="text-[26px] sm:text-3xl md:text-5xl font-black italic uppercase tracking-tight leading-[1.05] break-words [overflow-wrap:anywhere] mb-4">
               {t("steps.heading")} <span className="text-amber-500">{t("steps.headingHighlight")}</span>
             </h2>
@@ -468,9 +468,9 @@ export default function LandingPage() {
       </section>
 
       {/* ── PLANURI ──────────────────────────────────────────────────────── */}
-      <section className="bg-white py-24 px-6 border-t border-slate-100">
+      <section className="bg-white py-14 sm:py-20 md:py-24 px-4 sm:px-6 border-t border-slate-100">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
+          <div className="text-center mb-9 sm:mb-12 md:mb-16">
             <h2 className="text-[26px] sm:text-3xl md:text-5xl font-black italic uppercase tracking-tight leading-[1.05] break-words [overflow-wrap:anywhere] mb-4">
               {t("pricing.heading")} <span className="text-amber-500">{t("pricing.headingHighlight")}</span>
             </h2>
@@ -483,12 +483,12 @@ export default function LandingPage() {
               return (
               <motion.div key={i}
                 initial={{ opacity:0, y:20 }} whileInView={{ opacity:1, y:0 }} viewport={{ once:true }} transition={{ delay: i*0.08 }}
-                className={`rounded-[28px] p-6 border-2 transition-all ${highlight ? "bg-slate-900 border-amber-500 shadow-2xl scale-105" : "bg-slate-50 border-slate-100 hover:border-amber-200"}`}>
+                className={`rounded-[24px] sm:rounded-[28px] p-4 sm:p-6 border-2 transition-all ${highlight ? "bg-slate-900 border-amber-500 shadow-2xl sm:scale-105" : "bg-slate-50 border-slate-100 hover:border-amber-200"}`}>
                 <div className={`text-[9px] font-black uppercase tracking-widest italic mb-2 ${highlight?"text-amber-500":"text-slate-400"}`}>
                   {highlight ? t("pricing.popularBadge") : t("pricing.planBadge")}
                 </div>
                 <h3 className={`text-2xl font-black italic uppercase tracking-tighter mb-1 ${highlight?"text-white":"text-slate-900"}`}>{p.plan}</h3>
-                <p className={`text-3xl font-black tracking-tighter mb-1 ${highlight?"text-white":"text-slate-900"}`}>{format(p.price)}</p>
+                <p className={`text-2xl sm:text-3xl font-black tracking-tight mb-1 ${highlight?"text-white":"text-slate-900"}`}>{format(p.price)}</p>
                 <p className={`text-[10px] font-black italic mb-5 ${highlight?"text-amber-400":"text-amber-600"}`}>{p.prog}</p>
                 <div className="space-y-2.5 mb-6">
                   {p.features.map((f,j)=>(
@@ -513,9 +513,9 @@ export default function LandingPage() {
       </section>
 
       {/* ── PENTRU CINE E CHRONOS ─────────────────────────────────────────── */}
-      <section className="py-24 px-6 bg-slate-50">
+      <section className="py-14 sm:py-20 md:py-24 px-4 sm:px-6 bg-slate-50">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
+          <div className="text-center mb-9 sm:mb-12 md:mb-16">
             <h2 className="text-[26px] sm:text-3xl md:text-5xl font-black italic uppercase tracking-tight leading-[1.05] break-words [overflow-wrap:anywhere] mb-4">
               {t("audience.heading")} <span className="text-amber-500">{t("audience.headingHighlight")}</span>
             </h2>
