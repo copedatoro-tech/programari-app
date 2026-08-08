@@ -138,7 +138,7 @@ export default function LandingPage() {
 
         {/* ── App Mockup — fidel interfeței reale ── */}
         <motion.div initial={{ opacity:0, y:40 }} animate={{ opacity:1, y:0 }} transition={{ delay:0.5, duration:0.8 }}
-          className="relative w-full max-w-5xl">
+          className="relative hidden lg:block w-full max-w-5xl">
 
           {/* Cadru browser */}
           <div className="bg-slate-800 rounded-t-[28px] p-2 shadow-2xl border-x-4 border-t-4 border-slate-700">
