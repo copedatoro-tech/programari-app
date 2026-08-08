@@ -153,7 +153,7 @@ export default function LoginPage() {
           />
 
           <div className="relative z-10 min-w-0 text-left">
-            <h2 className="text-[15px] sm:text-3xl font-black uppercase text-white italic tracking-tighter leading-tight">
+            <h2 className="text-[13px] sm:text-3xl font-black uppercase text-white italic tracking-tighter leading-tight">
               {t("title")} <span className="block text-amber-500">{t("titleHighlight")}</span>
             </h2>
             <p className="text-[6px] sm:text-[9px] font-black text-slate-400 uppercase tracking-[0.16em] sm:tracking-[0.3em] italic mt-1">
