@@ -95,7 +95,7 @@ export default function LandingPage() {
           <button
             type="button"
             onClick={() => setMobileMenuOpen((open) => !open)}
-            className="sm:hidden h-8 px-2.5 rounded-xl bg-slate-900 text-white text-[8px] font-black uppercase italic tracking-widest flex items-center gap-1.5 shadow-sm"
+            className="sm:hidden h-8 px-2 rounded-xl bg-slate-900 text-white text-[8px] font-black uppercase italic tracking-widest flex items-center gap-1 shadow-sm"
             aria-label="Meniu"
           >
             {mobileMenuOpen ? <X className="w-3 h-3" /> : <Menu className="w-3 h-3" />}
@@ -137,8 +137,9 @@ export default function LandingPage() {
 
         <motion.h1 initial={{ opacity:0, y:10 }} animate={{ opacity:1, y:0 }} transition={{ delay:0.1 }}
           className="text-[18px] sm:text-4xl md:text-6xl font-black italic uppercase tracking-tight leading-[1.12] mb-4 sm:mb-6 max-w-4xl break-words">
-          <span className="block mb-3">{t("hero.titleLine1")} <span className="text-amber-600">{t("hero.titleHighlight1")}</span></span>
-          <span className="block text-slate-400">{t("hero.titleLine2")}</span>
+          <span className="block">{t("hero.titleLine1")}</span>
+          <span className="block text-amber-600 mt-1 max-w-[330px] mx-auto">{t("hero.titleHighlight1")}</span>
+          <span className="block text-slate-400 mt-2">{t("hero.titleLine2")}</span>
         </motion.h1>
 
         <motion.p initial={{ opacity:0, y:10 }} animate={{ opacity:1, y:0 }} transition={{ delay:0.2 }}
@@ -438,8 +439,9 @@ export default function LandingPage() {
           </div>
 
           <motion.p initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}
-            className="text-center text-amber-500 font-black italic uppercase text-sm md:text-base tracking-widest mt-14">
-            {t("personalValue.closingText")}
+            className="text-center text-amber-500 font-black italic uppercase text-[12px] sm:text-sm md:text-base tracking-widest mt-10 sm:mt-14 leading-relaxed">
+            <span className="block">{t("personalValue.closingLine1")}</span>
+            <span className="block">{t("personalValue.closingLine2")}</span>
           </motion.p>
         </div>
       </section>
