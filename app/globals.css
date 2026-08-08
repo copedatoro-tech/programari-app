@@ -454,3 +454,73 @@ a, button, input, textarea, select, div[tabindex] {
   }
 }
 /* CHRONOS_MOBILE_APP_SHELL_END */
+
+
+/* CHRONOS_CALENDAR_DAY_MOBILE_DENSITY_START */
+@media (max-width: 640px) {
+  .chronos-calendar-page [style*='height: 100%'][style*='overflow-y: auto'] {
+    max-height: calc(100svh - 320px) !important;
+    overflow: auto !important;
+  }
+
+  .chronos-calendar-page [style*='min-width'] {
+    min-width: 620px !important;
+  }
+
+  .chronos-calendar-page [style*='grid-template-columns'] {
+    grid-template-columns: 54px repeat(10, minmax(92px, 1fr)) !important;
+  }
+
+  .chronos-calendar-page [style*='height: 46px'] {
+    height: 34px !important;
+  }
+
+  .chronos-calendar-page [style*='height: 90px'] {
+    height: 52px !important;
+  }
+
+  .chronos-calendar-page [style*='height: 180px'] {
+    height: 68px !important;
+  }
+
+  .chronos-calendar-page [style*='font-size: 12px'] {
+    font-size: 10px !important;
+  }
+
+  .chronos-calendar-page [style*='font-size: 13px'] {
+    font-size: 10px !important;
+  }
+
+  .chronos-calendar-page [style*='font-size: 14px'] {
+    font-size: 11px !important;
+  }
+
+  .chronos-calendar-page [style*='font-size: 18px'] {
+    font-size: 13px !important;
+  }
+
+  .chronos-calendar-page [style*='font-size: 22px'] {
+    font-size: 15px !important;
+  }
+
+  .chronos-calendar-page [style*='padding: 8px'] {
+    padding: 5px !important;
+  }
+
+  .chronos-calendar-page [style*='width: 36px'][style*='height: 36px'] {
+    width: 26px !important;
+    height: 26px !important;
+    font-size: 10px !important;
+  }
+
+  .chronos-calendar-page [style*='width: 56px'][style*='height: 56px'] {
+    width: 42px !important;
+    height: 42px !important;
+  }
+
+  .chronos-calendar-page [style*='position: sticky'][style*='left: 0'] {
+    width: 54px !important;
+    min-width: 54px !important;
+  }
+}
+/* CHRONOS_CALENDAR_DAY_MOBILE_DENSITY_END */
