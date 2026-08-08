@@ -28,14 +28,15 @@ export default function CurrencySwitcher() {
     <div className="relative" ref={ref}>
       <button
         onClick={() => setOpen(!open)}
-        className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-50 border-2 border-slate-100 hover:border-amber-500 transition-all"
+        className="flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-slate-50 border-2 border-slate-100 hover:border-amber-500 transition-all max-w-[150px] sm:max-w-none"
       >
         <span className="text-sm font-black text-slate-700">{currentInfo.symbol}</span>
-        <span className="text-[12px] font-black uppercase text-slate-700">{currency} - {tc?.(currency) ?? currentInfo.label}</span>
+        <span className="sm:hidden text-[11px] font-black uppercase text-slate-700">{currency}</span>
+        <span className="hidden sm:inline text-[12px] font-black uppercase text-slate-700">{currency} - {tc?.(currency) ?? currentInfo.label}</span>
         <ChevronDown className={`w-3.5 h-3.5 text-slate-400 transition-transform ${open ? "rotate-180" : ""}`} />
       </button>
       {open && (
-        <div className="absolute top-full mt-2 right-0 w-52 bg-white border-2 border-slate-900 rounded-2xl shadow-2xl p-2 z-[110] max-h-80 overflow-y-auto">
+        <div className="fixed left-4 right-4 top-24 sm:absolute sm:left-auto sm:right-0 sm:top-full sm:mt-2 sm:w-52 bg-white border-2 border-slate-900 rounded-2xl shadow-2xl p-2 z-[110] max-h-80 overflow-y-auto">
           {CURRENCY_ORDER.map((cur) => {
             const info = CURRENCY_INFO[cur];
             return (
