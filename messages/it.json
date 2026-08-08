@@ -310,7 +310,7 @@
         "abonamente": {
           "activateTrial": {
             "title": "Attiva la Prova",
-            "desc": "Hai finito la configurazione? Clicca questo pulsante per attivare 10 giorni gratuiti di accesso completo al piano Team — senza carta, senza obblighi."
+            "desc": "Hai finito la configurazione Clicca questo pulsante per attivare 10 giorni gratuiti di accesso completo al piano Team — senza carta, senza obblighi."
           }
         },
         "clienti": {
@@ -718,7 +718,7 @@
     "errorPrefix": "ERRORE: ",
     "contactSaved": "CONTATTO SALVATO!",
     "confirmDeleteContact": "ELIMINARE DEFINITIVAMENTE?",
-    "confirmDeleteFolder": "Eliminare la cartella? I contatti rimangono ma non saranno più assegnati."
+    "confirmDeleteFolder": "Eliminare la cartella I contatti rimangono ma non saranno più assegnati."
   },
   "loginPage": {
     "title": "ACCESSO",
@@ -758,7 +758,7 @@
     "accountCreated": "✅ Account creato con successo! Ora puoi accedere.",
     "processing": "ELABORAZIONE...",
     "registerBtn": "REGISTRA NUOVO ACCOUNT",
-    "haveAccount": "HAI GIÀ UN ACCOUNT?",
+    "haveAccount": "HAI GIA UN ACCOUNT?",
     "loginLink": "ACCEDI",
     "termsRequired": "Devi accettare i Termini e la Politica GDPR per continuare.",
     "termsCheckboxPrefix": "Ho letto e accetto i",
@@ -866,7 +866,7 @@
     "headingHighlight2": "Specialisti",
     "demoMode": "MODALITÀ ANTEPRIMA (DEMO)",
     "activePlanPrefix": "ABBONAMENTO ATTIVO: ",
-    "backBtn": "← PANNELLO PRINCIPALE",
+    "backBtn": "Calendario",
     "dbErrorPrefix": "⚠️ ",
     "addServiceTitle": "Aggiungi nuovo servizio",
     "serviceNameLabel": "Nome del servizio",
@@ -961,7 +961,7 @@
       "generateNewPasswordTitle": "Genera una nuova password",
       "savingBtn": "Salvataggio...",
       "saveChangesBtn": "Salva Modifiche",
-      "deactivateIntro": "Ha lasciato il team? Puoi disattivare completamente il suo accesso.",
+      "deactivateIntro": "Ha lasciato il team Puoi disattivare completamente il suo accesso.",
       "deactivateBtn": "🚫 Disattiva Account",
       "confirmDeactivateTitle": "Sei sicuro di voler disattivare questo account?",
       "confirmDeactivateText": "{name} non potrà più accedere al portale specialista. Potrai invitarlo di nuovo in seguito, se necessario.",
@@ -979,7 +979,8 @@
       "teamOnlyHint": "Il portale specialista è disponibile solo nel piano Chronos Team. Clicca per aggiornare.",
       "phoneLabel": "Telefono dello Specialista",
       "teamOrBusinessBadge": "Team o Business",
-      "teamOrBusinessHint": "Il portale specialista e disponibile nei piani Chronos Team e Chronos Business."
+      "teamOrBusinessHint": "Il portale specialista e disponibile nei piani Chronos Team e Chronos Business.",
+      "regenerateShort": "Genera"
     },
     "staffPhotoUploadBtn": "Carica foto",
     "staffPhotoRemoveBtn": "Rimuovi foto",
@@ -991,7 +992,27 @@
     "planLimitWorkLocations": "Il tuo piano consente fino a {count} punti di lavoro.",
     "planLimitSpecialists": "Il tuo piano consente fino a {count} specialisti.",
     "planLimitServices": "Il tuo piano consente fino a {count} servizi.",
-    "planLimitSpecialistsPerLocation": "Questo piano consente fino a {count} specialisti per punto di lavoro."
+    "planLimitSpecialistsPerLocation": "Questo piano consente fino a {count} specialisti per punto di lavoro.",
+    "clientPermissions": {
+      "button": "Permessi",
+      "title": "Permessi dati cliente",
+      "close": "Chiudi",
+      "save": "Salva permessi",
+      "savedToast": "I permessi dello specialista sono stati salvati.",
+      "subtitle": "Scegli quali dati personali lo specialista puo vedere nel suo portale.",
+      "hint": "Consiglio: tieni nascosti telefono, email, documenti e pagamento se lo specialista non ne ha davvero bisogno.",
+      "options": {
+        "view_client_name": "Nome cliente",
+        "view_client_phone": "Telefono cliente",
+        "view_client_email": "Email cliente",
+        "view_appointment_details": "Dettagli appuntamento",
+        "view_client_files": "Documenti allegati",
+        "view_client_history": "Storico cliente",
+        "view_payment_info": "Prezzo e pagamento"
+      }
+    },
+    "confirmDeleteService": "Vuoi davvero eliminare questo servizio?",
+    "confirmDeleteStaff": "Vuoi davvero eliminare questo specialista?"
   },
   "sugestii": {
     "checkingAccess": "Verifica dell'accesso...",
@@ -1291,7 +1312,9 @@
     "depositPaidLabel": "Acconto {paid} RON · resto {rest} RON",
     "fullyPaidLabel": "Pagato per intero",
     "allWorkLocationsOpt": "Tutte le sedi",
-    "workLocationLabel": "Sede"
+    "workLocationLabel": "Sede",
+    "filterWorkLocations": "Sedi",
+    "searchWorkLocationPlaceholder": "Cerca sede..."
   },
   "rapoarte": {
     "localeCode": "it-IT",
@@ -1488,7 +1511,8 @@
     "uploadingLabel": "Caricamento...",
     "documentsHint": "Massimo 5 file, 10MB ciascuno. Es: una foto del problema, una fattura.",
     "maxDocumentsMsg": "Puoi allegare massimo 5 file.",
-    "fileTooLargeMsg": "Un file ha superato il limite di 10MB ed è stato ignorato."
+    "fileTooLargeMsg": "Un file ha superato il limite di 10MB ed è stato ignorato.",
+    "changeWorkLocationBtn": "Cambia sede"
   },
   "programariPage": {
     "successTitle": "Appuntamenti salvati!",
@@ -1609,7 +1633,7 @@
     "alreadyActiveBtn": "PIANO ATTIVO",
     "modal": {
       "title": "Confermare il cambio",
-      "message": "Sei nella prova di Chronos Team. Passare a {plan} terminerà subito la prova. Continuare?",
+      "message": "Sei nella prova di Chronos Team. Passare a {plan} terminera subito la prova. Continuare?",
       "confirmBtn": "SÌ, CONTINUA",
       "cancelBtn": "ANNULLA"
     },
@@ -1812,7 +1836,7 @@
     "text1": "Utilizziamo solo cookie tecnici, necessari per mantenerti connesso al tuo account.",
     "text2": "Non utilizziamo cookie per la pubblicità o il tracciamento commerciale.",
     "text3": "Questi cookie sono essenziali per il funzionamento dell'app e scadono automaticamente alla disconnessione.",
-    "contactLabel": "Domande sui cookie? Scrivici a ",
+    "contactLabel": "Domande sui cookie Scrivici a ",
     "closeBtn": "CHIUDI"
   },
   "termeniModal": {
@@ -1822,7 +1846,7 @@
     "text2": "Il sistema e progettato per la gestione efficiente del tempo e delle risorse professionali della tua attivita.",
     "text3": "L'utente e responsabile dell'accuratezza delle informazioni inserite nel calendario e della riservatezza delle credenziali di accesso del proprio account.",
     "text4": "Ci riserviamo il diritto di aggiornare questi termini; l'uso continuato della piattaforma dopo le modifiche costituisce accettazione delle stesse.",
-    "contactLabel": "Domande sui termini? Scrivici a ",
+    "contactLabel": "Domande sui termini Scrivici a ",
     "acceptBtn": "ACCETTO",
     "text5": "Questo servizio e gestito da EXPLORE WORLD S.R.L., P.IVA 45995975, con sede legale a Cluj-Napoca, Str. Gruia, No. 58, Ap. 17, contea di Cluj, Romania. Qualsiasi controversia sara risolta secondo la legge rumena, dai tribunali competenti della Romania.",
     "lastUpdated": "Ultimo aggiornamento: 18 luglio 2026"
@@ -2021,7 +2045,7 @@
       "connectionError": "Errore di connessione. Riprova.",
       "checkingBtn": "Verifica...",
       "loginBtn": "Accedi",
-      "noAccessFooter": "Non hai ricevuto i dati di accesso? Contatta l'amministratore del salone."
+      "noAccessFooter": "Non hai ricevuto i dati di accesso Contatta l'amministratore del salone."
     },
     "dashboard": {
       "loading": "Caricamento...",

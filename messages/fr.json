@@ -45,7 +45,7 @@
     "register": "Inscription",
     "email": "Email",
     "password": "Mot de passe",
-    "forgotPassword": "Mot de passe oublié ?",
+    "forgotPassword": "Mot de passe oublie ?",
     "loginButton": "Se connecter"
   },
   "subscription": {
@@ -310,7 +310,7 @@
         "abonamente": {
           "activateTrial": {
             "title": "Activer l'Essai",
-            "desc": "Configuration terminée ? Cliquez sur ce bouton pour activer 10 jours gratuits d'accès complet au plan Team — sans carte, sans engagement."
+            "desc": "Configuration terminée  Cliquez sur ce bouton pour activer 10 jours gratuits d'accès complet au plan Team — sans carte, sans engagement."
           }
         },
         "clienti": {
@@ -605,7 +605,7 @@
       ]
     },
     "finalCta": {
-      "heading1": "PRÊT À ESSAYER ?",
+      "heading1": "PRET A ESSAYER ?",
       "heading2": "10 JOURS. GRATUIT. ACCÈS COMPLET TEAM.",
       "paragraph": "Complétez votre profil, définissez votre planning, ajoutez vos services et spécialistes — puis activez l'essai gratuit lorsque tout est prêt. Chronos gère les réservations pour que vous puissiez offrir de la qualité et récupérer du temps pour vous.",
       "button": "CRÉER UN COMPTE GRATUIT",
@@ -671,7 +671,7 @@
     "syncing": "Synchronisation base de données...",
     "noneFound": "Aucun client trouvé",
     "noPhone": "SANS TÉLÉPHONE",
-    "confirmDelete": "Supprimer définitivement ce client ?"
+    "confirmDelete": "Supprimer definitivement ce client ?"
   },
   "contacteUtile": {
     "folderOptional": "Dossier (optionnel)",
@@ -717,8 +717,8 @@
     "sessionExpired": "SESSION EXPIRÉE.",
     "errorPrefix": "ERREUR : ",
     "contactSaved": "CONTACT ENREGISTRÉ !",
-    "confirmDeleteContact": "SUPPRIMER DÉFINITIVEMENT ?",
-    "confirmDeleteFolder": "Supprimer ce dossier ? Les contacts restent mais ne seront plus assignés."
+    "confirmDeleteContact": "SUPPRIMER DEFINITIVEMENT ?",
+    "confirmDeleteFolder": "Supprimer ce dossier  Les contacts restent mais ne seront plus assignés."
   },
   "loginPage": {
     "title": "CONNEXION",
@@ -726,7 +726,7 @@
     "subtitle": "Système de Gestion Premium",
     "emailPlaceholder": "ADRESSE EMAIL",
     "passwordPlaceholder": "MOT DE PASSE",
-    "forgotPassword": "Mot de passe oublié ?",
+    "forgotPassword": "Mot de passe oublie ?",
     "checking": "VÉRIFICATION...",
     "loginBtn": "SE CONNECTER",
     "noAccount": "Pas encore de compte ?",
@@ -758,7 +758,7 @@
     "accountCreated": "✅ Compte créé avec succès ! Tu peux maintenant te connecter.",
     "processing": "TRAITEMENT...",
     "registerBtn": "CRÉER UN NOUVEAU COMPTE",
-    "haveAccount": "TU AS DÉJÀ UN COMPTE ?",
+    "haveAccount": "TU AS DEJA UN COMPTE ?",
     "loginLink": "CONNECTE-TOI",
     "termsRequired": "Vous devez accepter les Conditions et la Politique RGPD pour continuer.",
     "termsCheckboxPrefix": "J'ai lu et j'accepte les",
@@ -866,7 +866,7 @@
     "headingHighlight2": "Spécialistes",
     "demoMode": "MODE APERÇU (DÉMO)",
     "activePlanPrefix": "ABONNEMENT ACTIF : ",
-    "backBtn": "← TABLEAU PRINCIPAL",
+    "backBtn": "Calendrier",
     "dbErrorPrefix": "⚠️ ",
     "addServiceTitle": "Ajouter un nouveau service",
     "serviceNameLabel": "Nom du service",
@@ -896,7 +896,7 @@
     "serviceLimitReached": "⚠️ Limite atteinte ! Ton forfait permet seulement {limit} services.",
     "staffLimitReached": "⚠️ Limite atteinte ! Ton forfait permet seulement {limit} experts.",
     "errorPrefix": "Erreur : ",
-    "confirmDeleteResource": "Es-tu sûr de vouloir supprimer cette ressource ?",
+    "confirmDeleteResource": "Es-tu sur de vouloir supprimer cette ressource ?",
     "loading": "Synchronisation Chronos...",
     "scheduleBtn": "Horaire",
     "scheduleModalTitle": "Horaire de travail",
@@ -961,9 +961,9 @@
       "generateNewPasswordTitle": "Générer un nouveau mot de passe",
       "savingBtn": "Enregistrement...",
       "saveChangesBtn": "Enregistrer les Modifications",
-      "deactivateIntro": "A quitté l'équipe ? Vous pouvez désactiver complètement son accès.",
+      "deactivateIntro": "A quitté l'équipe  Vous pouvez désactiver complètement son accès.",
       "deactivateBtn": "🚫 Désactiver le Compte",
-      "confirmDeactivateTitle": "Voulez-vous vraiment désactiver ce compte ?",
+      "confirmDeactivateTitle": "Voulez-vous vraiment desactiver ce compte ?",
       "confirmDeactivateText": "{name} ne pourra plus se connecter au portail spécialiste. Vous pourrez l'inviter à nouveau plus tard si nécessaire.",
       "cancelBtn": "Annuler",
       "yesDeactivateBtn": "Oui, désactiver",
@@ -979,7 +979,8 @@
       "teamOnlyHint": "Le portail spécialiste est disponible uniquement sur le plan Chronos Team. Cliquez pour mettre à niveau.",
       "phoneLabel": "Téléphone du Spécialiste",
       "teamOrBusinessBadge": "Team ou Business",
-      "teamOrBusinessHint": "Le portail specialiste est disponible avec Chronos Team et Chronos Business."
+      "teamOrBusinessHint": "Le portail specialiste est disponible avec Chronos Team et Chronos Business.",
+      "regenerateShort": "Generer"
     },
     "staffPhotoUploadBtn": "Importer photo",
     "staffPhotoRemoveBtn": "Supprimer photo",
@@ -991,7 +992,27 @@
     "planLimitWorkLocations": "Votre abonnement permet jusqu'a {count} lieux de travail.",
     "planLimitSpecialists": "Votre abonnement permet jusqu'a {count} specialistes.",
     "planLimitServices": "Votre abonnement permet jusqu'a {count} services.",
-    "planLimitSpecialistsPerLocation": "Cet abonnement permet jusqu'a {count} specialistes par lieu de travail."
+    "planLimitSpecialistsPerLocation": "Cet abonnement permet jusqu'a {count} specialistes par lieu de travail.",
+    "clientPermissions": {
+      "button": "Autorisations",
+      "title": "Autorisations des donnees client",
+      "close": "Fermer",
+      "save": "Enregistrer",
+      "savedToast": "Les autorisations ont ete enregistrees.",
+      "subtitle": "Choisissez quelles donnees personnelles le specialiste peut voir dans son portail.",
+      "hint": "Recommandation : gardez telephone, email, documents et paiement caches si le specialiste n'en a pas vraiment besoin.",
+      "options": {
+        "view_client_name": "Nom du client",
+        "view_client_phone": "Telephone du client",
+        "view_client_email": "Email du client",
+        "view_appointment_details": "Details du rendez-vous",
+        "view_client_files": "Documents joints",
+        "view_client_history": "Historique client",
+        "view_payment_info": "Prix et paiement"
+      }
+    },
+    "confirmDeleteService": "Voulez-vous vraiment supprimer ce service ?",
+    "confirmDeleteStaff": "Voulez-vous vraiment supprimer ce specialiste ?"
   },
   "sugestii": {
     "checkingAccess": "Vérification de l'accès...",
@@ -1022,7 +1043,7 @@
     "approveErrorPrefix": "Erreur lors de l'approbation : ",
     "disapproveErrorPrefix": "Erreur lors du retrait d'approbation : ",
     "deleteErrorPrefix": "Erreur lors de la suppression : ",
-    "confirmDelete": "Supprimer définitivement cet avis ?",
+    "confirmDelete": "Supprimer definitivement cet avis ?",
     "noneYet": "Tu n'as encore aucun avis.",
     "approveBtn": "Approuver",
     "disapproveBtn": "Retirer l'approbation",
@@ -1291,7 +1312,9 @@
     "depositPaidLabel": "Acompte {paid} RON · reste {rest} RON",
     "fullyPaidLabel": "Payé intégralement",
     "allWorkLocationsOpt": "Tous les lieux de travail",
-    "workLocationLabel": "Lieu de travail"
+    "workLocationLabel": "Lieu de travail",
+    "filterWorkLocations": "Lieux",
+    "searchWorkLocationPlaceholder": "Rechercher un lieu..."
   },
   "rapoarte": {
     "localeCode": "fr-FR",
@@ -1434,7 +1457,7 @@
     "reservedIntervalLabel": "Créneau réservé",
     "addServiceBtn": "AJOUTER UN NOUVEAU SERVICE",
     "notesLabel": "MENTIONS SPÉCIALES (FACULTATIF)",
-    "notesPlaceholder": "Une préférence ?",
+    "notesPlaceholder": "Une preference ?",
     "processingBtn": "TRAITEMENT EN COURS...",
     "confirmAllBtn": "CONFIRMER TOUTES LES RÉSERVATIONS",
     "successTitle": "Réservations envoyées !",
@@ -1488,7 +1511,8 @@
     "uploadingLabel": "Téléchargement...",
     "documentsHint": "Max 5 fichiers, 10 Mo chacun. Ex : une photo du problème, une facture.",
     "maxDocumentsMsg": "Vous pouvez joindre 5 fichiers maximum.",
-    "fileTooLargeMsg": "Un fichier dépassait la limite de 10 Mo et a été ignoré."
+    "fileTooLargeMsg": "Un fichier dépassait la limite de 10 Mo et a été ignoré.",
+    "changeWorkLocationBtn": "Changer le lieu"
   },
   "programariPage": {
     "successTitle": "Rendez-vous enregistrés !",
@@ -1609,7 +1633,7 @@
     "alreadyActiveBtn": "FORFAIT ACTIF",
     "modal": {
       "title": "Confirme le changement",
-      "message": "Tu es en période d'essai Chronos Team. Passer à {plan} mettra fin à l'essai immédiatement. Continuer ?",
+      "message": "Tu es en periode d'essai Chronos Team. Passer a {plan} mettra fin a l'essai immediatement. Continuer ?",
       "confirmBtn": "OUI, CONTINUER",
       "cancelBtn": "ANNULER"
     },
@@ -1812,7 +1836,7 @@
     "text1": "Nous utilisons uniquement des cookies techniques, nécessaires pour te maintenir connecté à ton compte.",
     "text2": "Nous n'utilisons pas de cookies publicitaires ou de suivi commercial.",
     "text3": "Ces cookies sont essentiels au fonctionnement de l'application et expirent automatiquement à la déconnexion.",
-    "contactLabel": "Des questions sur les cookies ? Écris-nous à ",
+    "contactLabel": "Des questions sur les cookies  Écris-nous à ",
     "closeBtn": "FERMER"
   },
   "termeniModal": {
@@ -1822,7 +1846,7 @@
     "text2": "Le systeme est concu pour la gestion efficace du temps et des ressources professionnelles de votre entreprise.",
     "text3": "L'utilisateur est responsable de l'exactitude des informations saisies dans le calendrier et de la confidentialite des identifiants de connexion de son compte.",
     "text4": "Nous nous reservons le droit de mettre a jour ces conditions; la poursuite de l'utilisation de la plateforme apres modification vaut acceptation.",
-    "contactLabel": "Des questions sur les conditions ? Écris-nous à ",
+    "contactLabel": "Des questions sur les conditions  Écris-nous à ",
     "acceptBtn": "ACCEPTER",
     "text5": "Ce service est exploite par EXPLORE WORLD S.R.L., numero fiscal 45995975, dont le siege social est situe a Cluj-Napoca, Str. Gruia, No. 58, Ap. 17, departement de Cluj, Roumanie. Tout litige sera resolu conformement au droit roumain, par les tribunaux competents de Roumanie.",
     "lastUpdated": "Derniere mise a jour: 18 juillet 2026"
@@ -1929,7 +1953,7 @@
     "timeLabel": "Heure",
     "cancelBtn": "Annuler la réservation",
     "rescheduleBtn": "Reprogrammer",
-    "confirmCancelTitle": "Es-tu sûr(e) ?",
+    "confirmCancelTitle": "Es-tu sur(e) ?",
     "confirmCancelMsg": "Cette action est irréversible. Le spécialiste sera informé.",
     "confirmCancelYes": "Oui, annuler",
     "confirmCancelNo": "Non, garder",
@@ -1994,7 +2018,7 @@
     "statusConfirmed": "✅ Confirmé",
     "statusExpired": "⏱️ Expiré",
     "removeBtn": "Supprimer",
-    "confirmRemove": "Es-tu sûr(e) de vouloir supprimer ce client de la liste ?",
+    "confirmRemove": "Es-tu sur(e) de vouloir supprimer ce client de la liste ?",
     "addManualBtn": "Ajouter manuellement",
     "addManualTitle": "Ajouter quelqu'un manuellement",
     "addNameLabel": "Nom du client",
@@ -2021,7 +2045,7 @@
       "connectionError": "Erreur de connexion. Réessayez.",
       "checkingBtn": "Vérification...",
       "loginBtn": "Se Connecter",
-      "noAccessFooter": "Vous n'avez pas reçu vos données d'accès ? Contactez l'administrateur du salon."
+      "noAccessFooter": "Vous n'avez pas reçu vos données d'accès  Contactez l'administrateur du salon."
     },
     "dashboard": {
       "loading": "Chargement...",

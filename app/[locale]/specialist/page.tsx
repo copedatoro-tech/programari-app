@@ -17,7 +17,7 @@ export default function SpecialistDashboard() {
   const t = useTranslations("specialistPortal.dashboard");
   const localeCode = useTranslations("calendarPage")("localeCode");
   const router = useRouter();
-  const { staffId, staffName, bookingSlug, appointments, notifSettings, saveNotifSettings } = useSpecialist();
+  const { staffId, staffName, bookingSlug, appointments, notifSettings, clientDataPermissions, saveNotifSettings } = useSpecialist();
   const [qrCopied, setQrCopied] = useState(false);
 
   const bookingLink = (bookingSlug && staffId && typeof window !== "undefined")
@@ -42,7 +42,9 @@ export default function SpecialistDashboard() {
   // Fiind centrat pe ecran (nu legat de scroll sau de o coloană laterală),
   // nu poate niciodată "ieși din pagină".
   const [modalAppt, setModalAppt] = useState<Appt | null>(null);
-  const modalDetails = modalAppt ? parseApptDetails(modalAppt.details) : { service: null, note: null };
+  const modalDetails = modalAppt && clientDataPermissions.view_appointment_details
+    ? parseApptDetails(modalAppt.details)
+    : { service: modalAppt?.nume_serviciu || null, note: null };
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -266,7 +268,7 @@ export default function SpecialistDashboard() {
                 </div>
               )}
 
-              {modalAppt.phone && (
+              {clientDataPermissions.view_client_phone && modalAppt.phone && (
                 <div className="bg-slate-50 rounded-2xl p-4 flex items-center justify-between">
                   <div>
                     <p className="text-[8px] font-black text-slate-400 uppercase italic mb-1">{t("phoneLabel")}</p>
@@ -277,7 +279,7 @@ export default function SpecialistDashboard() {
                 </div>
               )}
 
-              {modalAppt.email && (
+              {clientDataPermissions.view_client_email && modalAppt.email && (
                 <div className="bg-slate-50 rounded-2xl p-4 flex items-center justify-between">
                   <div className="min-w-0">
                     <p className="text-[8px] font-black text-slate-400 uppercase italic mb-1">{t("emailLabel")}</p>
@@ -288,7 +290,7 @@ export default function SpecialistDashboard() {
                 </div>
               )}
 
-              {modalDetails.note && (
+              {clientDataPermissions.view_appointment_details && modalDetails.note && (
                 <div className="bg-amber-50 border-2 border-amber-100 rounded-2xl p-4">
                   <p className="text-[8px] font-black text-amber-600 uppercase italic mb-1">{t("noteLabel")}</p>
                   <p className="font-bold text-amber-900 text-sm italic">{modalDetails.note}</p>

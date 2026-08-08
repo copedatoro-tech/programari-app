@@ -310,7 +310,7 @@
         "abonamente": {
           "activateTrial": {
             "title": "Activate the Trial",
-            "desc": "Finished setting up? Click this button to activate 10 free days of full access to the Team plan — no card, no obligations."
+            "desc": "Finished setting up Click this button to activate 10 free days of full access to the Team plan — no card, no obligations."
           }
         },
         "clienti": {
@@ -718,7 +718,7 @@
     "errorPrefix": "ERROR: ",
     "contactSaved": "CONTACT SAVED!",
     "confirmDeleteContact": "DELETE PERMANENTLY?",
-    "confirmDeleteFolder": "Delete this folder? Contacts remain but won't be assigned anymore."
+    "confirmDeleteFolder": "Delete this folder Contacts remain but won't be assigned anymore."
   },
   "loginPage": {
     "title": "ACCOUNT",
@@ -849,7 +849,7 @@
     "headingHighlight2": "Specialists",
     "demoMode": "PREVIEW MODE (DEMO)",
     "activePlanPrefix": "ACTIVE PLAN: ",
-    "backBtn": "← MAIN PANEL",
+    "backBtn": "Calendar",
     "dbErrorPrefix": "⚠️ ",
     "addServiceTitle": "Add New Service",
     "serviceNameLabel": "Service Name",
@@ -937,7 +937,7 @@
       "generateNewPasswordTitle": "Generate a new password",
       "savingBtn": "Saving...",
       "saveChangesBtn": "Save Changes",
-      "deactivateIntro": "Left the team? You can fully deactivate their access.",
+      "deactivateIntro": "Left the team You can fully deactivate their access.",
       "deactivateBtn": "🚫 Deactivate Account",
       "confirmDeactivateTitle": "Are you sure you want to deactivate this account?",
       "confirmDeactivateText": "{name} will no longer be able to log into the specialist portal. You can invite them again anytime later, if needed.",
@@ -955,7 +955,8 @@
       "teamOnlyHint": "The specialist portal is only available on the Chronos Team plan. Click to upgrade.",
       "phoneLabel": "Specialist Phone",
       "teamOrBusinessBadge": "Team or Business",
-      "teamOrBusinessHint": "The specialist portal is available on Chronos Team and Chronos Business plans."
+      "teamOrBusinessHint": "The specialist portal is available on Chronos Team and Chronos Business plans.",
+      "regenerateShort": "Generate"
     },
     "staffPhotoUploadBtn": "Upload photo",
     "staffPhotoRemoveBtn": "Remove photo",
@@ -978,7 +979,27 @@
     "planLimitWorkLocations": "Your plan allows up to {count} work locations.",
     "planLimitSpecialists": "Your plan allows up to {count} specialists.",
     "planLimitServices": "Your plan allows up to {count} services.",
-    "planLimitSpecialistsPerLocation": "This plan allows up to {count} specialists per work location."
+    "planLimitSpecialistsPerLocation": "This plan allows up to {count} specialists per work location.",
+    "clientPermissions": {
+      "button": "Permissions",
+      "title": "Client data permissions",
+      "close": "Close",
+      "save": "Save permissions",
+      "savedToast": "Specialist permissions were saved.",
+      "subtitle": "Choose which personal data the specialist can see in their portal.",
+      "hint": "Recommendation: keep phone, email, documents and payment hidden unless the specialist really needs them.",
+      "options": {
+        "view_client_name": "Client name",
+        "view_client_phone": "Client phone",
+        "view_client_email": "Client email",
+        "view_appointment_details": "Appointment details",
+        "view_client_files": "Attached documents",
+        "view_client_history": "Client history",
+        "view_payment_info": "Price and payment"
+      }
+    },
+    "confirmDeleteService": "Are you sure you want to delete this service?",
+    "confirmDeleteStaff": "Are you sure you want to delete this specialist?"
   },
   "sugestii": {
     "checkingAccess": "Checking access...",
@@ -1278,7 +1299,9 @@
     "depositPaidLabel": "Deposit {paid} RON · remaining {rest} RON",
     "fullyPaidLabel": "Fully paid",
     "allWorkLocationsOpt": "All work locations",
-    "workLocationLabel": "Work location"
+    "workLocationLabel": "Work location",
+    "filterWorkLocations": "Work locations",
+    "searchWorkLocationPlaceholder": "Search work location..."
   },
   "rapoarte": {
     "localeCode": "en-US",
@@ -1475,7 +1498,8 @@
     "uploadingLabel": "Uploading...",
     "documentsHint": "Max 5 files, 10MB each. E.g. a photo of the issue, an invoice.",
     "maxDocumentsMsg": "You can attach a maximum of 5 files.",
-    "fileTooLargeMsg": "A file exceeded the 10MB limit and was skipped."
+    "fileTooLargeMsg": "A file exceeded the 10MB limit and was skipped.",
+    "changeWorkLocationBtn": "Change work location"
   },
   "programariPage": {
     "successTitle": "Appointments Saved!",
@@ -1799,7 +1823,7 @@
     "text1": "We only use technical cookies, necessary to keep you logged into your account.",
     "text2": "We do not use cookies for advertising or commercial tracking.",
     "text3": "These cookies are essential for the app to function and expire automatically when you log out.",
-    "contactLabel": "Questions about cookies? Write to us at ",
+    "contactLabel": "Questions about cookies Write to us at ",
     "closeBtn": "CLOSE"
   },
   "termeniModal": {
@@ -1809,7 +1833,7 @@
     "text2": "The system is designed for the efficient management of your business's time and professional resources.",
     "text3": "The user is responsible for the accuracy of information entered into the calendar and for the confidentiality of their account's login credentials.",
     "text4": "We reserve the right to update these terms; continued use of the platform after changes constitutes acceptance of them.",
-    "contactLabel": "Questions about the terms? Write to us at ",
+    "contactLabel": "Questions about the terms Write to us at ",
     "acceptBtn": "ACCEPT",
     "text5": "This service is operated by EXPLORE WORLD S.R.L., Tax ID 45995975, with registered office in Cluj-Napoca, Str. Gruia, No. 58, Ap. 17, Cluj County, Romania. Any dispute shall be resolved under Romanian law, by the competent courts of Romania.",
     "lastUpdated": "Last updated: July 18, 2026"
@@ -2008,7 +2032,7 @@
       "connectionError": "Connection error. Try again.",
       "checkingBtn": "Checking...",
       "loginBtn": "Log In",
-      "noAccessFooter": "Didn't receive access details? Contact the salon administrator."
+      "noAccessFooter": "Didn't receive access details Contact the salon administrator."
     },
     "dashboard": {
       "loading": "Loading...",

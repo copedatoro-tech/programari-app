@@ -2,7 +2,7 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
-import { SpecialistContext, DEFAULT_NOTIF, type Appt, type NotifSettings, playNotificationSound, playSystemNotification } from "@/lib/SpecialistContext";
+import { SpecialistContext, DEFAULT_NOTIF, DEFAULT_CLIENT_DATA_PERMISSIONS, type Appt, type NotifSettings, type ClientDataPermissions, playNotificationSound, playSystemNotification } from "@/lib/SpecialistContext";
 import LocaleSwitcher from "@/components/LocaleSwitcher";
 
 export default function SpecialistLayout({ children }: { children: React.ReactNode }) {
@@ -15,22 +15,47 @@ export default function SpecialistLayout({ children }: { children: React.ReactNo
   const [staffName, setStaffName] = useState("");
   const [bookingSlug, setBookingSlug] = useState<string | null>(null);
   const [notifSettings, setNotifSettings] = useState<NotifSettings>(DEFAULT_NOTIF);
+  const [clientDataPermissions, setClientDataPermissions] = useState<ClientDataPermissions>(DEFAULT_CLIENT_DATA_PERMISSIONS);
   const [appointments, setAppointments] = useState<Appt[]>([]);
   const [toast, setToast] = useState<string | null>(null);
   const channelRef = useRef<any>(null);
   const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const fetchAppointments = useCallback(async (sId: string) => {
+  const fetchAppointments = useCallback(async (sId: string, permissions: ClientDataPermissions = DEFAULT_CLIENT_DATA_PERMISSIONS) => {
     const today = new Date().toISOString().split("T")[0];
+
+    const fields = [
+      "id",
+      "date",
+      "time",
+      "is_client_booking",
+      "serviciu_id",
+      "nume_serviciu",
+      "duration",
+      "work_location_name",
+      "status",
+    ];
+
+    if (permissions.view_client_name) fields.push("title");
+    if (permissions.view_client_phone) fields.push("phone");
+    if (permissions.view_client_email) fields.push("email");
+    if (permissions.view_appointment_details) fields.push("details");
+    if (permissions.view_client_files) fields.push("documente");
+    if (permissions.view_payment_info) fields.push("total_price", "amount_paid", "payment_status");
+
     const { data } = await supabase
       .from("appointments")
-      .select("id, title, date, time, details, phone, email, is_client_booking, serviciu_id")
+      .select(fields.join(", "))
       .eq("angajat_id", sId)
       .gte("date", today)
       .neq("status", "cancelled")
       .order("date", { ascending: true })
       .order("time", { ascending: true });
-    setAppointments(data || []);
+
+    setAppointments((data || []).map((appt: any) => ({
+      ...appt,
+      title: permissions.view_client_name ? (appt.title || "Client programat") : "Client programat",
+    })));
   }, []);
 
   useEffect(() => {
@@ -41,7 +66,7 @@ export default function SpecialistLayout({ children }: { children: React.ReactNo
 
       const { data: staffRow } = await supabase
         .from("staff")
-        .select("id, name, notification_settings, user_id")
+        .select("id, name, notification_settings, client_data_permissions, user_id")
         .eq("auth_user_id", session.user.id)
         .maybeSingle();
 
@@ -68,7 +93,13 @@ export default function SpecialistLayout({ children }: { children: React.ReactNo
       if (staffRow.notification_settings && typeof staffRow.notification_settings === "object") {
         setNotifSettings({ ...DEFAULT_NOTIF, ...staffRow.notification_settings });
       }
-      await fetchAppointments(staffRow.id);
+      const permissions = {
+        ...DEFAULT_CLIENT_DATA_PERMISSIONS,
+        ...(staffRow.client_data_permissions || {}),
+      };
+
+      setClientDataPermissions(permissions);
+      await fetchAppointments(staffRow.id, permissions);
       setLoading(false);
     };
     init();
@@ -97,12 +128,12 @@ export default function SpecialistLayout({ children }: { children: React.ReactNo
           if (notifSettings.system_enabled) {
             playSystemNotification("Chronos — Programare nouă", `${nume} — ${ora}`);
           }
-          fetchAppointments(staffId);
+          fetchAppointments(staffId, clientDataPermissions);
         }
       )
       .subscribe();
     return () => { if (channelRef.current) supabase.removeChannel(channelRef.current); };
-  }, [staffId, notifSettings, fetchAppointments]);
+  }, [staffId, notifSettings, clientDataPermissions, fetchAppointments]);
 
   const saveNotifSettings = async (next: NotifSettings) => {
     setNotifSettings(next);
@@ -110,7 +141,7 @@ export default function SpecialistLayout({ children }: { children: React.ReactNo
     await supabase.from("staff").update({ notification_settings: next }).eq("id", staffId);
   };
 
-  const refetch = () => { if (staffId) fetchAppointments(staffId); };
+  const refetch = () => { if (staffId) fetchAppointments(staffId, clientDataPermissions); };
 
   if (isLoginPage) return <>{children}</>;
 
@@ -124,7 +155,7 @@ export default function SpecialistLayout({ children }: { children: React.ReactNo
   }
 
   return (
-    <SpecialistContext.Provider value={{ staffId, staffName, bookingSlug, appointments, notifSettings, saveNotifSettings, refetch }}>
+    <SpecialistContext.Provider value={{ staffId, staffName, bookingSlug, appointments, notifSettings, clientDataPermissions, saveNotifSettings, refetch }}>
       <div className="fixed top-4 right-4 z-[700]">
         <LocaleSwitcher />
       </div>

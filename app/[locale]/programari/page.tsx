@@ -134,6 +134,11 @@ function ProgramariContent() {
     return r;
   }, [profileData?.manual_blocks]);
 
+  const workLocations = useMemo(() => {
+    const locations = profileData?.work_locations;
+    return Array.isArray(locations) ? locations : [];
+  }, [profileData?.work_locations]);
+
   const programariAzi = useMemo(() => (programari || []).filter((p: any) => p.date === today), [programari, today]);
 
   const statsAzi = useMemo(() => ({
@@ -422,6 +427,7 @@ function ProgramariContent() {
                   onSuccess={() => setMultiSuccess(true)}
                   documente={documente}
                   presetDate={presetDate}
+                  workLocations={workLocations}
                 />
               ) : (
                 <div className="flex items-center justify-center py-10">

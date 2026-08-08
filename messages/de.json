@@ -310,7 +310,7 @@
         "abonamente": {
           "activateTrial": {
             "title": "Testversion Aktivieren",
-            "desc": "Einrichtung abgeschlossen? Klicken Sie auf diese Schaltfläche, um 10 kostenlose Tage vollen Zugriff auf den Team-Plan zu aktivieren — keine Karte, keine Verpflichtungen."
+            "desc": "Einrichtung abgeschlossen Klicken Sie auf diese Schaltfläche, um 10 kostenlose Tage vollen Zugriff auf den Team-Plan zu aktivieren — keine Karte, keine Verpflichtungen."
           }
         },
         "clienti": {
@@ -671,7 +671,7 @@
     "syncing": "Datenbank wird synchronisiert...",
     "noneFound": "Kein Kunde gefunden",
     "noPhone": "KEIN TELEFON",
-    "confirmDelete": "Diesen Kunden endgültig löschen?"
+    "confirmDelete": "Diesen Kunden dauerhaft loeschen?"
   },
   "contacteUtile": {
     "folderOptional": "Ordner (optional)",
@@ -717,8 +717,8 @@
     "sessionExpired": "SITZUNG ABGELAUFEN.",
     "errorPrefix": "FEHLER: ",
     "contactSaved": "KONTAKT GESPEICHERT!",
-    "confirmDeleteContact": "ENDGÜLTIG LÖSCHEN?",
-    "confirmDeleteFolder": "Ordner löschen? Kontakte bleiben erhalten, werden aber nicht mehr zugeordnet."
+    "confirmDeleteContact": "DAUERHAFT LOESCHEN?",
+    "confirmDeleteFolder": "Ordner löschen Kontakte bleiben erhalten, werden aber nicht mehr zugeordnet."
   },
   "loginPage": {
     "title": "ANMELDUNG",
@@ -858,7 +858,7 @@
     "workLocationServicesLabel": "Services available at this location",
     "workLocationStaffLabel": "Specialists working here",
     "saveWorkLocationBtn": "Standort speichern",
-    "confirmDeleteWorkLocation": "Möchten Sie diesen Standort wirklich löschen?",
+    "confirmDeleteWorkLocation": "Moechten Sie diesen Standort wirklich loeschen?",
     "workLocationsSavedToast": "Work locations saved.",
     "workLocationDeleteLastError": "At least one work location is required.",
     "headingLine1": "Verwaltung",
@@ -867,7 +867,7 @@
     "headingHighlight2": "Fachkräfte",
     "demoMode": "VORSCHAUMODUS (DEMO)",
     "activePlanPrefix": "AKTIVES ABO: ",
-    "backBtn": "← HAUPTBEREICH",
+    "backBtn": "Kalender",
     "dbErrorPrefix": "⚠️ ",
     "addServiceTitle": "Neue Leistung hinzufügen",
     "serviceNameLabel": "Leistungsname",
@@ -897,7 +897,7 @@
     "serviceLimitReached": "⚠️ Limit erreicht! Dein Plan erlaubt nur {limit} Leistungen.",
     "staffLimitReached": "⚠️ Limit erreicht! Dein Plan erlaubt nur {limit} Fachkräfte.",
     "errorPrefix": "Fehler: ",
-    "confirmDeleteResource": "Möchtest du diese Ressource wirklich löschen?",
+    "confirmDeleteResource": "Moechten Sie diese Ressource wirklich loeschen?",
     "loading": "Chronos wird synchronisiert...",
     "scheduleBtn": "Arbeitszeit",
     "scheduleModalTitle": "Arbeitszeitplan",
@@ -962,9 +962,9 @@
       "generateNewPasswordTitle": "Neues Passwort generieren",
       "savingBtn": "Wird gespeichert...",
       "saveChangesBtn": "Änderungen Speichern",
-      "deactivateIntro": "Hat das Team verlassen? Sie können den Zugang vollständig deaktivieren.",
+      "deactivateIntro": "Hat das Team verlassen Sie können den Zugang vollständig deaktivieren.",
       "deactivateBtn": "🚫 Konto Deaktivieren",
-      "confirmDeactivateTitle": "Möchten Sie dieses Konto wirklich deaktivieren?",
+      "confirmDeactivateTitle": "Moechten Sie dieses Konto wirklich deaktivieren?",
       "confirmDeactivateText": "{name} kann sich nicht mehr im Spezialisten-Portal anmelden. Sie können ihn später jederzeit wieder einladen, falls nötig.",
       "cancelBtn": "Abbrechen",
       "yesDeactivateBtn": "Ja, deaktivieren",
@@ -980,7 +980,8 @@
       "teamOnlyHint": "Das Spezialisten-Portal ist nur im Chronos Team Plan verfügbar. Klicken Sie zum Upgrade.",
       "phoneLabel": "Telefon des Spezialisten",
       "teamOrBusinessBadge": "Team oder Business",
-      "teamOrBusinessHint": "Das Spezialistenportal ist in Chronos Team und Chronos Business verfuegbar."
+      "teamOrBusinessHint": "Das Spezialistenportal ist in Chronos Team und Chronos Business verfuegbar.",
+      "regenerateShort": "Generieren"
     },
     "staffPhotoUploadBtn": "Foto hochladen",
     "staffPhotoRemoveBtn": "Foto entfernen",
@@ -992,7 +993,27 @@
     "planLimitWorkLocations": "Dein Plan erlaubt maximal {count} Arbeitsorte.",
     "planLimitSpecialists": "Dein Plan erlaubt maximal {count} Spezialisten.",
     "planLimitServices": "Dein Plan erlaubt maximal {count} Dienstleistungen.",
-    "planLimitSpecialistsPerLocation": "Dieser Plan erlaubt maximal {count} Spezialisten pro Arbeitsort."
+    "planLimitSpecialistsPerLocation": "Dieser Plan erlaubt maximal {count} Spezialisten pro Arbeitsort.",
+    "clientPermissions": {
+      "button": "Berechtigungen",
+      "title": "Kundendaten-Berechtigungen",
+      "close": "Schliessen",
+      "save": "Berechtigungen speichern",
+      "savedToast": "Berechtigungen wurden gespeichert.",
+      "subtitle": "Waehlen Sie, welche Kundendaten der Spezialist in seinem Portal sehen kann.",
+      "hint": "Empfehlung: Telefon, E-Mail, Dokumente und Zahlung ausblenden, wenn der Spezialist sie nicht wirklich braucht.",
+      "options": {
+        "view_client_name": "Kundenname",
+        "view_client_phone": "Kundentelefon",
+        "view_client_email": "Kunden-E-Mail",
+        "view_appointment_details": "Termindetails",
+        "view_client_files": "Angehaengte Dokumente",
+        "view_client_history": "Kundenhistorie",
+        "view_payment_info": "Preis und Zahlung"
+      }
+    },
+    "confirmDeleteService": "Moechten Sie diesen Service wirklich loeschen?",
+    "confirmDeleteStaff": "Moechten Sie diesen Spezialisten wirklich loeschen?"
   },
   "sugestii": {
     "checkingAccess": "Zugriff wird überprüft...",
@@ -1023,7 +1044,7 @@
     "approveErrorPrefix": "Fehler bei der Genehmigung: ",
     "disapproveErrorPrefix": "Fehler beim Widerruf: ",
     "deleteErrorPrefix": "Fehler beim Löschen: ",
-    "confirmDelete": "Diese Bewertung endgültig löschen?",
+    "confirmDelete": "Diese Bewertung dauerhaft loeschen?",
     "noneYet": "Du hast noch keine Bewertungen.",
     "approveBtn": "Genehmigen",
     "disapproveBtn": "Widerrufen",
@@ -1259,7 +1280,7 @@
       "saveBtn": "✓ Speichern",
       "deleteTooltip": "Löschen",
       "deleteConfirmTitle": "Löschen",
-      "deleteConfirmMsg": "Termin von {nume} löschen?",
+      "deleteConfirmMsg": "Termin von {nume} loeschen?",
       "deleteConfirmBtn": "Löschen",
       "updatedToast": "Termin aktualisiert!",
       "whatsappMessageBase": "Hallo {nume}! Wir erwarten dich zu deinem Termin am {data} um {ora}",
@@ -1292,7 +1313,9 @@
     "depositPaidLabel": "Anzahlung {paid} RON · Rest {rest} RON",
     "fullyPaidLabel": "Vollständig bezahlt",
     "allWorkLocationsOpt": "Alle Arbeitsorte",
-    "workLocationLabel": "Arbeitsort"
+    "workLocationLabel": "Arbeitsort",
+    "filterWorkLocations": "Arbeitsorte",
+    "searchWorkLocationPlaceholder": "Arbeitsort suchen..."
   },
   "rapoarte": {
     "localeCode": "de-DE",
@@ -1435,7 +1458,7 @@
     "reservedIntervalLabel": "Reservierter Zeitraum",
     "addServiceBtn": "NEUE LEISTUNG HINZUFÜGEN",
     "notesLabel": "BESONDERE HINWEISE (OPTIONAL)",
-    "notesPlaceholder": "Hast du eine Präferenz?",
+    "notesPlaceholder": "Haben Sie eine Praeferenz?",
     "processingBtn": "WIRD VERARBEITET...",
     "confirmAllBtn": "ALLE BUCHUNGEN BESTÄTIGEN",
     "successTitle": "Buchungen gesendet!",
@@ -1489,13 +1512,14 @@
     "uploadingLabel": "Wird hochgeladen...",
     "documentsHint": "Max. 5 Dateien, je 10 MB. Z. B. ein Foto des Problems, eine Rechnung.",
     "maxDocumentsMsg": "Du kannst maximal 5 Dateien anhängen.",
-    "fileTooLargeMsg": "Eine Datei überschritt das 10-MB-Limit und wurde übersprungen."
+    "fileTooLargeMsg": "Eine Datei überschritt das 10-MB-Limit und wurde übersprungen.",
+    "changeWorkLocationBtn": "Standort andern"
   },
   "programariPage": {
     "successTitle": "Termine gespeichert!",
     "successText": "Alle Termine wurden erfolgreich erfasst.",
     "continueBtn": "WEITER",
-    "confirmDelete": "Diesen Termin löschen?",
+    "confirmDelete": "Diesen Termin loeschen?",
     "trialTitle": "Premium-Testphase aktiv",
     "trialSubtitle": "Chronos Team-Zugang — noch {n} Tage",
     "trialDaysLeft": "Tage übrig",
@@ -1813,7 +1837,7 @@
     "text1": "Wir verwenden nur technische Cookies, die notwendig sind, um dich in deinem Konto angemeldet zu halten.",
     "text2": "Wir verwenden keine Cookies für Werbung oder kommerzielles Tracking.",
     "text3": "Diese Cookies sind für den Betrieb der App unerlässlich und laufen beim Abmelden automatisch ab.",
-    "contactLabel": "Fragen zu Cookies? Schreib uns an ",
+    "contactLabel": "Fragen zu Cookies Schreib uns an ",
     "closeBtn": "SCHLIESSEN"
   },
   "termeniModal": {
@@ -1823,7 +1847,7 @@
     "text2": "Das System dient der effizienten Verwaltung von Zeit und beruflichen Ressourcen Ihres Unternehmens.",
     "text3": "Der Nutzer ist verantwortlich fuer die Richtigkeit der im Kalender eingegebenen Informationen sowie fuer die Vertraulichkeit der Anmeldedaten seines Kontos.",
     "text4": "Wir behalten uns das Recht vor, diese Bedingungen zu aktualisieren; die weitere Nutzung der Plattform nach Aenderungen gilt als deren Annahme.",
-    "contactLabel": "Fragen zu den Bedingungen? Schreib uns an ",
+    "contactLabel": "Fragen zu den Bedingungen Schreib uns an ",
     "acceptBtn": "AKZEPTIEREN",
     "text5": "Dieser Dienst wird betrieben von EXPLORE WORLD S.R.L., Steuernummer 45995975, mit Sitz in Cluj-Napoca, Str. Gruia, Nr. 58, Ap. 17, Kreis Cluj, Rumaenien. Streitigkeiten werden nach rumaenischem Recht vor den zustaendigen Gerichten Rumaeniens entschieden.",
     "lastUpdated": "Letzte Aktualisierung: 18. Juli 2026"
@@ -1912,7 +1936,7 @@
     "noWorksSubtitle": "Füge die erste Leistung hinzu, um den Gewinn zu berechnen",
     "removeClientBtn": "Kunde entfernen",
     "finalizeBtn": "Abschließen",
-    "confirmDeleteWork": "Diese Leistung löschen?"
+    "confirmDeleteWork": "Diese Leistung loeschen?"
   },
   "gestioneaza": {
     "loading": "Wird geladen...",
@@ -1995,7 +2019,7 @@
     "statusConfirmed": "✅ Bestätigt",
     "statusExpired": "⏱️ Abgelaufen",
     "removeBtn": "Entfernen",
-    "confirmRemove": "Möchtest du diesen Kunden wirklich von der Liste entfernen?",
+    "confirmRemove": "Moechten Sie diesen Kunden wirklich von der Liste entfernen?",
     "addManualBtn": "Manuell hinzufügen",
     "addManualTitle": "Jemanden manuell hinzufügen",
     "addNameLabel": "Kundenname",
@@ -2022,7 +2046,7 @@
       "connectionError": "Verbindungsfehler. Erneut versuchen.",
       "checkingBtn": "Wird geprüft...",
       "loginBtn": "Anmelden",
-      "noAccessFooter": "Keine Zugangsdaten erhalten? Kontaktieren Sie den Salon-Administrator."
+      "noAccessFooter": "Keine Zugangsdaten erhalten Kontaktieren Sie den Salon-Administrator."
     },
     "dashboard": {
       "loading": "Wird geladen...",

@@ -310,7 +310,7 @@
         "abonamente": {
           "activateTrial": {
             "title": "Aktywuj Okres Próbny",
-            "desc": "Skończyłeś konfigurację? Kliknij ten przycisk, aby aktywować 10 darmowych dni pełnego dostępu do planu Team — bez karty, bez zobowiązań."
+            "desc": "Skończyłeś konfigurację Kliknij ten przycisk, aby aktywować 10 darmowych dni pełnego dostępu do planu Team — bez karty, bez zobowiązań."
           }
         },
         "clienti": {
@@ -718,7 +718,7 @@
     "errorPrefix": "BŁĄD: ",
     "contactSaved": "KONTAKT ZAPISANY!",
     "confirmDeleteContact": "USUNĄĆ TRWALE?",
-    "confirmDeleteFolder": "Usunąć folder? Kontakty pozostaną, ale nie będą już przypisane."
+    "confirmDeleteFolder": "Usunąć folder Kontakty pozostaną, ale nie będą już przypisane."
   },
   "loginPage": {
     "title": "LOGOWANIE",
@@ -866,7 +866,7 @@
     "headingHighlight2": "specjalistami",
     "demoMode": "TRYB PODGLĄDU (DEMO)",
     "activePlanPrefix": "AKTYWNY PLAN: ",
-    "backBtn": "← PANEL GŁÓWNY",
+    "backBtn": "Kalendarz",
     "dbErrorPrefix": "⚠️ ",
     "addServiceTitle": "Dodaj nową usługę",
     "serviceNameLabel": "Nazwa usługi",
@@ -961,7 +961,7 @@
       "generateNewPasswordTitle": "Wygeneruj nowe hasło",
       "savingBtn": "Zapisywanie...",
       "saveChangesBtn": "Zapisz Zmiany",
-      "deactivateIntro": "Odszedł z zespołu? Możesz całkowicie dezaktywować jego dostęp.",
+      "deactivateIntro": "Odszedł z zespołu Możesz całkowicie dezaktywować jego dostęp.",
       "deactivateBtn": "🚫 Dezaktywuj Konto",
       "confirmDeactivateTitle": "Czy na pewno chcesz dezaktywować to konto?",
       "confirmDeactivateText": "{name} nie będzie już mógł zalogować się do portalu specjalisty. Możesz zaprosić go ponownie później, jeśli będzie to potrzebne.",
@@ -979,7 +979,8 @@
       "teamOnlyHint": "Portal specjalisty jest dostępny tylko w planie Chronos Team. Kliknij, aby ulepszyć.",
       "phoneLabel": "Telefon Specjalisty",
       "teamOrBusinessBadge": "Team lub Business",
-      "teamOrBusinessHint": "Portal specjalisty jest dostepny w planach Chronos Team i Chronos Business."
+      "teamOrBusinessHint": "Portal specjalisty jest dostepny w planach Chronos Team i Chronos Business.",
+      "regenerateShort": "Generuj"
     },
     "staffPhotoUploadBtn": "Dodaj zdjecie",
     "staffPhotoRemoveBtn": "Usun zdjecie",
@@ -991,7 +992,27 @@
     "planLimitWorkLocations": "Twoj plan pozwala na maksymalnie {count} lokalizacji pracy.",
     "planLimitSpecialists": "Twoj plan pozwala na maksymalnie {count} specjalistow.",
     "planLimitServices": "Twoj plan pozwala na maksymalnie {count} uslug.",
-    "planLimitSpecialistsPerLocation": "Ten plan pozwala na maksymalnie {count} specjalistow na lokalizacje."
+    "planLimitSpecialistsPerLocation": "Ten plan pozwala na maksymalnie {count} specjalistow na lokalizacje.",
+    "clientPermissions": {
+      "button": "Uprawnienia",
+      "title": "Uprawnienia danych klienta",
+      "close": "Zamknij",
+      "save": "Zapisz uprawnienia",
+      "savedToast": "Uprawnienia specjalisty zostaly zapisane.",
+      "subtitle": "Wybierz, jakie dane osobowe klienta specjalista moze widziec w swoim portalu.",
+      "hint": "Zalecenie: ukryj telefon, email, dokumenty i platnosc, jesli specjalista naprawde ich nie potrzebuje.",
+      "options": {
+        "view_client_name": "Imie klienta",
+        "view_client_phone": "Telefon klienta",
+        "view_client_email": "Email klienta",
+        "view_appointment_details": "Szczegoly wizyty",
+        "view_client_files": "Zalaczone dokumenty",
+        "view_client_history": "Historia klienta",
+        "view_payment_info": "Cena i platnosc"
+      }
+    },
+    "confirmDeleteService": "Czy na pewno chcesz usunac te usluge?",
+    "confirmDeleteStaff": "Czy na pewno chcesz usunac tego specjaliste?"
   },
   "sugestii": {
     "checkingAccess": "Sprawdzanie dostępu...",
@@ -1291,7 +1312,9 @@
     "depositPaidLabel": "Zaliczka {paid} RON · pozostało {rest} RON",
     "fullyPaidLabel": "Zapłacone w całości",
     "allWorkLocationsOpt": "Wszystkie lokalizacje",
-    "workLocationLabel": "Lokalizacja"
+    "workLocationLabel": "Lokalizacja",
+    "filterWorkLocations": "Lokalizacje",
+    "searchWorkLocationPlaceholder": "Szukaj lokalizacji..."
   },
   "rapoarte": {
     "localeCode": "pl-PL",
@@ -1488,7 +1511,8 @@
     "uploadingLabel": "Przesyłanie...",
     "documentsHint": "Maksymalnie 5 plików, po 10MB każdy. Np. zdjęcie usterki, faktura.",
     "maxDocumentsMsg": "Możesz dołączyć maksymalnie 5 plików.",
-    "fileTooLargeMsg": "Plik przekroczył limit 10MB i został pominięty."
+    "fileTooLargeMsg": "Plik przekroczył limit 10MB i został pominięty.",
+    "changeWorkLocationBtn": "Zmien lokalizacje"
   },
   "programariPage": {
     "successTitle": "Wizyty zapisane!",
@@ -1812,7 +1836,7 @@
     "text1": "Używamy tylko technicznych plików cookie, niezbędnych do utrzymania Cię zalogowanym na koncie.",
     "text2": "Nie używamy plików cookie do reklam ani śledzenia komercyjnego.",
     "text3": "Te pliki cookie są niezbędne do działania aplikacji i wygasają automatycznie po wylogowaniu.",
-    "contactLabel": "Masz pytania o cookies? Napisz do nas: ",
+    "contactLabel": "Masz pytania o cookies Napisz do nas: ",
     "closeBtn": "ZAMKNIJ"
   },
   "termeniModal": {
@@ -1822,7 +1846,7 @@
     "text2": "System sluzy do efektywnego zarzadzania czasem i zasobami zawodowymi Twojej firmy.",
     "text3": "Uzytkownik jest odpowiedzialny za dokladnosc informacji wprowadzanych do kalendarza oraz za poufnosc danych logowania do swojego konta.",
     "text4": "Zastrzegamy sobie prawo do aktualizacji niniejszych warunkow; dalsze korzystanie z platformy po zmianach oznacza ich akceptacje.",
-    "contactLabel": "Masz pytania dotyczące regulaminu? Napisz do nas: ",
+    "contactLabel": "Masz pytania dotyczące regulaminu Napisz do nas: ",
     "acceptBtn": "AKCEPTUJĘ",
     "text5": "Usluga jest prowadzona przez EXPLORE WORLD S.R.L., NIP 45995975, z siedziba w Cluj-Napoca, Str. Gruia, Nr. 58, Ap. 17, okreg Cluj, Rumunia. Wszelkie spory beda rozstrzygane zgodnie z prawem rumunskim, przez wlasciwe sady Rumunii.",
     "lastUpdated": "Ostatnia aktualizacja: 18 lipca 2026"
@@ -2021,7 +2045,7 @@
       "connectionError": "Błąd połączenia. Spróbuj ponownie.",
       "checkingBtn": "Sprawdzanie...",
       "loginBtn": "Zaloguj się",
-      "noAccessFooter": "Nie otrzymałeś danych dostępowych? Skontaktuj się z administratorem salonu."
+      "noAccessFooter": "Nie otrzymałeś danych dostępowych Skontaktuj się z administratorem salonu."
     },
     "dashboard": {
       "loading": "Ładowanie...",

@@ -19,11 +19,12 @@ function parseWH(raw: any): WorkingHour[] {
 }
 
 interface ServiceSlot {
-  slotId:        string;
-  serviciu_id:   string;
-  specialist_id: string;
-  data:          string;
-  ora:           string;
+  slotId:           string;
+  serviciu_id:      string;
+  specialist_id:    string;
+  work_location_id: string;
+  data:             string;
+  ora:              string;
 }
 
 export interface MultiServiceBookingProps {
@@ -70,10 +71,10 @@ function mkKey(date: string, specialistId: string) {
 
 // ─── Un slot (rând) ───────────────────────────────────────────────────────────
 function SlotRow({
-  slot, index, servicii, specialisti, workingHours, manualBlocks,
+  slot, index, servicii, specialisti, workLocations, workingHours, manualBlocks,
   apptForSlot, onChange, onRemove, canRemove,
 }: {
-  slot: ServiceSlot; index: number; servicii: ServiceRow[]; specialisti: StaffRow[];
+  slot: ServiceSlot; index: number; servicii: ServiceRow[]; specialisti: StaffRow[]; workLocations: WorkLocationRow[];
   workingHours: WorkingHour[]; manualBlocks: Record<string, string[]>;
   apptForSlot: ExistingAppt[];
   onChange: (u: Partial<ServiceSlot>) => void;
@@ -84,7 +85,18 @@ function SlotRow({
   const [showDate, setShowDate] = useState(false);
   const [showTime, setShowTime] = useState(false);
 
-  const svc = servicii.find((s) => s.id === slot.serviciu_id);
+  const selectedWorkLocation = workLocations.find((loc) => loc.id === slot.work_location_id);
+  const locationServices = useMemo(() => {
+    if (!selectedWorkLocation?.service_ids?.length) return servicii;
+    return servicii.filter((s) => selectedWorkLocation.service_ids?.includes(s.id));
+  }, [servicii, selectedWorkLocation]);
+
+  const locationSpecialists = useMemo(() => {
+    if (!selectedWorkLocation?.staff_ids?.length) return specialisti;
+    return specialisti.filter((sp) => selectedWorkLocation.staff_ids?.includes(sp.id));
+  }, [specialisti, selectedWorkLocation]);
+
+  const svc = locationServices.find((s) => s.id === slot.serviciu_id);
 
   // ✅ Program efectiv: al specialistului ales pentru acest serviciu, dacă are unul propriu — altfel cel general
   const effectiveWH = useMemo(() => {
@@ -106,29 +118,29 @@ function SlotRow({
   // nu are servicii asociate — dacă nu are, lista rămâne goală, cu mesaj explicativ)
   const filteredSvc = useMemo(() => {
     if (!slot.specialist_id) return servicii;
-    const sp = specialisti.find((s) => s.id === slot.specialist_id);
+    const sp = locationSpecialists.find((s) => s.id === slot.specialist_id);
     return servicii.filter((s) => sp?.services?.includes(s.id));
   }, [slot.specialist_id, servicii, specialisti]);
 
   const handleSpecialistChange = useCallback((specialistId: string) => {
-    const sp = specialisti.find((s) => s.id === specialistId);
+    const sp = locationSpecialists.find((s) => s.id === specialistId);
     const serviceStillValid = slot.serviciu_id && sp?.services?.includes(slot.serviciu_id);
     onChange({
       specialist_id: specialistId,
       serviciu_id:   serviceStillValid ? slot.serviciu_id : "",
       ora:           serviceStillValid ? slot.ora : "00:00",
     });
-  }, [slot.serviciu_id, slot.ora, specialisti, onChange]);
+  }, [slot.serviciu_id, slot.ora, locationSpecialists, onChange]);
 
   const handleServiciuChange = useCallback((serviciuId: string) => {
-    const sp = specialisti.find((s) => s.id === slot.specialist_id);
+    const sp = locationSpecialists.find((s) => s.id === slot.specialist_id);
     const specialistStillValid = slot.specialist_id && sp?.services?.includes(serviciuId);
     onChange({
       serviciu_id:   serviciuId,
       specialist_id: specialistStillValid ? slot.specialist_id : "",
       ora:           "00:00",
     });
-  }, [slot.specialist_id, specialisti, onChange]);
+  }, [slot.specialist_id, locationSpecialists, onChange]);
 
   const endOra = svc?.duration && slot.ora && slot.ora !== "00:00"
     ? addMin(slot.ora, svc.duration) : null;
@@ -189,6 +201,23 @@ function SlotRow({
             </button>
           )}
         </div>
+
+        {workLocations.length > 0 && (
+          <div className="flex flex-col gap-2 mb-4">
+            <label className="text-[10px] font-black uppercase ml-4 text-slate-400 italic">Punct de lucru</label>
+            <select
+              className="p-5 bg-slate-50 rounded-[25px] border-2 border-transparent focus:border-amber-500 font-bold text-lg outline-none shadow-inner cursor-pointer transition-all"
+              value={slot.work_location_id}
+              onChange={(e) => onChange({ work_location_id: e.target.value, serviciu_id: "", specialist_id: "", ora: "00:00" })}>
+              {workLocations.map((loc) => (
+                <option key={loc.id} value={loc.id}>{loc.name}</option>
+              ))}
+            </select>
+            {selectedWorkLocation?.address && (
+              <p className="text-[10px] font-bold text-slate-400 italic ml-4">{selectedWorkLocation.address}</p>
+            )}
+          </div>
+        )}
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
           <div className="flex flex-col gap-2">
@@ -280,12 +309,24 @@ export default function MultiServiceBooking({
   const availableWorkLocations = workLocations;
   void availableWorkLocations;
 
+  const defaultWorkLocationId = workLocations[0]?.id || "";
+
   const [slots, setSlots] = useState<ServiceSlot[]>([
-    { slotId: uid(), serviciu_id: "", specialist_id: "", data: today, ora: "00:00" },
+    { slotId: uid(), serviciu_id: "", specialist_id: "", work_location_id: defaultWorkLocationId, data: today, ora: "00:00" },
   ]);
   const [loading, setLoading] = useState(false);
   const [errors,  setErrors]  = useState<string[]>([]);
   const [apptCache, setApptCache] = useState<Record<string, ExistingAppt[]>>({});
+
+  useEffect(() => {
+    if (!defaultWorkLocationId) return;
+    setSlots((prev) =>
+      prev.map((slot) =>
+        slot.work_location_id ? slot : { ...slot, work_location_id: defaultWorkLocationId }
+      )
+    );
+  }, [defaultWorkLocationId]);
+
 
   // ✅ FIX: fetchAppt adaugă ÎNTOTDEAUNA filtrul angajat_id când specialistul e ales
   // Dacă nu e ales specialist, NU aducem nimic (0 ore blocate) — e corect,
@@ -364,7 +405,8 @@ export default function MultiServiceBooking({
 
   const addSlot = () => {
     const lastDate = slots[slots.length - 1]?.data || today;
-    setSlots((p) => [...p, { slotId: uid(), serviciu_id: "", specialist_id: "", data: lastDate, ora: "00:00" }]);
+    const lastLocation = slots[slots.length - 1]?.work_location_id || defaultWorkLocationId;
+    setSlots((p) => [...p, { slotId: uid(), serviciu_id: "", specialist_id: "", work_location_id: lastLocation, data: lastDate, ora: "00:00" }]);
   };
 
   const removeSlot = (id: string) => setSlots((p) => p.filter((s) => s.slotId !== id));
@@ -494,7 +536,7 @@ export default function MultiServiceBooking({
         {slots.map((slot, i) => (
           <SlotRow
             key={slot.slotId} slot={slot} index={i}
-            servicii={servicii} specialisti={specialisti}
+            servicii={servicii} specialisti={specialisti} workLocations={workLocations}
             workingHours={adminWorkingHours} manualBlocks={adminManualBlocks}
             apptForSlot={apptCache[mkKey(slot.data, slot.specialist_id)] || []}
             onChange={(u) => updateSlot(slot.slotId, u)}

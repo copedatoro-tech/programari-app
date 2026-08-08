@@ -443,33 +443,62 @@ function FilterDropdownButton({ label, allLabel, placeholder, items, selectedId,
   );
 }
 // ─── FilterBar ────────────────────────────────────────────────────────────────
-function FilterBar({ rawStaff, rawServices, programari, selectedExpert, onSelectExpert, selectedServiciu, onSelectServiciu, selectedDate }: {
-  rawStaff: StaffRow[]; rawServices: ServiceRow[]; programari: Prog[];
+function FilterBar({ rawStaff, rawServices, workLocations, programari, selectedExpert, onSelectExpert, selectedServiciu, onSelectServiciu, selectedWorkLocation, onSelectWorkLocation, selectedDate }: {
+  rawStaff: StaffRow[]; rawServices: ServiceRow[]; workLocations: WorkLocationRow[]; programari: Prog[];
   selectedExpert: string; onSelectExpert: (id: string) => void;
   selectedServiciu: string; onSelectServiciu: (id: string) => void;
+  selectedWorkLocation: string; onSelectWorkLocation: (id: string) => void;
   selectedDate: Date;
 }) {
   const t = useTranslations("calendarPage");
   const dateKey = formatDateKey(selectedDate);
   const cntExp = useMemo(() => {
     const m: Record<string,number> = {};
-    programari.forEach(p => { if (p.data===dateKey&&p.expertId) m[p.expertId]=(m[p.expertId]||0)+1; });
+    programari.forEach(p => {
+      if (p.data !== dateKey) return;
+      if (selectedWorkLocation && p.workLocationId !== selectedWorkLocation) return;
+      if (p.expertId) m[p.expertId] = (m[p.expertId] || 0) + 1;
+    });
     return m;
-  }, [programari, dateKey]);
+  }, [programari, dateKey, selectedWorkLocation]);
   const cntSvc = useMemo(() => {
     const m: Record<string,number> = {};
-    programari.forEach(p => { if (p.data===dateKey&&p.serviciuId&&(!selectedExpert||p.expertId===selectedExpert)) m[p.serviciuId]=(m[p.serviciuId]||0)+1; });
+    programari.forEach(p => {
+      if (p.data !== dateKey) return;
+      if (selectedWorkLocation && p.workLocationId !== selectedWorkLocation) return;
+      if (p.serviciuId && (!selectedExpert || p.expertId === selectedExpert)) m[p.serviciuId] = (m[p.serviciuId] || 0) + 1;
+    });
     return m;
-  }, [programari, dateKey, selectedExpert]);
+  }, [programari, dateKey, selectedExpert, selectedWorkLocation]);
   const visSvc = useMemo(() => {
-    if (!selectedExpert) return rawServices;
-    const st = rawStaff.find(s=>s.id===selectedExpert);
-    if (!st?.services?.length) return rawServices;
-    return rawServices.filter(s=>st.services.includes(s.id));
-  }, [selectedExpert, rawStaff, rawServices]);
-  if (!rawStaff.length&&!rawServices.length) return null;
+    const locationFiltered = selectedWorkLocation
+      ? rawServices.filter(s => {
+          const loc = workLocations.find(l => l.id === selectedWorkLocation);
+          return !loc?.service_ids?.length || loc.service_ids.includes(s.id);
+        })
+      : rawServices;
 
-  const staffItems: DropdownItem[] = rawStaff.map((st,i) => ({
+    if (!selectedExpert) return locationFiltered;
+    const st = rawStaff.find(s=>s.id===selectedExpert);
+    if (!st?.services?.length) return locationFiltered;
+    return locationFiltered.filter(s=>st.services.includes(s.id));
+  }, [selectedExpert, selectedWorkLocation, rawStaff, rawServices, workLocations]);
+  if (!rawStaff.length&&!rawServices.length&&!workLocations.length) return null;
+
+  const locationItems: DropdownItem[] = workLocations.map((loc) => ({
+    id: loc.id,
+    label: loc.name,
+    sub: loc.address,
+    count: programari.filter(p => p.data === dateKey && p.workLocationId === loc.id).length,
+  }));
+
+  const staffItems: DropdownItem[] = rawStaff
+    .filter((st) => {
+      if (!selectedWorkLocation) return true;
+      const loc = workLocations.find(l => l.id === selectedWorkLocation);
+      return !loc?.staff_ids?.length || loc.staff_ids.includes(st.id);
+    })
+    .map((st,i) => ({
     id: st.id, label: st.name, count: cntExp[st.id]||0,
     dotColor: SC[i%SC.length].border, initial: st.name.slice(0,1).toUpperCase(),
   }));
@@ -482,6 +511,11 @@ function FilterBar({ rawStaff, rawServices, programari, selectedExpert, onSelect
 
   return (
     <div style={{ flexShrink:0, background:"#fff", borderBottom:"2px solid #e2e8f0", padding:"8px 14px", display:"flex", alignItems:"center", gap:10, flexWrap:"wrap" }}>
+      {workLocations.length>0&&(
+        <FilterDropdownButton label={t("filterWorkLocations")} allLabel={t("allWorkLocationsOpt")} placeholder={t("searchWorkLocationPlaceholder")}
+          items={locationItems} selectedId={selectedWorkLocation}
+          onSelect={(id)=>{onSelectWorkLocation(id); onSelectExpert(""); onSelectServiciu("");}} />
+      )}
       {rawStaff.length>0&&(
         <FilterDropdownButton label={t("filterSpecialists")} allLabel={t("filterAll")} placeholder={t("searchSpecialistPlaceholder")}
           items={staffItems} selectedId={selectedExpert}
@@ -587,6 +621,15 @@ function DayView({ selectedDate, programari, rawStaff, rawServices, serviceById,
     rawStaff.forEach((s,i)=>{m[s.id]=i%SC.length;});
     return m;
   }, [rawStaff]);
+
+  const getStaffScheduleLabel = useCallback((staffMember: StaffRow) => {
+    const staffHours = parseWH(staffMember.working_hours);
+    const staffDay = staffHours.find(h => h.day === dayName && !h.closed && h.start && h.end);
+    const businessDay = ds && !ds.closed && ds.start && ds.end ? ds : null;
+    const hours = staffDay || businessDay;
+    if (!hours) return t("closedBadge");
+    return `${hours.start} - ${hours.end}`;
+  }, [dayName, ds, t]);
   const dayAppts = useMemo(() => programari.filter(p=>{
     if (p.data!==dateKey) return false;
     if (selectedExpert&&p.expertId!==selectedExpert) return false;
@@ -603,9 +646,8 @@ function DayView({ selectedDate, programari, rawStaff, rawServices, serviceById,
       const st = rawStaff.find(s => s.id === selectedExpert);
       return st ? [st] : [];
     }
-    const withAppts = rawStaff.filter(s => dayAppts.some(p => p.expertId === s.id));
-    return withAppts.length ? withAppts : rawStaff;
-  }, [selectedExpert, rawStaff, dayAppts]);
+    return rawStaff;
+  }, [selectedExpert, rawStaff]);
   const hasUnassigned = useMemo(
     () => dayAppts.some(p => !p.expertId || !dayStaffList.some(s => s.id === p.expertId)),
     [dayAppts, dayStaffList]
@@ -616,7 +658,7 @@ function DayView({ selectedDate, programari, rawStaff, rawServices, serviceById,
     return m;
   }, [dayStaffList]);
   const totalCols = Math.max(dayStaffList.length + (hasUnassigned ? 1 : 0), 1);
-  const MIN_COL_W = 92;
+  const MIN_COL_W = 118;
   const gridMinWidth = TIME_COL_W + totalCols * MIN_COL_W;
   // ✅ Blocările per specialist (salvate pe staff.manual_blocks), citite pentru
   // ziua curentă — folosite ca să dezactivăm sloturile blocate din fiecare
@@ -626,8 +668,38 @@ function DayView({ selectedDate, programari, rawStaff, rawServices, serviceById,
     rawStaff.forEach(s => { m[s.id] = parseStaffBlocks(s.manual_blocks); });
     return m;
   }, [rawStaff]);
-  const [slotMenu, setSlotMenu] = useState<{ x:number; y:number; time:string; staffId:string } | null>(null);
-  const [blockPopup, setBlockPopup] = useState<{ date:string; staffId:string; start:string; end:string } | null>(null);
+  const [showLeftScroll, setShowLeftScroll] = useState(false);
+  const [showRightScroll, setShowRightScroll] = useState(false);
+
+  const updateHorizontalScrollButtons = useCallback(() => {
+    const el = scrollRef.current;
+    if (!el) {
+      setShowLeftScroll(false);
+      setShowRightScroll(false);
+      return;
+    }
+    setShowLeftScroll(el.scrollLeft > 8);
+    setShowRightScroll(el.scrollLeft + el.clientWidth < el.scrollWidth - 8);
+  }, []);
+
+  useEffect(() => {
+    const timer = setTimeout(updateHorizontalScrollButtons, 160);
+    window.addEventListener("resize", updateHorizontalScrollButtons);
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener("resize", updateHorizontalScrollButtons);
+    };
+  }, [updateHorizontalScrollButtons, totalCols, selectedDate, selectedExpert, selectedServiciu]);
+
+  const scrollSpecialists = useCallback((dir: number) => {
+    const el = scrollRef.current;
+    if (!el) return;
+    el.scrollBy({ left: dir * Math.max(320, el.clientWidth * 0.75), behavior: "smooth" });
+    setTimeout(updateHorizontalScrollButtons, 260);
+  }, [updateHorizontalScrollButtons]);
+
+  const [slotMenu, setSlotMenu] = useState<{ x:number; y:number; time:string; staffId:string; isBlocked:boolean } | null>(null);
+  const [blockPopup, setBlockPopup] = useState<{ date:string; staffId:string; start:string; end:string; mode:"block"|"unblock" } | null>(null);
   const [savingBlock, setSavingBlock] = useState(false);
   const touchStartRef = useRef<{ x:number; y:number; atLeftEdge:boolean; atRightEdge:boolean } | null>(null);
   const handleTouchStart = (e: React.TouchEvent) => {
@@ -656,10 +728,20 @@ function DayView({ selectedDate, programari, rawStaff, rawServices, serviceById,
     if (blockPopup.staffId) {
       const staffMember = rawStaff.find(s => s.id === blockPopup.staffId);
       const existing = parseStaffBlocks(staffMember?.manual_blocks);
-      const merged = { ...existing, [blockPopup.date]: Array.from(new Set([...(existing[blockPopup.date]||[]), ...slotsToBlock])) };
+      const current = existing[blockPopup.date] || [];
+      const nextSlots = blockPopup.mode === "unblock"
+        ? current.filter((slot) => !slotsToBlock.includes(slot))
+        : Array.from(new Set([...current, ...slotsToBlock]));
+      const merged = { ...existing, [blockPopup.date]: nextSlots };
+      if (nextSlots.length === 0) delete merged[blockPopup.date];
       await supabase.from("staff").update({ manual_blocks: merged }).eq("id", blockPopup.staffId);
     } else if (userId) {
-      const merged = { ...adminManualBlocks, [blockPopup.date]: Array.from(new Set([...(adminManualBlocks[blockPopup.date]||[]), ...slotsToBlock])) };
+      const current = adminManualBlocks[blockPopup.date] || [];
+      const nextSlots = blockPopup.mode === "unblock"
+        ? current.filter((slot) => !slotsToBlock.includes(slot))
+        : Array.from(new Set([...current, ...slotsToBlock]));
+      const merged = { ...adminManualBlocks, [blockPopup.date]: nextSlots };
+      if (nextSlots.length === 0) delete merged[blockPopup.date];
       await supabase.from("profiles").update({ manual_blocks: merged }).eq("id", userId);
     }
     setSavingBlock(false);
@@ -683,8 +765,20 @@ function DayView({ selectedDate, programari, rawStaff, rawServices, serviceById,
         <AppointmentHoverCard prog={hoverCard.prog} anchorRect={hoverCard.rect} serviceById={serviceById}
           rawStaff={rawStaff} staffColorIndex={staffMap[hoverCard.prog.expertId||""]??0} onClose={()=>setHoverCard(null)} />
       )}
-      <div ref={scrollRef} style={{ flex:1, overflowY:"auto", overflowX:"auto" }}
-        onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
+      <div style={{ position:"relative", flex:1, minHeight:0 }}>
+        {showLeftScroll && (
+          <button type="button" onClick={()=>scrollSpecialists(-1)}
+            style={{position:"absolute",left:8,top:58,zIndex:80,width:36,height:36,borderRadius:999,border:"1.5px solid #e2e8f0",background:"#fff",boxShadow:"0 10px 24px rgba(15,23,42,0.18)",fontSize:20,fontWeight:900,color:"#0f172a",cursor:"pointer"}}
+            className="hover:bg-slate-900 hover:text-amber-500 transition-all">&lsaquo;</button>
+        )}
+        {showRightScroll && (
+          <button type="button" onClick={()=>scrollSpecialists(1)}
+            style={{position:"absolute",right:8,top:58,zIndex:80,width:36,height:36,borderRadius:999,border:"1.5px solid #e2e8f0",background:"#fff",boxShadow:"0 10px 24px rgba(15,23,42,0.18)",fontSize:20,fontWeight:900,color:"#0f172a",cursor:"pointer"}}
+            className="hover:bg-slate-900 hover:text-amber-500 transition-all">&lsaquo;</button>
+        )}
+        <div ref={scrollRef} style={{ height:"100%", overflowY:"auto", overflowX:"auto" }}
+          onScroll={updateHorizontalScrollButtons}
+          onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
         <div style={{ minWidth: gridMinWidth }}>
           {dayStaffList.length>0&&(
             <div style={{ display:"flex", position:"sticky", top:0, zIndex:30, background:"#fff", borderBottom:"2px solid #e2e8f0" }}>
@@ -696,7 +790,10 @@ function DayView({ selectedDate, programari, rawStaff, rawServices, serviceById,
                     <span style={{ width:18, height:18, borderRadius:"50%", background:color.border, display:"flex", alignItems:"center", justifyContent:"center", fontSize:9, fontWeight:700, color:"#fff", flexShrink:0 }}>
                       {s.name.charAt(0).toUpperCase()}
                     </span>
-                    <span style={{ fontSize:10, fontWeight:700, color:"#334155", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{s.name}</span>
+                    <div style={{minWidth:0,display:"flex",flexDirection:"column",gap:1}}>
+                      <span style={{ fontSize:10, fontWeight:800, color:"#334155", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{s.name}</span>
+                      <span style={{ fontSize:8, fontWeight:800, color:"#94a3b8", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{getStaffScheduleLabel(s)}</span>
+                    </div>
                   </div>
                 );
               })}
@@ -749,25 +846,45 @@ function DayView({ selectedDate, programari, rawStaff, rawServices, serviceById,
                 </div>
               </div>
             )}
+            {totalCols > 1 && Array.from({ length: totalCols - 1 }, (_, i) => (
+              <div
+                key={`staff-separator-${i}`}
+                style={{
+                  position: "absolute",
+                  top: 0,
+                  bottom: 0,
+                  left: `calc(${i + 1} * 100% / ${totalCols})`,
+                  width: 2,
+                  background: "rgba(100,116,139,0.35)",
+                  boxShadow: "1px 0 0 rgba(255,255,255,0.8)",
+                  zIndex: 12,
+                  pointerEvents: "none",
+                }}
+              />
+            ))}
+
             {slots.flatMap((slot,i) => {
               const isPastSlot = dateKey === todayKeyRef && timeToMin(slot) <= nowMinutesRef;
               const baseDisabled = isClosed || isPastSlot;
               return Array.from({ length: totalCols }, (_, colI) => {
                 const staffIdForCol = colI < dayStaffList.length ? dayStaffList[colI].id : "";
                 const isBlocked = !!staffIdForCol && (staffBlocksBySlot[staffIdForCol]?.[dateKey] || []).includes(slot);
-                const disabled = baseDisabled || isBlocked;
+                const disabled = baseDisabled;
                 return (
                   <button key={`e-${slot}-${colI}`}
-                    onClick={(e)=>{ if(disabled) return; const rect=(e.currentTarget as HTMLElement).getBoundingClientRect(); setSlotMenu({ x:rect.left, y:rect.bottom, time:slot, staffId:staffIdForCol }); }}
+                    onClick={(e)=>{ if(disabled) return; const rect=(e.currentTarget as HTMLElement).getBoundingClientRect(); setSlotMenu({ x:rect.left, y:rect.bottom, time:slot, staffId:staffIdForCol, isBlocked }); }}
                     disabled={disabled}
                     style={{
                       position:"absolute", left:`calc(${colI} * 100% / ${totalCols})`, width:`calc(100% / ${totalCols})`,
                       top:i*SLOT_H, height:SLOT_H, zIndex:5,
                       background: isBlocked ? "repeating-linear-gradient(45deg,rgba(220,38,38,0.16) 0px,rgba(220,38,38,0.16) 4px,transparent 4px,transparent 9px)" : "transparent",
-                      border:"none", cursor:disabled?"not-allowed":"pointer",
+                      border:"none",
+                      borderLeft: colI === 0 ? "none" : "1px solid rgba(100,116,139,0.28)",
+                      boxShadow: colI === 0 ? "none" : "inset 1px 0 0 rgba(255,255,255,0.7)",
+                      cursor:disabled?"not-allowed":"pointer",
                     }}
                     className={disabled?"":"group hover:bg-amber-50 transition-all"}>
-                    {!disabled && <span style={{position:"absolute",left:6,top:"50%",transform:"translateY(-50%)",fontSize:9,fontWeight:700,color:"#f59e0b",opacity:0}} className="group-hover:opacity-100 transition-opacity">+</span>}
+                    {!disabled && !isBlocked && <span style={{position:"absolute",left:6,top:"50%",transform:"translateY(-50%)",fontSize:9,fontWeight:700,color:"#f59e0b",opacity:0}} className="group-hover:opacity-100 transition-opacity">+</span>}
                   </button>
                 );
               });
@@ -817,6 +934,7 @@ function DayView({ selectedDate, programari, rawStaff, rawServices, serviceById,
         </div>
         </div>
       </div>
+      </div>
       <SummaryBar programari={programari} rawServices={rawServices} selectedDate={selectedDate}
         selectedExpert={selectedExpert} selectedServiciu={selectedServiciu} onSelectServiciu={onSelectServiciu}/>
       {slotMenu && (
@@ -824,20 +942,30 @@ function DayView({ selectedDate, programari, rawStaff, rawServices, serviceById,
           <div onClick={e=>e.stopPropagation()} style={{
             position:"fixed",
             top:Math.min(slotMenu.y, (typeof window!=="undefined"?window.innerHeight:800)-110),
-            left:Math.min(slotMenu.x, (typeof window!=="undefined"?window.innerWidth:400)-200),
+            left:Math.min(slotMenu.x, (typeof window!=="undefined"?window.innerWidth:400)-220),
             background:"#fff", borderRadius:14, boxShadow:"0 12px 32px rgba(0,0,0,0.2)", border:"1.5px solid #e2e8f0",
-            overflow:"hidden", minWidth:190,
+            overflow:"hidden", minWidth:210,
           }}>
-            <button onClick={()=>{ onAddNew(slotMenu.time, dateKey, slotMenu.staffId); setSlotMenu(null); }}
-              style={{ width:"100%", textAlign:"left", padding:"11px 14px", fontSize:11, fontWeight:700, color:"#1e293b", background:"transparent", border:"none", cursor:"pointer", borderBottom:"1px solid #f1f5f9" }}
-              className="hover:bg-slate-50 transition-colors">
-              📅 Programare — {slotMenu.time}
-            </button>
-            <button onClick={()=>{ setBlockPopup({ date:dateKey, staffId:slotMenu.staffId, start:slotMenu.time, end:addMinutesToTime(slotMenu.time,60) }); setSlotMenu(null); }}
-              style={{ width:"100%", textAlign:"left", padding:"11px 14px", fontSize:11, fontWeight:700, color:"#dc2626", background:"transparent", border:"none", cursor:"pointer" }}
-              className="hover:bg-red-50 transition-colors">
-              🔒 Blochează timp
-            </button>
+            {slotMenu.isBlocked ? (
+              <button onClick={()=>{ setBlockPopup({ date:dateKey, staffId:slotMenu.staffId, start:slotMenu.time, end:addMinutesToTime(slotMenu.time,60), mode:"unblock" }); setSlotMenu(null); }}
+                style={{ width:"100%", textAlign:"left", padding:"12px 14px", fontSize:11, fontWeight:800, color:"#059669", background:"transparent", border:"none", cursor:"pointer" }}
+                className="hover:bg-emerald-50 transition-colors">
+                Deblocheaza timp - {slotMenu.time}
+              </button>
+            ) : (
+              <>
+                <button onClick={()=>{ onAddNew(slotMenu.time, dateKey, slotMenu.staffId); setSlotMenu(null); }}
+                  style={{ width:"100%", textAlign:"left", padding:"11px 14px", fontSize:11, fontWeight:700, color:"#1e293b", background:"transparent", border:"none", cursor:"pointer", borderBottom:"1px solid #f1f5f9" }}
+                  className="hover:bg-slate-50 transition-colors">
+                  Programare - {slotMenu.time}
+                </button>
+                <button onClick={()=>{ setBlockPopup({ date:dateKey, staffId:slotMenu.staffId, start:slotMenu.time, end:addMinutesToTime(slotMenu.time,60), mode:"block" }); setSlotMenu(null); }}
+                  style={{ width:"100%", textAlign:"left", padding:"11px 14px", fontSize:11, fontWeight:700, color:"#dc2626", background:"transparent", border:"none", cursor:"pointer" }}
+                  className="hover:bg-red-50 transition-colors">
+                  Blocheaza timp
+                </button>
+              </>
+            )}
           </div>
         </div>
       )}
@@ -863,7 +991,7 @@ function DayView({ selectedDate, programari, rawStaff, rawServices, serviceById,
             <div style={{ display:"flex", gap:8 }}>
               <button onClick={()=>setBlockPopup(null)} style={{ flex:1, padding:"10px", borderRadius:10, background:"#f1f5f9", border:"none", fontWeight:700, fontSize:11, color:"#64748b", cursor:"pointer" }}>Anulează</button>
               <button disabled={savingBlock} onClick={confirmBlockTime}
-                style={{ flex:1, padding:"10px", borderRadius:10, background:"#dc2626", border:"none", fontWeight:700, fontSize:11, color:"#fff", cursor:"pointer", opacity:savingBlock?0.6:1 }}>
+                style={{ flex:1, padding:"10px", borderRadius:10, background:blockPopup.mode === "unblock" ? "#059669" : "#dc2626", border:"none", fontWeight:700, fontSize:11, color:"#fff", cursor:"pointer", opacity:savingBlock?0.6:1 }}>
                 {savingBlock ? "..." : "Blochează"}
               </button>
             </div>
@@ -1247,7 +1375,7 @@ function CalendarContent() {
   const isDemo = searchParams.get("demo")==="true";
   const modalRef = useRef<HTMLDivElement>(null);
   const qClient = useQueryClient();
-  const [viewMode, setViewMode] = useState<ViewMode>("month");
+  const [viewMode, setViewMode] = useState<ViewMode>("day");
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedExpert, setSelectedExpert] = useState("");
@@ -1316,9 +1444,38 @@ function CalendarContent() {
   const workLocations = useMemo<WorkLocationRow[]>(()=>{const r=profile?.work_locations;return Array.isArray(r)?r:[];},[profile?.work_locations]);
   const userSub = useMemo(()=>{if(!profile)return null;let plan=(profile.plan_type||"CHRONOS FREE").toUpperCase();if(profile.trial_started_at&&Date.now()-new Date(profile.trial_started_at).getTime()<10*24*60*60*1000)plan="CHRONOS TEAM";return{plan};},[profile]);
   const hasWA = userSub?.plan.includes("ELITE")||userSub?.plan.includes("TEAM");
-  const programariByDate = useMemo(()=>{const m:Record<string,Prog[]>={};programari.forEach(p=>{if(!p.data)return;if(!m[p.data])m[p.data]=[];m[p.data].push(p);});return m;},[programari]);
   const serviceById = useMemo(()=>{const m:Record<string,ServiceRow>={};rawServices.forEach(s=>{m[s.id]=s;});return m;},[rawServices]);
-  const filteredProg = useMemo(()=>programari.filter(p=>{const ms=!debouncedSearch||p.nume.toLowerCase().includes(debouncedSearch.toLowerCase())||p.telefon?.includes(debouncedSearch);return ms&&(!selectedExpert||p.expertId===selectedExpert)&&(!selectedServiciu||p.serviciuId===selectedServiciu)&&(!selectedWorkLocation||p.workLocationId===selectedWorkLocation);}),[programari,debouncedSearch,selectedExpert,selectedServiciu,selectedWorkLocation]);
+  const primaryWorkLocationId = workLocations[0]?.id || "";
+  const getEffectiveWorkLocationId = useCallback((p: Prog) => p.workLocationId || primaryWorkLocationId, [primaryWorkLocationId]);
+
+  const filteredProg = useMemo(()=>programari.filter(p=>{
+    const ms=!debouncedSearch||p.nume.toLowerCase().includes(debouncedSearch.toLowerCase())||p.telefon?.includes(debouncedSearch);
+    return ms&&(!selectedExpert||p.expertId===selectedExpert)&&(!selectedServiciu||p.serviciuId===selectedServiciu)&&(!selectedWorkLocation||getEffectiveWorkLocationId(p)===selectedWorkLocation);
+  }),[programari,debouncedSearch,selectedExpert,selectedServiciu,selectedWorkLocation,getEffectiveWorkLocationId]);
+
+  const filteredProgramariByDate = useMemo(()=>{
+    const m: Record<string, Prog[]> = {};
+    filteredProg.forEach(p => {
+      if (!p.data) return;
+      if (!m[p.data]) m[p.data] = [];
+      m[p.data].push(p);
+    });
+    return m;
+  }, [filteredProg]);
+
+  const visibleStaff = useMemo(() => {
+    if (!selectedWorkLocation) return rawStaff;
+    const loc = workLocations.find(l => l.id === selectedWorkLocation);
+    if (!loc?.staff_ids?.length) return rawStaff;
+    return rawStaff.filter(st => loc.staff_ids?.includes(st.id));
+  }, [selectedWorkLocation, rawStaff, workLocations]);
+
+  const visibleServices = useMemo(() => {
+    if (!selectedWorkLocation) return rawServices;
+    const loc = workLocations.find(l => l.id === selectedWorkLocation);
+    if (!loc?.service_ids?.length) return rawServices;
+    return rawServices.filter(svc => loc.service_ids?.includes(svc.id));
+  }, [selectedWorkLocation, rawServices, workLocations]);
   useEffect(()=>{const timer=setTimeout(()=>setDebouncedSearch(searchTerm),250);return()=>clearTimeout(timer);},[searchTerm]);
   const handleSearch = useCallback((q:string)=>{if(!q.trim()){setSearchResults([]);return;}setSearchResults(programari.filter(p=>p.nume.toLowerCase().includes(q.toLowerCase())||p.telefon?.includes(q)||p.email?.toLowerCase().includes(q.toLowerCase())).slice(0,8));},[programari]);
   const openEdit = useCallback((p:Prog)=>{setEditForm({...p});setShowDatePicker(false);setShowTimePicker(false);setShowSearchDrop(false);},[]);
@@ -1333,7 +1490,7 @@ function CalendarContent() {
       await showToast({message:t("specialistConflictError"),type:"error"});
       return;
     }
-    const locEdit = workLocations.find(l=>l.id===editForm.workLocationId);
+    const locEdit = workLocations.find(l=>l.id===(editForm.workLocationId || primaryWorkLocationId));
     const mapsEdit = locEdit?.maps_url || (locEdit?.address ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(locEdit.address)}` : null);
     const{error}=await supabase.from("appointments").update({
       title:editForm.nume, prenume:editForm.nume, nume:editForm.nume,
@@ -1341,7 +1498,7 @@ function CalendarContent() {
       duration:svc?.duration||editForm.duration||0,
       phone:editForm.telefon||null, details:editForm.motiv||null,
       angajat_id:editForm.expertId||null, serviciu_id:editForm.serviciuId||null,
-      work_location_id: editForm.workLocationId||null,
+      work_location_id: (editForm.workLocationId || primaryWorkLocationId)||null,
       work_location_name: locEdit?.name||null,
       work_location_address: locEdit?.address||null,
       work_location_maps_url: mapsEdit,
@@ -1629,36 +1786,37 @@ function CalendarContent() {
       )}
 
       {(viewMode==="day"||viewMode==="week")&&(
-        <WeekStrip selectedDate={selectedDate} onSelectDate={d=>{setSelectedDate(d);setViewMode("day");}} programariByDate={programariByDate} adminWorkingHours={viewWorkingHours}/>
+        <WeekStrip selectedDate={selectedDate} onSelectDate={d=>{setSelectedDate(d);setViewMode("day");}} programariByDate={filteredProgramariByDate} adminWorkingHours={viewWorkingHours}/>
       )}
 
-      <FilterBar rawStaff={rawStaff} rawServices={rawServices} programari={programari}
+      <FilterBar rawStaff={visibleStaff} rawServices={visibleServices} workLocations={workLocations} programari={programari}
         selectedExpert={selectedExpert} onSelectExpert={handleSelectExpert}
         selectedServiciu={selectedServiciu} onSelectServiciu={handleSelectServiciu}
+        selectedWorkLocation={selectedWorkLocation} onSelectWorkLocation={setSelectedWorkLocation}
         selectedDate={selectedDate}/>
 
       <div style={{flex:1,overflow:"hidden",display:"flex",flexDirection:"column",minHeight:0}}>
         {isLoading&&<div style={{height:3,background:"#fef3c7",overflow:"hidden",flexShrink:0}}><div style={{height:"100%",width:"33%",background:"#f59e0b"}} className="animate-pulse"/></div>}
         {viewMode==="day"&&(
-          <DayView selectedDate={selectedDate} programari={filteredProg} rawStaff={rawStaff} rawServices={rawServices} serviceById={serviceById}
+          <DayView selectedDate={selectedDate} programari={filteredProg} rawStaff={visibleStaff} rawServices={visibleServices} serviceById={serviceById}
             onEdit={openEdit} adminWorkingHours={viewWorkingHours} adminManualBlocks={adminManualBlocks} selectedExpert={selectedExpert} selectedServiciu={selectedServiciu}
             onSelectServiciu={handleSelectServiciu}
             onSwipeDay={(dir)=>setSelectedDate(d=>addDays(d,dir))}
             onBlocksSaved={()=>{ qClient.invalidateQueries({queryKey:["staff",userId]}); refetchProfile(); }}
             userId={userId}
-            onAddNew={(time,date,staffId)=>setNewForm({date,time,nume:"",telefon:"",email:"",serviciuId:"",expertId:staffId||selectedExpert||rawStaff[0]?.id||"",motiv:"",workLocationId:selectedWorkLocation||workLocations[0]?.id||""})}/>
+            onAddNew={(time,date,staffId)=>setNewForm({date,time,nume:"",telefon:"",email:"",serviciuId:"",expertId:staffId||selectedExpert||visibleStaff[0]?.id||"",motiv:"",workLocationId:selectedWorkLocation||workLocations[0]?.id||""})}/>
         )}
         {viewMode==="week"&&(
-          <WeekView selectedDate={selectedDate} programariByDate={programariByDate} rawStaff={rawStaff} rawServices={rawServices} serviceById={serviceById}
+          <WeekView selectedDate={selectedDate} programariByDate={filteredProgramariByDate} rawStaff={visibleStaff} rawServices={visibleServices} serviceById={serviceById}
             onEdit={openEdit} selectedExpert={selectedExpert} selectedServiciu={selectedServiciu} adminWorkingHours={viewWorkingHours} adminManualBlocks={adminManualBlocks}
             onSelectDate={d=>{setSelectedDate(d);setViewMode("day");}}/>
         )}
         {viewMode==="month"&&(
-          <MonthView selectedDate={selectedDate} programariByDate={programariByDate} rawStaff={rawStaff} serviceById={serviceById}
+          <MonthView selectedDate={selectedDate} programariByDate={filteredProgramariByDate} rawStaff={visibleStaff} serviceById={serviceById}
             onEdit={openEdit} onDayClick={d=>{setSelectedDate(d);setViewMode("day");}} selectedExpert={selectedExpert} selectedServiciu={selectedServiciu} adminWorkingHours={viewWorkingHours} adminManualBlocks={adminManualBlocks}/>
         )}
         {viewMode==="year"&&(
-          <YearView selectedDate={selectedDate} programariByDate={programariByDate} onMonthClick={(yr,mo)=>{setSelectedDate(new Date(yr,mo,1));setViewMode("month");}}/>
+          <YearView selectedDate={selectedDate} programariByDate={filteredProgramariByDate} onMonthClick={(yr,mo)=>{setSelectedDate(new Date(yr,mo,1));setViewMode("month");}}/>
         )}
       </div>
     </div>

@@ -34,7 +34,7 @@ export async function POST(request: Request) {
     const plan = (callerProfile?.plan_type || "").toUpperCase();
     const trialActive = !!callerProfile?.trial_started_at &&
       (Date.now() - new Date(callerProfile.trial_started_at).getTime() < 10 * 24 * 60 * 60 * 1000);
-    const hasAccess = trialActive || plan.includes("TEAM");
+    const hasAccess = trialActive || plan.includes("TEAM") || plan.includes("BUSINESS");
 
     if (!hasAccess) {
       return NextResponse.json({ error: "Portalul de specialist este disponibil doar pentru planul Chronos Team sau Chronos Business." }, { status: 403 });

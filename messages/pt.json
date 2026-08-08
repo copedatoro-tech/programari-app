@@ -310,7 +310,7 @@
         "abonamente": {
           "activateTrial": {
             "title": "Ativar o Teste",
-            "desc": "Terminou a configuração? Clique neste botão para ativar 10 dias grátis de acesso completo ao plano Team — sem cartão, sem compromissos."
+            "desc": "Terminou a configuração Clique neste botão para ativar 10 dias grátis de acesso completo ao plano Team — sem cartão, sem compromissos."
           }
         },
         "clienti": {
@@ -718,7 +718,8 @@
     "errorPrefix": "ERRO: ",
     "contactSaved": "CONTACTO GUARDADO!",
     "confirmDeleteContact": "ELIMINAR DEFINITIVAMENTE?",
-    "confirmDeleteFolder": "Eliminar a pasta? Os contactos permanecem, mas deixam de estar atribuídos."
+    "confirmDeleteFolder": "Eliminar a pasta Os contactos permanecem, mas deixam de estar atribuídos.",
+    "allContacts": "Todos os contactos"
   },
   "loginPage": {
     "title": "AUTENTICAÇÃO",
@@ -729,7 +730,7 @@
     "forgotPassword": "Esqueceste-te da palavra-passe?",
     "checking": "A VERIFICAR...",
     "loginBtn": "ENTRAR",
-    "noAccount": "Ainda não tens conta?",
+    "noAccount": "Ainda nao tens conta?",
     "createAccount": "CRIAR NOVA CONTA",
     "sessionExpired": "A sessão expirou. Tenta novamente.",
     "errorPrefix": "Erro: ",
@@ -758,7 +759,7 @@
     "accountCreated": "✅ Conta criada com sucesso! Já podes iniciar sessão.",
     "processing": "A PROCESSAR...",
     "registerBtn": "REGISTAR NOVA CONTA",
-    "haveAccount": "JÁ TENS CONTA?",
+    "haveAccount": "JA TENS CONTA?",
     "loginLink": "INICIA SESSÃO",
     "termsRequired": "Deve aceitar os Termos e a Politica RGPD para continuar.",
     "termsCheckboxPrefix": "Li e concordo com os",
@@ -866,7 +867,7 @@
     "headingHighlight2": "Especialistas",
     "demoMode": "MODO DE PRÉ-VISUALIZAÇÃO (DEMO)",
     "activePlanPrefix": "PLANO ATIVO: ",
-    "backBtn": "← PAINEL PRINCIPAL",
+    "backBtn": "Calendario",
     "dbErrorPrefix": "⚠️ ",
     "addServiceTitle": "Adicionar novo serviço",
     "serviceNameLabel": "Nome do serviço",
@@ -960,7 +961,7 @@
       "generateNewPasswordTitle": "Gerar uma nova palavra-passe",
       "savingBtn": "A guardar...",
       "saveChangesBtn": "Guardar Alterações",
-      "deactivateIntro": "Saiu da equipa? Pode desativar completamente o seu acesso.",
+      "deactivateIntro": "Saiu da equipa Pode desativar completamente o seu acesso.",
       "deactivateBtn": "🚫 Desativar Conta",
       "confirmDeactivateTitle": "Tem a certeza que quer desativar esta conta?",
       "confirmDeactivateText": "{name} não poderá mais iniciar sessão no portal do especialista. Pode convidá-lo novamente mais tarde, se necessário.",
@@ -978,7 +979,8 @@
       "teamOnlyHint": "O portal do especialista só está disponível no plano Chronos Team. Clique para atualizar.",
       "phoneLabel": "Telefone do Especialista",
       "teamOrBusinessBadge": "Team ou Business",
-      "teamOrBusinessHint": "O portal do especialista esta disponivel nos planos Chronos Team e Chronos Business."
+      "teamOrBusinessHint": "O portal do especialista esta disponivel nos planos Chronos Team e Chronos Business.",
+      "regenerateShort": "Gerar"
     },
     "staffPhotoUploadBtn": "Carregar foto",
     "staffPhotoRemoveBtn": "Remover foto",
@@ -991,7 +993,27 @@
     "planLimitWorkLocations": "O seu plano permite ate {count} locais de trabalho.",
     "planLimitSpecialists": "O seu plano permite ate {count} especialistas.",
     "planLimitServices": "O seu plano permite ate {count} servicos.",
-    "planLimitSpecialistsPerLocation": "Este plano permite ate {count} especialistas por local de trabalho."
+    "planLimitSpecialistsPerLocation": "Este plano permite ate {count} especialistas por local de trabalho.",
+    "clientPermissions": {
+      "button": "Permissoes",
+      "title": "Permissoes de dados do cliente",
+      "close": "Fechar",
+      "save": "Guardar permissoes",
+      "savedToast": "As permissoes do especialista foram guardadas.",
+      "subtitle": "Escolha que dados pessoais o especialista pode ver no portal dele.",
+      "hint": "Recomendacao: mantenha telefone, email, documentos e pagamento ocultos se o especialista nao precisar realmente deles.",
+      "options": {
+        "view_client_name": "Nome do cliente",
+        "view_client_phone": "Telefone do cliente",
+        "view_client_email": "Email do cliente",
+        "view_appointment_details": "Detalhes da marcacao",
+        "view_client_files": "Documentos anexados",
+        "view_client_history": "Historico do cliente",
+        "view_payment_info": "Preco e pagamento"
+      }
+    },
+    "confirmDeleteService": "Tem certeza de que deseja remover este servico?",
+    "confirmDeleteStaff": "Tem certeza de que deseja remover este especialista?"
   },
   "sugestii": {
     "checkingAccess": "A verificar o acesso...",
@@ -1022,7 +1044,7 @@
     "approveErrorPrefix": "Erro ao aprovar: ",
     "disapproveErrorPrefix": "Erro ao remover aprovação: ",
     "deleteErrorPrefix": "Erro ao eliminar: ",
-    "confirmDelete": "Eliminar definitivamente esta avaliação?",
+    "confirmDelete": "Eliminar definitivamente esta avaliacao?",
     "noneYet": "Ainda não tens nenhuma avaliação.",
     "approveBtn": "Aprovar",
     "disapproveBtn": "Remover aprovação",
@@ -1258,7 +1280,7 @@
       "saveBtn": "✓ Guardar",
       "deleteTooltip": "Eliminar",
       "deleteConfirmTitle": "Eliminar",
-      "deleteConfirmMsg": "Eliminar a marcação de {nume}?",
+      "deleteConfirmMsg": "Eliminar a marcacao de {nume}?",
       "deleteConfirmBtn": "Eliminar",
       "updatedToast": "Marcação atualizada!",
       "whatsappMessageBase": "Olá, {nume}! Esperamos-te na tua marcação de {data}, às {ora}",
@@ -1291,7 +1313,9 @@
     "depositPaidLabel": "Sinal {paid} RON · resta {rest} RON",
     "fullyPaidLabel": "Pago integralmente",
     "allWorkLocationsOpt": "Todos os locais",
-    "workLocationLabel": "Local de trabalho"
+    "workLocationLabel": "Local de trabalho",
+    "filterWorkLocations": "Locais",
+    "searchWorkLocationPlaceholder": "Pesquisar local..."
   },
   "rapoarte": {
     "localeCode": "pt-PT",
@@ -1434,7 +1458,7 @@
     "reservedIntervalLabel": "Intervalo reservado",
     "addServiceBtn": "ADICIONAR NOVO SERVIÇO",
     "notesLabel": "NOTAS ESPECIAIS (OPCIONAL)",
-    "notesPlaceholder": "Tens alguma preferência?",
+    "notesPlaceholder": "Tens alguma preferencia?",
     "processingBtn": "A PROCESSAR...",
     "confirmAllBtn": "CONFIRMAR TODAS AS MARCAÇÕES",
     "successTitle": "Marcações enviadas!",
@@ -1488,13 +1512,14 @@
     "uploadingLabel": "A carregar...",
     "documentsHint": "Máximo 5 ficheiros, 10MB cada. Ex: uma foto do problema, uma fatura.",
     "maxDocumentsMsg": "Podes anexar no máximo 5 ficheiros.",
-    "fileTooLargeMsg": "Um ficheiro excedeu o limite de 10MB e foi ignorado."
+    "fileTooLargeMsg": "Um ficheiro excedeu o limite de 10MB e foi ignorado.",
+    "changeWorkLocationBtn": "Alterar local"
   },
   "programariPage": {
     "successTitle": "Marcações guardadas!",
     "successText": "Todas as marcações foram registadas com sucesso.",
     "continueBtn": "CONTINUAR",
-    "confirmDelete": "Eliminar esta marcação?",
+    "confirmDelete": "Eliminar esta marcacao?",
     "trialTitle": "Teste Premium ativo",
     "trialSubtitle": "Acesso Chronos Team — {n} dias restantes",
     "trialDaysLeft": "dias restantes",
@@ -1609,7 +1634,7 @@
     "alreadyActiveBtn": "PLANO ATIVO",
     "modal": {
       "title": "Confirma a alteração",
-      "message": "Estás no teste do Chronos Team. Mudar para {plan} termina o teste imediatamente. Continuar?",
+      "message": "Estas no teste do Chronos Team. Mudar para {plan} termina o teste imediatamente. Continuar?",
       "confirmBtn": "SIM, CONTINUAR",
       "cancelBtn": "CANCELAR"
     },
@@ -1812,7 +1837,7 @@
     "text1": "Utilizamos apenas cookies técnicos, necessários para te manter ligado à tua conta.",
     "text2": "Não utilizamos cookies para publicidade ou rastreamento comercial.",
     "text3": "Estes cookies são essenciais para o funcionamento da aplicação e expiram automaticamente ao terminares sessão.",
-    "contactLabel": "Dúvidas sobre cookies? Escreve-nos para ",
+    "contactLabel": "Dúvidas sobre cookies Escreve-nos para ",
     "closeBtn": "FECHAR"
   },
   "termeniModal": {
@@ -1822,7 +1847,7 @@
     "text2": "O sistema destina-se a gestao eficiente do tempo e dos recursos profissionais do seu negocio.",
     "text3": "O utilizador e responsavel pela exatidao das informacoes inseridas no calendario e pela confidencialidade das credenciais de acesso da sua conta.",
     "text4": "Reservamo-nos o direito de atualizar estes termos; a utilizacao continuada da plataforma apos alteracoes constitui a sua aceitacao.",
-    "contactLabel": "Dúvidas sobre os termos? Escreve-nos para ",
+    "contactLabel": "Dúvidas sobre os termos Escreve-nos para ",
     "acceptBtn": "ACEITAR",
     "text5": "Este servico e operado pela EXPLORE WORLD S.R.L., NIF 45995975, com sede em Cluj-Napoca, Str. Gruia, No. 58, Ap. 17, distrito de Cluj, Romenia. Qualquer litigio sera resolvido de acordo com a legislacao romena, pelos tribunais competentes da Romenia.",
     "lastUpdated": "Ultima atualizacao: 18 de julho de 2026"
@@ -2021,7 +2046,7 @@
       "connectionError": "Erro de conexão. Tente novamente.",
       "checkingBtn": "A verificar...",
       "loginBtn": "Iniciar Sessão",
-      "noAccessFooter": "Não recebeu os dados de acesso? Contacte o administrador do salão."
+      "noAccessFooter": "Não recebeu os dados de acesso Contacte o administrador do salão."
     },
     "dashboard": {
       "loading": "A carregar...",

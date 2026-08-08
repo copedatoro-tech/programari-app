@@ -121,6 +121,8 @@ export default function ResursePage() {
 
   // âœ… Gestionare cont existent (corectare email / resetare parolÄƒ / dezactivare)
   const [manageStaff, setManageStaff] = useState<any | null>(null);
+  const [permissionsStaff, setPermissionsStaff] = useState<any | null>(null);
+  const permissionsModalRef = useRef<HTMLDivElement>(null);
   const [manageEmail, setManageEmail] = useState('');
   const [managePassword, setManagePassword] = useState('');
   const [manageLoading, setManageLoading] = useState(false);
@@ -213,7 +215,10 @@ export default function ResursePage() {
     }
     initAuth();
     return () => { mounted = false; };
-  }, [router, supabase, fetchResurse]);
+  // fetchResurse depinde de traduceri si isi poate schimba referinta la rerandare.
+  // Daca ramane in dependinte, pagina poate reintra continuu in loading.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [router, supabase]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -228,6 +233,10 @@ export default function ResursePage() {
       if (inviteStaff && inviteModalRef.current && !inviteModalRef.current.contains(target)) {
         setInviteStaff(null);
       }
+
+      if (permissionsStaff && permissionsModalRef.current && !permissionsModalRef.current.contains(target)) {
+        setPermissionsStaff(null);
+      }
       if (manageStaff && manageModalRef.current && !manageModalRef.current.contains(target)) {
         setManageStaff(null);
         setConfirmingDeactivate(false);
@@ -235,7 +244,7 @@ export default function ResursePage() {
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [editingId, scheduleStaffId, inviteStaff, manageStaff]);
+  }, [editingId, scheduleStaffId, inviteStaff, manageStaff, permissionsStaff]);
 
   const getLimitaServicii = () => LIMITE.SERVICII[userPlan as keyof typeof LIMITE.SERVICII] ?? LIMITE.SERVICII["chronos free"];
   const getLimitaStaff = () => LIMITE.STAFF[userPlan as keyof typeof LIMITE.STAFF] ?? LIMITE.STAFF["chronos free"];
@@ -282,7 +291,8 @@ export default function ResursePage() {
 
   async function handleDelete(id: string, type: 'services' | 'staff') {
     if (isDemo || !userId) return;
-    if (!confirm(t("confirmDeleteResource"))) return;
+    const confirmKey = type === "services" ? "confirmDeleteService" : "confirmDeleteStaff";
+    if (!confirm(t(confirmKey))) return;
     const { error } = await supabase.from(type).delete().eq('id', id);
     if (error) alert(error.message);
     await fetchResurse(userId);
@@ -645,6 +655,80 @@ export default function ResursePage() {
   };
 
   // âœ… Deschide modalul de gestionare pentru un specialist cu cont deja activ
+  const defaultClientPermissions = {
+    view_client_name: true,
+    view_client_phone: false,
+    view_client_email: false,
+    view_appointment_details: false,
+    view_client_files: false,
+    view_client_history: false,
+    view_payment_info: false,
+  };
+
+  const permissionOptions: [string, string][] = [
+    ["view_client_name", t("clientPermissions.options.view_client_name")],
+    ["view_client_phone", t("clientPermissions.options.view_client_phone")],
+    ["view_client_email", t("clientPermissions.options.view_client_email")],
+    ["view_appointment_details", t("clientPermissions.options.view_appointment_details")],
+    ["view_client_files", t("clientPermissions.options.view_client_files")],
+    ["view_client_history", t("clientPermissions.options.view_client_history")],
+    ["view_payment_info", t("clientPermissions.options.view_payment_info")],
+  ];
+
+  const openPermissionsModal = (staffMember: any) => {
+    if (isDemo) return;
+    setPermissionsStaff({
+      ...staffMember,
+      client_data_permissions: {
+        ...defaultClientPermissions,
+        ...(staffMember.client_data_permissions || {}),
+      },
+    });
+  };
+
+  const toggleClientPermission = (key: string) => {
+    setPermissionsStaff((prev: any) => {
+      if (!prev) return prev;
+
+      const currentPermissions = {
+        ...defaultClientPermissions,
+        ...(prev.client_data_permissions || {}),
+      };
+
+      return {
+        ...prev,
+        client_data_permissions: {
+          ...currentPermissions,
+          [key]: !currentPermissions[key as keyof typeof currentPermissions],
+        },
+      };
+    });
+  };
+
+  const saveClientPermissions = async () => {
+    if (!permissionsStaff || !userId || isDemo) return;
+
+    const permissions = {
+      ...defaultClientPermissions,
+      ...(permissionsStaff.client_data_permissions || {}),
+    };
+
+    const { error } = await supabase
+      .from("staff")
+      .update({ client_data_permissions: permissions })
+      .eq("id", permissionsStaff.id)
+      .eq("user_id", userId);
+
+    if (error) {
+      alert(error.message);
+      return;
+    }
+
+    setPermissionsStaff(null);
+    await fetchResurse(userId);
+    await showToast({ message: t("clientPermissions.savedToast"), type: "success" });
+  };
+
   const openManageModal = (staffMember: any) => {
     if (isDemo) return;
     setManageStaff(staffMember);
@@ -750,7 +834,7 @@ export default function ResursePage() {
             </div>
           </div>
           <button
-            onClick={() => router.push('/programari')}
+            onClick={() => router.push('/programari/calendar')}
             className="px-8 py-4 bg-white border-2 border-slate-900 rounded-[20px] font-black uppercase text-[10px] italic hover:bg-slate-900 hover:text-white transition-all shadow-lg border-b-4 active:translate-y-1 active:border-b-0 active:scale-95"
             title={t("backBtn")}
           >
@@ -1135,6 +1219,12 @@ export default function ResursePage() {
                           >{t("scheduleBtn")}</button>
                         )}
                         {!isDemo && (
+                          <button
+                            onClick={e => { e.stopPropagation(); openPermissionsModal(p); }}
+                            className="bg-slate-800 text-purple-300 px-3 py-2 flex items-center justify-center rounded-xl border border-slate-700 hover:bg-purple-500 hover:text-white transition-all text-[9px] font-black uppercase italic whitespace-nowrap"
+                          >{t("clientPermissions.button")}</button>
+                        )}
+                        {!isDemo && (
                           p.auth_user_id ? (
                             <button
                               onClick={e => { e.stopPropagation(); openManageModal(p); }}
@@ -1283,6 +1373,57 @@ export default function ResursePage() {
         </div>
       )}
 
+      {permissionsStaff && (
+        <div onClick={() => setPermissionsStaff(null)} className="fixed inset-0 bg-slate-900/70 backdrop-blur-md z-[200] flex items-center justify-center p-4">
+          <div onClick={(e) => e.stopPropagation()} ref={permissionsModalRef} className="bg-white w-full max-w-lg rounded-[40px] p-8 md:p-10 shadow-2xl border-t-[10px] border-purple-500 max-h-[85vh] overflow-y-auto">
+            <div className="flex justify-between items-start mb-6">
+              <div>
+                <span className="text-[9px] font-black text-purple-500 uppercase tracking-widest italic mb-1 block">{t("clientPermissions.title")}</span>
+                <h3 className="text-xl font-black uppercase italic text-slate-900 tracking-tighter">
+                  {permissionsStaff.name}
+                </h3>
+                <p className="text-[10px] font-bold text-slate-400 italic mt-2">
+                  {t("clientPermissions.subtitle")}
+                </p>
+              </div>
+              <button onClick={() => setPermissionsStaff(null)} className="w-10 h-10 flex items-center justify-center bg-slate-100 rounded-xl font-black text-slate-400 hover:bg-red-500 hover:text-white transition-all">
+                X
+              </button>
+            </div>
+
+            <div className="space-y-3 mb-6">
+              {permissionOptions.map(([key, label]) => {
+                const checked = !!permissionsStaff.client_data_permissions?.[key];
+                return (
+                  <button
+                    key={key}
+                    type="button"
+                    onClick={() => toggleClientPermission(key)}
+                    className={`w-full flex items-center justify-between gap-4 p-4 rounded-2xl border-2 transition-all ${checked ? "bg-purple-50 border-purple-300 text-purple-700" : "bg-slate-50 border-slate-100 text-slate-500"}`}
+                  >
+                    <span className="text-[11px] font-black uppercase italic">{label}</span>
+                    <span className={`w-11 h-6 rounded-full flex items-center px-1 transition-all ${checked ? "bg-purple-500 justify-end" : "bg-slate-300 justify-start"}`}>
+                      <span className="w-4 h-4 rounded-full bg-white shadow" />
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+
+            <div className="bg-amber-50 border border-amber-100 rounded-2xl p-4 mb-6">
+              <p className="text-[10px] font-bold text-amber-800 italic">
+                {t("clientPermissions.hint")}
+              </p>
+            </div>
+
+            <div className="flex gap-3">
+              <button onClick={() => setPermissionsStaff(null)} className="flex-1 py-4 bg-slate-100 text-slate-500 rounded-2xl font-black text-[11px] uppercase italic hover:bg-slate-200 transition-all">{t("clientPermissions.close")}</button>
+              <button onClick={saveClientPermissions} className="flex-1 py-4 bg-purple-500 text-white rounded-2xl font-black text-[11px] uppercase italic hover:bg-slate-900 transition-all">{t("clientPermissions.save")}</button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* MODAL GESTIONARE CONT EXISTENT (corectare email / resetare parolÄƒ / dezactivare) */}
       {manageStaff && (
         <div className="fixed inset-0 bg-slate-900/70 backdrop-blur-md z-[200] flex items-center justify-center p-4">
@@ -1393,7 +1534,7 @@ export default function ResursePage() {
                   {t("staffPortal.inviteTitle", { name: inviteStaff.name })}
                 </h3>
               </div>
-              <button onClick={() => setInviteStaff(null)} className="w-10 h-10 flex items-center justify-center bg-slate-100 rounded-xl font-black text-slate-400 hover:bg-red-500 hover:text-white transition-all">âœ•</button>
+              <button onClick={() => setInviteStaff(null)} className="px-4 h-10 flex items-center justify-center bg-slate-100 rounded-xl font-black text-slate-500 hover:bg-red-500 hover:text-white transition-all text-[10px] uppercase italic">{t("clientPermissions.close")}</button>
             </div>
 
             {inviteDone ? (
@@ -1467,13 +1608,7 @@ export default function ResursePage() {
                         value={invitePassword}
                         onChange={(e) => setInvitePassword(e.target.value)}
                       />
-                      <button
-                        onClick={() => setInvitePassword(generateTempPassword())}
-                        title={t("staffPortal.regeneratePasswordTitle")}
-                        className="px-4 bg-slate-100 rounded-2xl font-black text-slate-500 hover:bg-slate-200 transition-all"
-                      >
-                        ðŸ”„
-                      </button>
+                      <button onClick={() => setInvitePassword(generateTempPassword())} title={t("staffPortal.regeneratePasswordTitle")} className="px-4 bg-slate-100 rounded-2xl font-black text-slate-500 hover:bg-slate-200 transition-all text-[10px] uppercase italic">{t("staffPortal.regenerateShort")}</button>
                     </div>
                   </div>
 

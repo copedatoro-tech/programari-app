@@ -45,7 +45,7 @@
     "register": "Regisztráció",
     "email": "E-mail",
     "password": "Jelszó",
-    "forgotPassword": "Elfelejtette a jelszavát?",
+    "forgotPassword": "Elfelejtetted a jelszavad?",
     "loginButton": "Bejelentkezés"
   },
   "subscription": {
@@ -310,7 +310,7 @@
         "abonamente": {
           "activateTrial": {
             "title": "Próbaidőszak Aktiválása",
-            "desc": "Befejezte a beállítást? Kattintson erre a gombra, hogy aktiválja a 10 napos ingyenes, teljes hozzáférést a Team csomaghoz — kártya nélkül, kötelezettség nélkül."
+            "desc": "Befejezte a beállítást Kattintson erre a gombra, hogy aktiválja a 10 napos ingyenes, teljes hozzáférést a Team csomaghoz — kártya nélkül, kötelezettség nélkül."
           }
         },
         "clienti": {
@@ -605,7 +605,7 @@
       ]
     },
     "finalCta": {
-      "heading1": "KÉSZ VAGY KIPRÓBÁLNI?",
+      "heading1": "KESZ VAGY KIPROBALNI?",
       "heading2": "10 NAP. INGYEN. TELJES TEAM HOZZÁFÉRÉS.",
       "paragraph": "Töltsd ki a profilodat, állítsd be az időbeosztást, add hozzá a szolgáltatásokat és a specialistákat — majd aktiváld az ingyenes próbaidőszakot, amikor minden készen áll. A Chronos kezeli a foglalásokat, hogy te minőséget nyújthass és visszakapd a saját idődet.",
       "button": "INGYENES FIÓK LÉTREHOZÁSA",
@@ -671,7 +671,7 @@
     "syncing": "Adatbázis szinkronizálása...",
     "noneFound": "Nem található ügyfél",
     "noPhone": "NINCS TELEFON",
-    "confirmDelete": "Véglegesen törlöd ezt az ügyfelet?"
+    "confirmDelete": "Veglegesen torlod ezt az ugyfelet?"
   },
   "contacteUtile": {
     "folderOptional": "Mappa (opcionális)",
@@ -717,8 +717,8 @@
     "sessionExpired": "A MUNKAMENET LEJÁRT.",
     "errorPrefix": "HIBA: ",
     "contactSaved": "KAPCSOLAT MENTVE!",
-    "confirmDeleteContact": "VÉGLEGESEN TÖRLÖD?",
-    "confirmDeleteFolder": "Törlöd a mappát? A kapcsolatok megmaradnak, de nem lesznek hozzárendelve."
+    "confirmDeleteContact": "VEGLEGESEN TORLOD?",
+    "confirmDeleteFolder": "Törlöd a mappát A kapcsolatok megmaradnak, de nem lesznek hozzárendelve."
   },
   "loginPage": {
     "title": "BEJELENTKEZÉS",
@@ -729,7 +729,7 @@
     "forgotPassword": "Elfelejtetted a jelszavad?",
     "checking": "ELLENŐRZÉS...",
     "loginBtn": "BEJELENTKEZÉS",
-    "noAccount": "Még nincs fiókod?",
+    "noAccount": "Meg nincs fiokod?",
     "createAccount": "ÚJ FIÓK LÉTREHOZÁSA",
     "sessionExpired": "A munkamenet lejárt. Kérjük, próbáld újra.",
     "errorPrefix": "Hiba: ",
@@ -758,7 +758,7 @@
     "accountCreated": "✅ Fiók sikeresen létrehozva! Most már bejelentkezhetsz.",
     "processing": "FELDOLGOZÁS...",
     "registerBtn": "ÚJ FIÓK REGISZTRÁLÁSA",
-    "haveAccount": "MÁR VAN FIÓKOD?",
+    "haveAccount": "MAR VAN FIOKOD?",
     "loginLink": "JELENTKEZZ BE",
     "termsRequired": "A folytatashoz el kell fogadnia a Felhasznalasi Feltetelaket es a GDPR Szabalyzatot.",
     "termsCheckboxPrefix": "Elolvastam es elfogadom a",
@@ -857,7 +857,7 @@
     "workLocationServicesLabel": "Services available at this location",
     "workLocationStaffLabel": "Specialists working here",
     "saveWorkLocationBtn": "Helyszín mentése",
-    "confirmDeleteWorkLocation": "Biztosan törölni szeretnéd ezt a helyszínt?",
+    "confirmDeleteWorkLocation": "Biztosan torolni szeretned ezt a helyszint?",
     "workLocationsSavedToast": "Work locations saved.",
     "workLocationDeleteLastError": "At least one work location is required.",
     "headingLine1": "Szolgáltatások",
@@ -866,7 +866,7 @@
     "headingHighlight2": "szakemberek",
     "demoMode": "ELŐNÉZETI MÓD (DEMO)",
     "activePlanPrefix": "AKTÍV CSOMAG: ",
-    "backBtn": "← FŐPANEL",
+    "backBtn": "Naptar",
     "dbErrorPrefix": "⚠️ ",
     "addServiceTitle": "Új szolgáltatás hozzáadása",
     "serviceNameLabel": "Szolgáltatás neve",
@@ -896,7 +896,7 @@
     "serviceLimitReached": "⚠️ Elérted a limitet! A csomagod csak {limit} szolgáltatást engedélyez.",
     "staffLimitReached": "⚠️ Elérted a limitet! A csomagod csak {limit} szakembert engedélyez.",
     "errorPrefix": "Hiba: ",
-    "confirmDeleteResource": "Biztosan törlöd ezt az elemet?",
+    "confirmDeleteResource": "Biztosan torlod ezt az elemet?",
     "loading": "Chronos szinkronizálása...",
     "scheduleBtn": "Munkarend",
     "scheduleModalTitle": "Munkarend",
@@ -961,9 +961,9 @@
       "generateNewPasswordTitle": "Új jelszó generálása",
       "savingBtn": "Mentés...",
       "saveChangesBtn": "Módosítások Mentése",
-      "deactivateIntro": "Elhagyta a csapatot? Teljesen letilthatja a hozzáférését.",
+      "deactivateIntro": "Elhagyta a csapatot Teljesen letilthatja a hozzáférését.",
       "deactivateBtn": "🚫 Fiók Letiltása",
-      "confirmDeactivateTitle": "Biztosan letiltja ezt a fiókot?",
+      "confirmDeactivateTitle": "Biztosan letiltod ezt a fiokot?",
       "confirmDeactivateText": "{name} többé nem tud bejelentkezni a szakember portálra. Később bármikor újra meghívhatja, ha szükséges.",
       "cancelBtn": "Mégse",
       "yesDeactivateBtn": "Igen, letiltás",
@@ -979,7 +979,8 @@
       "teamOnlyHint": "A szakember portál csak a Chronos Team csomagban érhető el. Kattintson a frissítéshez.",
       "phoneLabel": "Szakember Telefonszáma",
       "teamOrBusinessBadge": "Team vagy Business",
-      "teamOrBusinessHint": "A szakember portal elerheto a Chronos Team es Chronos Business csomagokban."
+      "teamOrBusinessHint": "A szakember portal elerheto a Chronos Team es Chronos Business csomagokban.",
+      "regenerateShort": "Generalas"
     },
     "staffPhotoUploadBtn": "Foto feltoltese",
     "staffPhotoRemoveBtn": "Foto torlese",
@@ -991,7 +992,27 @@
     "planLimitWorkLocations": "A csomagod legfeljebb {count} munkapontot engedelyez.",
     "planLimitSpecialists": "A csomagod legfeljebb {count} szakembert engedelyez.",
     "planLimitServices": "A csomagod legfeljebb {count} szolgaltatast engedelyez.",
-    "planLimitSpecialistsPerLocation": "Ez a csomag legfeljebb {count} szakembert engedelyez munkapontonk?nt."
+    "planLimitSpecialistsPerLocation": "Ez a csomag legfeljebb {count} szakembert engedelyez munkapontonk?nt.",
+    "clientPermissions": {
+      "button": "Engedelyek",
+      "title": "Ugyfeladat engedelyek",
+      "close": "Bezaras",
+      "save": "Engedelyek mentese",
+      "savedToast": "A szakember engedelyei mentve.",
+      "subtitle": "Valaszd ki, milyen ugyfeladatokat lathat a szakember a portaljan.",
+      "hint": "Javaslat: tartsd rejtve a telefont, emailt, dokumentumokat es fizetest, ha a szakembernek nincs rajuk valodi szuksege.",
+      "options": {
+        "view_client_name": "Ugyfel neve",
+        "view_client_phone": "Ugyfel telefonja",
+        "view_client_email": "Ugyfel emailje",
+        "view_appointment_details": "Idopont reszletei",
+        "view_client_files": "Csatolt dokumentumok",
+        "view_client_history": "Ugyfel eloztmenyek",
+        "view_payment_info": "Ar es fizetes"
+      }
+    },
+    "confirmDeleteService": "Biztosan torolni szeretned ezt a szolgaltatast?",
+    "confirmDeleteStaff": "Biztosan torolni szeretned ezt a szakembert?"
   },
   "sugestii": {
     "checkingAccess": "Hozzáférés ellenőrzése...",
@@ -1022,7 +1043,7 @@
     "approveErrorPrefix": "Hiba a jóváhagyás során: ",
     "disapproveErrorPrefix": "Hiba a jóváhagyás visszavonásakor: ",
     "deleteErrorPrefix": "Hiba a törlés során: ",
-    "confirmDelete": "Véglegesen törlöd ezt a véleményt?",
+    "confirmDelete": "Veglegesen torlod ezt a velemenyt?",
     "noneYet": "Még nincs véleményed.",
     "approveBtn": "Jóváhagyás",
     "disapproveBtn": "Jóváhagyás visszavonása",
@@ -1291,7 +1312,9 @@
     "depositPaidLabel": "Előleg {paid} RON · hátra {rest} RON",
     "fullyPaidLabel": "Teljesen kifizetve",
     "allWorkLocationsOpt": "Osszes helyszin",
-    "workLocationLabel": "Helyszin"
+    "workLocationLabel": "Helyszin",
+    "filterWorkLocations": "Munkapontok",
+    "searchWorkLocationPlaceholder": "Munkapont keresese..."
   },
   "rapoarte": {
     "localeCode": "hu-HU",
@@ -1434,7 +1457,7 @@
     "reservedIntervalLabel": "Lefoglalt időintervallum",
     "addServiceBtn": "ÚJ SZOLGÁLTATÁS HOZZÁADÁSA",
     "notesLabel": "KÜLÖNLEGES MEGJEGYZÉSEK (OPCIONÁLIS)",
-    "notesPlaceholder": "Van valamilyen preferenciád?",
+    "notesPlaceholder": "Van valamilyen preferenciad?",
     "processingBtn": "FELDOLGOZÁS...",
     "confirmAllBtn": "AZ ÖSSZES FOGLALÁS MEGERŐSÍTÉSE",
     "successTitle": "Foglalások elküldve!",
@@ -1488,7 +1511,8 @@
     "uploadingLabel": "Feltöltés...",
     "documentsHint": "Max 5 fájl, egyenként 10MB. Pl. fotó a hibáról, számla.",
     "maxDocumentsMsg": "Legfeljebb 5 fájlt csatolhatsz.",
-    "fileTooLargeMsg": "Egy fájl túllépte a 10MB-os korlátot, és kimaradt."
+    "fileTooLargeMsg": "Egy fájl túllépte a 10MB-os korlátot, és kimaradt.",
+    "changeWorkLocationBtn": "Munkapont valtasa"
   },
   "programariPage": {
     "successTitle": "Időpontok mentve!",
@@ -1812,7 +1836,7 @@
     "text1": "Csak technikai sütiket használunk, amelyek szükségesek ahhoz, hogy bejelentkezve tartsanak a fiókodban.",
     "text2": "Nem használunk sütiket hirdetésre vagy kereskedelmi nyomkövetésre.",
     "text3": "Ezek a sütik elengedhetetlenek az alkalmazás működéséhez, és kijelentkezéskor automatikusan lejárnak.",
-    "contactLabel": "Kérdésed van a sütikről? Írj nekünk: ",
+    "contactLabel": "Kérdésed van a sütikről Írj nekünk: ",
     "closeBtn": "BEZÁRÁS"
   },
   "termeniModal": {
@@ -1822,7 +1846,7 @@
     "text2": "A rendszer a vallalkozasod idejenek es szakmai eroforrasainak hatekony kezelesere szolgal.",
     "text3": "A felhasznalo felelos a naptarba bevitt informaciok pontossagaert es a fiokja bejelentkezesi adatainak titkossagaert.",
     "text4": "Fenntartjuk a jogot e feltetelek frissitesere; a platform tovabbi hasznalata a valtoztatasok utan azok elfogadasat jelenti.",
-    "contactLabel": "Kérdésed van a feltételekről? Írj nekünk: ",
+    "contactLabel": "Kérdésed van a feltételekről Írj nekünk: ",
     "acceptBtn": "ELFOGADOM",
     "text5": "Ezt a szolgaltatast az EXPLORE WORLD S.R.L. uzemelteti, adoszam 45995975, szekhelye Kolozsvar, Gruia utca, 58. szam, 17. lakas, Kolozs megye, Romania. Barmilyen jogvitat a roman jog szerint, Romania illetekes birosagai oldanak meg.",
     "lastUpdated": "Utolso frissites: 2026. julius 18."
@@ -1911,7 +1935,7 @@
     "noWorksSubtitle": "Add hozzá az első munkát a nyereség kiszámításához",
     "removeClientBtn": "Ügyfél eltávolítása",
     "finalizeBtn": "Befejezés",
-    "confirmDeleteWork": "Törlöd ezt a munkát?"
+    "confirmDeleteWork": "Torlod ezt a munkat?"
   },
   "gestioneaza": {
     "loading": "Betöltés...",
@@ -1994,7 +2018,7 @@
     "statusConfirmed": "✅ Megerősítve",
     "statusExpired": "⏱️ Lejárt",
     "removeBtn": "Eltávolítás",
-    "confirmRemove": "Biztosan eltávolítod ezt az ügyfelet a listáról?",
+    "confirmRemove": "Biztosan eltavolitod ezt az ugyfelet a listarol?",
     "addManualBtn": "Kézi hozzáadás",
     "addManualTitle": "Valaki manuális hozzáadása",
     "addNameLabel": "Ügyfél neve",
@@ -2021,7 +2045,7 @@
       "connectionError": "Kapcsolódási hiba. Próbálja újra.",
       "checkingBtn": "Ellenőrzés...",
       "loginBtn": "Bejelentkezés",
-      "noAccessFooter": "Nem kapott hozzáférési adatokat? Vegye fel a kapcsolatot a szalon adminisztrátorával."
+      "noAccessFooter": "Nem kapott hozzáférési adatokat Vegye fel a kapcsolatot a szalon adminisztrátorával."
     },
     "dashboard": {
       "loading": "Betöltés...",
