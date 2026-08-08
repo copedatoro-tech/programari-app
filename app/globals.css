@@ -206,7 +206,7 @@ a, button, input, textarea, select, div[tabindex] {
   }
 }
 
-\n\n/* CHRONOS_CALENDAR_MOBILE_APP_START */
+/* CHRONOS_CALENDAR_MOBILE_APP_START */
 @media (max-width: 640px) {
   html,
   body {
@@ -324,4 +324,4 @@ a, button, input, textarea, select, div[tabindex] {
     max-width: calc(100vw - 16px) !important;
   }
 }
-/* CHRONOS_CALENDAR_MOBILE_APP_END */\n
+/* CHRONOS_CALENDAR_MOBILE_APP_END */
