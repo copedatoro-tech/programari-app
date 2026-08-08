@@ -87,7 +87,7 @@ export default function LandingPage() {
         <div className="flex items-center justify-between gap-3">
           <motion.div initial={{ opacity:0, x:-20 }} animate={{ opacity:1, x:0 }} className="flex items-center gap-2 min-w-0">
             <Image src="/logo-chronos.png" alt="Chronos Logo" width={32} height={32} className="shrink-0" />
-            <span className="font-black text-sm sm:text-base tracking-tighter italic uppercase truncate">
+            <span className="font-black text-sm sm:text-base tracking-tighter italic uppercase">
               CHRONOS<span className="text-amber-500">.</span>
             </span>
           </motion.div>
@@ -115,19 +115,15 @@ export default function LandingPage() {
         </div>
 
         {mobileMenuOpen && (
-          <div className="sm:hidden mt-3 rounded-2xl border border-slate-200 bg-white p-3 shadow-xl">
-            <div className="grid grid-cols-2 gap-2 mb-3">
-              <LocaleSwitcher />
-              <CurrencySwitcher />
-            </div>
-            <div className="grid grid-cols-2 gap-2">
-              <Link href="/login" onClick={() => setMobileMenuOpen(false)} className="h-11 rounded-xl bg-slate-50 border border-slate-200 text-slate-700 text-[10px] font-black uppercase italic flex items-center justify-center">
-                {t("nav.login")}
-              </Link>
-              <Link href="/register" onClick={() => setMobileMenuOpen(false)} className="h-11 rounded-xl bg-amber-500 text-slate-950 text-[10px] font-black uppercase italic flex items-center justify-center text-center px-2">
-                10 zile gratuit
-              </Link>
-            </div>
+          <div className="sm:hidden mt-3 rounded-2xl border border-slate-200 bg-white p-3 shadow-xl space-y-2">
+            <LocaleSwitcher />
+            <CurrencySwitcher />
+            <Link href="/login" onClick={() => setMobileMenuOpen(false)} className="h-10 rounded-xl bg-slate-50 border border-slate-200 text-slate-700 text-[10px] font-black uppercase italic flex items-center justify-center">
+              {t("nav.login")}
+            </Link>
+            <Link href="/register" onClick={() => setMobileMenuOpen(false)} className="h-10 rounded-xl bg-amber-500 text-slate-950 text-[10px] font-black uppercase italic flex items-center justify-center text-center px-2">
+              10 zile gratuit
+            </Link>
           </div>
         )}
       </nav>
@@ -396,13 +392,13 @@ export default function LandingPage() {
       </section>
 
       {/* ── VALOARE PERSONALĂ — timp liber recâștigat ───────────────────── */}
-      <section className="bg-slate-950 py-10 sm:py-16 md:py-24 px-4 sm:px-6 overflow-hidden relative">
+      <section className="bg-slate-950 py-8 sm:py-14 md:py-24 px-4 sm:px-6 overflow-hidden relative">
         <div className="absolute top-0 right-0 w-96 h-96 bg-amber-500/10 rounded-full blur-[120px]" />
         <div className="absolute bottom-0 left-0 w-96 h-96 bg-blue-500/10 rounded-full blur-[120px]" />
 
         <div className="max-w-6xl mx-auto relative">
-          <div className="text-center mb-7 sm:mb-10 md:mb-16">
-            <h2 className="text-[22px] sm:text-3xl md:text-5xl font-black italic uppercase tracking-tight leading-[1.08] break-words text-white mb-4">
+          <div className="text-center mb-6 sm:mb-10 md:mb-16">
+            <h2 className="text-[20px] sm:text-3xl md:text-5xl font-black italic uppercase tracking-tight leading-[1.08] break-words text-white mb-4">
               {t("personalValue.heading1")} <span className="text-amber-500">{t("personalValue.heading2")}</span>
             </h2>
             <p className="text-slate-400 text-[10px] sm:text-xs font-bold uppercase italic max-w-xl mx-auto leading-relaxed">{t("personalValue.subtitle")}</p>
@@ -448,10 +444,10 @@ export default function LandingPage() {
       </section>
 
       {/* ── CE CONȚINE CHRONOS ────────────────────────────────────────────── */}
-      <section className="bg-white py-10 sm:py-16 md:py-24 px-4 sm:px-6 border-y border-slate-100">
+      <section className="bg-white py-8 sm:py-14 md:py-24 px-4 sm:px-6 border-y border-slate-100">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-7 sm:mb-10 md:mb-16">
-            <h2 className="text-[22px] sm:text-3xl md:text-5xl font-black italic uppercase tracking-tight leading-[1.08] break-words mb-4">
+          <div className="text-center mb-6 sm:mb-10 md:mb-16">
+            <h2 className="text-[20px] sm:text-3xl md:text-5xl font-black italic uppercase tracking-tight leading-[1.08] break-words mb-4">
               {t("features.heading1")}<br/><span className="text-amber-500">{t("features.heading2")}</span>
             </h2>
             <p className="text-slate-400 text-[10px] sm:text-xs font-bold uppercase italic leading-relaxed">{t("features.subtitle")}</p>
@@ -474,10 +470,10 @@ export default function LandingPage() {
       </section>
 
       {/* ── CUM FUNCȚIONEAZĂ ─────────────────────────────────────────────── */}
-      <section className="py-10 sm:py-16 md:py-24 px-4 sm:px-6 bg-slate-50">
+      <section className="py-8 sm:py-14 md:py-24 px-4 sm:px-6 bg-slate-50">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-7 sm:mb-10 md:mb-16">
-            <h2 className="text-[22px] sm:text-3xl md:text-5xl font-black italic uppercase tracking-tight leading-[1.08] break-words mb-4">
+          <div className="text-center mb-6 sm:mb-10 md:mb-16">
+            <h2 className="text-[20px] sm:text-3xl md:text-5xl font-black italic uppercase tracking-tight leading-[1.08] break-words mb-4">
               {t("steps.heading")} <span className="text-amber-500">{t("steps.headingHighlight")}</span>
             </h2>
             <p className="text-slate-400 text-[10px] sm:text-xs font-bold uppercase italic leading-relaxed">{t("steps.subtitle")}</p>
@@ -499,10 +495,10 @@ export default function LandingPage() {
       </section>
 
       {/* ── PLANURI ──────────────────────────────────────────────────────── */}
-      <section className="bg-white py-10 sm:py-16 md:py-24 px-4 sm:px-6 border-t border-slate-100">
+      <section className="bg-white py-8 sm:py-14 md:py-24 px-4 sm:px-6 border-t border-slate-100">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-7 sm:mb-10 md:mb-16">
-            <h2 className="text-[22px] sm:text-3xl md:text-5xl font-black italic uppercase tracking-tight leading-[1.08] break-words mb-4">
+          <div className="text-center mb-6 sm:mb-10 md:mb-16">
+            <h2 className="text-[20px] sm:text-3xl md:text-5xl font-black italic uppercase tracking-tight leading-[1.08] break-words mb-4">
               {t("pricing.heading")} <span className="text-amber-500">{t("pricing.headingHighlight")}</span>
             </h2>
             <p className="text-slate-400 text-[10px] sm:text-xs font-bold uppercase italic leading-relaxed">{t("pricing.subtitle")}</p>
@@ -544,10 +540,10 @@ export default function LandingPage() {
       </section>
 
       {/* ── PENTRU CINE E CHRONOS ─────────────────────────────────────────── */}
-      <section className="py-10 sm:py-16 md:py-24 px-4 sm:px-6 bg-slate-50">
+      <section className="py-8 sm:py-14 md:py-24 px-4 sm:px-6 bg-slate-50">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-7 sm:mb-10 md:mb-16">
-            <h2 className="text-[22px] sm:text-3xl md:text-5xl font-black italic uppercase tracking-tight leading-[1.08] break-words mb-4">
+          <div className="text-center mb-6 sm:mb-10 md:mb-16">
+            <h2 className="text-[20px] sm:text-3xl md:text-5xl font-black italic uppercase tracking-tight leading-[1.08] break-words mb-4">
               {t("audience.heading")} <span className="text-amber-500">{t("audience.headingHighlight")}</span>
             </h2>
           </div>
@@ -568,7 +564,7 @@ export default function LandingPage() {
       <section className="bg-slate-900 py-24 px-6 text-center">
         <div className="max-w-3xl mx-auto">
           <motion.div initial={{ opacity:0, y:20 }} whileInView={{ opacity:1, y:0 }} viewport={{ once:true }}>
-            <h2 className="text-[22px] sm:text-3xl md:text-5xl font-black italic uppercase tracking-tight leading-[1.08] break-words text-white mb-6">
+            <h2 className="text-[20px] sm:text-3xl md:text-5xl font-black italic uppercase tracking-tight leading-[1.08] break-words text-white mb-6">
               {t("finalCta.heading1")}<br/><span className="text-amber-500">{t("finalCta.heading2")}</span>
             </h2>
             <p className="text-slate-400 text-sm font-bold uppercase italic mb-10 leading-relaxed">
