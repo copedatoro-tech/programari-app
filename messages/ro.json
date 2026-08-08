@@ -411,7 +411,7 @@
       "saveBtn": "✓ SALVEAZĂ 1 PROGRAMARE",
       "todayAppointments": "Programări Azi",
       "onlineBadge": "Rezervare Online",
-      "onlineSource": "ðŸŒ Prin link personal",
+      "onlineSource": "🌐 Prin link personal",
       "autoConfirmed": "Confirmat automat",
       "autoConfirmedName": "Alexandra liberă ✓",
       "autoConfirmedNote": "Slot blocat în calendar",
@@ -568,7 +568,7 @@
     },
     "audience": {
       "heading": "PENTRU ORICINE",
-      "headingHighlight": "LUCREAZÄ‚ CU PROGRAMÄ‚RI",
+      "headingHighlight": "LUCREAZĂ CU PROGRAMĂRI",
       "items": [
         {
           "icon": "💇",
@@ -591,7 +591,7 @@
           "label": "Ateliere Auto"
         },
         {
-          "icon": "ðŸ¥",
+          "icon": "🏥",
           "label": "Cabinete Medicale"
         },
         {
@@ -599,7 +599,7 @@
           "label": "Profesori Muzică"
         },
         {
-          "icon": "ðŸ ",
+          "icon": "🏠",
           "label": "Servicii la Domiciliu"
         }
       ]
@@ -642,7 +642,7 @@
       "subtitle": "Cât timp tu trăiești, Chronos lucrează pentru tine.",
       "scenarios": [
         {
-          "emoji": "ðŸƒ",
+          "emoji": "🏃",
           "situation": "Alergi dimineața, fără telefonul lângă tine",
           "notifTitle": "Programare confirmată automat",
           "notifDesc": "Maria — mâine, 14:00"
