@@ -456,3 +456,14 @@ a, button, input, textarea, select, div[tabindex] {
 /* CHRONOS_MOBILE_APP_SHELL_END */
 
 
+\n
+@media (max-width: 640px) {
+  .chronos-calendar-new-modal {
+    max-width: calc(100vw - 20px) !important;
+    max-height: calc(100svh - 28px) !important;
+    overflow-y: auto !important;
+    border-radius: 18px !important;
+    padding: 12px !important;
+    gap: 7px !important;
+  }
+}

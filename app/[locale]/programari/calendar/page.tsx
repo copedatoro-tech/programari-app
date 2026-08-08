@@ -8,8 +8,8 @@ import { showToast, showConfirm } from "@/lib/toast";
 import { useTranslations } from "next-intl";
 import { ChronosTimePicker, ChronosDatePicker } from "@/components/ChronosDateTimePickers";
 // ─── Constants ────────────────────────────────────────────────────────────────
-const SLOT_H = 42;
-const TIME_COL_W = 44;
+const SLOT_H = 34;
+const TIME_COL_W = 40;
 // ─── Utils ────────────────────────────────────────────────────────────────────
 function sameDay(a: Date, b: Date) {
   return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
@@ -658,7 +658,7 @@ function DayView({ selectedDate, programari, rawStaff, rawServices, serviceById,
     return m;
   }, [dayStaffList]);
   const totalCols = Math.max(dayStaffList.length + (hasUnassigned ? 1 : 0), 1);
-  const MIN_COL_W = 96;
+  const MIN_COL_W = 92;
   const gridMinWidth = TIME_COL_W + totalCols * MIN_COL_W;
   // ✅ Blocările per specialist (salvate pe staff.manual_blocks), citite pentru
   // ziua curentă — folosite ca să dezactivăm sloturile blocate din fiecare
@@ -768,12 +768,12 @@ function DayView({ selectedDate, programari, rawStaff, rawServices, serviceById,
       <div style={{ position:"relative", flex:1, minHeight:0 }}>
         {showLeftScroll && (
           <button type="button" onClick={()=>scrollSpecialists(-1)}
-            style={{position:"absolute",left:8,top:58,zIndex:80,width:36,height:36,borderRadius:999,border:"1.5px solid #e2e8f0",background:"#fff",boxShadow:"0 10px 24px rgba(15,23,42,0.18)",fontSize:20,fontWeight:900,color:"#0f172a",cursor:"pointer"}}
+            style={{position:"absolute",left:8,top:48,zIndex:80,width:32,height:32,borderRadius:999,border:"1.5px solid #e2e8f0",background:"#fff",boxShadow:"0 10px 24px rgba(15,23,42,0.18)",fontSize:20,fontWeight:900,color:"#0f172a",cursor:"pointer"}}
             className="hover:bg-slate-900 hover:text-amber-500 transition-all">&lsaquo;</button>
         )}
         {showRightScroll && (
           <button type="button" onClick={()=>scrollSpecialists(1)}
-            style={{position:"absolute",right:8,top:58,zIndex:80,width:36,height:36,borderRadius:999,border:"1.5px solid #e2e8f0",background:"#fff",boxShadow:"0 10px 24px rgba(15,23,42,0.18)",fontSize:20,fontWeight:900,color:"#0f172a",cursor:"pointer"}}
+            style={{position:"absolute",right:8,top:48,zIndex:80,width:32,height:32,borderRadius:999,border:"1.5px solid #e2e8f0",background:"#fff",boxShadow:"0 10px 24px rgba(15,23,42,0.18)",fontSize:20,fontWeight:900,color:"#0f172a",cursor:"pointer"}}
             className="hover:bg-slate-900 hover:text-amber-500 transition-all">&lsaquo;</button>
         )}
         <div ref={scrollRef} style={{ height:"100%", overflowY:"auto", overflowX:"auto" }}
@@ -786,13 +786,13 @@ function DayView({ selectedDate, programari, rawStaff, rawServices, serviceById,
               {dayStaffList.map((s,i) => {
                 const color = SC[staffMap[s.id]??(i%SC.length)];
                 return (
-                  <div key={s.id} style={{ flex:1, minWidth:MIN_COL_W, display:"flex", alignItems:"center", gap:3, padding:"4px 4px", borderLeft:"1px solid #f1f5f9", overflow:"hidden" }}>
-                    <span style={{ width:18, height:18, borderRadius:"50%", background:color.border, display:"flex", alignItems:"center", justifyContent:"center", fontSize:9, fontWeight:700, color:"#fff", flexShrink:0 }}>
+                  <div key={s.id} style={{ flex:1, minWidth:MIN_COL_W, display:"flex", alignItems:"center", gap:3, padding:"3px 4px", borderLeft:"1px solid #e2e8f0", overflow:"hidden" }}>
+                    <span style={{ width:16, height:16, borderRadius:"50%", background:color.border, display:"flex", alignItems:"center", justifyContent:"center", fontSize:9, fontWeight:700, color:"#fff", flexShrink:0 }}>
                       {s.name.charAt(0).toUpperCase()}
                     </span>
                     <div style={{minWidth:0,display:"flex",flexDirection:"column",gap:1}}>
-                      <span style={{ fontSize:10, fontWeight:800, color:"#334155", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{s.name}</span>
-                      <span style={{ fontSize:8, fontWeight:800, color:"#94a3b8", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{getStaffScheduleLabel(s)}</span>
+                      <span style={{ fontSize:9, fontWeight:800, color:"#334155", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{s.name}</span>
+                      <span style={{ fontSize:7, fontWeight:800, color:"#94a3b8", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{getStaffScheduleLabel(s)}</span>
                     </div>
                   </div>
                 );
@@ -865,7 +865,7 @@ function DayView({ selectedDate, programari, rawStaff, rawServices, serviceById,
 
             {slots.flatMap((slot,i) => {
               const isPastSlot = dateKey === todayKeyRef && timeToMin(slot) <= nowMinutesRef;
-              const baseDisabled = isClosed || isPastSlot;
+              const baseDisabled = isClosed;
               return Array.from({ length: totalCols }, (_, colI) => {
                 const staffIdForCol = colI < dayStaffList.length ? dayStaffList[colI].id : "";
                 const isBlocked = !!staffIdForCol && (staffBlocksBySlot[staffIdForCol]?.[dateKey] || []).includes(slot);
@@ -876,7 +876,7 @@ function DayView({ selectedDate, programari, rawStaff, rawServices, serviceById,
                     disabled={disabled}
                     style={{
                       position:"absolute", left:`calc(${colI} * 100% / ${totalCols})`, width:`calc(100% / ${totalCols})`,
-                      top:i*SLOT_H, height:SLOT_H, zIndex:5,
+                      top:i*SLOT_H, height:SLOT_H, zIndex:18,
                       background: isBlocked ? "repeating-linear-gradient(45deg,rgba(220,38,38,0.16) 0px,rgba(220,38,38,0.16) 4px,transparent 4px,transparent 9px)" : "transparent",
                       border:"none",
                       borderLeft: colI === 0 ? "none" : "1px solid rgba(100,116,139,0.28)",
@@ -884,7 +884,7 @@ function DayView({ selectedDate, programari, rawStaff, rawServices, serviceById,
                       cursor:disabled?"not-allowed":"pointer",
                     }}
                     className={disabled?"":"group hover:bg-amber-50 transition-all"}>
-                    {!disabled && !isBlocked && <span style={{position:"absolute",left:6,top:"50%",transform:"translateY(-50%)",fontSize:9,fontWeight:700,color:"#f59e0b",opacity:0}} className="group-hover:opacity-100 transition-opacity">+</span>}
+                    {!disabled && !isBlocked && <span style={{position:"absolute",left:6,top:"50%",transform:"translateY(-50%)",fontSize:10,fontWeight:900,color:"#f59e0b",opacity:0}} className="group-hover:opacity-100 transition-opacity">+</span>}
                   </button>
                 );
               });
@@ -941,9 +941,11 @@ function DayView({ selectedDate, programari, rawStaff, rawServices, serviceById,
         <div style={{ position:"fixed", inset:0, zIndex:400 }} onClick={()=>setSlotMenu(null)}>
           <div onClick={e=>e.stopPropagation()} style={{
             position:"fixed",
-            top:Math.min(slotMenu.y, (typeof window!=="undefined"?window.innerHeight:800)-110),
-            left:Math.min(slotMenu.x, (typeof window!=="undefined"?window.innerWidth:400)-220),
-            background:"#fff", borderRadius:14, boxShadow:"0 12px 32px rgba(0,0,0,0.2)", border:"1.5px solid #e2e8f0",
+            top:(typeof window!=="undefined" && window.innerWidth < 640) ? "auto" : Math.min(slotMenu.y, window.innerHeight-110),
+            bottom:(typeof window!=="undefined" && window.innerWidth < 640) ? 18 : "auto",
+            left:(typeof window!=="undefined" && window.innerWidth < 640) ? 16 : Math.min(slotMenu.x, window.innerWidth-220),
+            right:(typeof window!=="undefined" && window.innerWidth < 640) ? 16 : "auto",
+            background:"#fff", borderRadius:16, boxShadow:"0 18px 44px rgba(0,0,0,0.24)", border:"1.5px solid #e2e8f0",
             overflow:"hidden", minWidth:210,
           }}>
             {slotMenu.isBlocked ? (
@@ -957,7 +959,7 @@ function DayView({ selectedDate, programari, rawStaff, rawServices, serviceById,
                 <button onClick={()=>{ onAddNew(slotMenu.time, dateKey, slotMenu.staffId); setSlotMenu(null); }}
                   style={{ width:"100%", textAlign:"left", padding:"11px 14px", fontSize:11, fontWeight:700, color:"#1e293b", background:"transparent", border:"none", cursor:"pointer", borderBottom:"1px solid #f1f5f9" }}
                   className="hover:bg-slate-50 transition-colors">
-                  Programare - {slotMenu.time}
+                  + Adaug? programare - {slotMenu.time}
                 </button>
                 <button onClick={()=>{ setBlockPopup({ date:dateKey, staffId:slotMenu.staffId, start:slotMenu.time, end:addMinutesToTime(slotMenu.time,60), mode:"block" }); setSlotMenu(null); }}
                   style={{ width:"100%", textAlign:"left", padding:"11px 14px", fontSize:11, fontWeight:700, color:"#dc2626", background:"transparent", border:"none", cursor:"pointer" }}
@@ -1357,7 +1359,7 @@ function DocumentsSection({ editForm, userId, setEditForm, qClient }: DocumentsS
                 {doc.name}
               </a>
               <button onClick={() => handleDocDelete(i)}
-                style={{ width:18, height:18, background:"#fee2e2", border:"none", borderRadius:5, cursor:"pointer", fontSize:9, fontWeight:700, color:"#ef4444", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>✕</button>
+                style={{ width:16, height:16, background:"#fee2e2", border:"none", borderRadius:5, cursor:"pointer", fontSize:9, fontWeight:700, color:"#ef4444", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>✕</button>
             </div>
           );
         })}
@@ -1670,7 +1672,7 @@ function CalendarContent() {
 
       {newForm&&(
         <div style={{position:"fixed",inset:0,background:"rgba(15,23,42,0.72)",backdropFilter:"blur(6px)",zIndex:500,display:"flex",alignItems:"center",justifyContent:"center",padding:16}} onClick={()=>setNewForm(null)}>
-          <div style={{background:"#fff",width:"100%",maxWidth:480,borderRadius:24,overflow:"hidden",boxShadow:"0 24px 60px rgba(0,0,0,0.22)",padding:20,display:"flex",flexDirection:"column",gap:10}} onClick={e=>e.stopPropagation()}>
+          <div className="chronos-calendar-new-modal" style={{background:"#fff",width:"100%",maxWidth:480,borderRadius:24,overflow:"hidden",boxShadow:"0 24px 60px rgba(0,0,0,0.22)",padding:20,display:"flex",flexDirection:"column",gap:10}} onClick={e=>e.stopPropagation()}>
             <div style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}><h2 style={{fontSize:16,fontWeight:700,color:"#1e293b",margin:0}}>{t("newModal.title")}</h2><button onClick={()=>setNewForm(null)} style={{width:32,height:32,background:"#f1f5f9",border:"none",borderRadius:10,cursor:"pointer",fontSize:14,fontWeight:700,color:"#64748b"}} className="hover:bg-red-500 hover:text-white transition-all">✕</button></div>
             <div style={{background:"#fffbeb",border:"1.5px solid #fcd34d",borderRadius:14,padding:"10px 14px"}}><p style={{fontSize:13,fontWeight:700,color:"#92400e",margin:0}}>📅 {newForm.date} · {newForm.time}</p></div>
             <div style={{background:"#f8fafc",border:"1.5px solid #e2e8f0",borderRadius:14,padding:"10px 14px"}}><p style={{fontSize:8,fontWeight:700,color:"#94a3b8",textTransform:"uppercase",marginBottom:4}}>{t("workLocationLabel")}</p><select style={{width:"100%",background:"transparent",border:"none",fontSize:12,fontWeight:700,color:"#1e293b",outline:"none",cursor:"pointer"}} value={newForm.workLocationId||""} onChange={e=>setNewForm(p=>p?{...p,workLocationId:e.target.value,serviciuId:"",expertId:""}:null)}><option value="">{t("allWorkLocationsOpt")}</option>{workLocations.map(loc=><option key={loc.id} value={loc.id}>{loc.name}</option>)}</select></div>
