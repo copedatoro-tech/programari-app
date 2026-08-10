@@ -49,6 +49,12 @@ export default function RootLayoutClient({ children }: { children: React.ReactNo
     (path && path.startsWith("/rezervare")) ||
     (path && path.startsWith("/specialist"));
 
+  // ✅ Calendarul e acum pagina principală de lucru — pe mobil, header-ul
+  // general + footer-ul lăsau prea puțin spațiu efectiv pentru grilă.
+  // Calendarul are deja propria bară de sus (cu buton de întoarcere, titlu,
+  // căutare, navigare), deci footer-ul general e complet redundant aici.
+  const isCalendarHome = path === "/programari/calendar";
+
   const getPageTitle = () => {
     switch (path) {
       case "/programari/calendar": return t("pageTitles.calendar");
@@ -234,7 +240,7 @@ export default function RootLayoutClient({ children }: { children: React.ReactNo
   // aplicației (redirect implicit după autentificare — vezi middleware.ts).
   const menuItems = [
     { href: "/programari/calendar", icon: "🗓️", label: t("nav.calendar") },
-    { href: "/programari/calendar",          icon: "📅", label: t("nav.programari") },
+    { href: "/programari",          icon: "📅", label: t("nav.programari") },
     { href: "/clienti",             icon: "👥", label: t("nav.clienti") },
     { href: "/lista-asteptare",     icon: "📋", label: t("nav.listaAsteptare") },
     { href: "/resurse",             icon: "📦", label: t("nav.servicii") },
@@ -265,7 +271,7 @@ export default function RootLayoutClient({ children }: { children: React.ReactNo
       )}
 
       {!isPublicPage && (
-        <header className="w-full bg-white border-b-2 border-slate-100 sticky top-0 z-[100] shadow-sm h-16 flex items-center">
+        <header className="w-full bg-white border-b-2 border-slate-100 sticky top-0 z-[100] shadow-sm h-14 sm:h-16 flex items-center">
           <div className="max-w-7xl w-full mx-auto px-6 flex justify-between items-center h-full gap-4">
             <Link href="/programari/calendar" className="flex items-center gap-3 h-full py-1 group shrink-0">
               <div className="h-full aspect-square flex items-center justify-center transition-transform group-hover:scale-105">
@@ -331,9 +337,9 @@ export default function RootLayoutClient({ children }: { children: React.ReactNo
         </header>
       )}
 
-      <main className="flex-grow">{children}</main>
+      <main className="flex-grow min-h-0">{children}</main>
 
-      {!isPublicPage && (
+      {!isPublicPage && !isCalendarHome && (
         <footer className="w-full bg-white border-t-2 border-slate-100 py-5 px-8 mt-auto">
           <div className="max-w-7xl w-full mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
 

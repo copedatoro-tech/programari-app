@@ -301,17 +301,17 @@ function WeekStrip({ selectedDate, onSelectDate, programariByDate, adminWorkingH
   }, [weekDays, months, monthsShort]);
   return (
     <div style={{ flexShrink:0, background:"#fff", borderBottom:"2px solid #e2e8f0" }}>
-      <div style={{ display:"flex", alignItems:"stretch", minHeight:64 }}>
-        <div style={{ display:"flex", alignItems:"center", gap:6, padding:"0 12px", borderRight:"2px solid #e2e8f0", flexShrink:0, minWidth:190 }}>
+      <div style={{ display:"flex", alignItems:"stretch", minHeight:44 }}>
+        <div style={{ display:"flex", alignItems:"center", gap:4, padding:"0 8px", borderRight:"2px solid #e2e8f0", flexShrink:0, minWidth:140 }}>
           <button onClick={() => onSelectDate(addDays(weekStart, -7))}
-            style={{ width:28, height:28, border:"1.5px solid #e2e8f0", borderRadius:8, background:"#f8fafc", fontSize:16, fontWeight:700, color:"#334155", cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center" }}>‹</button>
+            style={{ width:22, height:22, border:"1.5px solid #e2e8f0", borderRadius:6, background:"#f8fafc", fontSize:13, fontWeight:700, color:"#334155", cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center" }}>‹</button>
           <div style={{ flex:1, textAlign:"center" }}>
-            <p style={{ fontSize:12, fontWeight:700, color:"#1e293b", lineHeight:1.3 }}>{monthLabel}</p>
+            <p style={{ fontSize:10, fontWeight:700, color:"#1e293b", lineHeight:1.2 }}>{monthLabel}</p>
             <button onClick={() => onSelectDate(today)}
-              style={{ fontSize:10, fontWeight:700, color:"#d97706", background:"none", border:"none", cursor:"pointer", padding:0 }}>{t("weekGoToday")}</button>
+              style={{ fontSize:9, fontWeight:700, color:"#d97706", background:"none", border:"none", cursor:"pointer", padding:0 }}>{t("weekGoToday")}</button>
           </div>
           <button onClick={() => onSelectDate(addDays(weekStart, 7))}
-            style={{ width:28, height:28, border:"1.5px solid #e2e8f0", borderRadius:8, background:"#f8fafc", fontSize:16, fontWeight:700, color:"#334155", cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center" }}>›</button>
+            style={{ width:22, height:22, border:"1.5px solid #e2e8f0", borderRadius:6, background:"#f8fafc", fontSize:13, fontWeight:700, color:"#334155", cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center" }}>›</button>
         </div>
         <div style={{ display:"flex", flex:1 }}>
           {weekDays.map((day, i) => {
@@ -328,25 +328,25 @@ function WeekStrip({ selectedDate, onSelectDate, programariByDate, adminWorkingH
               <button key={i} onClick={() => onSelectDate(day)}
                 style={{
                   flex:1, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center",
-                  gap:2, padding:"6px 4px", border:"none", cursor:"pointer", position:"relative",
+                  gap:1, padding:"4px 2px", border:"none", cursor:"pointer", position:"relative",
                   borderLeft: i===0 ? "none" : "1px solid #f1f5f9",
                   background: isSel ? "#0f172a" : isClosed ? "#fff5f5" : isToday ? "#fffbeb" : "#fff",
-                  borderBottom: isSel ? "3px solid #f59e0b" : isClosed ? "3px solid #fca5a5" : "3px solid transparent",
+                  borderBottom: isSel ? "2px solid #f59e0b" : isClosed ? "2px solid #fca5a5" : "2px solid transparent",
                   transition:"background 0.15s",
                 }}>
-                <span style={{ fontSize:9, fontWeight:700, textTransform:"uppercase", letterSpacing:"0.06em", color: isSel?"#f59e0b":isToday?"#d97706":isClosed?"#f87171":"#64748b" }}>
+                <span style={{ fontSize:8, fontWeight:700, textTransform:"uppercase", letterSpacing:"0.05em", color: isSel?"#f59e0b":isToday?"#d97706":isClosed?"#f87171":"#64748b" }}>
                   {dayShort[dow]}
                 </span>
-                <span style={{ fontSize:18, fontWeight:700, lineHeight:1.2, color: isSel?"#fff":isToday?"#d97706":isClosed?"#f87171":"#1e293b" }}>
+                <span style={{ fontSize:14, fontWeight:700, lineHeight:1.1, color: isSel?"#fff":isToday?"#d97706":isClosed?"#f87171":"#1e293b" }}>
                   {day.getDate()}
                 </span>
                 {total>0&&(
-                  <div style={{ display:"flex", gap:3, alignItems:"center" }}>
-                    <span style={{ fontSize:9, fontWeight:700, padding:"1px 6px", borderRadius:99, background:isSel?"#f59e0b":isToday?"#f59e0b":"#e2e8f0", color:isSel||isToday?"#fff":"#475569" }}>{total}</span>
-                    {online>0&&<span style={{ fontSize:9, fontWeight:700, padding:"1px 5px", borderRadius:99, background:"#3b82f6", color:"#fff" }}>{online}🌐</span>}
+                  <div style={{ display:"flex", gap:2, alignItems:"center" }}>
+                    <span style={{ fontSize:8, fontWeight:700, padding:"0px 5px", borderRadius:99, background:isSel?"#f59e0b":isToday?"#f59e0b":"#e2e8f0", color:isSel||isToday?"#fff":"#475569" }}>{total}</span>
+                    {online>0&&<span style={{ fontSize:8, fontWeight:700, padding:"0px 4px", borderRadius:99, background:"#3b82f6", color:"#fff" }}>{online}🌐</span>}
                   </div>
                 )}
-                {isClosed&&<span style={{ fontSize:7, fontWeight:700, color:"#f87171" }}>{t("closedBadge")}</span>}
+                {isClosed&&<span style={{ fontSize:6, fontWeight:700, color:"#f87171" }}>{t("closedBadge")}</span>}
               </button>
             );
           })}
@@ -389,10 +389,10 @@ function FilterDropdownButton({ label, allLabel, placeholder, items, selectedId,
     <div ref={boxRef} style={{ position: "relative", flexShrink: 0 }}>
       <button onClick={() => setOpen(o => !o)}
         style={{
-          display: "flex", alignItems: "center", gap: 7, padding: "8px 16px", borderRadius: 999,
+          display: "flex", alignItems: "center", gap: 5, padding: "5px 11px", borderRadius: 999,
           border: "1.5px solid #0f172a",
           background: "#0f172a", color: "#f59e0b",
-          fontSize: 12, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap", transition: "all 0.15s",
+          fontSize: 10, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap", transition: "all 0.15s",
         }}>
         <span style={{ opacity: 0.65, fontSize: 10, textTransform: "uppercase", letterSpacing: "0.06em" }}>{label}:</span>
         {selected?.initial && (
@@ -481,7 +481,7 @@ function FilterBar({ rawStaff, rawServices, programari, selectedExpert, onSelect
   });
 
   return (
-    <div style={{ flexShrink:0, background:"#fff", borderBottom:"2px solid #e2e8f0", padding:"8px 14px", display:"flex", alignItems:"center", gap:10, flexWrap:"wrap" }}>
+    <div style={{ flexShrink:0, background:"#fff", borderBottom:"2px solid #e2e8f0", padding:"5px 10px", display:"flex", alignItems:"center", gap:8, flexWrap:"wrap" }}>
       {rawStaff.length>0&&(
         <FilterDropdownButton label={t("filterSpecialists")} allLabel={t("filterAll")} placeholder={t("searchSpecialistPlaceholder")}
           items={staffItems} selectedId={selectedExpert}
@@ -1403,7 +1403,7 @@ function CalendarContent() {
   const btnStyle=(active:boolean):React.CSSProperties=>({padding:"6px 12px",borderRadius:8,fontSize:10,fontWeight:700,textTransform:"uppercase",border:"none",cursor:"pointer",transition:"all 0.15s",background:active?"#0f172a":"#f1f5f9",color:active?"#fff":"#64748b"});
 
   return (
-    <div style={{display:"flex",flexDirection:"column",height:"100vh",background:"#f8fafc",overflow:"hidden"}}>
+    <div style={{display:"flex",flexDirection:"column",height:"100%",minHeight:0,background:"#f8fafc",overflow:"hidden"}}>
       {editForm&&(
         <>
           {showDatePicker&&(<div style={{position:"fixed",inset:0,zIndex:900,background:"rgba(0,0,0,0.5)",backdropFilter:"blur(4px)",display:"flex",alignItems:"center",justifyContent:"center",padding:16}} onClick={()=>setShowDatePicker(false)}><div onClick={e=>e.stopPropagation()}><ChronosDatePicker value={editForm.data} onChange={v=>{setEditForm(p=>p?{...p,data:v,ora:""}:null);setShowDatePicker(false);}} onClose={()=>setShowDatePicker(false)} workingHours={editWorkingHours}/></div></div>)}
@@ -1573,50 +1573,50 @@ function CalendarContent() {
         </div>
       )}
 
-      <div style={{flexShrink:0,background:"#fff",borderBottom:"2px solid #e2e8f0",padding:"8px 14px",display:"flex",alignItems:"center",gap:10,flexWrap:"wrap",rowGap:8}}>
+      <div style={{flexShrink:0,background:"#fff",borderBottom:"2px solid #e2e8f0",padding:"6px 10px",display:"flex",alignItems:"center",gap:8,flexWrap:"wrap",rowGap:6}}>
         <Link href="/programari" style={{flexShrink:0}}>
-          <div style={{width:34,height:34,background:"#f1f5f9",borderRadius:10,display:"flex",alignItems:"center",justifyContent:"center",fontSize:16,fontWeight:700,color:"#334155",cursor:"pointer",border:"none",transition:"all 0.15s"}} className="hover:bg-slate-900 hover:text-white">←</div>
+          <div style={{width:28,height:28,background:"#f1f5f9",borderRadius:8,display:"flex",alignItems:"center",justifyContent:"center",fontSize:14,fontWeight:700,color:"#334155",cursor:"pointer",border:"none",transition:"all 0.15s"}} className="hover:bg-slate-900 hover:text-white">←</div>
         </Link>
-        <div style={{display:"flex",alignItems:"center",gap:8,flexShrink:0}}>
-          <div style={{width:34,height:34,background:"#0f172a",borderRadius:10,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
-            <span style={{color:"#f59e0b",fontWeight:700,fontSize:13}}>C</span>
+        <div style={{display:"flex",alignItems:"center",gap:6,flexShrink:0}}>
+          <div style={{width:28,height:28,background:"#0f172a",borderRadius:8,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+            <span style={{color:"#f59e0b",fontWeight:700,fontSize:12}}>C</span>
           </div>
           <div className="hidden sm:block">
-            <p style={{fontSize:13,fontWeight:700,color:"#1e293b",margin:0,lineHeight:1.2}}>{t("headerTitle")} <span style={{color:"#d97706"}}>{t("headerHighlight")}</span></p>
-            <p style={{fontSize:8,fontWeight:700,color:"#94a3b8",textTransform:"uppercase",letterSpacing:"0.08em",margin:0}}>{isLoading?t("syncing"):t("synced")}</p>
+            <p style={{fontSize:12,fontWeight:700,color:"#1e293b",margin:0,lineHeight:1.2}}>{t("headerTitle")} <span style={{color:"#d97706"}}>{t("headerHighlight")}</span></p>
+            <p style={{fontSize:7,fontWeight:700,color:"#94a3b8",textTransform:"uppercase",letterSpacing:"0.08em",margin:0}}>{isLoading?t("syncing"):t("synced")}</p>
           </div>
         </div>
-        {workLocations.length > 0 && (<select value={selectedWorkLocation} onChange={e=>setSelectedWorkLocation(e.target.value)} style={{flexShrink:0,background:"#f8fafc",border:"1.5px solid #e2e8f0",borderRadius:10,padding:"7px 10px",fontSize:11,fontWeight:700,color:"#334155",outline:"none"}} className="hidden sm:block"><option value="">{t("allWorkLocationsOpt")}</option>{workLocations.map(loc=><option key={loc.id} value={loc.id}>{loc.name}</option>)}</select>)}
-        <div className="hidden md:block" style={{flexShrink:0,padding:"5px 12px",background:"#f8fafc",borderRadius:10,border:"1.5px solid #e2e8f0"}}>
-          <span style={{fontSize:11,fontWeight:700,color:"#334155",textTransform:"capitalize"}}>{dateTitles[viewMode]}</span>
+        {workLocations.length > 0 && (<select value={selectedWorkLocation} onChange={e=>setSelectedWorkLocation(e.target.value)} style={{flexShrink:0,background:"#f8fafc",border:"1.5px solid #e2e8f0",borderRadius:8,padding:"5px 8px",fontSize:10,fontWeight:700,color:"#334155",outline:"none"}} className="hidden sm:block"><option value="">{t("allWorkLocationsOpt")}</option>{workLocations.map(loc=><option key={loc.id} value={loc.id}>{loc.name}</option>)}</select>)}
+        <div className="hidden md:block" style={{flexShrink:0,padding:"4px 10px",background:"#f8fafc",borderRadius:8,border:"1.5px solid #e2e8f0"}}>
+          <span style={{fontSize:10,fontWeight:700,color:"#334155",textTransform:"capitalize"}}>{dateTitles[viewMode]}</span>
         </div>
-        <div id="onboarding-calendar-search" style={{flex:"1 1 160px",minWidth:120,maxWidth:280,position:"relative"}}>
-          <span style={{position:"absolute",left:10,top:"50%",transform:"translateY(-50%)",fontSize:13,color:"#94a3b8"}}>🔍</span>
+        <div id="onboarding-calendar-search" style={{flex:"1 1 140px",minWidth:110,maxWidth:260,position:"relative"}}>
+          <span style={{position:"absolute",left:8,top:"50%",transform:"translateY(-50%)",fontSize:12,color:"#94a3b8"}}>🔍</span>
           <input type="text" placeholder={t("searchPlaceholder")} value={searchTerm}
             onChange={e=>{setSearchTerm(e.target.value);handleSearch(e.target.value);}}
             onFocus={()=>{if(searchTerm.trim())setShowSearchDrop(true);}}
-            style={{width:"100%",background:"#f8fafc",border:"1.5px solid #e2e8f0",borderRadius:10,padding:"6px 40px 6px 32px",fontSize:11,fontWeight:700,color:"#334155",outline:"none"}}
+            style={{width:"100%",background:"#f8fafc",border:"1.5px solid #e2e8f0",borderRadius:8,padding:"5px 36px 5px 28px",fontSize:10,fontWeight:700,color:"#334155",outline:"none"}}
             className="focus:border-amber-400 transition-all"/>
-          <button onClick={()=>{handleSearch(searchTerm);setShowSearchDrop(true);}} style={{position:"absolute",right:6,top:"50%",transform:"translateY(-50%)",background:"#0f172a",color:"#fff",border:"none",borderRadius:7,padding:"3px 8px",fontSize:9,fontWeight:700,cursor:"pointer"}} className="hover:bg-amber-600 transition-all">{t("searchBtn")}</button>
+          <button onClick={()=>{handleSearch(searchTerm);setShowSearchDrop(true);}} style={{position:"absolute",right:5,top:"50%",transform:"translateY(-50%)",background:"#0f172a",color:"#fff",border:"none",borderRadius:6,padding:"2px 7px",fontSize:8,fontWeight:700,cursor:"pointer"}} className="hover:bg-amber-600 transition-all">{t("searchBtn")}</button>
           {showSearchDrop&&searchResults.length>0&&(
             <div style={{position:"absolute",top:"100%",left:0,right:0,marginTop:4,background:"#fff",border:"1.5px solid #e2e8f0",borderRadius:12,boxShadow:"0 8px 24px rgba(0,0,0,0.12)",zIndex:50,maxHeight:240,overflowY:"auto"}}>
               {searchResults.map(p=>(<button key={p.id} onClick={()=>{setSearchTerm(p.nume);setShowSearchDrop(false);openEdit(p);}} style={{width:"100%",padding:"10px 14px",borderBottom:"1px solid #f1f5f9",textAlign:"left",background:"transparent",border:"none",cursor:"pointer"}} className="hover:bg-slate-50 transition-all"><span style={{fontSize:12,fontWeight:700,color:"#1e293b",display:"block"}}>{p.nume}</span><div style={{display:"flex",gap:8}}>{p.telefon&&<span style={{fontSize:9,color:"#94a3b8"}}>📞 {p.telefon}</span>}{p.isOnline&&<span style={{fontSize:9,color:"#3b82f6",fontWeight:700}}>🌐 {t("onlineLabel")}</span>}</div></button>))}
             </div>
           )}
         </div>
-        <div id="onboarding-calendar-view-toggle" style={{display:"flex",background:"#f1f5f9",padding:3,borderRadius:10,gap:2,marginLeft:"auto",flexShrink:0}}>
+        <div id="onboarding-calendar-view-toggle" style={{display:"flex",background:"#f1f5f9",padding:2,borderRadius:8,gap:2,marginLeft:"auto",flexShrink:0}}>
           {(["day","week","month","year"] as ViewMode[]).map(opt=>(
-            <button key={opt} onClick={()=>setViewMode(opt)} style={btnStyle(viewMode===opt)}>
+            <button key={opt} onClick={()=>setViewMode(opt)} style={{...btnStyle(viewMode===opt),padding:"5px 9px",fontSize:9}}>
               {opt==="day"?t("viewDay"):opt==="week"?t("viewWeek"):opt==="month"?t("viewMonth"):t("viewYear")}
             </button>
           ))}
         </div>
-        <div style={{display:"flex",alignItems:"center",gap:4,flexShrink:0}}>
-          <button onClick={()=>nav(-1)} style={{width:32,height:32,background:"#f1f5f9",border:"1.5px solid #e2e8f0",borderRadius:8,cursor:"pointer",fontSize:16,fontWeight:700,color:"#334155",display:"flex",alignItems:"center",justifyContent:"center"}} className="hover:bg-slate-200 transition-all">‹</button>
-          <button onClick={()=>setSelectedDate(new Date())} style={{padding:"4px 10px",background:"transparent",border:"none",cursor:"pointer",fontSize:10,fontWeight:700,color:"#64748b"}} className="hover:text-amber-600 transition-colors">{t("todayBtn")}</button>
-          <button onClick={()=>nav(1)} style={{width:32,height:32,background:"#f1f5f9",border:"1.5px solid #e2e8f0",borderRadius:8,cursor:"pointer",fontSize:16,fontWeight:700,color:"#334155",display:"flex",alignItems:"center",justifyContent:"center"}} className="hover:bg-slate-200 transition-all">›</button>
+        <div style={{display:"flex",alignItems:"center",gap:2,flexShrink:0}}>
+          <button onClick={()=>nav(-1)} style={{width:26,height:26,background:"#f1f5f9",border:"1.5px solid #e2e8f0",borderRadius:7,cursor:"pointer",fontSize:14,fontWeight:700,color:"#334155",display:"flex",alignItems:"center",justifyContent:"center"}} className="hover:bg-slate-200 transition-all">‹</button>
+          <button onClick={()=>setSelectedDate(new Date())} style={{padding:"3px 8px",background:"transparent",border:"none",cursor:"pointer",fontSize:9,fontWeight:700,color:"#64748b"}} className="hover:text-amber-600 transition-colors">{t("todayBtn")}</button>
+          <button onClick={()=>nav(1)} style={{width:26,height:26,background:"#f1f5f9",border:"1.5px solid #e2e8f0",borderRadius:7,cursor:"pointer",fontSize:14,fontWeight:700,color:"#334155",display:"flex",alignItems:"center",justifyContent:"center"}} className="hover:bg-slate-200 transition-all">›</button>
         </div>
-        {userSub&&<span style={{fontSize:8,background:"#f1f5f9",color:"#94a3b8",padding:"4px 8px",borderRadius:7,fontWeight:700,textTransform:"uppercase",flexShrink:0}} className="hidden lg:block">{userSub.plan}</span>}
+        {userSub&&<span style={{fontSize:7,background:"#f1f5f9",color:"#94a3b8",padding:"3px 7px",borderRadius:6,fontWeight:700,textTransform:"uppercase",flexShrink:0}} className="hidden lg:block">{userSub.plan}</span>}
       </div>
 
       {profileIsError && (
