@@ -599,3 +599,68 @@ a, button, input, textarea, select, div[tabindex] {
   }
 }
 /* CHRONOS_CALENDAR_PHONE_FINAL_END */
+/* CHRONOS_CALENDAR_EDIT_MODAL_MOBILE_START */
+@media (max-width: 640px) {
+  .chronos-calendar-edit-modal {
+    max-width: calc(100vw - 18px) !important;
+    max-height: calc(100svh - 18px) !important;
+    border-radius: 18px !important;
+  }
+
+  .chronos-calendar-edit-header {
+    padding: 8px 10px !important;
+    min-height: 58px !important;
+    gap: 7px !important;
+  }
+
+  .chronos-calendar-edit-header > div:first-of-type {
+    width: 30px !important;
+    height: 30px !important;
+    border-radius: 9px !important;
+    font-size: 13px !important;
+  }
+
+  .chronos-calendar-edit-header h2 {
+    font-size: 12px !important;
+    line-height: 1.1 !important;
+  }
+
+  .chronos-calendar-edit-header p {
+    font-size: 8px !important;
+  }
+
+  .chronos-calendar-edit-close {
+    top: 8px !important;
+    right: 8px !important;
+    width: 24px !important;
+    height: 24px !important;
+    border-radius: 8px !important;
+    font-size: 10px !important;
+  }
+
+  .chronos-calendar-edit-body {
+    padding: 8px !important;
+    gap: 5px !important;
+  }
+
+  .chronos-calendar-edit-body > div {
+    gap: 5px !important;
+  }
+
+  .chronos-calendar-edit-body input,
+  .chronos-calendar-edit-body select,
+  .chronos-calendar-edit-body textarea {
+    font-size: 10px !important;
+  }
+
+  .chronos-calendar-edit-body p {
+    font-size: 6.5px !important;
+  }
+
+  .chronos-calendar-edit-body button {
+    min-height: 34px !important;
+    border-radius: 10px !important;
+    font-size: 9px !important;
+  }
+}
+/* CHRONOS_CALENDAR_EDIT_MODAL_MOBILE_END */
