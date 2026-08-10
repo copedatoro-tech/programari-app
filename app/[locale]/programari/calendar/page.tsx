@@ -1,16 +1,15 @@
-﻿"use client";
+"use client";
 import React, { useState, useEffect, useMemo, Suspense, useCallback, useRef } from "react";
-import { Link } from "@/i18n/navigation";
 import { useSearchParams } from "next/navigation";
 import { QueryClient, QueryClientProvider, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabaseClient";
 import { showToast, showConfirm } from "@/lib/toast";
 import { useTranslations } from "next-intl";
 import { ChronosTimePicker, ChronosDatePicker } from "@/components/ChronosDateTimePickers";
-// ─── Constants ────────────────────────────────────────────────────────────────
+// --- Constants ----------------------------------------------------------------
 const SLOT_H = 34;
 const TIME_COL_W = 44;
-// ─── Utils ────────────────────────────────────────────────────────────────────
+// --- Utils --------------------------------------------------------------------
 function sameDay(a: Date, b: Date) {
   return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
 }
@@ -43,8 +42,8 @@ function parseWH(d: any): WorkingHour[] {
   if (typeof d === "string") { try { return JSON.parse(d); } catch { return []; } }
   return Array.isArray(d) ? d : [];
 }
-// ✅ Blocare timp per specialist — folosim același format ca la blocarea
-// generală din Setări (Record<dată, listă de sloturi de 15 min>), dar stocat
+// ? Blocare timp per specialist — folosim acela?i format ca la blocarea
+// generala din Setari (Record<data, lista de sloturi de 15 min>), dar stocat
 // direct pe rândul specialistului din tabela "staff", nu pe tot business-ul.
 function parseStaffBlocks(d: any): Record<string, string[]> {
   if (!d || typeof d !== "object" || Array.isArray(d)) return {};
@@ -64,8 +63,8 @@ function isWorkingSlot(slot: string, start: string, end: string) {
 const ALL_SLOTS: string[] = [];
 for (let m = 0; m < 24*60; m += 15)
   ALL_SLOTS.push(`${String(Math.floor(m/60)).padStart(2,"0")}:${String(m%60).padStart(2,"0")}`);
-// ✅ Verificare suprapunere pentru ACELAȘI specialist (indiferent de serviciu).
-// Specialiști diferiți pot avea programări la aceeași oră, chiar pe același serviciu.
+// ? Verificare suprapunere pentru ACELA?I specialist (indiferent de serviciu).
+// Speciali?ti diferi?i pot avea programari la aceea?i ora, chiar pe acela?i serviciu.
 function hasSpecialistConflict(list: Prog[], expertId: string, date: string, ora: string, durMin: number, excludeId?: any): boolean {
   if (!expertId) return false;
   const s = timeToMin(ora), e = s + (durMin||30);
@@ -77,7 +76,7 @@ function hasSpecialistConflict(list: Prog[], expertId: string, date: string, ora
     return s < pe && e > ps;
   });
 }
-// ─── Sunet notificare (2 tonuri, generate — fără fișier audio necesar) ────────
+// --- Sunet notificare (2 tonuri, generate — fara fi?ier audio necesar) --------
 function playNotificationSound(volume: number = 75) {
   try {
     const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
@@ -100,7 +99,7 @@ function playNotificationSound(volume: number = 75) {
     beep(1175, 0.16, 0.28);
   } catch {}
 }
-// ─── Notificare de sistem (browser) — apare chiar dacă tab-ul nu e activ ──────
+// --- Notificare de sistem (browser) — apare chiar daca tab-ul nu e activ ------
 function playSystemNotification(title: string, body: string) {
   try {
     if (typeof window === "undefined" || !("Notification" in window)) return;
@@ -108,7 +107,7 @@ function playSystemNotification(title: string, body: string) {
     new Notification(title, { body, icon: "/logo-chronos.png" });
   } catch {}
 }
-// ─── Types ────────────────────────────────────────────────────────────────────
+// --- Types --------------------------------------------------------------------
 type DocAtt = { id: number|string; name: string; url: string };
 type Prog = {
   id: any; nume: string; email?: string; data: string; ora: string;
@@ -125,7 +124,7 @@ interface ServiceRow { id: string; nume_serviciu: string; price: number; duratio
 interface WorkingHour{ day: string; start: string; end: string; closed: boolean }
 type NotificationSettings = { in_app_enabled: boolean; system_enabled: boolean; sound_enabled: boolean; volume: number };
 const DEFAULT_NOTIF_SETTINGS: NotificationSettings = { in_app_enabled: true, system_enabled: false, sound_enabled: true, volume: 75 };
-// ─── Colors ───────────────────────────────────────────────────────────────────
+// --- Colors -------------------------------------------------------------------
 const SC = [
   { avatar:"bg-blue-500",   border:"#3b82f6", workBg:"#eff6ff", chipBg:"#dbeafe", chipText:"#1d4ed8", chipBorder:"#93c5fd" },
   { avatar:"bg-emerald-500",border:"#10b981", workBg:"#f0fdf4", chipBg:"#d1fae5", chipText:"#065f46", chipBorder:"#6ee7b7" },
@@ -146,7 +145,7 @@ const SVC_C = [
   { bg:"#fef2f2", text:"#7f1d1d", border:"#fca5a5" },
   { bg:"#f0f9ff", text:"#0c4a6e", border:"#7dd3fc" },
 ];
-// ─── Helpers ──────────────────────────────────────────────────────────────────
+// --- Helpers ------------------------------------------------------------------
 function normDocs(raw: any): DocAtt[] {
   if (!raw || !Array.isArray(raw)) return [];
   return raw.map((it: any, i: number) => typeof it === "string"
@@ -166,7 +165,7 @@ function mapRow(it: any): Prog {
     workLocationId: it.work_location_id??"", workLocationName: it.work_location_name??"", workLocationAddress: it.work_location_address??"", workLocationMapsUrl: it.work_location_maps_url??"",
   };
 }
-// ─── Sanitizare nume fișier (diacritice RO + caractere speciale) ──────────────
+// --- Sanitizare nume fi?ier (diacritice RO + caractere speciale) --------------
 function sanitizeFileName(name: string) {
   const dot = name.lastIndexOf(".");
   const base = dot > -1 ? name.slice(0, dot) : name;
@@ -177,7 +176,7 @@ function sanitizeFileName(name: string) {
     .replace(/[^a-zA-Z0-9_-]/g, "_");
   return `${cleanBase}${ext}`;
 }
-// ─── AppointmentHoverCard ─────────────────────────────────────────────────────
+// --- AppointmentHoverCard -----------------------------------------------------
 interface HoverCardProps {
   prog: Prog;
   anchorRect: DOMRect;
@@ -233,18 +232,18 @@ function AppointmentHoverCard({ prog, anchorRect, serviceById, rawStaff, staffCo
           <div style={{flex:1,minWidth:0}}>
             <p style={{fontSize:14,fontWeight:700,color:"#1e293b",margin:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{prog.nume}</p>
             <p style={{fontSize:11,fontWeight:700,color:color.border,margin:"2px 0 0"}}>
-              {prog.ora}{endTime?` → ${endTime}`:""}
-              {prog.isOnline&&<span style={{marginLeft:5}}>🌐 {t("onlineLabel")}</span>}
+              {prog.ora}{endTime?` ? ${endTime}`:""}
+              {prog.isOnline&&<span style={{marginLeft:5}}>?? {t("onlineLabel")}</span>}
             </p>
           </div>
         </div>
         <div style={{padding:"11px 15px",display:"flex",flexDirection:"column",gap:7}}>
-          {svc&&<div style={{display:"flex",alignItems:"flex-start",gap:9}}><span style={{fontSize:13,color:"#94a3b8",flexShrink:0,marginTop:1}}>✂️</span><div><span style={{fontSize:12,fontWeight:700,color:"#334155"}}>{svc.nume_serviciu}</span>{svc.duration>0&&<span style={{fontSize:10,color:"#94a3b8",marginLeft:7}}>{svc.duration} min</span>}{svc.price>0&&<span style={{fontSize:10,fontWeight:700,color:"#059669",marginLeft:7}}>{svc.price} RON</span>}</div></div>}
-          {prog.paymentStatus==="deposit_paid"&&<div style={{background:"#fffbeb",borderRadius:9,padding:"7px 9px",border:"1px solid #fcd34d",display:"flex",alignItems:"center",gap:7}}><span style={{fontSize:13}}>💳</span><span style={{fontSize:11,fontWeight:700,color:"#92400e"}}>{t("depositPaidLabel",{paid:(prog.amountPaid||0).toFixed(0),rest:((prog.totalPrice||0)-(prog.amountPaid||0)).toFixed(0)})}</span></div>}
-          {prog.paymentStatus==="fully_paid"&&<div style={{background:"#ecfdf5",borderRadius:9,padding:"7px 9px",border:"1px solid #6ee7b7",display:"flex",alignItems:"center",gap:7}}><span style={{fontSize:13}}>✅</span><span style={{fontSize:11,fontWeight:700,color:"#065f46"}}>{t("fullyPaidLabel")}</span></div>}
-          {staff&&<div style={{display:"flex",alignItems:"center",gap:9}}><span style={{fontSize:13,color:"#94a3b8",flexShrink:0}}>👤</span><span style={{fontSize:12,fontWeight:700,color:"#334155"}}>{staff.name}</span></div>}
-          {prog.telefon&&<div style={{display:"flex",alignItems:"center",gap:9}}><span style={{fontSize:13,color:"#94a3b8",flexShrink:0}}>📞</span><span style={{fontSize:12,fontWeight:600,color:"#475569"}}>{prog.telefon}</span></div>}
-          {prog.email&&<div style={{display:"flex",alignItems:"center",gap:9}}><span style={{fontSize:13,color:"#94a3b8",flexShrink:0}}>✉️</span><span style={{fontSize:11,color:"#475569",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{prog.email}</span></div>}
+          {svc&&<div style={{display:"flex",alignItems:"flex-start",gap:9}}><span style={{fontSize:13,color:"#94a3b8",flexShrink:0,marginTop:1}}>??</span><div><span style={{fontSize:12,fontWeight:700,color:"#334155"}}>{svc.nume_serviciu}</span>{svc.duration>0&&<span style={{fontSize:10,color:"#94a3b8",marginLeft:7}}>{svc.duration} min</span>}{svc.price>0&&<span style={{fontSize:10,fontWeight:700,color:"#059669",marginLeft:7}}>{svc.price} RON</span>}</div></div>}
+          {prog.paymentStatus==="deposit_paid"&&<div style={{background:"#fffbeb",borderRadius:9,padding:"7px 9px",border:"1px solid #fcd34d",display:"flex",alignItems:"center",gap:7}}><span style={{fontSize:13}}>??</span><span style={{fontSize:11,fontWeight:700,color:"#92400e"}}>{t("depositPaidLabel",{paid:(prog.amountPaid||0).toFixed(0),rest:((prog.totalPrice||0)-(prog.amountPaid||0)).toFixed(0)})}</span></div>}
+          {prog.paymentStatus==="fully_paid"&&<div style={{background:"#ecfdf5",borderRadius:9,padding:"7px 9px",border:"1px solid #6ee7b7",display:"flex",alignItems:"center",gap:7}}><span style={{fontSize:13}}>?</span><span style={{fontSize:11,fontWeight:700,color:"#065f46"}}>{t("fullyPaidLabel")}</span></div>}
+          {staff&&<div style={{display:"flex",alignItems:"center",gap:9}}><span style={{fontSize:13,color:"#94a3b8",flexShrink:0}}>??</span><span style={{fontSize:12,fontWeight:700,color:"#334155"}}>{staff.name}</span></div>}
+          {prog.telefon&&<div style={{display:"flex",alignItems:"center",gap:9}}><span style={{fontSize:13,color:"#94a3b8",flexShrink:0}}>??</span><span style={{fontSize:12,fontWeight:600,color:"#475569"}}>{prog.telefon}</span></div>}
+          {prog.email&&<div style={{display:"flex",alignItems:"center",gap:9}}><span style={{fontSize:13,color:"#94a3b8",flexShrink:0}}>??</span><span style={{fontSize:11,color:"#475569",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{prog.email}</span></div>}
           {prog.motiv&&<div style={{background:"#f8fafc",borderRadius:9,padding:"7px 9px",border:"1px solid #e2e8f0"}}><p style={{fontSize:11,color:"#64748b",margin:0,lineHeight:1.45}}>{prog.motiv}</p></div>}
           <div style={{borderTop:"1px solid #f1f5f9",marginTop:2,paddingTop:7}}>
             <span style={{fontSize:9,fontWeight:700,color:"#94a3b8",textTransform:"uppercase",letterSpacing:"0.08em"}}>{t("hoverHint")}</span>
@@ -254,7 +253,7 @@ function AppointmentHoverCard({ prog, anchorRect, serviceById, rawStaff, staffCo
     </>
   );
 }
-// ─── TimeColumn ───────────────────────────────────────────────────────────────
+// --- TimeColumn ---------------------------------------------------------------
 function TimeColumn({ slots, whStart, whEnd, isClosed }: { slots: string[]; whStart: string; whEnd: string; isClosed: boolean }) {
   return (
     <div style={{ width:TIME_COL_W, flexShrink:0, borderRight:"2px solid #e2e8f0", background:"#fff" }}>
@@ -277,7 +276,7 @@ function TimeColumn({ slots, whStart, whEnd, isClosed }: { slots: string[]; whSt
     </div>
   );
 }
-// ─── WeekStrip ────────────────────────────────────────────────────────────────
+// --- WeekStrip ----------------------------------------------------------------
 function WeekStrip({ selectedDate, onSelectDate, programariByDate, adminWorkingHours }: {
   selectedDate: Date; onSelectDate: (d: Date) => void;
   programariByDate: Record<string, Prog[]>; adminWorkingHours: WorkingHour[];
@@ -343,7 +342,7 @@ function WeekStrip({ selectedDate, onSelectDate, programariByDate, adminWorkingH
                 {total>0&&(
                   <div style={{ display:"flex", gap:2, alignItems:"center" }}>
                     <span style={{ fontSize:8, fontWeight:700, padding:"0px 5px", borderRadius:99, background:isSel?"#f59e0b":isToday?"#f59e0b":"#e2e8f0", color:isSel||isToday?"#fff":"#475569" }}>{total}</span>
-                    {online>0&&<span style={{ fontSize:8, fontWeight:700, padding:"0px 4px", borderRadius:99, background:"#3b82f6", color:"#fff" }}>{online}🌐</span>}
+                    {online>0&&<span style={{ fontSize:8, fontWeight:700, padding:"0px 4px", borderRadius:99, background:"#3b82f6", color:"#fff" }}>{online}??</span>}
                   </div>
                 )}
                 {isClosed&&<span style={{ fontSize:6, fontWeight:700, color:"#f87171" }}>{t("closedBadge")}</span>}
@@ -355,7 +354,7 @@ function WeekStrip({ selectedDate, onSelectDate, programariByDate, adminWorkingH
     </div>
   );
 }
-// ─── FilterDropdownButton — buton compact cu panou de căutare + scroll ────────
+// --- FilterDropdownButton — buton compact cu panou de cautare + scroll --------
 interface DropdownItem { id: string; label: string; sub?: string; dotColor?: string; initial?: string; count: number; }
 function FilterDropdownButton({ label, allLabel, placeholder, items, selectedId, onSelect }: {
   label: string; allLabel: string; placeholder: string;
@@ -399,7 +398,7 @@ function FilterDropdownButton({ label, allLabel, placeholder, items, selectedId,
           <span style={{ width: 16, height: 16, borderRadius: "50%", background: selected.dotColor, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 8, fontWeight: 700, color: "#fff", flexShrink: 0 }}>{selected.initial}</span>
         )}
         <span style={{ opacity: 1 }}>{selected ? selected.label : allLabel}</span>
-        <span style={{ fontSize: 10, opacity: 0.65, transform: open ? "rotate(180deg)" : "none", transition: "transform 0.15s" }}>▾</span>
+        <span style={{ fontSize: 10, opacity: 0.65, transform: open ? "rotate(180deg)" : "none", transition: "transform 0.15s" }}>?</span>
       </button>
 
       {open && (
@@ -442,7 +441,7 @@ function FilterDropdownButton({ label, allLabel, placeholder, items, selectedId,
     </div>
   );
 }
-// ─── FilterBar ────────────────────────────────────────────────────────────────
+// --- FilterBar ----------------------------------------------------------------
 function FilterBar({ rawStaff, rawServices, programari, selectedExpert, onSelectExpert, selectedServiciu, onSelectServiciu, selectedDate, workLocations, selectedWorkLocation, onSelectWorkLocation }: {
   rawStaff: StaffRow[]; rawServices: ServiceRow[]; programari: Prog[];
   selectedExpert: string; onSelectExpert: (id: string) => void;
@@ -486,7 +485,7 @@ function FilterBar({ rawStaff, rawServices, programari, selectedExpert, onSelect
   return (
     <div style={{ flexShrink:0, background:"#fff", borderBottom:"2px solid #e2e8f0", padding:"5px 10px", display:"flex", alignItems:"center", gap:8, flexWrap:"wrap" }}>
       {workLocations.length>0&&(
-        <FilterDropdownButton label="Punct" allLabel={t("allWorkLocationsOpt")} placeholder="Caută punct de lucru..."
+        <FilterDropdownButton label="Punct" allLabel={t("allWorkLocationsOpt")} placeholder="Cauta punct de lucru..."
           items={locationItems} selectedId={selectedWorkLocation}
           onSelect={onSelectWorkLocation} />
       )}
@@ -503,7 +502,7 @@ function FilterBar({ rawStaff, rawServices, programari, selectedExpert, onSelect
     </div>
   );
 }
-// ─── SummaryBar ───────────────────────────────────────────────────────────────
+// --- SummaryBar ---------------------------------------------------------------
 function SummaryBar({ programari, rawServices, selectedDate, selectedExpert, selectedServiciu, onSelectServiciu }: {
   programari: Prog[]; rawServices: ServiceRow[];
   selectedDate: Date; selectedExpert: string; selectedServiciu: string;
@@ -542,12 +541,12 @@ function SummaryBar({ programari, rawServices, selectedDate, selectedExpert, sel
       </div>
       {items.map(it=>{
         const c=SVC_C[it.ci%SVC_C.length];const isSel=selectedServiciu===it.id;
-        return <button key={it.id} onClick={()=>onSelectServiciu(isSel?"":it.id)} style={{display:"flex",alignItems:"center",gap:5,padding:"3px 10px",borderRadius:999,border:`1.5px solid ${isSel?c.text:c.border}`,background:c.bg,color:c.text,fontSize:10,fontWeight:700,cursor:"pointer",flexShrink:0,transition:"all 0.15s"}}>{it.nume_serviciu} <span style={{fontWeight:800}}>×{it.total}</span>{it.online>0&&<span style={{fontSize:9,opacity:0.7}}>({it.online}🌐)</span>}</button>;
+        return <button key={it.id} onClick={()=>onSelectServiciu(isSel?"":it.id)} style={{display:"flex",alignItems:"center",gap:5,padding:"3px 10px",borderRadius:999,border:`1.5px solid ${isSel?c.text:c.border}`,background:c.bg,color:c.text,fontSize:10,fontWeight:700,cursor:"pointer",flexShrink:0,transition:"all 0.15s"}}>{it.nume_serviciu} <span style={{fontWeight:800}}>×{it.total}</span>{it.online>0&&<span style={{fontSize:9,opacity:0.7}}>({it.online}??)</span>}</button>;
       })}
     </div>
   );
 }
-// ─── DayView ──────────────────────────────────────────────────────────────────
+// --- DayView ------------------------------------------------------------------
 function DayView({ selectedDate, programari, rawStaff, rawServices, serviceById, onEdit, adminWorkingHours, adminManualBlocks, selectedExpert, selectedServiciu, onSelectServiciu, onAddNew, onSwipeDay, onBlocksSaved, userId }: {
   selectedDate: Date; programari: Prog[]; rawStaff: StaffRow[];
   rawServices: ServiceRow[]; serviceById: Record<string,ServiceRow>;
@@ -601,11 +600,11 @@ function DayView({ selectedDate, programari, rawStaff, rawServices, serviceById,
     if (selectedServiciu&&p.serviciuId!==selectedServiciu) return false;
     return true;
   }), [programari,dateKey,selectedExpert,selectedServiciu]);
-  // ✅ Coloane pe specialist (stil Mero/Fresha) — fiecare specialist activ în
-  // ziua curentă primește propria coloană verticală, în loc de suprapuneri
-  // grupate pe interval orar. Dacă e filtrat un singur specialist, apare o
-  // singură coloană. Programările fără specialist asignat merg într-o coloană
-  // separată "—", afișată ultima.
+  // ? Coloane pe specialist (stil Mero/Fresha) — fiecare specialist activ în
+  // ziua curenta prime?te propria coloana verticala, în loc de suprapuneri
+  // grupate pe interval orar. Daca e filtrat un singur specialist, apare o
+  // singura coloana. Programarile fara specialist asignat merg într-o coloana
+  // separata "—", afi?ata ultima.
   const dayStaffList = useMemo(() => {
     if (selectedExpert) {
       const st = rawStaff.find(s => s.id === selectedExpert);
@@ -627,9 +626,9 @@ function DayView({ selectedDate, programari, rawStaff, rawServices, serviceById,
   const MIN_COL_W = 34;
   const showColName = dayStaffList.length + (hasUnassigned?1:0) <= 4;
   const gridMinWidth = TIME_COL_W + totalCols * MIN_COL_W;
-  // ✅ Blocările per specialist (salvate pe staff.manual_blocks), citite pentru
-  // ziua curentă — folosite ca să dezactivăm sloturile blocate din fiecare
-  // coloană și să le desenăm hașurat.
+  // ? Blocarile per specialist (salvate pe staff.manual_blocks), citite pentru
+  // ziua curenta — folosite ca sa dezactivam sloturile blocate din fiecare
+  // coloana ?i sa le desenam ha?urat.
   const staffBlocksBySlot = useMemo(() => {
     const m: Record<string, Record<string,string[]>> = {};
     rawStaff.forEach(s => { m[s.id] = parseStaffBlocks(s.manual_blocks); });
@@ -652,8 +651,8 @@ function DayView({ selectedDate, programari, rawStaff, rawServices, serviceById,
     if (!start) return;
     const t = e.changedTouches[0];
     const dx = t.clientX - start.x, dy = t.clientY - start.y;
-    // ✅ Doar dacă gestul e clar orizontal și pornește de la marginea la care
-    // ar duce oricum scroll-ul de coloane (sau dacă e o singură coloană, oricând)
+    // ? Doar daca gestul e clar orizontal ?i porne?te de la marginea la care
+    // ar duce oricum scroll-ul de coloane (sau daca e o singura coloana, oricând)
     if (Math.abs(dx) < 60 || Math.abs(dx) < Math.abs(dy) * 1.5) return;
     if (dx < 0 && start.atRightEdge) onSwipeDay(1);
     else if (dx > 0 && start.atLeftEdge) onSwipeDay(-1);
@@ -821,7 +820,7 @@ function DayView({ selectedDate, programari, rawStaff, rawServices, serviceById,
                   }}
                   className="hover:brightness-95 hover:shadow-md transition-all">
                   <p style={{fontSize:9,fontWeight:700,color:color.border,lineHeight:1.25,marginBottom:1,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
-                    {p.ora}{endTime?` → ${endTime}`:""}{p.isOnline?" 🌐":""}
+                    {p.ora}{endTime?` ? ${endTime}`:""}{p.isOnline?" ??":""}
                   </p>
                   <p style={{fontSize:11,fontWeight:700,color:"#1e293b",lineHeight:1.25,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
                     {p.nume}
@@ -852,12 +851,12 @@ function DayView({ selectedDate, programari, rawStaff, rawServices, serviceById,
             <button onClick={()=>{ onAddNew(slotMenu.time, dateKey, slotMenu.staffId); setSlotMenu(null); }}
               style={{ width:"100%", textAlign:"left", padding:"11px 14px", fontSize:11, fontWeight:700, color:"#1e293b", background:"transparent", border:"none", cursor:"pointer", borderBottom:"1px solid #f1f5f9" }}
               className="hover:bg-slate-50 transition-colors">
-              📅 Programare — {slotMenu.time}
+              ?? Programare — {slotMenu.time}
             </button>
             <button onClick={()=>{ setBlockPopup({ date:dateKey, staffId:slotMenu.staffId, start:slotMenu.time, end:addMinutesToTime(slotMenu.time,60) }); setSlotMenu(null); }}
               style={{ width:"100%", textAlign:"left", padding:"11px 14px", fontSize:11, fontWeight:700, color:"#dc2626", background:"transparent", border:"none", cursor:"pointer" }}
               className="hover:bg-red-50 transition-colors">
-              🔒 Blochează timp
+              ?? Blocheaza timp
             </button>
           </div>
         </div>
@@ -865,7 +864,7 @@ function DayView({ selectedDate, programari, rawStaff, rawServices, serviceById,
       {blockPopup && (
         <div style={{ position:"fixed", inset:0, background:"rgba(15,23,42,0.6)", zIndex:410, display:"flex", alignItems:"center", justifyContent:"center", padding:16 }} onClick={()=>setBlockPopup(null)}>
           <div onClick={e=>e.stopPropagation()} style={{ background:"#fff", borderRadius:20, padding:22, width:"100%", maxWidth:340, boxShadow:"0 24px 60px rgba(0,0,0,0.25)" }}>
-            <p style={{ fontSize:13, fontWeight:700, color:"#1e293b", marginBottom:4 }}>Blochează un interval</p>
+            <p style={{ fontSize:13, fontWeight:700, color:"#1e293b", marginBottom:4 }}>Blocheaza un interval</p>
             <p style={{ fontSize:10, fontWeight:700, color:"#94a3b8", marginBottom:14 }}>
               {blockPopup.date}{blockPopup.staffId ? ` · ${rawStaff.find(s=>s.id===blockPopup.staffId)?.name || ""}` : " · tot programul"}
             </p>
@@ -876,16 +875,16 @@ function DayView({ selectedDate, programari, rawStaff, rawServices, serviceById,
                   style={{ width:"100%", padding:"8px 10px", borderRadius:10, border:"1.5px solid #e2e8f0", fontSize:12, fontWeight:700, color:"#1e293b" }} />
               </div>
               <div style={{ flex:1 }}>
-                <p style={{ fontSize:9, fontWeight:700, color:"#94a3b8", textTransform:"uppercase", marginBottom:4 }}>Până la</p>
+                <p style={{ fontSize:9, fontWeight:700, color:"#94a3b8", textTransform:"uppercase", marginBottom:4 }}>Pâna la</p>
                 <input type="time" value={blockPopup.end} onChange={e=>setBlockPopup(p=>p?{...p,end:e.target.value}:null)}
                   style={{ width:"100%", padding:"8px 10px", borderRadius:10, border:"1.5px solid #e2e8f0", fontSize:12, fontWeight:700, color:"#1e293b" }} />
               </div>
             </div>
             <div style={{ display:"flex", gap:8 }}>
-              <button onClick={()=>setBlockPopup(null)} style={{ flex:1, padding:"10px", borderRadius:10, background:"#f1f5f9", border:"none", fontWeight:700, fontSize:11, color:"#64748b", cursor:"pointer" }}>Anulează</button>
+              <button onClick={()=>setBlockPopup(null)} style={{ flex:1, padding:"10px", borderRadius:10, background:"#f1f5f9", border:"none", fontWeight:700, fontSize:11, color:"#64748b", cursor:"pointer" }}>Anuleaza</button>
               <button disabled={savingBlock} onClick={confirmBlockTime}
                 style={{ flex:1, padding:"10px", borderRadius:10, background:"#dc2626", border:"none", fontWeight:700, fontSize:11, color:"#fff", cursor:"pointer", opacity:savingBlock?0.6:1 }}>
-                {savingBlock ? "..." : "Blochează"}
+                {savingBlock ? "..." : "Blocheaza"}
               </button>
             </div>
           </div>
@@ -894,7 +893,7 @@ function DayView({ selectedDate, programari, rawStaff, rawServices, serviceById,
     </div>
   );
 }
-// ─── WeekView — redesign simplu (listă per zi, fără grid ore) ─────────────────
+// --- WeekView — redesign simplu (lista per zi, fara grid ore) -----------------
 function WeekView({ selectedDate, programariByDate, rawStaff, serviceById, onEdit, selectedExpert, selectedServiciu, adminWorkingHours, adminManualBlocks }: {
   selectedDate: Date; programariByDate: Record<string,Prog[]>;
   rawStaff: StaffRow[]; serviceById: Record<string,ServiceRow>; rawServices: ServiceRow[];
@@ -989,7 +988,7 @@ function WeekView({ selectedDate, programariByDate, rawStaff, serviceById, onEdi
                       }}
                       className="hover:brightness-95 transition-all">
                       <p style={{fontSize:10,fontWeight:700,color:color.border,margin:"0 0 2px",lineHeight:1.3}}>
-                        {p.ora}{endTime?` → ${endTime}`:""}{p.isOnline?" 🌐":""}
+                        {p.ora}{endTime?` ? ${endTime}`:""}{p.isOnline?" ??":""}
                       </p>
                       <p style={{fontSize:12,fontWeight:700,color:"#1e293b",margin:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",lineHeight:1.3}}>
                         {p.nume}
@@ -1018,7 +1017,7 @@ function WeekView({ selectedDate, programariByDate, rawStaff, serviceById, onEdi
     </div>
   );
 }
-// ─── MonthView ────────────────────────────────────────────────────────────────
+// --- MonthView ----------------------------------------------------------------
 function MonthView({ selectedDate, programariByDate, rawStaff, serviceById, onEdit, onDayClick, selectedExpert, selectedServiciu, adminWorkingHours, adminManualBlocks }: {
   selectedDate: Date; programariByDate: Record<string,Prog[]>;
   rawStaff: StaffRow[]; serviceById: Record<string,ServiceRow>;
@@ -1058,7 +1057,7 @@ function MonthView({ selectedDate, programariByDate, rawStaff, serviceById, onEd
           const allAppts=programariByDate[key]||[];
           const appts=allAppts
             .filter(p=>(!selectedExpert||p.expertId===selectedExpert)&&(!selectedServiciu||p.serviciuId===selectedServiciu))
-            .sort((a,b)=>(a.ora||"").localeCompare(b.ora||"")); // ✅ ordonate cronologic, nu în ordinea creării
+            .sort((a,b)=>(a.ora||"").localeCompare(b.ora||"")); // ? ordonate cronologic, nu în ordinea crearii
           const online=appts.filter(p=>p.isOnline).length;
           const isCurMo=day.getMonth()===selectedDate.getMonth();
           const isToday=sameDay(day,today);const isSel=sameDay(day,selectedDate);
@@ -1077,7 +1076,7 @@ function MonthView({ selectedDate, programariByDate, rawStaff, serviceById, onEd
                 <div style={{display:"flex",gap:3,alignItems:"center"}}>
                   {isClosed&&isCurMo&&<span style={{fontSize:8,fontWeight:800,color:"#fff",background:"#dc2626",padding:"2px 6px",borderRadius:5,letterSpacing:"0.02em"}}>{t("closedBadgeCaps")}</span>}
                   {appts.length>0&&<span style={{fontSize:9,fontWeight:700,padding:"1px 5px",borderRadius:99,background:"#e2e8f0",color:"#475569"}}>{appts.length}</span>}
-                  {online>0&&<span style={{fontSize:9,fontWeight:700,padding:"1px 5px",borderRadius:99,background:"#3b82f6",color:"#fff"}}>{online}🌐</span>}
+                  {online>0&&<span style={{fontSize:9,fontWeight:700,padding:"1px 5px",borderRadius:99,background:"#3b82f6",color:"#fff"}}>{online}??</span>}
                 </div>
               </div>
               <div style={{display:"flex",flexDirection:"column",gap:2,flex:1,overflow:"hidden"}}>
@@ -1089,7 +1088,7 @@ function MonthView({ selectedDate, programariByDate, rawStaff, serviceById, onEd
                       className="hover:brightness-95 transition-all">
                       <span style={{fontSize:9,fontWeight:700,color:"#64748b",flexShrink:0}}>{p.ora}</span>
                       <span style={{fontSize:10,fontWeight:700,color:color.chipText,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",flex:1}}>{p.nume}</span>
-                      {p.isOnline&&<span style={{fontSize:8,flexShrink:0}}>🌐</span>}
+                      {p.isOnline&&<span style={{fontSize:8,flexShrink:0}}>??</span>}
                     </button>
                   );
                 })}
@@ -1102,7 +1101,7 @@ function MonthView({ selectedDate, programariByDate, rawStaff, serviceById, onEd
     </div>
   );
 }
-// ─── YearView ─────────────────────────────────────────────────────────────────
+// --- YearView -----------------------------------------------------------------
 function YearView({ selectedDate, programariByDate, onMonthClick }: {
   selectedDate: Date; programariByDate: Record<string,Prog[]>;
   onMonthClick: (yr: number, mo: number) => void;
@@ -1123,7 +1122,7 @@ function YearView({ selectedDate, programariByDate, onMonthClick }: {
             <div key={mo} onClick={()=>onMonthClick(yr,mo)} style={{background:"#fff",border:"1.5px solid #e2e8f0",borderRadius:12,padding:"10px 12px",cursor:"pointer",transition:"all 0.15s",borderTop:isCurMo?"3px solid #f59e0b":isSel?"3px solid #1e293b":"1.5px solid #e2e8f0"}} className="hover:border-amber-400 hover:shadow-sm">
               <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:8}}>
                 <span style={{fontSize:13,fontWeight:700,color:isCurMo?"#d97706":"#334155"}}>{months[mo]}</span>
-                {total>0&&<div style={{display:"flex",gap:4}}><span style={{fontSize:9,fontWeight:700,padding:"1px 6px",borderRadius:99,background:"#e2e8f0",color:"#475569"}}>{total}</span>{online>0&&<span style={{fontSize:9,fontWeight:700,padding:"1px 6px",borderRadius:99,background:"#3b82f6",color:"#fff"}}>{online}🌐</span>}</div>}
+                {total>0&&<div style={{display:"flex",gap:4}}><span style={{fontSize:9,fontWeight:700,padding:"1px 6px",borderRadius:99,background:"#e2e8f0",color:"#475569"}}>{total}</span>{online>0&&<span style={{fontSize:9,fontWeight:700,padding:"1px 6px",borderRadius:99,background:"#3b82f6",color:"#fff"}}>{online}??</span>}</div>}
               </div>
               <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)",gap:1}}>
                 {["L","M","M","J","V","S","D"].map((d,i)=><div key={i} style={{fontSize:7,fontWeight:700,textAlign:"center",color:"#94a3b8",paddingBottom:2}}>{d}</div>)}
@@ -1140,7 +1139,7 @@ function YearView({ selectedDate, programariByDate, onMonthClick }: {
     </div>
   );
 }
-// ─── DocumentsSection ──────────────────────────────────────────────────────────
+// --- DocumentsSection ----------------------------------------------------------
 interface DocumentsSectionProps {
   editForm: Prog;
   userId: string | undefined;
@@ -1241,7 +1240,7 @@ function DocumentsSection({ editForm, userId, setEditForm, qClient }: DocumentsS
           const isPdf = ext === "pdf";
           const isAudio = ["mp3","wav","ogg","m4a"].includes(ext);
           const isVideo = ["mp4","mov","avi","webm"].includes(ext);
-          const icon = isImg ? "🖼️" : isPdf ? "📄" : isAudio ? "🎵" : isVideo ? "🎬" : "📎";
+          const icon = isImg ? "???" : isPdf ? "??" : isAudio ? "??" : isVideo ? "??" : "??";
           return (
             <div key={doc.id} style={{ display:"flex", alignItems:"center", gap:6, background:"#fff", border:"1.5px solid #e2e8f0", borderRadius:8, padding:"5px 8px" }}>
               <span style={{ fontSize:13, flexShrink:0 }}>{icon}</span>
@@ -1250,7 +1249,7 @@ function DocumentsSection({ editForm, userId, setEditForm, qClient }: DocumentsS
                 {doc.name}
               </a>
               <button onClick={() => handleDocDelete(i)}
-                style={{ width:18, height:18, background:"#fee2e2", border:"none", borderRadius:5, cursor:"pointer", fontSize:9, fontWeight:700, color:"#ef4444", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>✕</button>
+                style={{ width:18, height:18, background:"#fee2e2", border:"none", borderRadius:5, cursor:"pointer", fontSize:9, fontWeight:700, color:"#ef4444", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>?</button>
             </div>
           );
         })}
@@ -1258,7 +1257,7 @@ function DocumentsSection({ editForm, userId, setEditForm, qClient }: DocumentsS
     </div>
   );
 }
-// ─── CalendarContent ──────────────────────────────────────────────────────────
+// --- CalendarContent ----------------------------------------------------------
 function CalendarContent() {
   const t = useTranslations("calendarPage");
   const localeCode = t("localeCode");
@@ -1320,7 +1319,7 @@ function CalendarContent() {
     if(!userId)return;
     const ch1=supabase.channel(`cp-${userId}`).on("postgres_changes",{event:"UPDATE",schema:"public",table:"profiles",filter:`id=eq.${userId}`},()=>refetchProfile()).subscribe();
     const ch2=supabase.channel(`ca-${userId}`).on("postgres_changes",{event:"*",schema:"public",table:"appointments",filter:`user_id=eq.${userId}`},(payload:any)=>{
-      // ✅ Notificări la programare online nouă — respectă setările din Settings
+      // ? Notificari la programare online noua — respecta setarile din Settings
       if(payload.eventType==="INSERT"&&payload.new?.is_client_booking){
         const nume=payload.new.title||payload.new.prenume||payload.new.nume||"Client";
         if(notifSettings.sound_enabled) playNotificationSound(notifSettings.volume);
@@ -1431,16 +1430,16 @@ function CalendarContent() {
           {showTimePicker&&(<div style={{position:"fixed",inset:0,zIndex:900,background:"rgba(0,0,0,0.5)",backdropFilter:"blur(4px)",display:"flex",alignItems:"center",justifyContent:"center",padding:16}} onClick={()=>setShowTimePicker(false)}><div onClick={e=>e.stopPropagation()}><ChronosTimePicker value={editForm.ora||"09:00"} onChange={v=>{setEditForm(p=>p?{...p,ora:v}:null);setShowTimePicker(false);}} onClose={()=>setShowTimePicker(false)} workingHours={editWorkingHours} existingAppointments={editExisting} selectedDate={editForm.data} serviceDuration={editSvcDur} manualBlocks={adminManualBlocks}/></div></div>)}
           <div style={{position:"fixed",inset:0,background:"rgba(15,23,42,0.72)",backdropFilter:"blur(6px)",zIndex:500,display:"flex",alignItems:"center",justifyContent:"center",padding:12}} onClick={closeModal}>
             <div ref={modalRef} onClick={e=>e.stopPropagation()} style={{background:"#fff",width:"100%",maxWidth:540,minWidth:0,borderRadius:20,overflow:"hidden",boxShadow:"0 24px 60px rgba(0,0,0,0.25)",border:"1px solid #e2e8f0",position:"relative",display:"flex",flexDirection:"column",maxHeight:"96vh"}}>
-              <button onClick={closeModal} style={{position:"absolute",top:10,right:10,width:28,height:28,background:"#1e293b",border:"none",borderRadius:8,cursor:"pointer",fontSize:12,fontWeight:700,color:"#94a3b8",zIndex:30,display:"flex",alignItems:"center",justifyContent:"center"}} className="hover:bg-red-500 hover:text-white transition-all">✕</button>
+              <button onClick={closeModal} style={{position:"absolute",top:10,right:10,width:28,height:28,background:"#1e293b",border:"none",borderRadius:8,cursor:"pointer",fontSize:12,fontWeight:700,color:"#94a3b8",zIndex:30,display:"flex",alignItems:"center",justifyContent:"center"}} className="hover:bg-red-500 hover:text-white transition-all">?</button>
               <div style={{background:"#0f172a",padding:"12px 16px",display:"flex",alignItems:"center",gap:10,flexShrink:0}}>
                 <div style={{width:36,height:36,borderRadius:11,background:"#1e293b",overflow:"hidden",display:"flex",alignItems:"center",justifyContent:"center",fontSize:16,flexShrink:0}}>
-                  {editForm.poza?<img src={editForm.poza} style={{width:"100%",height:"100%",objectFit:"cover"}} alt=""/>:"👤"}
+                  {editForm.poza?<img src={editForm.poza} style={{width:"100%",height:"100%",objectFit:"cover"}} alt=""/>:"??"}
                 </div>
                 <div style={{flex:1,minWidth:0}}>
                   <h2 style={{fontSize:14,fontWeight:700,color:"#fff",margin:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{editForm.nume}</h2>
-                  <p style={{fontSize:10,color:"#64748b",margin:0}}>{editForm.data} · {editForm.ora}{editForm.isOnline?" 🌐":""}</p>
-                  {editForm.paymentStatus==="deposit_paid"&&<span style={{display:"inline-block",marginTop:3,fontSize:9,fontWeight:800,color:"#fbbf24",background:"rgba(251,191,36,0.15)",padding:"2px 7px",borderRadius:6}}>💳 {t("depositPaidLabel",{paid:(editForm.amountPaid||0).toFixed(0),rest:((editForm.totalPrice||0)-(editForm.amountPaid||0)).toFixed(0)})}</span>}
-                  {editForm.paymentStatus==="fully_paid"&&<span style={{display:"inline-block",marginTop:3,fontSize:9,fontWeight:800,color:"#6ee7b7",background:"rgba(110,231,183,0.15)",padding:"2px 7px",borderRadius:6}}>✅ {t("fullyPaidLabel")}</span>}
+                  <p style={{fontSize:10,color:"#64748b",margin:0}}>{editForm.data} · {editForm.ora}{editForm.isOnline?" ??":""}</p>
+                  {editForm.paymentStatus==="deposit_paid"&&<span style={{display:"inline-block",marginTop:3,fontSize:9,fontWeight:800,color:"#fbbf24",background:"rgba(251,191,36,0.15)",padding:"2px 7px",borderRadius:6}}>?? {t("depositPaidLabel",{paid:(editForm.amountPaid||0).toFixed(0),rest:((editForm.totalPrice||0)-(editForm.amountPaid||0)).toFixed(0)})}</span>}
+                  {editForm.paymentStatus==="fully_paid"&&<span style={{display:"inline-block",marginTop:3,fontSize:9,fontWeight:800,color:"#6ee7b7",background:"rgba(110,231,183,0.15)",padding:"2px 7px",borderRadius:6}}>? {t("fullyPaidLabel")}</span>}
                 </div>
               </div>
               <div style={{padding:"12px 14px",display:"flex",flexDirection:"column",gap:7,overflowY:"auto",flex:1}}>
@@ -1451,11 +1450,11 @@ function CalendarContent() {
                   </div>
                   <button onClick={()=>{setShowDatePicker(true);setShowTimePicker(false);}} style={{background:"#0f172a",color:"#fff",border:"none",borderRadius:12,padding:"7px 4px",cursor:"pointer",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:1,minWidth:0,overflow:"hidden"}} className="hover:bg-slate-800 transition-all">
                     <span style={{fontSize:7,color:"#64748b",fontWeight:700,textTransform:"uppercase"}}>{t("editModal.dateLabel")}</span>
-                    <span style={{fontSize:10,fontWeight:700,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis",maxWidth:"100%"}}>📅 {editForm.data}</span>
+                    <span style={{fontSize:10,fontWeight:700,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis",maxWidth:"100%"}}>?? {editForm.data}</span>
                   </button>
                   <button onClick={()=>{setShowTimePicker(true);setShowDatePicker(false);}} style={{background:"#0f172a",color:"#fff",border:"none",borderRadius:12,padding:"7px 4px",cursor:"pointer",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:1,minWidth:0,overflow:"hidden"}} className="hover:bg-slate-800 transition-all">
                     <span style={{fontSize:7,color:"#64748b",fontWeight:700,textTransform:"uppercase"}}>{t("editModal.timeLabel")}</span>
-                    <span style={{fontSize:10,fontWeight:700,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis",maxWidth:"100%"}}>🕐 {editForm.ora||"—"}</span>
+                    <span style={{fontSize:10,fontWeight:700,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis",maxWidth:"100%"}}>?? {editForm.ora||"—"}</span>
                   </button>
                 </div>
                 <div style={{background:"#f8fafc",border:"1.5px solid #e2e8f0",borderRadius:12,padding:"7px 10px",minWidth:0,overflow:"hidden"}}><p style={{fontSize:7,fontWeight:700,color:"#94a3b8",textTransform:"uppercase",marginBottom:2}}>{t("workLocationLabel")}</p><select style={{width:"100%",background:"transparent",border:"none",fontSize:11,fontWeight:700,color:"#1e293b",outline:"none",cursor:"pointer",minWidth:0}} value={editForm.workLocationId||""} onChange={e=>{const id=e.target.value;const loc=workLocations.find(l=>l.id===id);setEditForm(p=>p?{...p,workLocationId:id,workLocationName:loc?.name||"",workLocationAddress:loc?.address||"",workLocationMapsUrl:loc?.maps_url||""}:null);}}><option value="">{t("allWorkLocationsOpt")}</option>{workLocations.map(loc=><option key={loc.id} value={loc.id}>{loc.name}</option>)}</select></div>
@@ -1524,7 +1523,7 @@ function CalendarContent() {
                 <div style={{display:"flex",gap:6,paddingTop:2,borderTop:"1.5px solid #f1f5f9"}}>
                   <button onClick={closeModal} style={{flex:1,padding:"8px",background:"#f1f5f9",border:"none",borderRadius:12,fontSize:11,fontWeight:700,color:"#64748b",cursor:"pointer"}} className="hover:bg-slate-200 transition-all">{t("editModal.cancelBtn")}</button>
                   <button onClick={handleUpdate} style={{flex:2,padding:"8px",background:"#0f172a",border:"none",borderRadius:12,fontSize:11,fontWeight:700,color:"#fff",cursor:"pointer"}} className="hover:bg-amber-600 transition-all">{t("editModal.saveBtn")}</button>
-                  <button onClick={handleDelete} style={{width:36,padding:"8px",background:"#fff1f2",border:"1.5px solid #fecdd3",borderRadius:12,fontSize:14,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}} className="hover:bg-red-500 hover:text-white transition-all" title={t("editModal.deleteTooltip")}>🗑️</button>
+                  <button onClick={handleDelete} style={{width:36,padding:"8px",background:"#fff1f2",border:"1.5px solid #fecdd3",borderRadius:12,fontSize:14,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}} className="hover:bg-red-500 hover:text-white transition-all" title={t("editModal.deleteTooltip")}>???</button>
                 </div>
               </div>
             </div>
@@ -1535,8 +1534,8 @@ function CalendarContent() {
       {newForm&&(
         <div style={{position:"fixed",inset:0,background:"rgba(15,23,42,0.72)",backdropFilter:"blur(6px)",zIndex:500,display:"flex",alignItems:"center",justifyContent:"center",padding:16}} onClick={()=>setNewForm(null)}>
           <div style={{background:"#fff",width:"100%",maxWidth:480,borderRadius:24,overflow:"hidden",boxShadow:"0 24px 60px rgba(0,0,0,0.22)",padding:20,display:"flex",flexDirection:"column",gap:10}} onClick={e=>e.stopPropagation()}>
-            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}><h2 style={{fontSize:16,fontWeight:700,color:"#1e293b",margin:0}}>{t("newModal.title")}</h2><button onClick={()=>setNewForm(null)} style={{width:32,height:32,background:"#f1f5f9",border:"none",borderRadius:10,cursor:"pointer",fontSize:14,fontWeight:700,color:"#64748b"}} className="hover:bg-red-500 hover:text-white transition-all">✕</button></div>
-            <div style={{background:"#fffbeb",border:"1.5px solid #fcd34d",borderRadius:14,padding:"10px 14px"}}><p style={{fontSize:13,fontWeight:700,color:"#92400e",margin:0}}>📅 {newForm.date} · {newForm.time}</p></div>
+            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}><h2 style={{fontSize:16,fontWeight:700,color:"#1e293b",margin:0}}>{t("newModal.title")}</h2><button onClick={()=>setNewForm(null)} style={{width:32,height:32,background:"#f1f5f9",border:"none",borderRadius:10,cursor:"pointer",fontSize:14,fontWeight:700,color:"#64748b"}} className="hover:bg-red-500 hover:text-white transition-all">?</button></div>
+            <div style={{background:"#fffbeb",border:"1.5px solid #fcd34d",borderRadius:14,padding:"10px 14px"}}><p style={{fontSize:13,fontWeight:700,color:"#92400e",margin:0}}>?? {newForm.date} · {newForm.time}</p></div>
             <div style={{background:"#f8fafc",border:"1.5px solid #e2e8f0",borderRadius:14,padding:"10px 14px"}}><p style={{fontSize:8,fontWeight:700,color:"#94a3b8",textTransform:"uppercase",marginBottom:4}}>{t("workLocationLabel")}</p><select style={{width:"100%",background:"transparent",border:"none",fontSize:12,fontWeight:700,color:"#1e293b",outline:"none",cursor:"pointer"}} value={newForm.workLocationId||""} onChange={e=>setNewForm(p=>p?{...p,workLocationId:e.target.value,serviciuId:"",expertId:""}:null)}><option value="">{t("allWorkLocationsOpt")}</option>{workLocations.map(loc=><option key={loc.id} value={loc.id}>{loc.name}</option>)}</select></div>
             <div style={{background:"#f8fafc",border:"1.5px solid #e2e8f0",borderRadius:14,padding:"10px 14px"}}><p style={{fontSize:8,fontWeight:700,color:"#94a3b8",textTransform:"uppercase",marginBottom:4}}>{t("newModal.nameLabel")}</p><input style={{width:"100%",background:"transparent",border:"none",fontSize:14,fontWeight:700,color:"#1e293b",outline:"none"}} placeholder={t("newModal.namePlaceholder")} value={newForm.nume} onChange={e=>setNewForm(p=>p?{...p,nume:e.target.value}:null)}/></div>
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>{[{label:t("newModal.phoneLabel"),key:"telefon"},{label:t("newModal.emailLabel"),key:"email"}].map(f=>(<div key={f.key} style={{background:"#f8fafc",border:"1.5px solid #e2e8f0",borderRadius:14,padding:"10px 14px"}}><p style={{fontSize:8,fontWeight:700,color:"#94a3b8",textTransform:"uppercase",marginBottom:4}}>{f.label}</p><input style={{width:"100%",background:"transparent",border:"none",fontSize:12,fontWeight:700,color:"#1e293b",outline:"none"}} value={(newForm as any)[f.key]} onChange={e=>setNewForm(p=>p?{...p,[f.key]:e.target.value}:null)}/></div>))}</div>
@@ -1599,12 +1598,12 @@ function CalendarContent() {
           <p style={{fontSize:12,fontWeight:700,color:"#1e293b",margin:0,lineHeight:1.2}}>{t("headerTitle")} <span style={{color:"#d97706"}}>{t("headerHighlight")}</span></p>
           <p style={{fontSize:7,fontWeight:700,color:"#94a3b8",textTransform:"uppercase",letterSpacing:"0.08em",margin:0}}>{isLoading?t("syncing"):t("synced")}</p>
         </div>
-        {/* selectorul de puncte de lucru a fost mutat lângă Specialiști/Servicii, în FilterBar */}
+        {/* selectorul de puncte de lucru a fost mutat lânga Speciali?ti/Servicii, în FilterBar */}
         <div className="hidden md:block" style={{flexShrink:0,padding:"4px 10px",background:"#f8fafc",borderRadius:8,border:"1.5px solid #e2e8f0"}}>
           <span style={{fontSize:10,fontWeight:700,color:"#334155",textTransform:"capitalize"}}>{dateTitles[viewMode]}</span>
         </div>
         <div id="onboarding-calendar-search" style={{flex:"1 1 100px",minWidth:80,maxWidth:180,position:"relative"}}>
-          <span style={{position:"absolute",left:8,top:"50%",transform:"translateY(-50%)",fontSize:12,color:"#94a3b8"}}>🔍</span>
+          <span style={{position:"absolute",left:8,top:"50%",transform:"translateY(-50%)",fontSize:12,color:"#94a3b8"}}>??</span>
           <input type="text" placeholder={t("searchPlaceholder")} value={searchTerm}
             onChange={e=>{setSearchTerm(e.target.value);handleSearch(e.target.value);setShowSearchDrop(e.target.value.trim().length>0);}}
             onFocus={()=>{if(searchTerm.trim())setShowSearchDrop(true);}}
@@ -1612,7 +1611,7 @@ function CalendarContent() {
             className="focus:border-amber-400 transition-all"/>
           {showSearchDrop&&searchResults.length>0&&(
             <div style={{position:"absolute",top:"100%",left:0,right:0,marginTop:4,background:"#fff",border:"1.5px solid #e2e8f0",borderRadius:12,boxShadow:"0 8px 24px rgba(0,0,0,0.12)",zIndex:50,maxHeight:240,overflowY:"auto"}}>
-              {searchResults.map(p=>(<button key={p.id} onClick={()=>{setSearchTerm(p.nume);setShowSearchDrop(false);openEdit(p);}} style={{width:"100%",padding:"10px 14px",borderBottom:"1px solid #f1f5f9",textAlign:"left",background:"transparent",border:"none",cursor:"pointer"}} className="hover:bg-slate-50 transition-all"><span style={{fontSize:12,fontWeight:700,color:"#1e293b",display:"block"}}>{p.nume}</span><div style={{display:"flex",gap:8}}>{p.telefon&&<span style={{fontSize:9,color:"#94a3b8"}}>📞 {p.telefon}</span>}{p.isOnline&&<span style={{fontSize:9,color:"#3b82f6",fontWeight:700}}>🌐 {t("onlineLabel")}</span>}</div></button>))}
+              {searchResults.map(p=>(<button key={p.id} onClick={()=>{setSearchTerm(p.nume);setShowSearchDrop(false);openEdit(p);}} style={{width:"100%",padding:"10px 14px",borderBottom:"1px solid #f1f5f9",textAlign:"left",background:"transparent",border:"none",cursor:"pointer"}} className="hover:bg-slate-50 transition-all"><span style={{fontSize:12,fontWeight:700,color:"#1e293b",display:"block"}}>{p.nume}</span><div style={{display:"flex",gap:8}}>{p.telefon&&<span style={{fontSize:9,color:"#94a3b8"}}>?? {p.telefon}</span>}{p.isOnline&&<span style={{fontSize:9,color:"#3b82f6",fontWeight:700}}>?? {t("onlineLabel")}</span>}</div></button>))}
             </div>
           )}
         </div>
@@ -1677,7 +1676,7 @@ function CalendarContent() {
     </div>
   );
 }
-// ─── Root ─────────────────────────────────────────────────────────────────────
+// --- Root ---------------------------------------------------------------------
 export default function CalendarPage() {
   const [queryClient] = useState(()=>new QueryClient({defaultOptions:{queries:{staleTime:1000*60*5,refetchOnWindowFocus:false,retry:1}}}));
   return (
