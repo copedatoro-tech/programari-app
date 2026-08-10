@@ -51,7 +51,7 @@ const PLAN_LABELS: Record<string, string> = {
 // Zilele stocate in baza de date (working_hours.day) sunt salvate intotdeauna
 // in romana, indiferent de limba interfetei - la fel ca la profilul general
 // (adminWorkingHours), pentru consecventa cu tot restul aplicatiei.
-const RO_DAY_NAMES = ["DuminicÄƒ","Luni","MarÈ›i","Miercuri","Joi","Vineri","SÃ¢mbÄƒtÄƒ"];
+const RO_DAY_NAMES = ["Duminică","Luni","Marți","Miercuri","Joi","Vineri","Sâmbătă"];
 // Ordinea de afisare in interfata: Luni -> Duminica (mai naturala pentru un program de lucru)
 const DISPLAY_ORDER = [1, 2, 3, 4, 5, 6, 0];
 

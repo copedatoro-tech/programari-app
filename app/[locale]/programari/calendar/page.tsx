@@ -1587,30 +1587,21 @@ function CalendarContent() {
       )}
 
       <div style={{flexShrink:0,background:"#fff",borderBottom:"2px solid #e2e8f0",padding:"6px 10px",display:"flex",alignItems:"center",gap:8,flexWrap:"wrap",rowGap:6}}>
-        <Link href="/programari" style={{flexShrink:0}}>
-          <div style={{width:28,height:28,background:"#f1f5f9",borderRadius:8,display:"flex",alignItems:"center",justifyContent:"center",fontSize:14,fontWeight:700,color:"#334155",cursor:"pointer",border:"none",transition:"all 0.15s"}} className="hover:bg-slate-900 hover:text-white">←</div>
-        </Link>
-        <div style={{display:"flex",alignItems:"center",gap:6,flexShrink:0}}>
-          <div style={{width:28,height:28,background:"#0f172a",borderRadius:8,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
-            <span style={{color:"#f59e0b",fontWeight:700,fontSize:12}}>C</span>
-          </div>
-          <div className="hidden sm:block">
-            <p style={{fontSize:12,fontWeight:700,color:"#1e293b",margin:0,lineHeight:1.2}}>{t("headerTitle")} <span style={{color:"#d97706"}}>{t("headerHighlight")}</span></p>
-            <p style={{fontSize:7,fontWeight:700,color:"#94a3b8",textTransform:"uppercase",letterSpacing:"0.08em",margin:0}}>{isLoading?t("syncing"):t("synced")}</p>
-          </div>
+        <div className="hidden sm:block">
+          <p style={{fontSize:12,fontWeight:700,color:"#1e293b",margin:0,lineHeight:1.2}}>{t("headerTitle")} <span style={{color:"#d97706"}}>{t("headerHighlight")}</span></p>
+          <p style={{fontSize:7,fontWeight:700,color:"#94a3b8",textTransform:"uppercase",letterSpacing:"0.08em",margin:0}}>{isLoading?t("syncing"):t("synced")}</p>
         </div>
-        {workLocations.length > 0 && (<select value={selectedWorkLocation} onChange={e=>setSelectedWorkLocation(e.target.value)} style={{flexShrink:0,background:"#f8fafc",border:"1.5px solid #e2e8f0",borderRadius:8,padding:"5px 8px",fontSize:10,fontWeight:700,color:"#334155",outline:"none"}} className="hidden sm:block"><option value="">{t("allWorkLocationsOpt")}</option>{workLocations.map(loc=><option key={loc.id} value={loc.id}>{loc.name}</option>)}</select>)}
+        {workLocations.length > 0 && (<select value={selectedWorkLocation} onChange={e=>setSelectedWorkLocation(e.target.value)} style={{flexShrink:0,background:"#f8fafc",border:"1.5px solid #e2e8f0",borderRadius:8,padding:"5px 6px",fontSize:9,fontWeight:700,color:"#334155",outline:"none",maxWidth:88}}><option value="">{t("allWorkLocationsOpt")}</option>{workLocations.map(loc=><option key={loc.id} value={loc.id}>{loc.name}</option>)}</select>)}
         <div className="hidden md:block" style={{flexShrink:0,padding:"4px 10px",background:"#f8fafc",borderRadius:8,border:"1.5px solid #e2e8f0"}}>
           <span style={{fontSize:10,fontWeight:700,color:"#334155",textTransform:"capitalize"}}>{dateTitles[viewMode]}</span>
         </div>
-        <div id="onboarding-calendar-search" style={{flex:"1 1 140px",minWidth:110,maxWidth:260,position:"relative"}}>
+        <div id="onboarding-calendar-search" style={{flex:"1 1 100px",minWidth:80,maxWidth:180,position:"relative"}}>
           <span style={{position:"absolute",left:8,top:"50%",transform:"translateY(-50%)",fontSize:12,color:"#94a3b8"}}>🔍</span>
           <input type="text" placeholder={t("searchPlaceholder")} value={searchTerm}
-            onChange={e=>{setSearchTerm(e.target.value);handleSearch(e.target.value);}}
+            onChange={e=>{setSearchTerm(e.target.value);handleSearch(e.target.value);setShowSearchDrop(e.target.value.trim().length>0);}}
             onFocus={()=>{if(searchTerm.trim())setShowSearchDrop(true);}}
-            style={{width:"100%",background:"#f8fafc",border:"1.5px solid #e2e8f0",borderRadius:8,padding:"5px 36px 5px 28px",fontSize:10,fontWeight:700,color:"#334155",outline:"none"}}
+            style={{width:"100%",background:"#f8fafc",border:"1.5px solid #e2e8f0",borderRadius:8,padding:"5px 8px 5px 24px",fontSize:10,fontWeight:700,color:"#334155",outline:"none"}}
             className="focus:border-amber-400 transition-all"/>
-          <button onClick={()=>{handleSearch(searchTerm);setShowSearchDrop(true);}} style={{position:"absolute",right:5,top:"50%",transform:"translateY(-50%)",background:"#0f172a",color:"#fff",border:"none",borderRadius:6,padding:"2px 7px",fontSize:8,fontWeight:700,cursor:"pointer"}} className="hover:bg-amber-600 transition-all">{t("searchBtn")}</button>
           {showSearchDrop&&searchResults.length>0&&(
             <div style={{position:"absolute",top:"100%",left:0,right:0,marginTop:4,background:"#fff",border:"1.5px solid #e2e8f0",borderRadius:12,boxShadow:"0 8px 24px rgba(0,0,0,0.12)",zIndex:50,maxHeight:240,overflowY:"auto"}}>
               {searchResults.map(p=>(<button key={p.id} onClick={()=>{setSearchTerm(p.nume);setShowSearchDrop(false);openEdit(p);}} style={{width:"100%",padding:"10px 14px",borderBottom:"1px solid #f1f5f9",textAlign:"left",background:"transparent",border:"none",cursor:"pointer"}} className="hover:bg-slate-50 transition-all"><span style={{fontSize:12,fontWeight:700,color:"#1e293b",display:"block"}}>{p.nume}</span><div style={{display:"flex",gap:8}}>{p.telefon&&<span style={{fontSize:9,color:"#94a3b8"}}>📞 {p.telefon}</span>}{p.isOnline&&<span style={{fontSize:9,color:"#3b82f6",fontWeight:700}}>🌐 {t("onlineLabel")}</span>}</div></button>))}

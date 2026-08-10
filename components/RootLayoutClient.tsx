@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 import { Link, usePathname, useRouter } from "@/i18n/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import Image from "next/image";
-import { Crown, Gem, ShieldCheck, Zap } from "lucide-react";
+import { Crown, Gem, ShieldCheck, Zap, CalendarDays, ClipboardList, Users, Package, Menu as MenuIcon } from "lucide-react";
 
 import GDPRModal from "@/components/GDPRModal";
 import TermeniModal from "@/components/TermeniModal";
@@ -271,7 +271,7 @@ export default function RootLayoutClient({ children }: { children: React.ReactNo
       )}
 
       {!isPublicPage && (
-        <header className="w-full bg-white border-b-2 border-slate-100 sticky top-0 z-[100] shadow-sm h-11 sm:h-16 flex items-center">
+        <header className="w-full bg-white border-b-2 border-slate-100 sticky top-0 z-[200] shadow-sm h-11 sm:h-16 flex items-center">
           <div className="max-w-7xl w-full mx-auto px-3 sm:px-6 flex justify-between items-center h-full gap-2 sm:gap-4">
             <Link href="/programari/calendar" className="flex items-center gap-3 h-full py-1 group shrink-0">
               <div className="h-full aspect-square flex items-center justify-center transition-transform group-hover:scale-105">
@@ -312,7 +312,7 @@ export default function RootLayoutClient({ children }: { children: React.ReactNo
               </Link>
 
               <div className="relative" ref={menuRef}>
-                <button onClick={() => setIsMenuOpen(!isMenuOpen)}
+                <button type="button" onClick={(e) => { e.stopPropagation(); setIsMenuOpen(!isMenuOpen); }}
                   className={`px-3 sm:px-5 py-1.5 sm:py-2 rounded-xl font-black text-[9px] sm:text-[10px] uppercase italic tracking-widest transition-all border-b-2 active:translate-y-0.5 active:border-b-0 ${
                     isMenuOpen ? "bg-amber-500 border-amber-700 text-white" : "bg-slate-900 border-slate-700 text-white hover:bg-slate-800"
                   }`}>
@@ -320,7 +320,7 @@ export default function RootLayoutClient({ children }: { children: React.ReactNo
                 </button>
 
                 {isMenuOpen && (
-                  <div className="absolute top-full mt-3 right-0 w-64 bg-white border-2 border-slate-900 rounded-[25px] shadow-2xl p-2 z-[110]">
+                  <div className="fixed top-12 sm:top-[70px] right-2 sm:right-6 w-64 max-w-[calc(100vw-16px)] bg-white border-2 border-slate-900 rounded-[25px] shadow-2xl p-2 z-[300]">
                     <div className="space-y-0.5 max-h-[70vh] overflow-y-auto scrollbar-none">
                       {menuItems.map((item) => (
                         <Link key={item.href} href={item.href} onClick={() => setIsMenuOpen(false)}
@@ -335,6 +335,26 @@ export default function RootLayoutClient({ children }: { children: React.ReactNo
                       className="w-full mt-2 pt-2 border-t border-slate-100 text-left p-3 text-red-500 font-black text-[10px] uppercase italic hover:bg-red-50 rounded-xl flex items-center gap-3 transition-colors">
                       <span>🚪</span> {t("logout")}
                     </button>
+                    <div className="mt-2 pt-2 border-t border-slate-100 space-y-0.5">
+                      {isLoggedIn && (
+                        <button onClick={() => { setIsMenuOpen(false); handleReviewTour(); }}
+                          className="w-full text-left p-2.5 text-[9px] font-black uppercase italic text-amber-600 hover:bg-amber-50 rounded-xl flex items-center gap-2">
+                          🔄 {t("footer.reviewTour")}
+                        </button>
+                      )}
+                      <button onClick={() => { setIsMenuOpen(false); setModalOpen((m) => ({ ...m, termeni: true })); }}
+                        className="w-full text-left p-2.5 text-[9px] font-black uppercase italic text-slate-400 hover:bg-slate-50 rounded-xl">
+                        {t("footer.termeni")}
+                      </button>
+                      <button onClick={() => { setIsMenuOpen(false); setModalOpen((m) => ({ ...m, gdpr: true })); }}
+                        className="w-full text-left p-2.5 text-[9px] font-black uppercase italic text-slate-400 hover:bg-slate-50 rounded-xl">
+                        {t("footer.confidentialitate")}
+                      </button>
+                      <button onClick={() => { setIsMenuOpen(false); setModalOpen((m) => ({ ...m, cookies: true })); }}
+                        className="w-full text-left p-2.5 text-[9px] font-black uppercase italic text-slate-400 hover:bg-slate-50 rounded-xl">
+                        {t("footer.cookies")}
+                      </button>
+                    </div>
                   </div>
                 )}
               </div>
@@ -345,8 +365,37 @@ export default function RootLayoutClient({ children }: { children: React.ReactNo
 
       <main className="flex-grow min-h-0">{children}</main>
 
+      {/* ✅ Bară de navigare jos, doar pe mobil — la fel ca aplicațiile native
+          (Mero, Fresha etc.): cele mai folosite destinații la un singur tap,
+          restul rămân în meniul complet ("Meniu", ultima iconiță). */}
+      {!isPublicPage && (
+        <nav className="sm:hidden w-full bg-white border-t-2 border-slate-100 flex items-stretch justify-around shrink-0 pb-[env(safe-area-inset-bottom)]" style={{ height: 52 }}>
+          <Link href="/programari/calendar" className={`flex-1 flex flex-col items-center justify-center gap-0.5 ${path === "/programari/calendar" ? "text-amber-600" : "text-slate-400"}`}>
+            <CalendarDays className="w-5 h-5" strokeWidth={path === "/programari/calendar" ? 2.4 : 1.8} />
+            <span className="text-[8px] font-black uppercase italic">{t("nav.calendar")}</span>
+          </Link>
+          <Link href="/programari" className={`flex-1 flex flex-col items-center justify-center gap-0.5 ${path === "/programari" ? "text-amber-600" : "text-slate-400"}`}>
+            <ClipboardList className="w-5 h-5" strokeWidth={path === "/programari" ? 2.4 : 1.8} />
+            <span className="text-[8px] font-black uppercase italic">{t("nav.programari")}</span>
+          </Link>
+          <Link href="/clienti" className={`flex-1 flex flex-col items-center justify-center gap-0.5 ${path === "/clienti" ? "text-amber-600" : "text-slate-400"}`}>
+            <Users className="w-5 h-5" strokeWidth={path === "/clienti" ? 2.4 : 1.8} />
+            <span className="text-[8px] font-black uppercase italic">{t("nav.clienti")}</span>
+          </Link>
+          <Link href="/resurse" className={`flex-1 flex flex-col items-center justify-center gap-0.5 ${path === "/resurse" ? "text-amber-600" : "text-slate-400"}`}>
+            <Package className="w-5 h-5" strokeWidth={path === "/resurse" ? 2.4 : 1.8} />
+            <span className="text-[8px] font-black uppercase italic">{t("nav.servicii")}</span>
+          </Link>
+          <button type="button" onClick={(e) => { e.stopPropagation(); setIsMenuOpen((v) => !v); }}
+            className={`flex-1 flex flex-col items-center justify-center gap-0.5 ${isMenuOpen ? "text-amber-600" : "text-slate-400"}`}>
+            <MenuIcon className="w-5 h-5" strokeWidth={isMenuOpen ? 2.4 : 1.8} />
+            <span className="text-[8px] font-black uppercase italic">{t("header.menuOpen")}</span>
+          </button>
+        </nav>
+      )}
+
       {!isPublicPage && !isCalendarHome && (
-        <footer className="w-full bg-white border-t-2 border-slate-100 py-5 px-8 mt-auto">
+        <footer className="hidden sm:block w-full bg-white border-t-2 border-slate-100 py-5 px-8 mt-auto">
           <div className="max-w-7xl w-full mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
 
             <div className="flex items-center gap-4">
