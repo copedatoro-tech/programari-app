@@ -1,5 +1,6 @@
-"use client";
+﻿"use client";
 import React, { useState, useEffect, useMemo, Suspense, useCallback, useRef } from "react";
+import { Link } from "@/i18n/navigation";
 import { useSearchParams } from "next/navigation";
 import { QueryClient, QueryClientProvider, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabaseClient";
@@ -8,7 +9,7 @@ import { useTranslations } from "next-intl";
 import { ChronosTimePicker, ChronosDatePicker } from "@/components/ChronosDateTimePickers";
 // ─── Constants ────────────────────────────────────────────────────────────────
 const SLOT_H = 34;
-const TIME_COL_W = 52;
+const TIME_COL_W = 44;
 // ─── Utils ────────────────────────────────────────────────────────────────────
 function sameDay(a: Date, b: Date) {
   return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
@@ -264,7 +265,7 @@ function TimeColumn({ slots, whStart, whEnd, isClosed }: { slots: string[]; whSt
         return (
           <div key={slot} style={{
             height:SLOT_H, display:"flex", alignItems:"flex-start", justifyContent:"flex-end",
-            paddingRight:6, paddingTop:4, userSelect:"none",
+            paddingRight:4, paddingTop:4, userSelect:"none",
             borderTop: isHour ? "1.5px solid #94a3b8" : isHalf ? "1px solid #cbd5e1" : "1px solid #e2e8f0",
             background: isWork ? "#fafbfc" : "#f1f5f9",
           }}>
@@ -442,11 +443,12 @@ function FilterDropdownButton({ label, allLabel, placeholder, items, selectedId,
   );
 }
 // ─── FilterBar ────────────────────────────────────────────────────────────────
-function FilterBar({ rawStaff, rawServices, programari, selectedExpert, onSelectExpert, selectedServiciu, onSelectServiciu, selectedDate }: {
+function FilterBar({ rawStaff, rawServices, programari, selectedExpert, onSelectExpert, selectedServiciu, onSelectServiciu, selectedDate, workLocations, selectedWorkLocation, onSelectWorkLocation }: {
   rawStaff: StaffRow[]; rawServices: ServiceRow[]; programari: Prog[];
   selectedExpert: string; onSelectExpert: (id: string) => void;
   selectedServiciu: string; onSelectServiciu: (id: string) => void;
   selectedDate: Date;
+  workLocations: { id: string; name: string }[]; selectedWorkLocation: string; onSelectWorkLocation: (id: string) => void;
 }) {
   const t = useTranslations("calendarPage");
   const dateKey = formatDateKey(selectedDate);
@@ -479,8 +481,15 @@ function FilterBar({ rawStaff, rawServices, programari, selectedExpert, onSelect
     return { id: svc.id, label: svc.nume_serviciu, sub: parts.length?parts.join(" · "):undefined, count: cntSvc[svc.id]||0 };
   });
 
+  const locationItems: DropdownItem[] = workLocations.map((loc) => ({ id: loc.id, label: loc.name, count: 0 }));
+
   return (
     <div style={{ flexShrink:0, background:"#fff", borderBottom:"2px solid #e2e8f0", padding:"5px 10px", display:"flex", alignItems:"center", gap:8, flexWrap:"wrap" }}>
+      {workLocations.length>0&&(
+        <FilterDropdownButton label="Punct" allLabel={t("allWorkLocationsOpt")} placeholder="Caută punct de lucru..."
+          items={locationItems} selectedId={selectedWorkLocation}
+          onSelect={onSelectWorkLocation} />
+      )}
       {rawStaff.length>0&&(
         <FilterDropdownButton label={t("filterSpecialists")} allLabel={t("filterAll")} placeholder={t("searchSpecialistPlaceholder")}
           items={staffItems} selectedId={selectedExpert}
@@ -615,8 +624,8 @@ function DayView({ selectedDate, programari, rawStaff, rawServices, serviceById,
     return m;
   }, [dayStaffList]);
   const totalCols = Math.max(dayStaffList.length + (hasUnassigned ? 1 : 0), 1);
-  const MIN_COL_W = 60;
-  const showColName = dayStaffList.length + (hasUnassigned?1:0) <= 6;
+  const MIN_COL_W = 34;
+  const showColName = dayStaffList.length + (hasUnassigned?1:0) <= 4;
   const gridMinWidth = TIME_COL_W + totalCols * MIN_COL_W;
   // ✅ Blocările per specialist (salvate pe staff.manual_blocks), citite pentru
   // ziua curentă — folosite ca să dezactivăm sloturile blocate din fiecare
@@ -692,8 +701,8 @@ function DayView({ selectedDate, programari, rawStaff, rawServices, serviceById,
               {dayStaffList.map((s,i) => {
                 const color = SC[staffMap[s.id]??(i%SC.length)];
                 return (
-                  <div key={s.id} title={s.name} style={{ flex:1, minWidth:MIN_COL_W, display:"flex", alignItems:"center", justifyContent:showColName?"flex-start":"center", gap:4, padding:showColName?"5px 5px":"5px 2px", borderLeft:"2px solid #e2e8f0" }}>
-                    <span style={{ width:18, height:18, borderRadius:"50%", background:color.border, display:"flex", alignItems:"center", justifyContent:"center", fontSize:9, fontWeight:700, color:"#fff", flexShrink:0 }}>
+                  <div key={s.id} title={s.name} style={{ flex:1, minWidth:MIN_COL_W, display:"flex", alignItems:"center", justifyContent:showColName?"flex-start":"center", gap:3, padding:showColName?"5px 4px":"5px 1px", borderLeft:"2px solid #e2e8f0" }}>
+                    <span style={{ width:15, height:15, borderRadius:"50%", background:color.border, display:"flex", alignItems:"center", justifyContent:"center", fontSize:8, fontWeight:700, color:"#fff", flexShrink:0 }}>
                       {s.name.charAt(0).toUpperCase()}
                     </span>
                     {showColName&&<span style={{ fontSize:10, fontWeight:700, color:"#334155", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{s.name}</span>}
@@ -701,7 +710,7 @@ function DayView({ selectedDate, programari, rawStaff, rawServices, serviceById,
                 );
               })}
               {hasUnassigned&&(
-                <div style={{ flex:1, minWidth:MIN_COL_W, display:"flex", alignItems:"center", justifyContent:"center", padding:"5px 2px", borderLeft:"2px solid #e2e8f0" }}>
+                <div style={{ flex:1, minWidth:MIN_COL_W, display:"flex", alignItems:"center", justifyContent:"center", padding:"5px 1px", borderLeft:"2px solid #e2e8f0" }}>
                   <span style={{ fontSize:10, fontWeight:700, color:"#94a3b8" }}>—</span>
                 </div>
               )}
@@ -799,15 +808,15 @@ function DayView({ selectedDate, programari, rawStaff, rawServices, serviceById,
                   onMouseLeave={handleMouseLeave}
                   style={{
                     position:"absolute", top:topPx+2, height:heightPx, zIndex:15,
-                    left:`calc(4px + ${col} * (100% - 4px) / ${totalCols})`,
-                    width:`calc((100% - 4px) / ${totalCols} - 3px)`,
-                    background:"#fff", borderRadius:6,
+                    left:`calc(2px + ${col} * (100% - 2px) / ${totalCols})`,
+                    width:`calc((100% - 2px) / ${totalCols} - 2px)`,
+                    background:"#fff", borderRadius:5,
                     borderTop:"1px solid rgba(0,0,0,0.07)",
                     borderRight:"1px solid rgba(0,0,0,0.07)",
                     borderBottom:"1px solid rgba(0,0,0,0.07)",
                     borderLeft:`3px solid ${color.border}`,
                     boxShadow:"0 1px 6px rgba(0,0,0,0.10), 0 0 0 1px rgba(0,0,0,0.06)",
-                    padding:"4px 6px", textAlign:"left", cursor:"pointer",
+                    padding:"3px 3px", textAlign:"left", cursor:"pointer",
                     transition:"all 0.15s", overflow:"hidden",
                   }}
                   className="hover:brightness-95 hover:shadow-md transition-all">
@@ -1590,7 +1599,7 @@ function CalendarContent() {
           <p style={{fontSize:12,fontWeight:700,color:"#1e293b",margin:0,lineHeight:1.2}}>{t("headerTitle")} <span style={{color:"#d97706"}}>{t("headerHighlight")}</span></p>
           <p style={{fontSize:7,fontWeight:700,color:"#94a3b8",textTransform:"uppercase",letterSpacing:"0.08em",margin:0}}>{isLoading?t("syncing"):t("synced")}</p>
         </div>
-        {workLocations.length > 0 && (<select value={selectedWorkLocation} onChange={e=>setSelectedWorkLocation(e.target.value)} style={{flexShrink:0,background:"#f8fafc",border:"1.5px solid #e2e8f0",borderRadius:8,padding:"5px 6px",fontSize:9,fontWeight:700,color:"#334155",outline:"none",maxWidth:88}}><option value="">{t("allWorkLocationsOpt")}</option>{workLocations.map(loc=><option key={loc.id} value={loc.id}>{loc.name}</option>)}</select>)}
+        {/* selectorul de puncte de lucru a fost mutat lângă Specialiști/Servicii, în FilterBar */}
         <div className="hidden md:block" style={{flexShrink:0,padding:"4px 10px",background:"#f8fafc",borderRadius:8,border:"1.5px solid #e2e8f0"}}>
           <span style={{fontSize:10,fontWeight:700,color:"#334155",textTransform:"capitalize"}}>{dateTitles[viewMode]}</span>
         </div>
@@ -1638,7 +1647,8 @@ function CalendarContent() {
       <FilterBar rawStaff={rawStaff} rawServices={rawServices} programari={programari}
         selectedExpert={selectedExpert} onSelectExpert={handleSelectExpert}
         selectedServiciu={selectedServiciu} onSelectServiciu={handleSelectServiciu}
-        selectedDate={selectedDate}/>
+        selectedDate={selectedDate}
+        workLocations={workLocations} selectedWorkLocation={selectedWorkLocation} onSelectWorkLocation={setSelectedWorkLocation}/>
 
       <div style={{flex:1,overflow:"hidden",display:"flex",flexDirection:"column",minHeight:0}}>
         {isLoading&&<div style={{height:3,background:"#fef3c7",overflow:"hidden",flexShrink:0}}><div style={{height:"100%",width:"33%",background:"#f59e0b"}} className="animate-pulse"/></div>}
