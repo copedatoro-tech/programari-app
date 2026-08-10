@@ -52,7 +52,7 @@ export default function RootLayoutClient({ children }: { children: React.ReactNo
   const getPageTitle = () => {
     switch (path) {
       case "/programari/calendar": return t("pageTitles.calendar");
-      case "/programari/calendar":          return t("pageTitles.programari");
+      case "/programari":          return t("pageTitles.programari");
       case "/clienti":             return t("pageTitles.clienti");
       case "/lista-asteptare":     return t("nav.listaAsteptare");
       case "/resurse":             return t("pageTitles.resurse");

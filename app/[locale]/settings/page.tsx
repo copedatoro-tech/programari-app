@@ -9,10 +9,17 @@ import { showToast } from "@/lib/toast";
 import TwoFactorSetup from "@/components/TwoFactorSetup";
 
 type ManualBlocksMap = Record<string, string[]>;
+type StoredManualBlocksMap = Record<string, string[] | Record<string, ManualBlocksMap> | undefined>;
+type WorkLocationRow = {
+  id: string;
+  name: string;
+  address?: string;
+};
 type NotificationSettings = { in_app_enabled: boolean; system_enabled: boolean; sound_enabled: boolean; volume: number };
 
 const CURRENCY_OPTIONS = ["RON", "EUR", "USD", "GBP", "HUF", "PLN"];
 const DEFAULT_NOTIF_SETTINGS: NotificationSettings = { in_app_enabled: true, system_enabled: false, sound_enabled: true, volume: 75 };
+const LOCATION_BLOCKS_KEY = "__work_location_manual_blocks";
 
 function SettingsContent() {
   const t = useTranslations("settings");
@@ -32,6 +39,9 @@ function SettingsContent() {
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [bookingInterval, setBookingInterval] = useState(60);
   const [manualBlocks, setManualBlocks] = useState<ManualBlocksMap>({});
+  const [workLocations, setWorkLocations] = useState<WorkLocationRow[]>([]);
+  const [selectedScheduleWorkLocationId, setSelectedScheduleWorkLocationId] = useState("");
+  const [storedManualBlocks, setStoredManualBlocks] = useState<StoredManualBlocksMap>({});
   const [showDayModal, setShowDayModal] = useState(false);
   const [existingBookings, setExistingBookings] = useState<string[]>([]);
   const [daysWithBookings, setDaysWithBookings] = useState<string[]>([]);
@@ -109,6 +119,42 @@ function SettingsContent() {
 
   const dynamicTimeSlots = useMemo(() => generateSlots(bookingInterval), [bookingInterval, generateSlots]);
 
+  const getGlobalManualBlocks = useCallback((blocks: StoredManualBlocksMap): ManualBlocksMap => {
+    const globalBlocks: ManualBlocksMap = {};
+    Object.entries(blocks || {}).forEach(([key, value]) => {
+      if (key !== LOCATION_BLOCKS_KEY && Array.isArray(value)) {
+        globalBlocks[key] = value;
+      }
+    });
+    return globalBlocks;
+  }, []);
+
+  const getLocationManualBlocks = useCallback((blocks: StoredManualBlocksMap, locationId: string): ManualBlocksMap => {
+    const locationBlocks = blocks?.[LOCATION_BLOCKS_KEY] as Record<string, ManualBlocksMap> | undefined;
+    if (!locationId || !locationBlocks || Array.isArray(locationBlocks) || typeof locationBlocks !== "object") return {};
+    return locationBlocks[locationId] || {};
+  }, []);
+
+  const getActiveManualBlocks = useCallback((blocks: StoredManualBlocksMap, locationId: string): ManualBlocksMap => {
+    return locationId ? getLocationManualBlocks(blocks, locationId) : getGlobalManualBlocks(blocks);
+  }, [getGlobalManualBlocks, getLocationManualBlocks]);
+
+  const buildStoredManualBlocks = useCallback((activeBlocks: ManualBlocksMap): StoredManualBlocksMap => {
+    const existingLocationBlocks = storedManualBlocks[LOCATION_BLOCKS_KEY] as Record<string, ManualBlocksMap> | undefined;
+
+    if (!selectedScheduleWorkLocationId) {
+      return existingLocationBlocks ? { ...activeBlocks, [LOCATION_BLOCKS_KEY]: existingLocationBlocks } : { ...activeBlocks };
+    }
+
+    return {
+      ...getGlobalManualBlocks(storedManualBlocks),
+      [LOCATION_BLOCKS_KEY]: {
+        ...(existingLocationBlocks || {}),
+        [selectedScheduleWorkLocationId]: activeBlocks,
+      },
+    };
+  }, [getGlobalManualBlocks, selectedScheduleWorkLocationId, storedManualBlocks]);
+
   const fetchMonthlyAppointments = useCallback(async (uid: string, date: Date) => {
     const firstDay = new Date(date.getFullYear(), date.getMonth(), 1).toISOString().split('T')[0];
     const lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0).toISOString().split('T')[0];
@@ -139,6 +185,7 @@ function SettingsContent() {
       setRebookingDays(profile.rebooking_reminder_days || 30);
       setDepositPercent(profile.deposit_percent || 100);
       setReminder2hEnabled(!!profile.reminder_2h_enabled);
+      setWorkLocations(Array.isArray(profile.work_locations) ? profile.work_locations : []);
       if (profile.notification_settings && typeof profile.notification_settings === "object") {
         setNotifSettings({ ...DEFAULT_NOTIF_SETTINGS, ...profile.notification_settings });
       }
@@ -156,8 +203,11 @@ function SettingsContent() {
       }
       const rawBlocks = profile.manual_blocks;
       if (rawBlocks && typeof rawBlocks === 'object' && !Array.isArray(rawBlocks)) {
-        setManualBlocks(rawBlocks as ManualBlocksMap);
+        const storedBlocks = rawBlocks as StoredManualBlocksMap;
+        setStoredManualBlocks(storedBlocks);
+        setManualBlocks(getActiveManualBlocks(storedBlocks, selectedScheduleWorkLocationId));
       } else {
+        setStoredManualBlocks({});
         setManualBlocks({});
       }
       }
@@ -319,11 +369,16 @@ function SettingsContent() {
 
   const saveSettings = async (blocksToSave: ManualBlocksMap = manualBlocks) => {
     if (!userId) return;
+
+    const blocksPayload = buildStoredManualBlocks(blocksToSave);
     const { error } = await supabase.from('profiles').update({
-      manual_blocks: blocksToSave,
+      manual_blocks: blocksPayload,
       booking_interval: bookingInterval
     }).eq('id', userId);
+
     if (!error) {
+      setStoredManualBlocks(blocksPayload);
+      setManualBlocks(getActiveManualBlocks(blocksPayload, selectedScheduleWorkLocationId));
       setIsDirty(false);
       showToast({ message: t("toastSavedMsg"), type: "success", title: t("toastSavedTitle") });
     } else {
@@ -879,6 +934,32 @@ function SettingsContent() {
               </div>
             </div>
           </div>
+        )}
+
+        {workLocations.length > 0 && (
+          <section className="bg-white rounded-[25px] p-5 mb-6 shadow-xl border border-slate-100">
+            <label className="block text-[9px] font-black uppercase italic tracking-widest text-slate-400 mb-2">
+              Orar pentru punctul de lucru
+            </label>
+            <select
+              value={selectedScheduleWorkLocationId}
+              onChange={(e) => {
+                const nextLocationId = e.target.value;
+                setSelectedScheduleWorkLocationId(nextLocationId);
+                setManualBlocks(getActiveManualBlocks(storedManualBlocks, nextLocationId));
+                setIsDirty(false);
+              }}
+              className="w-full px-4 py-3 rounded-2xl border-2 border-slate-100 bg-slate-50 text-slate-900 font-black text-[11px] uppercase italic outline-none focus:border-amber-500"
+            >
+              <option value="">Orar general</option>
+              {workLocations.map((loc) => (
+                <option key={loc.id} value={loc.id}>{loc.name}</option>
+              ))}
+            </select>
+            <p className="mt-2 text-[10px] font-bold italic text-slate-400">
+              Daca nu setezi un orar pentru punctul ales, rezervarile raman disponibile non-stop pana adaugi restrictii.
+            </p>
+          </section>
         )}
 
         {/* CALENDAR - DISPONIBIL TUTUROR */}
