@@ -664,3 +664,10 @@ a, button, input, textarea, select, div[tabindex] {
   }
 }
 /* CHRONOS_CALENDAR_EDIT_MODAL_MOBILE_END */
+
+/* Compactare globală pe mobil */
+@media (max-width: 640px) {
+  html {
+    zoom: 0.82;
+  }
+}

@@ -1,6 +1,5 @@
-﻿"use client";
+"use client";
 import React, { useState, useEffect, useMemo, Suspense, useCallback, useRef } from "react";
-import { Link } from "@/i18n/navigation";
 import { useSearchParams } from "next/navigation";
 import { QueryClient, QueryClientProvider, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabaseClient";
