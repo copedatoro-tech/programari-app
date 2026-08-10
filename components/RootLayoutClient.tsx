@@ -271,8 +271,8 @@ export default function RootLayoutClient({ children }: { children: React.ReactNo
       )}
 
       {!isPublicPage && (
-        <header className="w-full bg-white border-b-2 border-slate-100 sticky top-0 z-[100] shadow-sm h-14 sm:h-16 flex items-center">
-          <div className="max-w-7xl w-full mx-auto px-6 flex justify-between items-center h-full gap-4">
+        <header className="w-full bg-white border-b-2 border-slate-100 sticky top-0 z-[100] shadow-sm h-11 sm:h-16 flex items-center">
+          <div className="max-w-7xl w-full mx-auto px-3 sm:px-6 flex justify-between items-center h-full gap-2 sm:gap-4">
             <Link href="/programari/calendar" className="flex items-center gap-3 h-full py-1 group shrink-0">
               <div className="h-full aspect-square flex items-center justify-center transition-transform group-hover:scale-105">
                 <Image src="/logo-chronos.png" alt="Logo" width={56} height={56} priority className="object-contain h-full w-auto" />
@@ -282,17 +282,23 @@ export default function RootLayoutClient({ children }: { children: React.ReactNo
               </span>
             </Link>
 
-            <div className="flex-1 flex justify-center min-w-0">
-              <div className="px-4 md:px-6 py-2 rounded-xl bg-amber-50 border-[3px] border-amber-500 shadow-sm">
-                <h2 className="text-[10px] md:text-sm font-black uppercase italic tracking-widest text-slate-900 truncate">
-                  {getPageTitle()}
-                </h2>
+            {!isCalendarHome && (
+              <div className="flex-1 flex justify-center min-w-0">
+                <div className="px-4 md:px-6 py-2 rounded-xl bg-amber-50 border-[3px] border-amber-500 shadow-sm">
+                  <h2 className="text-[10px] md:text-sm font-black uppercase italic tracking-widest text-slate-900 truncate">
+                    {getPageTitle()}
+                  </h2>
+                </div>
               </div>
-            </div>
+            )}
 
-            <div className="flex items-center gap-3 shrink-0">
-              <LocaleSwitcher />
-              <CurrencySwitcher />
+            <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+              {!isCalendarHome && (
+                <>
+                  <LocaleSwitcher />
+                  <CurrencySwitcher />
+                </>
+              )}
 
               <Link href="/abonamente"
                 className="hidden md:flex items-center gap-3 px-4 py-1.5 rounded-[15px] bg-slate-50 border border-slate-100 hover:border-amber-500 transition-all group">
@@ -307,7 +313,7 @@ export default function RootLayoutClient({ children }: { children: React.ReactNo
 
               <div className="relative" ref={menuRef}>
                 <button onClick={() => setIsMenuOpen(!isMenuOpen)}
-                  className={`px-4 md:px-5 py-2 rounded-xl font-black text-[10px] uppercase italic tracking-widest transition-all border-b-2 active:translate-y-0.5 active:border-b-0 ${
+                  className={`px-3 sm:px-5 py-1.5 sm:py-2 rounded-xl font-black text-[9px] sm:text-[10px] uppercase italic tracking-widest transition-all border-b-2 active:translate-y-0.5 active:border-b-0 ${
                     isMenuOpen ? "bg-amber-500 border-amber-700 text-white" : "bg-slate-900 border-slate-700 text-white hover:bg-slate-800"
                   }`}>
                   {isMenuOpen ? t("header.menuClose") : t("header.menuOpen")}

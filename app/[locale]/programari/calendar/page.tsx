@@ -8,7 +8,7 @@ import { showToast, showConfirm } from "@/lib/toast";
 import { useTranslations } from "next-intl";
 import { ChronosTimePicker, ChronosDatePicker } from "@/components/ChronosDateTimePickers";
 // ─── Constants ────────────────────────────────────────────────────────────────
-const SLOT_H = 56;
+const SLOT_H = 34;
 const TIME_COL_W = 52;
 // ─── Utils ────────────────────────────────────────────────────────────────────
 function sameDay(a: Date, b: Date) {
@@ -566,8 +566,8 @@ function DayView({ selectedDate, programari, rawStaff, rawServices, serviceById,
   const hoverTimer = useRef<ReturnType<typeof setTimeout>|null>(null);
   const slots = useMemo(() => {
     if (isClosed||!whStart||!whEnd) return ALL_SLOTS;
-    const s = Math.max(0, timeToMin(whStart)-60);
-    const e = Math.min(24*60, timeToMin(whEnd==="00:00"?"24:00":whEnd)+60);
+    const s = Math.max(0, timeToMin(whStart)-30);
+    const e = Math.min(24*60, timeToMin(whEnd==="00:00"?"24:00":whEnd)+30);
     return ALL_SLOTS.filter(sl=>{ const m=timeToMin(sl); return m>=s&&m<e; });
   }, [isClosed,whStart,whEnd]);
   const firstMin = useMemo(() => slots.length?timeToMin(slots[0]):0, [slots]);
@@ -616,7 +616,8 @@ function DayView({ selectedDate, programari, rawStaff, rawServices, serviceById,
     return m;
   }, [dayStaffList]);
   const totalCols = Math.max(dayStaffList.length + (hasUnassigned ? 1 : 0), 1);
-  const MIN_COL_W = 92;
+  const MIN_COL_W = 60;
+  const showColName = dayStaffList.length + (hasUnassigned?1:0) <= 6;
   const gridMinWidth = TIME_COL_W + totalCols * MIN_COL_W;
   // ✅ Blocările per specialist (salvate pe staff.manual_blocks), citite pentru
   // ziua curentă — folosite ca să dezactivăm sloturile blocate din fiecare
@@ -692,16 +693,16 @@ function DayView({ selectedDate, programari, rawStaff, rawServices, serviceById,
               {dayStaffList.map((s,i) => {
                 const color = SC[staffMap[s.id]??(i%SC.length)];
                 return (
-                  <div key={s.id} style={{ flex:1, minWidth:MIN_COL_W, display:"flex", alignItems:"center", gap:4, padding:"6px 6px", borderLeft:"1px solid #f1f5f9" }}>
+                  <div key={s.id} title={s.name} style={{ flex:1, minWidth:MIN_COL_W, display:"flex", alignItems:"center", justifyContent:showColName?"flex-start":"center", gap:4, padding:showColName?"5px 5px":"5px 2px", borderLeft:"2px solid #e2e8f0" }}>
                     <span style={{ width:18, height:18, borderRadius:"50%", background:color.border, display:"flex", alignItems:"center", justifyContent:"center", fontSize:9, fontWeight:700, color:"#fff", flexShrink:0 }}>
                       {s.name.charAt(0).toUpperCase()}
                     </span>
-                    <span style={{ fontSize:10, fontWeight:700, color:"#334155", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{s.name}</span>
+                    {showColName&&<span style={{ fontSize:10, fontWeight:700, color:"#334155", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{s.name}</span>}
                   </div>
                 );
               })}
               {hasUnassigned&&(
-                <div style={{ flex:1, minWidth:MIN_COL_W, display:"flex", alignItems:"center", padding:"6px 6px", borderLeft:"1px solid #f1f5f9" }}>
+                <div style={{ flex:1, minWidth:MIN_COL_W, display:"flex", alignItems:"center", justifyContent:"center", padding:"5px 2px", borderLeft:"2px solid #e2e8f0" }}>
                   <span style={{ fontSize:10, fontWeight:700, color:"#94a3b8" }}>—</span>
                 </div>
               )}
@@ -712,6 +713,18 @@ function DayView({ selectedDate, programari, rawStaff, rawServices, serviceById,
             <TimeColumn slots={slots} whStart={whStart} whEnd={whEnd} isClosed={isClosed} />
           </div>
           <div style={{ flex:1, position:"relative" }}>
+            {Array.from({ length: totalCols }, (_, colI) => {
+              const staffIdForCol = colI < dayStaffList.length ? dayStaffList[colI].id : "";
+              const ci = staffIdForCol ? (staffMap[staffIdForCol] ?? 0) : -1;
+              const tint = ci>=0 ? SC[ci].workBg : "#f8fafc";
+              return (
+                <div key={`tint-${colI}`} style={{
+                  position:"absolute", left:`calc(${colI} * 100% / ${totalCols})`, width:`calc(100% / ${totalCols})`,
+                  top:0, height:gridH, background:tint,
+                  borderRight: colI < totalCols-1 ? "1.5px solid #dde3ea" : "none",
+                }} />
+              );
+            })}
             {slots.map((slot,i) => {
               const isHour = slot.endsWith(":00");
               const isHalf = slot.endsWith(":30");
@@ -725,7 +738,7 @@ function DayView({ selectedDate, programari, rawStaff, rawServices, serviceById,
                     ? "repeating-linear-gradient(135deg,rgba(239,68,68,0.10) 0px,rgba(239,68,68,0.10) 4px,rgba(254,242,242,1) 4px,rgba(254,242,242,1) 8px)"
                     : isOutsideHours
                       ? "repeating-linear-gradient(45deg,rgba(148,163,184,0.28) 0px,rgba(148,163,184,0.28) 2px,transparent 2px,transparent 10px),repeating-linear-gradient(135deg,rgba(148,163,184,0.28) 0px,rgba(148,163,184,0.28) 2px,transparent 2px,transparent 10px),#eef1f5"
-                      : "#fafbfc",
+                      : "transparent",
                   borderTop: isHour?"1.5px solid #94a3b8":isHalf?"1px solid #cbd5e1":"1px solid #e2e8f0",
                 }} />
               );
