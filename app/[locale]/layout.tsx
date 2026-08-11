@@ -27,6 +27,13 @@ export default async function LocaleLayout({
   return (
     <html lang={locale}>
       <head>
+        {/* ✅ FIX: lipsea complet meta tag-ul de viewport — fără el, telefoanele
+            presupun implicit o lățime de pagină "de desktop" (~980px) și o
+            micșorează să încapă pe ecran, lăsând o bandă goală pe margine în loc
+            să folosească toată lățimea reală a ecranului. `viewport-fit=cover`
+            e necesar și pentru ca bara de navigare de jos să respecte corect
+            zonele de siguranță (notch/gesture bar) pe telefoanele moderne. */}
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
         <Script id="fb-pixel" strategy="afterInteractive">
           {`
             !function(f,b,e,v,n,t,s)
