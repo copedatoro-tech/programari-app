@@ -195,11 +195,7 @@ function RezervareContent() {
   const fetchFeedbacks = useCallback(async (id: string) => {
     if (!id) return;
     const { data, error } = await supabase
-      .from("feedbacks")
-      .select("*")
-      .eq("admin_id", id)
-      .eq("aprobat", true)
-      .order("created_at", { ascending: false });
+      .rpc("get_public_feedbacks", { p_admin_id: id });
     if (!error) {
       setFeedbacks(data || []);
     } else {

@@ -625,7 +625,7 @@ function DayView({ selectedDate, programari, rawStaff, rawServices, serviceById,
   const totalCols = Math.max(dayStaffList.length + (hasUnassigned ? 1 : 0), 1);
   const MIN_COL_W = 34;
   const showColName = dayStaffList.length + (hasUnassigned?1:0) <= 4;
-  const gridMinWidth = TIME_COL_W + totalCols * MIN_COL_W;
+  const gridMinWidth = `max(100%, ${TIME_COL_W + totalCols * MIN_COL_W}px)`;
   // ? Blocarile per specialist (salvate pe staff.manual_blocks), citite pentru
   // ziua curenta — folosite ca sa dezactivam sloturile blocate din fiecare
   // coloana ?i sa le desenam ha?urat.
@@ -1267,7 +1267,7 @@ function CalendarContent() {
   const isDemo = searchParams.get("demo")==="true";
   const modalRef = useRef<HTMLDivElement>(null);
   const qClient = useQueryClient();
-  const [viewMode, setViewMode] = useState<ViewMode>("month");
+  const [viewMode, setViewMode] = useState<ViewMode>("day");
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedExpert, setSelectedExpert] = useState("");

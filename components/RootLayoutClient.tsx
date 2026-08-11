@@ -271,7 +271,7 @@ export default function RootLayoutClient({ children }: { children: React.ReactNo
       )}
 
       {!isPublicPage && (
-        <header className="w-full bg-white border-b-2 border-slate-100 sticky top-0 z-[200] shadow-sm h-11 sm:h-16 flex items-center">
+        <header className="chronos-app-header w-full bg-white border-b-2 border-slate-100 fixed sm:sticky top-0 left-0 right-0 z-[200] shadow-sm h-11 sm:h-16 flex items-center">
           <div className="max-w-7xl w-full mx-auto px-3 sm:px-6 flex justify-between items-center h-full gap-2 sm:gap-4">
             <Link href="/programari/calendar" className="flex items-center gap-3 h-full py-1 group shrink-0">
               <div className="h-full aspect-square flex items-center justify-center transition-transform group-hover:scale-105">
@@ -292,7 +292,7 @@ export default function RootLayoutClient({ children }: { children: React.ReactNo
               </div>
             )}
 
-            <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+            <div className="chronos-header-actions flex items-center gap-1.5 sm:gap-3 shrink-0">
               {!isCalendarHome && (
                 <>
                   <LocaleSwitcher />
@@ -363,13 +363,13 @@ export default function RootLayoutClient({ children }: { children: React.ReactNo
         </header>
       )}
 
-      <main className="flex-grow min-h-0">{children}</main>
+      <main className={`chronos-app-main flex-grow min-h-0 ${!isPublicPage ? "pt-11 sm:pt-0 pb-[52px] sm:pb-0" : ""}`}>{children}</main>
 
       {/* ✅ Bară de navigare jos, doar pe mobil — la fel ca aplicațiile native
           (Mero, Fresha etc.): cele mai folosite destinații la un singur tap,
           restul rămân în meniul complet ("Meniu", ultima iconiță). */}
       {!isPublicPage && (
-        <nav className="sm:hidden w-full bg-white border-t-2 border-slate-100 flex items-stretch justify-around shrink-0 pb-[env(safe-area-inset-bottom)]" style={{ height: 52 }}>
+        <nav className="chronos-mobile-bottom-nav sm:hidden fixed left-0 right-0 bottom-0 z-[210] w-full bg-white/95 backdrop-blur border-t border-slate-100 flex items-stretch justify-around shrink-0 pb-[env(safe-area-inset-bottom)] shadow-[0_-10px_24px_rgba(15,23,42,0.08)]" style={{ height: 48 }}>
           <Link href="/programari/calendar" className={`flex-1 flex flex-col items-center justify-center gap-0.5 ${path === "/programari/calendar" ? "text-amber-600" : "text-slate-400"}`}>
             <CalendarDays className="w-5 h-5" strokeWidth={path === "/programari/calendar" ? 2.4 : 1.8} />
             <span className="text-[8px] font-black uppercase italic">{t("nav.calendar")}</span>

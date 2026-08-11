@@ -725,3 +725,59 @@ a, button, input, textarea, select, div[tabindex] {
   }
 }
 /* CHRONOS_CALENDAR_FULL_PHONE_WIDTH_END */
+
+
+/* CHRONOS_NATIVE_MOBILE_SHELL_START */
+@media (max-width: 640px) {
+  .chronos-app-header {
+    height: 42px !important;
+  }
+
+  .chronos-app-header > div {
+    padding-left: 8px !important;
+    padding-right: 8px !important;
+    gap: 6px !important;
+  }
+
+  .chronos-app-header img {
+    max-height: 34px !important;
+    width: auto !important;
+  }
+
+  .chronos-header-actions {
+    gap: 5px !important;
+  }
+
+  .chronos-header-actions > * {
+    max-width: 118px !important;
+  }
+
+  .chronos-app-main {
+    padding-top: 42px !important;
+    padding-bottom: 48px !important;
+  }
+
+  .chronos-mobile-bottom-nav {
+    height: 46px !important;
+  }
+
+  .chronos-mobile-bottom-nav svg {
+    width: 16px !important;
+    height: 16px !important;
+  }
+
+  .chronos-mobile-bottom-nav span {
+    font-size: 7px !important;
+    line-height: 1 !important;
+  }
+
+  body:has(.chronos-calendar-page) .chronos-app-main {
+    height: calc(100svh - 42px - 46px) !important;
+    overflow: hidden !important;
+  }
+
+  body:has(.chronos-calendar-page) .chronos-calendar-page {
+    height: 100% !important;
+  }
+}
+/* CHRONOS_NATIVE_MOBILE_SHELL_END */
