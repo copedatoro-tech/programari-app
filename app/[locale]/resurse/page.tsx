@@ -140,7 +140,7 @@ export default function ResursePage() {
   const editServiciuRef = useRef<HTMLDivElement>(null);
   const editStaffRef    = useRef<HTMLDivElement>(null);
   const oreOptiuni      = Array.from({ length: 25 }, (_, i) => i);
-  const minuteOptiuni   = [0, 15, 30, 45];
+  const minuteOptiuni      = Array.from({ length: 60 }, (_, i) => i);
   const scheduleDayNames = t.raw("scheduleDayNames") as string[];
 
   const fetchResurse = useCallback(async (uid: string) => {
@@ -259,7 +259,12 @@ export default function ResursePage() {
       alert(t("serviceLimitReached", { limit: getLimitaServicii() }));
       return;
     }
-    const durataTotala = (parseInt(newService.hour) * 60) + parseInt(newService.minute);
+    const minuteLibere = Math.max(0, Math.min(59, parseInt(newService.minute) || 0));
+    const durataTotala = (parseInt(newService.hour) * 60) + minuteLibere;
+    if (durataTotala <= 0) {
+      alert(t("durationLabel"));
+      return;
+    }
     const { error } = await supabase.from('services').insert([{
       nume_serviciu: newService.name.trim(),
       price: parseFloat(newService.price) || 0,
@@ -393,7 +398,8 @@ export default function ResursePage() {
     if (editForm.tip === 'service') {
       payload.nume_serviciu = editForm.name;
       payload.price = parseFloat(editForm.price) || 0;
-      payload.duration = (parseInt(editForm.hour) * 60) + parseInt(editForm.minute);
+      const editMinuteLibere = Math.max(0, Math.min(59, parseInt(editForm.minute) || 0));
+      payload.duration = (parseInt(editForm.hour) * 60) + editMinuteLibere;
     } else {
       payload.name = editForm.name;
       payload.phone = editForm.phone || null;
@@ -894,7 +900,8 @@ export default function ResursePage() {
                         })()}
                         {(() => {
                           const sel = Array.isArray(loc.staff_ids) ? staff.filter(st => loc.staff_ids.includes(st.id)).map(st => st.name) : [];
-                          return (
+
+return (
                             <div>
                               <p className="text-[9px] font-black uppercase text-slate-400 mb-1">{t("workLocationStaffLabel")}</p>
                               <div className="flex flex-wrap items-center gap-2">

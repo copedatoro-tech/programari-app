@@ -121,7 +121,7 @@ export function ChronosTimePicker({
   const isClosed = dayIntervals.length === 0 && workingHours.length > 0;
   const workingStart = dayIntervals[0]?.start || "00:00";
   const workingEnd = dayIntervals[dayIntervals.length - 1]?.end || "23:59";
-  const minutes = useMemo(() => ["00", "15", "30", "45"], []);
+  const minutes = useMemo(() => Array.from({ length: 60 }, (_, i) => String(i).padStart(2, "0")), []);
   const allHours = useMemo(() => Array.from({ length: 24 }, (_, i) => String(i).padStart(2, "0")), []);
   const checkStatus = useCallback(
     (h: string, m: string): SlotStatus => {
