@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import { useTranslations } from "next-intl";
 // ─── TYPES ──────────────────────────────────────────────────────────────────────
@@ -243,22 +243,26 @@ export function ChronosTimePicker({
             </div>
             <div>
               <span className="text-[8px] font-black uppercase italic text-slate-400 mb-1.5 block px-1">{t("minutesLabel")}</span>
-              <div className="grid grid-cols-4 gap-1.5 bg-slate-50 p-1.5 rounded-xl border border-slate-100">
+              <div className="grid grid-cols-5 gap-1.5 bg-slate-50 p-1.5 rounded-xl border border-slate-100 max-h-56 overflow-y-auto">
                 {minutes.map((m) => {
                   const status = checkStatus(selHour, m);
                   const isSelected = selMinute === m;
                   const isAvail = status === "available";
+                  const isLandmark = Number(m) % 5 === 0;
+                  const minuteCls = isSelected && isAvail
+                    ? "border-amber-500 bg-slate-950 text-amber-500 shadow-sm"
+                    : isAvail && isLandmark
+                      ? "border-slate-950 bg-amber-500 text-slate-950"
+                      : isAvail
+                        ? "border-transparent bg-white text-slate-600 hover:bg-amber-100"
+                        : statusColors[status];
                   return (
                     <button
                       key={m}
                       type="button"
                       onClick={() => handleSelectMinute(m)}
                       disabled={!isAvail}
-                      className={`py-2 rounded-lg font-black text-[13px] transition-all border flex flex-col items-center justify-center ${
-                        isSelected && isAvail
-                          ? "bg-slate-900 text-amber-500 border-slate-900 shadow-sm"
-                          : statusColors[status]
-                      }`}
+                      className={`py-2 rounded-lg font-black text-[13px] transition-all border-2 flex flex-col items-center justify-center ${minuteCls}`}
                     >
                       {m}
                       {!isAvail && (
