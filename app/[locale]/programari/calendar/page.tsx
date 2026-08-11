@@ -305,14 +305,14 @@ function WeekStrip({ selectedDate, onSelectDate, programariByDate, adminWorkingH
       <div style={{ display:"flex", alignItems:"stretch", minHeight:44 }}>
         <div style={{ display:"flex", alignItems:"center", gap:4, padding:"0 8px", borderRight:"2px solid #e2e8f0", flexShrink:0, minWidth:140 }}>
           <button onClick={() => onSelectDate(addDays(weekStart, -7))}
-            style={{ width:22, height:22, border:"1.5px solid #e2e8f0", borderRadius:6, background:"#f8fafc", fontSize:13, fontWeight:700, color:"#334155", cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center" }}>ΓÇ╣</button>
+            style={{ width:22, height:22, border:"1.5px solid #e2e8f0", borderRadius:6, background:"#f8fafc", fontSize:13, fontWeight:700, color:"#334155", cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center" }}>‹</button>
           <div style={{ flex:1, textAlign:"center" }}>
             <p style={{ fontSize:10, fontWeight:700, color:"#1e293b", lineHeight:1.2 }}>{monthLabel}</p>
             <button onClick={() => onSelectDate(today)}
               style={{ fontSize:9, fontWeight:700, color:"#d97706", background:"none", border:"none", cursor:"pointer", padding:0 }}>{t("weekGoToday")}</button>
           </div>
           <button onClick={() => onSelectDate(addDays(weekStart, 7))}
-            style={{ width:22, height:22, border:"1.5px solid #e2e8f0", borderRadius:6, background:"#f8fafc", fontSize:13, fontWeight:700, color:"#334155", cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center" }}>ΓÇ║</button>
+            style={{ width:22, height:22, border:"1.5px solid #e2e8f0", borderRadius:6, background:"#f8fafc", fontSize:13, fontWeight:700, color:"#334155", cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center" }}>›</button>
         </div>
         <div style={{ display:"flex", flex:1 }}>
           {weekDays.map((day, i) => {
@@ -400,7 +400,7 @@ function FilterDropdownButton({ label, allLabel, placeholder, items, selectedId,
           <span style={{ width: 16, height: 16, borderRadius: "50%", background: selected.dotColor, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 8, fontWeight: 700, color: "#fff", flexShrink: 0 }}>{selected.initial}</span>
         )}
         <span style={{ opacity: 1 }}>{selected ? selected.label : allLabel}</span>
-        <span style={{ fontSize: 10, opacity: 0.65, transform: open ? "rotate(180deg)" : "none", transition: "transform 0.15s" }}>?</span>
+        <span style={{ fontSize: 10, opacity: 0.65, transform: open ? "rotate(180deg)" : "none", transition: "transform 0.15s" }}>▾</span>
       </button>
 
       {open && (
@@ -1634,9 +1634,9 @@ function CalendarContent() {
           ))}
         </div>
         <div style={{display:"flex",alignItems:"center",gap:2,flexShrink:0}}>
-          <button onClick={()=>nav(-1)} style={{width:26,height:26,background:"#f1f5f9",border:"1.5px solid #e2e8f0",borderRadius:7,cursor:"pointer",fontSize:14,fontWeight:700,color:"#334155",display:"flex",alignItems:"center",justifyContent:"center"}} className="hover:bg-slate-200 transition-all">ΓÇ╣</button>
+          <button onClick={()=>nav(-1)} style={{width:26,height:26,background:"#f1f5f9",border:"1.5px solid #e2e8f0",borderRadius:7,cursor:"pointer",fontSize:14,fontWeight:700,color:"#334155",display:"flex",alignItems:"center",justifyContent:"center"}} className="hover:bg-slate-200 transition-all">‹</button>
           <button onClick={()=>setSelectedDate(new Date())} style={{padding:"3px 8px",background:"transparent",border:"none",cursor:"pointer",fontSize:9,fontWeight:700,color:"#64748b"}} className="hover:text-amber-600 transition-colors">{t("todayBtn")}</button>
-          <button onClick={()=>nav(1)} style={{width:26,height:26,background:"#f1f5f9",border:"1.5px solid #e2e8f0",borderRadius:7,cursor:"pointer",fontSize:14,fontWeight:700,color:"#334155",display:"flex",alignItems:"center",justifyContent:"center"}} className="hover:bg-slate-200 transition-all">ΓÇ║</button>
+          <button onClick={()=>nav(1)} style={{width:26,height:26,background:"#f1f5f9",border:"1.5px solid #e2e8f0",borderRadius:7,cursor:"pointer",fontSize:14,fontWeight:700,color:"#334155",display:"flex",alignItems:"center",justifyContent:"center"}} className="hover:bg-slate-200 transition-all">›</button>
         </div>
         {userSub&&<span style={{fontSize:7,background:"#f1f5f9",color:"#94a3b8",padding:"3px 7px",borderRadius:6,fontWeight:700,textTransform:"uppercase",flexShrink:0}} className="hidden lg:block">{userSub.plan}</span>}
       </div>

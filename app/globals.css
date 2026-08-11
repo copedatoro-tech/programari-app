@@ -1,5 +1,4 @@
 ﻿@import "tailwindcss";
-
 /* Folosim @layer base pentru variabilele de tema 
   pentru a fi recunoscute corect de compilator 
 */
@@ -7,26 +6,21 @@
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
-
-/* Definim animaÈ›iile */
+/* Definim animațiile */
 @utility fade-in {
   animation: fadeIn 0.3s ease-out forwards;
 }
-
 @utility zoom-in {
   animation: zoomIn 0.3s ease-out forwards;
 }
-
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
 }
-
 @keyframes zoomIn {
   from { transform: scale(0.95); opacity: 0; }
   to { transform: scale(1); opacity: 1; }
 }
-
 /* Definim stilurile globale pentru sistemul Chronos */
 @layer components {
   /* Buton Standard Negru (Premium) */
@@ -37,8 +31,7 @@
            transition-all shadow-lg inline-flex items-center justify-center cursor-pointer;
     outline: none !important;
   }
-
-  /* Buton Accent Portocaliu (AtenÈ›ie/Demo) */
+  /* Buton Accent Portocaliu (Atenție/Demo) */
   .btn-demo {
     @apply bg-amber-500 text-white px-6 py-3 rounded-[20px] font-black text-[10px] 
            uppercase italic tracking-widest border-b-4 border-amber-700 
@@ -46,8 +39,7 @@
            transition-all shadow-lg inline-flex items-center justify-center cursor-pointer;
     outline: none !important;
   }
-
-  /* Buton È˜tergere/IeÈ™ire (RoÈ™u) */
+  /* Buton Ștergere/Ieșire (Roșu) */
   .btn-danger {
     @apply bg-red-500 text-white px-6 py-3 rounded-[20px] font-black text-[10px] 
            uppercase italic tracking-widest border-b-4 border-red-700 
@@ -55,13 +47,11 @@
            transition-all shadow-lg inline-flex items-center justify-center cursor-pointer;
     outline: none !important;
   }
-
   /* Card-uri Unitare */
   .card-chronos {
     @apply bg-white border-2 border-slate-100 rounded-[30px] shadow-sm p-6
            hover:shadow-md transition-shadow duration-300;
   }
-
   /* Input-uri Unitare */
   .input-chronos {
     @apply w-full bg-slate-50 border-2 border-slate-100 rounded-[15px] px-4 py-3
@@ -74,750 +64,63 @@
     @apply border-amber-500 bg-white;
     outline: none !important;
   }
-
   /* Stil pentru Pop-up-uri / Modale */
   .modal-overlay {
     @apply fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[200] flex items-center justify-center p-4;
   }
-
   .modal-content {
     @apply bg-white border-4 border-slate-100 rounded-[40px] shadow-2xl max-w-lg w-full p-8;
   }
 }
-
 :root {
   --background: #f8fafc;
   --foreground: #0f172a;
 }
-
 body {
   color: var(--foreground);
   background: var(--background);
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
   -webkit-tap-highlight-color: transparent;
 }
-
-/* ELIMINARE AGRESIVÄ‚ CHENAR (FOCUS OUTLINE) */
+/* ELIMINARE AGRESIVĂ CHENAR (FOCUS OUTLINE) */
 :focus, :active, :focus-visible, :focus-within {
     outline: none !important;
     outline-style: none !important;
     box-shadow: none !important;
 }
-
-/* Resetare specificÄƒ pentru elementele ce pot primi focus */
+/* Resetare specifică pentru elementele ce pot primi focus */
 a, button, input, textarea, select, div[tabindex] {
     outline: none !important;
 }
-
 /* Scrollbar personalizat */
 ::-webkit-scrollbar {
   width: 8px;
 }
-
 ::-webkit-scrollbar-track {
   background: #f1f5f9;
 }
-
 ::-webkit-scrollbar-thumb {
   background: #cbd5e1;
   border-radius: 10px;
 }
-
 ::-webkit-scrollbar-thumb:hover {
   background: #f59e0b;
 }
-
-/* Chronos calendar mobile layout */
-@media (max-width: 640px) {
-  html,
-  body {
-    overflow-x: hidden;
-  }
-
-  .chronos-calendar-page {
-    width: 100vw !important;
-    max-width: 100vw !important;
-    height: auto !important;
-    min-height: calc(100svh - 64px) !important;
-    overflow: hidden !important;
-  }
-
-  .chronos-calendar-toolbar {
-    width: 100% !important;
-    max-width: 100vw !important;
-    padding: 6px 8px !important;
-    gap: 6px !important;
-    row-gap: 6px !important;
-    align-items: stretch !important;
-  }
-
-  .chronos-calendar-search {
-    order: 3 !important;
-    flex: 1 1 100% !important;
-    min-width: 0 !important;
-    max-width: none !important;
-    width: 100% !important;
-  }
-
-  .chronos-calendar-view-toggle {
-    order: 4 !important;
-    width: 100% !important;
-    margin-left: 0 !important;
-    justify-content: space-between !important;
-  }
-
-  .chronos-calendar-view-toggle button {
-    flex: 1 1 0 !important;
-    padding-left: 6px !important;
-    padding-right: 6px !important;
-  }
-
-  .chronos-calendar-nav {
-    order: 5 !important;
-    width: 100% !important;
-    justify-content: center !important;
-  }
-
-  .chronos-calendar-filters {
-    width: 100% !important;
-    max-width: 100vw !important;
-    padding: 6px 8px !important;
-    flex-direction: column !important;
-    align-items: stretch !important;
-    gap: 6px !important;
-  }
-
-  .chronos-filter-dropdown {
-    width: 100% !important;
-    min-width: 0 !important;
-  }
-
-  .chronos-filter-dropdown > button {
-    width: 100% !important;
-    justify-content: space-between !important;
-    padding: 8px 12px !important;
-    font-size: 11px !important;
-    overflow: hidden !important;
-  }
-
-  .chronos-filter-dropdown-menu {
-    width: 100% !important;
-    max-width: calc(100vw - 16px) !important;
-  }
-}
-
-/* CHRONOS_CALENDAR_MOBILE_APP_START */
-@media (max-width: 640px) {
-  html,
-  body {
-    width: 100%;
-    max-width: 100%;
-    overflow-x: hidden;
-  }
-
-  .chronos-calendar-page {
-    width: 100vw !important;
-    max-width: 100vw !important;
-    height: calc(100svh - 64px) !important;
-    min-height: calc(100svh - 64px) !important;
-    overflow: hidden !important;
-    background: #f8fafc !important;
-  }
-
-  .chronos-calendar-toolbar {
-    width: 100% !important;
-    max-width: 100vw !important;
-    padding: 6px 8px !important;
-    gap: 6px !important;
-    row-gap: 6px !important;
-    align-items: stretch !important;
-    display: grid !important;
-    grid-template-columns: 38px 1fr 38px !important;
-  }
-
-  .chronos-calendar-toolbar > div:nth-child(2) {
-    min-width: 0 !important;
-  }
-
-  .chronos-calendar-toolbar > div:nth-child(2) > div:last-child {
-    display: none !important;
-  }
-
-  .chronos-calendar-toolbar select,
-  .chronos-calendar-toolbar > .hidden {
-    display: none !important;
-  }
-
-  .chronos-calendar-search {
-    grid-column: 1 / -1 !important;
-    min-width: 0 !important;
-    max-width: none !important;
-    width: 100% !important;
-  }
-
-  .chronos-calendar-search input {
-    height: 38px !important;
-    font-size: 11px !important;
-  }
-
-  .chronos-calendar-search button {
-    height: 26px !important;
-    padding: 0 10px !important;
-    font-size: 9px !important;
-  }
-
-  .chronos-calendar-view-toggle {
-    grid-column: 1 / -1 !important;
-    width: 100% !important;
-    margin-left: 0 !important;
-    justify-content: space-between !important;
-  }
-
-  .chronos-calendar-view-toggle button {
-    flex: 1 1 0 !important;
-    padding: 7px 4px !important;
-    font-size: 9px !important;
-  }
-
-  .chronos-calendar-nav {
-    grid-column: 1 / -1 !important;
-    width: 100% !important;
-    justify-content: center !important;
-  }
-
-  .chronos-calendar-nav button {
-    width: 34px !important;
-    height: 34px !important;
-  }
-
-  .chronos-calendar-filters {
-    width: 100% !important;
-    max-width: 100vw !important;
-    padding: 6px 8px !important;
-    display: grid !important;
-    grid-template-columns: 1fr !important;
-    gap: 6px !important;
-    align-items: stretch !important;
-  }
-
-  .chronos-filter-dropdown {
-    width: 100% !important;
-    min-width: 0 !important;
-  }
-
-  .chronos-filter-dropdown > button {
-    width: 100% !important;
-    min-width: 0 !important;
-    justify-content: space-between !important;
-    padding: 8px 12px !important;
-    font-size: 10px !important;
-    overflow: hidden !important;
-  }
-
-  .chronos-filter-dropdown > button span {
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
-  }
-
-  .chronos-filter-dropdown-menu {
-    width: 100% !important;
-    max-width: calc(100vw - 16px) !important;
-  }
-}
-/* CHRONOS_CALENDAR_MOBILE_APP_END */
-
-/* CHRONOS_MOBILE_APP_SHELL_START */
-@media (max-width: 640px) {
-  body {
-    overflow-x: hidden !important;
-  }
-
-  main,
-  main > div,
-  .chronos-calendar-page {
-    width: 100vw !important;
-    max-width: 100vw !important;
-    margin-left: 0 !important;
-    margin-right: 0 !important;
-  }
-
-  header {
-    width: 100vw !important;
-    max-width: 100vw !important;
-    overflow: hidden !important;
-  }
-
-  header > div {
-    width: 100% !important;
-    max-width: 100vw !important;
-    padding-left: 8px !important;
-    padding-right: 8px !important;
-    gap: 6px !important;
-  }
-
-  header img {
-    max-width: 44px !important;
-    max-height: 44px !important;
-  }
-
-  header button,
-  header a {
-    max-width: 130px !important;
-    min-width: 0 !important;
-    font-size: 10px !important;
-    padding-left: 10px !important;
-    padding-right: 10px !important;
-  }
-
-  .chronos-calendar-page {
-    min-height: calc(100svh - 64px) !important;
-    height: auto !important;
-    overflow: visible !important;
-  }
-
-  .chronos-calendar-toolbar {
-    position: relative !important;
-    width: 100vw !important;
-    max-width: 100vw !important;
-    padding: 6px 8px !important;
-    display: grid !important;
-    grid-template-columns: 40px 40px 1fr !important;
-    gap: 6px !important;
-    overflow: hidden !important;
-  }
-
-  .chronos-calendar-toolbar > * {
-    min-width: 0 !important;
-  }
-
-  .chronos-calendar-search {
-    grid-column: 1 / -1 !important;
-    width: 100% !important;
-    max-width: none !important;
-  }
-
-  .chronos-calendar-view-toggle {
-    grid-column: 1 / -1 !important;
-    width: 100% !important;
-    margin-left: 0 !important;
-  }
-
-  .chronos-calendar-view-toggle button {
-    flex: 1 1 0 !important;
-    min-width: 0 !important;
-    font-size: 9px !important;
-    padding: 8px 4px !important;
-  }
-
-  .chronos-calendar-nav {
-    grid-column: 1 / -1 !important;
-    justify-content: center !important;
-  }
-
-  .chronos-calendar-filters {
-    width: 100vw !important;
-    max-width: 100vw !important;
-    padding: 8px !important;
-    display: grid !important;
-    grid-template-columns: 1fr !important;
-    gap: 8px !important;
-    overflow: hidden !important;
-  }
-
-  .chronos-filter-dropdown,
-  .chronos-filter-dropdown > button {
-    width: 100% !important;
-    max-width: 100% !important;
-    min-width: 0 !important;
-  }
-
-  .chronos-filter-dropdown > button {
-    border-radius: 18px !important;
-    padding: 10px 14px !important;
-    font-size: 10px !important;
-    justify-content: space-between !important;
-  }
-
-  .chronos-filter-dropdown > button span {
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
-    white-space: nowrap !important;
-  }
-
-  .chronos-calendar-page footer,
-  .chronos-calendar-page + footer,
-  footer {
-    margin-top: 24px !important;
-    width: 100vw !important;
-    max-width: 100vw !important;
-    overflow: hidden !important;
-  }
-}
-/* CHRONOS_MOBILE_APP_SHELL_END */
-
-
-@media (max-width: 640px) {
-  .chronos-calendar-new-modal {
-    max-width: calc(100vw - 20px) !important;
-    max-height: calc(100svh - 28px) !important;
-    overflow-y: auto !important;
-    border-radius: 18px !important;
-    padding: 12px !important;
-    gap: 7px !important;
-  }
-}
-
-
-/* CHRONOS_GLOBAL_MOBILE_APP_SCALE_START */
-@media (max-width: 640px) {
-  html,
-  body {
-    width: 100%;
-    max-width: 100%;
-    overflow-x: hidden !important;
-  }
-
-  main {
-    width: 100%;
-    max-width: 100vw;
-    overflow-x: hidden;
-  }
-
-  h1 {
-    font-size: clamp(28px, 10vw, 44px) !important;
-    line-height: 0.95 !important;
-    letter-spacing: 0 !important;
-  }
-
-  h2 {
-    font-size: clamp(22px, 8vw, 34px) !important;
-    line-height: 1 !important;
-    letter-spacing: 0 !important;
-  }
-
-  h3 {
-    font-size: clamp(16px, 5vw, 24px) !important;
-    line-height: 1.1 !important;
-  }
-
-  p,
-  label,
-  input,
-  textarea,
-  select,
-  button {
-    letter-spacing: 0 !important;
-  }
-
-  button,
-  a[role="button"] {
-    min-height: 38px;
-  }
-
-  input,
-  textarea,
-  select {
-    font-size: 14px !important;
-  }
-
-  section {
-    padding-top: 36px !important;
-    padding-bottom: 36px !important;
-  }
-
-  .rounded-\[35px\],
-  .rounded-\[40px\],
-  .rounded-\[45px\],
-  .rounded-\[50px\] {
-    border-radius: 24px !important;
-  }
-
-  .shadow-xl,
-  .shadow-2xl {
-    box-shadow: 0 14px 32px rgba(15, 23, 42, 0.10) !important;
-  }
-}
-/* CHRONOS_GLOBAL_MOBILE_APP_SCALE_END */
-
-/* CHRONOS_CALENDAR_PHONE_FINAL_START */
-@media (max-width: 640px) {
-  body:has(.chronos-calendar-page) {
-    overflow: hidden !important;
-    background: #f8fafc !important;
-  }
-
-  body:has(.chronos-calendar-page) footer {
-    display: none !important;
-  }
-
-  .chronos-calendar-page {
-    height: calc(100svh - 58px) !important;
-    min-height: 0 !important;
-    overflow: hidden !important;
-    display: flex !important;
-    flex-direction: column !important;
-  }
-
-  .chronos-calendar-toolbar {
-    flex: 0 0 auto !important;
-    padding: 4px 6px !important;
-    gap: 5px !important;
-    grid-template-columns: 32px 32px 1fr !important;
-  }
-
-  .chronos-calendar-toolbar button,
-  .chronos-calendar-nav button {
-    min-height: 30px !important;
-    height: 30px !important;
-    border-radius: 12px !important;
-    font-size: 9px !important;
-  }
-
-  .chronos-calendar-search input {
-    height: 32px !important;
-    font-size: 10px !important;
-  }
-
-  .chronos-calendar-view-toggle button {
-    height: 30px !important;
-    padding: 5px 3px !important;
-    font-size: 9px !important;
-  }
-
-  .chronos-calendar-filters {
-    flex: 0 0 auto !important;
-    padding: 5px 6px !important;
-    gap: 5px !important;
-  }
-
-  .chronos-filter-dropdown > button {
-    min-height: 34px !important;
-    height: 34px !important;
-    border-radius: 17px !important;
-    padding: 6px 12px !important;
-    font-size: 9px !important;
-  }
-}
-/* CHRONOS_CALENDAR_PHONE_FINAL_END */
-/* CHRONOS_CALENDAR_EDIT_MODAL_MOBILE_START */
-@media (max-width: 640px) {
-  .chronos-calendar-edit-modal {
-    max-width: calc(100vw - 18px) !important;
-    max-height: calc(100svh - 18px) !important;
-    border-radius: 18px !important;
-  }
-
-  .chronos-calendar-edit-header {
-    padding: 8px 10px !important;
-    min-height: 58px !important;
-    gap: 7px !important;
-  }
-
-  .chronos-calendar-edit-header > div:first-of-type {
-    width: 30px !important;
-    height: 30px !important;
-    border-radius: 9px !important;
-    font-size: 13px !important;
-  }
-
-  .chronos-calendar-edit-header h2 {
-    font-size: 12px !important;
-    line-height: 1.1 !important;
-  }
-
-  .chronos-calendar-edit-header p {
-    font-size: 8px !important;
-  }
-
-  .chronos-calendar-edit-close {
-    top: 8px !important;
-    right: 8px !important;
-    width: 24px !important;
-    height: 24px !important;
-    border-radius: 8px !important;
-    font-size: 10px !important;
-  }
-
-  .chronos-calendar-edit-body {
-    padding: 8px !important;
-    gap: 5px !important;
-  }
-
-  .chronos-calendar-edit-body > div {
-    gap: 5px !important;
-  }
-
-  .chronos-calendar-edit-body input,
-  .chronos-calendar-edit-body select,
-  .chronos-calendar-edit-body textarea {
-    font-size: 10px !important;
-  }
-
-  .chronos-calendar-edit-body p {
-    font-size: 6.5px !important;
-  }
-
-  .chronos-calendar-edit-body button {
-    min-height: 34px !important;
-    border-radius: 10px !important;
-    font-size: 9px !important;
-  }
-}
-/* CHRONOS_CALENDAR_EDIT_MODAL_MOBILE_END */
-
-/* Compactare globală pe mobil */
-@media (max-width: 640px) {
-  html {
-    zoom: 0.82;
-  }
-}
-
-
-/* CHRONOS_CALENDAR_FULL_PHONE_WIDTH_START */
-@media (max-width: 640px) {
-  html,
-  body {
-    width: 100% !important;
-    max-width: 100% !important;
-    overflow-x: hidden !important;
-  }
-
-  body:has(.chronos-calendar-page),
-  body:has(.chronos-calendar-page) main,
-  body:has(.chronos-calendar-page) main > div {
-    width: 100dvw !important;
-    max-width: 100dvw !important;
-    min-width: 0 !important;
-    margin-left: 0 !important;
-    margin-right: 0 !important;
-    padding-left: 0 !important;
-    padding-right: 0 !important;
-    overflow-x: hidden !important;
-  }
-
-  .chronos-calendar-page,
-  .chronos-calendar-toolbar,
-  .chronos-calendar-filters,
-  .chronos-calendar-day-view,
-  .chronos-calendar-day-scroll {
-    width: 100dvw !important;
-    max-width: 100dvw !important;
-    min-width: 0 !important;
-    box-sizing: border-box !important;
-  }
-
-  .chronos-calendar-day-scroll {
-    overflow-x: auto !important;
-    overscroll-behavior-x: contain !important;
-  }
-
-  .chronos-calendar-day-grid {
-    min-width: 100% !important;
-  }
-
-  .chronos-calendar-filters {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
-  }
-
-  .chronos-calendar-filters > * {
-    min-width: 0 !important;
-    max-width: 100% !important;
-  }
-}
-/* CHRONOS_CALENDAR_FULL_PHONE_WIDTH_END */
-
-
-/* CHRONOS_NATIVE_MOBILE_SHELL_START */
-@media (max-width: 640px) {
-  .chronos-app-header {
-    height: 42px !important;
-  }
-
-  .chronos-app-header > div {
-    padding-left: 8px !important;
-    padding-right: 8px !important;
-    gap: 6px !important;
-  }
-
-  .chronos-app-header img {
-    max-height: 34px !important;
-    width: auto !important;
-  }
-
-  .chronos-header-actions {
-    gap: 5px !important;
-  }
-
-  .chronos-header-actions > * {
-    max-width: 118px !important;
-  }
-
-  .chronos-app-main {
-    padding-top: 42px !important;
-    padding-bottom: 48px !important;
-  }
-
-  .chronos-mobile-bottom-nav {
-    height: 46px !important;
-  }
-
-  .chronos-mobile-bottom-nav svg {
-    width: 16px !important;
-    height: 16px !important;
-  }
-
-  .chronos-mobile-bottom-nav span {
-    font-size: 7px !important;
-    line-height: 1 !important;
-  }
-
-  body:has(.chronos-calendar-page) .chronos-app-main {
-    height: calc(100svh - 42px - 46px) !important;
-    overflow: hidden !important;
-  }
-
-  body:has(.chronos-calendar-page) .chronos-calendar-page {
-    height: 100% !important;
-  }
-}
-/* CHRONOS_NATIVE_MOBILE_SHELL_END */
-
-
-/* CHRONOS_MOBILE_WIDTH_FIX_FINAL */
-@media (max-width: 640px) {
-  html,
-  body {
-    width: 100vw !important;
-    max-width: 100vw !important;
-    overflow-x: hidden !important;
-  }
-
-  .chronos-app-header,
-  .chronos-mobile-bottom-nav,
-  .chronos-app-main {
-    width: 100vw !important;
-    max-width: 100vw !important;
-    overflow-x: hidden !important;
-  }
-
-  .chronos-header-actions {
-    display: flex !important;
-    align-items: center !important;
-    gap: 4px !important;
-    margin-left: auto !important;
-    min-width: 0 !important;
-    flex-shrink: 0 !important;
-  }
-
-  .chronos-header-switchers {
-    display: flex !important;
-    align-items: center !important;
-    gap: 4px !important;
-    flex-shrink: 0 !important;
-  }
-
-  .chronos-header-actions button {
-    min-width: 0 !important;
-    white-space: nowrap !important;
-  }
+/* ✅ Toate reparațiile de lățime pe mobil (8 blocuri acumulate în timp,
+   "CHRONOS_CALENDAR_MOBILE_APP", "CHRONOS_MOBILE_APP_SHELL",
+   "CHRONOS_GLOBAL_MOBILE_APP_SCALE", "CHRONOS_CALENDAR_PHONE_FINAL",
+   "CHRONOS_CALENDAR_EDIT_MODAL_MOBILE", "CHRONOS_CALENDAR_FULL_PHONE_WIDTH",
+   "CHRONOS_NATIVE_MOBILE_SHELL", "CHRONOS_MOBILE_WIDTH_FIX_FINAL") au fost
+   eliminate — se contraziceau reciproc (fiecare cu propriul !important) și
+   cauzau exact problema pe care încercau s-o repare. Lățimea corectă pe
+   mobil e acum asigurată direct în componente (CalendarPage, RootLayoutClient)
+   și prin meta tag-ul de viewport din app/[locale]/layout.tsx — nu mai are
+   nevoie de niciun ajutor din CSS global.
+*/
+/* ✅ Singura regulă globală, minimală, cu adevărat necesară: previne
+   scroll-ul orizontal accidental la nivel de pagină, fără să forțeze
+   nicio lățime (spre deosebire de blocurile eliminate mai sus). */
+html, body {
+  overflow-x: hidden;
+  max-width: 100vw;
 }
