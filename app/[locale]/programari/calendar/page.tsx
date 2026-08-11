@@ -610,9 +610,9 @@ function DayView({ selectedDate, programari, rawStaff, rawServices, serviceById,
       const st = rawStaff.find(s => s.id === selectedExpert);
       return st ? [st] : [];
     }
-    const withAppts = rawStaff.filter(s => dayAppts.some(p => p.expertId === s.id));
-    return withAppts.length ? withAppts : rawStaff;
-  }, [selectedExpert, rawStaff, dayAppts]);
+
+    return rawStaff;
+  }, [selectedExpert, rawStaff]);
   const hasUnassigned = useMemo(
     () => dayAppts.some(p => !p.expertId || !dayStaffList.some(s => s.id === p.expertId)),
     [dayAppts, dayStaffList]
