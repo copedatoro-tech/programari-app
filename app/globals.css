@@ -671,3 +671,57 @@ a, button, input, textarea, select, div[tabindex] {
     zoom: 0.82;
   }
 }
+
+
+/* CHRONOS_CALENDAR_FULL_PHONE_WIDTH_START */
+@media (max-width: 640px) {
+  html,
+  body {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: hidden !important;
+  }
+
+  body:has(.chronos-calendar-page),
+  body:has(.chronos-calendar-page) main,
+  body:has(.chronos-calendar-page) main > div {
+    width: 100dvw !important;
+    max-width: 100dvw !important;
+    min-width: 0 !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    overflow-x: hidden !important;
+  }
+
+  .chronos-calendar-page,
+  .chronos-calendar-toolbar,
+  .chronos-calendar-filters,
+  .chronos-calendar-day-view,
+  .chronos-calendar-day-scroll {
+    width: 100dvw !important;
+    max-width: 100dvw !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+  }
+
+  .chronos-calendar-day-scroll {
+    overflow-x: auto !important;
+    overscroll-behavior-x: contain !important;
+  }
+
+  .chronos-calendar-day-grid {
+    min-width: 100% !important;
+  }
+
+  .chronos-calendar-filters {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+  }
+
+  .chronos-calendar-filters > * {
+    min-width: 0 !important;
+    max-width: 100% !important;
+  }
+}
+/* CHRONOS_CALENDAR_FULL_PHONE_WIDTH_END */

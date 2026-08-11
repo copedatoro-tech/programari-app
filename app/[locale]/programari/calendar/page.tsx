@@ -681,7 +681,7 @@ function DayView({ selectedDate, programari, rawStaff, rawServices, serviceById,
   };
   const handleMouseLeave = () => { if(hoverTimer.current) clearTimeout(hoverTimer.current); setHoverCard(null); };
   return (
-    <div style={{ display:"flex", flexDirection:"column", flex:1, overflow:"hidden" }}>
+    <div className="chronos-calendar-day-view" style={{ display:"flex", flexDirection:"column", flex:1, overflow:"hidden" }}>
       {isClosed&&(
         <div style={{ flexShrink:0, background:"#fff5f5", borderBottom:"1px solid #fca5a5", padding:"6px 16px" }}>
           <span style={{ fontSize:11, fontWeight:700, color:"#dc2626" }}>{t("dayClosedBanner")}</span>
@@ -691,9 +691,9 @@ function DayView({ selectedDate, programari, rawStaff, rawServices, serviceById,
         <AppointmentHoverCard prog={hoverCard.prog} anchorRect={hoverCard.rect} serviceById={serviceById}
           rawStaff={rawStaff} staffColorIndex={staffMap[hoverCard.prog.expertId||""]??0} onClose={()=>setHoverCard(null)} />
       )}
-      <div ref={scrollRef} style={{ flex:1, overflowY:"auto", overflowX:"auto" }}
+      <div ref={scrollRef} className="chronos-calendar-day-scroll" style={{ flex:1, overflowY:"auto", overflowX:"auto" }}
         onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
-        <div style={{ minWidth: gridMinWidth }}>
+        <div className="chronos-calendar-day-grid" style={{ minWidth: gridMinWidth }}>
           {dayStaffList.length>0&&(
             <div style={{ display:"flex", position:"sticky", top:0, zIndex:30, background:"#fff", borderBottom:"2px solid #e2e8f0" }}>
               <div style={{ width:TIME_COL_W, flexShrink:0, borderRight:"2px solid #e2e8f0", background:"#fff" }} />
