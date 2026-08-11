@@ -194,12 +194,27 @@ function RezervareContent() {
 
   const fetchFeedbacks = useCallback(async (id: string) => {
     if (!id) return;
-    const { data, error } = await supabase
+
+    const rpcResult = await supabase
       .rpc("get_public_feedbacks", { p_admin_id: id });
-    if (!error) {
-      setFeedbacks(data || []);
+
+    if (!rpcResult.error && Array.isArray(rpcResult.data) && rpcResult.data.length > 0) {
+      setFeedbacks(rpcResult.data);
+      return;
+    }
+
+    const directResult = await supabase
+      .from("feedbacks")
+      .select("*")
+      .eq("admin_id", id)
+      .eq("aprobat", true)
+      .order("created_at", { ascending: false });
+
+    if (!directResult.error) {
+      setFeedbacks(directResult.data || []);
     } else {
-      console.error("Eroare fetch feedbacks:", error.message);
+      console.error("Eroare fetch feedbacks:", rpcResult.error?.message || directResult.error.message);
+      setFeedbacks([]);
     }
   }, []);
 

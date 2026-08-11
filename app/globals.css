@@ -781,3 +781,43 @@ a, button, input, textarea, select, div[tabindex] {
   }
 }
 /* CHRONOS_NATIVE_MOBILE_SHELL_END */
+
+
+/* CHRONOS_MOBILE_WIDTH_FIX_FINAL */
+@media (max-width: 640px) {
+  html,
+  body {
+    width: 100vw !important;
+    max-width: 100vw !important;
+    overflow-x: hidden !important;
+  }
+
+  .chronos-app-header,
+  .chronos-mobile-bottom-nav,
+  .chronos-app-main {
+    width: 100vw !important;
+    max-width: 100vw !important;
+    overflow-x: hidden !important;
+  }
+
+  .chronos-header-actions {
+    display: flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+    margin-left: auto !important;
+    min-width: 0 !important;
+    flex-shrink: 0 !important;
+  }
+
+  .chronos-header-switchers {
+    display: flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+    flex-shrink: 0 !important;
+  }
+
+  .chronos-header-actions button {
+    min-width: 0 !important;
+    white-space: nowrap !important;
+  }
+}
