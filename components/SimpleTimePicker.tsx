@@ -1,43 +1,33 @@
 "use client";
-
 import { useEffect, useRef, useState } from "react";
-
 interface SimpleTimePickerProps {
   value: string;
   onChange: (v: string) => void;
 }
-
 const HOURS = Array.from({ length: 24 }, (_, i) => String(i).padStart(2, "0"));
 const MINUTES = Array.from({ length: 60 }, (_, i) => String(i).padStart(2, "0"));
-
 export default function SimpleTimePicker({ value, onChange }: SimpleTimePickerProps) {
   const [open, setOpen] = useState(false);
   const [draftHour, setDraftHour] = useState("09");
   const [draftMinute, setDraftMinute] = useState("00");
   const panelRef = useRef<HTMLDivElement>(null);
-
   const [hour = "09", minute = "00"] = (value || "09:00").split(":");
-
   useEffect(() => {
     if (!open) return;
     setDraftHour(hour || "09");
     setDraftMinute(minute || "00");
-
     function onClickOutside(event: MouseEvent) {
       if (panelRef.current && !panelRef.current.contains(event.target as Node)) {
         setOpen(false);
       }
     }
-
     document.addEventListener("mousedown", onClickOutside);
     return () => document.removeEventListener("mousedown", onClickOutside);
   }, [open, hour, minute]);
-
   const save = () => {
     onChange(`${draftHour}:${draftMinute}`);
     setOpen(false);
   };
-
   return (
     <>
       <button
@@ -47,7 +37,6 @@ export default function SimpleTimePicker({ value, onChange }: SimpleTimePickerPr
       >
         {hour}:{minute}
       </button>
-
       {open && (
         <div className="fixed inset-0 z-[260] flex items-center justify-center bg-slate-950/35 px-4 backdrop-blur-sm">
           <div
@@ -69,11 +58,10 @@ export default function SimpleTimePicker({ value, onChange }: SimpleTimePickerPr
                 Inchide
               </button>
             </div>
-
             <div className="space-y-5">
               <div>
                 <p className="mb-2 text-[9px] font-black uppercase italic tracking-widest text-slate-400">Ora</p>
-                <div className="grid max-h-48 grid-cols-6 gap-2 overflow-y-auto pr-1">
+                <div className="grid max-h-40 grid-cols-6 gap-2 overflow-y-auto pr-1">
                   {HOURS.map((item) => {
                     const active = item === draftHour;
                     return (
@@ -81,7 +69,7 @@ export default function SimpleTimePicker({ value, onChange }: SimpleTimePickerPr
                         key={item}
                         type="button"
                         onClick={() => setDraftHour(item)}
-                        className={`rounded-xl px-2 py-2 text-[11px] font-black italic transition-all ${active ? "bg-slate-950 text-amber-500 shadow-md" : "bg-slate-100 text-slate-600 hover:bg-amber-100"}`}
+                        className={`rounded-xl border-2 px-2 py-2 text-[11px] font-black italic transition-all ${active ? "border-amber-500 bg-slate-950 text-amber-500 shadow-md" : "border-transparent bg-slate-100 text-slate-600 hover:bg-amber-100"}`}
                       >
                         {item}
                       </button>
@@ -89,18 +77,31 @@ export default function SimpleTimePicker({ value, onChange }: SimpleTimePickerPr
                   })}
                 </div>
               </div>
-
               <div>
-                <p className="mb-2 text-[9px] font-black uppercase italic tracking-widest text-slate-400">Minute</p>
-                <div className="grid grid-cols-4 gap-2">
+                <div className="mb-2 flex items-center justify-between">
+                  <p className="text-[9px] font-black uppercase italic tracking-widest text-slate-400">Minute</p>
+                  <p className="text-[8px] font-bold italic text-slate-300">orice minut — reperele din 5 în 5 sunt evidențiate</p>
+                </div>
+                {/* ✅ Nicio limitare la sferturi de oră — rămân toate cele 60 de
+                    minute alese liber, dar cele multiplu de 5 (reperele vizuale
+                    naturale) sunt evidențiate cu culorile Chronos, iar zona are
+                    o înălțime fixă cu scroll intern, ca să nu mai umple tot
+                    ecranul cu o listă interminabilă. */}
+                <div className="grid max-h-56 grid-cols-5 gap-2 overflow-y-auto pr-1">
                   {MINUTES.map((item) => {
                     const active = item === draftMinute;
+                    const isLandmark = Number(item) % 5 === 0;
+                    const cls = active
+                      ? "border-amber-500 bg-slate-950 text-amber-500 shadow-md"
+                      : isLandmark
+                        ? "border-slate-950 bg-amber-500 text-slate-950"
+                        : "border-transparent bg-slate-100 text-slate-600 hover:bg-amber-100";
                     return (
                       <button
                         key={item}
                         type="button"
                         onClick={() => setDraftMinute(item)}
-                        className={`rounded-xl px-3 py-3 text-[12px] font-black italic transition-all ${active ? "bg-slate-950 text-amber-500 shadow-md" : "bg-slate-100 text-slate-600 hover:bg-amber-100"}`}
+                        className={`rounded-xl border-2 px-3 py-3 text-[12px] font-black italic transition-all ${cls}`}
                       >
                         {item}
                       </button>
@@ -109,7 +110,6 @@ export default function SimpleTimePicker({ value, onChange }: SimpleTimePickerPr
                 </div>
               </div>
             </div>
-
             <button
               type="button"
               onClick={save}
