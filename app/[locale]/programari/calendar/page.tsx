@@ -298,21 +298,23 @@ function WeekStrip({ selectedDate, onSelectDate, programariByDate, adminWorkingH
   }, [adminWorkingHours]);
   const monthLabel = useMemo(() => {
     const fm = weekDays[0].getMonth(), lm = weekDays[6].getMonth(), yr = weekDays[0].getFullYear();
-    return fm === lm ? `${months[fm]} ${yr}` : `${monthsShort[fm]} ΓÇô ${monthsShort[lm]} ${yr}`;
+    return fm === lm ? `${months[fm]} ${yr}` : `${monthsShort[fm]} – ${monthsShort[lm]} ${yr}`;
   }, [weekDays, months, monthsShort]);
+  const weekNumber = useMemo(() => {
+    const d = new Date(Date.UTC(weekStart.getFullYear(), weekStart.getMonth(), weekStart.getDate()));
+    const dayNum = (d.getUTCDay() + 6) % 7;
+    d.setUTCDate(d.getUTCDate() - dayNum + 3);
+    const firstThursday = new Date(Date.UTC(d.getUTCFullYear(), 0, 4));
+    return 1 + Math.round(((d.getTime() - firstThursday.getTime()) / 86400000 - 3 + ((firstThursday.getUTCDay() + 6) % 7)) / 7);
+  }, [weekStart]);
   return (
     <div style={{ flexShrink:0, background:"#fff", borderBottom:"2px solid #e2e8f0" }}>
       <div style={{ display:"flex", alignItems:"stretch", minHeight:44 }}>
-        <div style={{ display:"flex", alignItems:"center", gap:4, padding:"0 8px", borderRight:"2px solid #e2e8f0", flexShrink:0, minWidth:140 }}>
-          <button onClick={() => onSelectDate(addDays(weekStart, -7))}
-            style={{ width:22, height:22, border:"1.5px solid #e2e8f0", borderRadius:6, background:"#f8fafc", fontSize:13, fontWeight:700, color:"#334155", cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center" }}>‹</button>
-          <div style={{ flex:1, textAlign:"center" }}>
-            <p style={{ fontSize:10, fontWeight:700, color:"#1e293b", lineHeight:1.2 }}>{monthLabel}</p>
-            <button onClick={() => onSelectDate(today)}
-              style={{ fontSize:9, fontWeight:700, color:"#d97706", background:"none", border:"none", cursor:"pointer", padding:0 }}>{t("weekGoToday")}</button>
+        <div style={{ display:"flex", alignItems:"center", justifyContent:"center", padding:"0 8px", borderRight:"2px solid #e2e8f0", flexShrink:0, minWidth:140 }}>
+          <div style={{ textAlign:"center" }}>
+            <p style={{ fontSize:10, fontWeight:700, color:"#1e293b", lineHeight:1.2 }}>Saptamana {weekNumber}</p>
+            <p style={{ fontSize:8, fontWeight:700, color:"#94a3b8", marginTop:1 }}>{monthLabel}</p>
           </div>
-          <button onClick={() => onSelectDate(addDays(weekStart, 7))}
-            style={{ width:22, height:22, border:"1.5px solid #e2e8f0", borderRadius:6, background:"#f8fafc", fontSize:13, fontWeight:700, color:"#334155", cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center" }}>›</button>
         </div>
         <div style={{ display:"flex", flex:1 }}>
           {weekDays.map((day, i) => {
@@ -1053,7 +1055,7 @@ function MonthView({ selectedDate, programariByDate, rawStaff, serviceById, onEd
           <div key={d} style={{textAlign:"center",padding:"8px 4px",borderRight:i<6?"1px solid #e2e8f0":"none",fontSize:10,fontWeight:700,textTransform:"uppercase",letterSpacing:"0.07em",color:"#64748b"}}>{d}</div>
         ))}
       </div>
-      <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)",minWidth:700,flex:1}}>
+      <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)",flex:1}}>
         {grid.map((day,idx)=>{
           const key=formatDateKey(day);
           const allAppts=programariByDate[key]||[];
