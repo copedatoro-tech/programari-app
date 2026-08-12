@@ -242,7 +242,7 @@ function AppointmentHoverCard({ prog, anchorRect, serviceById, rawStaff, staffCo
         <div style={{padding:"11px 15px",display:"flex",flexDirection:"column",gap:7}}>
           {svc&&<div style={{display:"flex",alignItems:"flex-start",gap:9}}><span style={{fontSize:13,color:"#94a3b8",flexShrink:0,marginTop:1}}></span><div><span style={{fontSize:12,fontWeight:700,color:"#334155"}}>{svc.nume_serviciu}</span>{svc.duration>0&&<span style={{fontSize:10,color:"#94a3b8",marginLeft:7}}>{svc.duration} min</span>}{svc.price>0&&<span style={{fontSize:10,fontWeight:700,color:"#059669",marginLeft:7}}>{svc.price} RON</span>}</div></div>}
           {prog.paymentStatus==="deposit_paid"&&<div style={{background:"#fffbeb",borderRadius:9,padding:"7px 9px",border:"1px solid #fcd34d",display:"flex",alignItems:"center",gap:7}}><span style={{fontSize:13}}></span><span style={{fontSize:11,fontWeight:700,color:"#92400e"}}>{t("depositPaidLabel",{paid:(prog.amountPaid||0).toFixed(0),rest:((prog.totalPrice||0)-(prog.amountPaid||0)).toFixed(0)})}</span></div>}
-          {prog.paymentStatus==="fully_paid"&&<div style={{background:"#ecfdf5",borderRadius:9,padding:"7px 9px",border:"1px solid #6ee7b7",display:"flex",alignItems:"center",gap:7}}><span style={{fontSize:13}}>?</span><span style={{fontSize:11,fontWeight:700,color:"#065f46"}}>{t("fullyPaidLabel")}</span></div>}
+          {prog.paymentStatus==="fully_paid"&&<div style={{background:"#ecfdf5",borderRadius:9,padding:"7px 9px",border:"1px solid #6ee7b7",display:"flex",alignItems:"center",gap:7}}><span style={{fontSize:13}}>✅</span><span style={{fontSize:11,fontWeight:700,color:"#065f46"}}>{t("fullyPaidLabel")}</span></div>}
           {staff&&<div style={{display:"flex",alignItems:"center",gap:9}}><span style={{fontSize:13,color:"#94a3b8",flexShrink:0}}></span><span style={{fontSize:12,fontWeight:700,color:"#334155"}}>{staff.name}</span></div>}
           {prog.telefon&&<div style={{display:"flex",alignItems:"center",gap:9}}><span style={{fontSize:13,color:"#94a3b8",flexShrink:0}}></span><span style={{fontSize:12,fontWeight:600,color:"#475569"}}>{prog.telefon}</span></div>}
           {prog.email&&<div style={{display:"flex",alignItems:"center",gap:9}}><span style={{fontSize:13,color:"#94a3b8",flexShrink:0}}></span><span style={{fontSize:11,color:"#475569",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{prog.email}</span></div>}
@@ -1268,7 +1268,7 @@ function DocumentsSection({ editForm, userId, setEditForm, qClient }: DocumentsS
                 {doc.name}
               </a>
               <button onClick={() => handleDocDelete(i)}
-                style={{ width:18, height:18, background:"#fee2e2", border:"none", borderRadius:5, cursor:"pointer", fontSize:9, fontWeight:700, color:"#ef4444", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>?</button>
+                style={{ width:18, height:18, background:"#fee2e2", border:"none", borderRadius:5, cursor:"pointer", fontSize:9, fontWeight:700, color:"#ef4444", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>✕</button>
             </div>
           );
         })}
@@ -1354,7 +1354,7 @@ function CalendarContent() {
   const adminManualBlocks = useMemo<ManualBlocks>(()=>{const r=profile?.manual_blocks;if(!r||typeof r!=="object"||Array.isArray(r))return{};return r as ManualBlocks;},[profile?.manual_blocks]);
   const workLocations = useMemo<WorkLocationRow[]>(()=>{const r=profile?.work_locations;return Array.isArray(r)?r:[];},[profile?.work_locations]);
   const userSub = useMemo(()=>{if(!profile)return null;let plan=(profile.plan_type||"CHRONOS FREE").toUpperCase();if(profile.trial_started_at&&Date.now()-new Date(profile.trial_started_at).getTime()<10*24*60*60*1000)plan="CHRONOS TEAM";return{plan};},[profile]);
-  const hasWA = userSub?.plan.includes("ELITE")||userSub?.plan.includes("TEAM");
+  const hasWA = userSub?.plan.includes("ELITE")||userSub?.plan.includes("TEAM")||userSub?.plan.includes("BUSINESS");
   const programariByDate = useMemo(()=>{const m:Record<string,Prog[]>={};programari.forEach(p=>{if(!p.data)return;if(!m[p.data])m[p.data]=[];m[p.data].push(p);});return m;},[programari]);
   const serviceById = useMemo(()=>{const m:Record<string,ServiceRow>={};rawServices.forEach(s=>{m[s.id]=s;});return m;},[rawServices]);
   const filteredProg = useMemo(()=>programari.filter(p=>{const ms=!debouncedSearch||p.nume.toLowerCase().includes(debouncedSearch.toLowerCase())||p.telefon?.includes(debouncedSearch);return ms&&(!selectedExpert||p.expertId===selectedExpert)&&(!selectedServiciu||p.serviciuId===selectedServiciu)&&(!selectedWorkLocation||p.workLocationId===selectedWorkLocation);}),[programari,debouncedSearch,selectedExpert,selectedServiciu,selectedWorkLocation]);
@@ -1449,7 +1449,7 @@ function CalendarContent() {
           {showTimePicker&&(<div style={{position:"fixed",inset:0,zIndex:900,background:"rgba(0,0,0,0.5)",backdropFilter:"blur(4px)",display:"flex",alignItems:"center",justifyContent:"center",padding:16}} onClick={()=>setShowTimePicker(false)}><div onClick={e=>e.stopPropagation()}><ChronosTimePicker value={editForm.ora||"09:00"} onChange={v=>{setEditForm(p=>p?{...p,ora:v}:null);setShowTimePicker(false);}} onClose={()=>setShowTimePicker(false)} workingHours={editWorkingHours} existingAppointments={editExisting} selectedDate={editForm.data} serviceDuration={editSvcDur} manualBlocks={adminManualBlocks}/></div></div>)}
           <div style={{position:"fixed",inset:0,background:"rgba(15,23,42,0.72)",backdropFilter:"blur(6px)",zIndex:500,display:"flex",alignItems:"center",justifyContent:"center",padding:12}} onClick={closeModal}>
             <div ref={modalRef} onClick={e=>e.stopPropagation()} style={{background:"#fff",width:"100%",maxWidth:540,minWidth:0,borderRadius:20,overflow:"hidden",boxShadow:"0 24px 60px rgba(0,0,0,0.25)",border:"1px solid #e2e8f0",position:"relative",display:"flex",flexDirection:"column",maxHeight:"96vh"}}>
-              <button onClick={closeModal} style={{position:"absolute",top:10,right:10,width:28,height:28,background:"#1e293b",border:"none",borderRadius:8,cursor:"pointer",fontSize:12,fontWeight:700,color:"#94a3b8",zIndex:30,display:"flex",alignItems:"center",justifyContent:"center"}} className="hover:bg-red-500 hover:text-white transition-all">?</button>
+              <button onClick={closeModal} style={{position:"absolute",top:10,right:10,width:28,height:28,background:"#1e293b",border:"none",borderRadius:8,cursor:"pointer",fontSize:12,fontWeight:700,color:"#94a3b8",zIndex:30,display:"flex",alignItems:"center",justifyContent:"center"}} className="hover:bg-red-500 hover:text-white transition-all">✕</button>
               <div style={{background:"#0f172a",padding:"12px 16px",display:"flex",alignItems:"center",gap:10,flexShrink:0}}>
                 <div style={{width:36,height:36,borderRadius:11,background:"#1e293b",overflow:"hidden",display:"flex",alignItems:"center",justifyContent:"center",fontSize:16,flexShrink:0}}>
                   {editForm.poza?<img src={editForm.poza} style={{width:"100%",height:"100%",objectFit:"cover"}} alt=""/>:""}
@@ -1553,7 +1553,7 @@ function CalendarContent() {
       {newForm&&(
         <div style={{position:"fixed",inset:0,background:"rgba(15,23,42,0.72)",backdropFilter:"blur(6px)",zIndex:500,display:"flex",alignItems:"center",justifyContent:"center",padding:16}} onClick={()=>setNewForm(null)}>
           <div style={{background:"#fff",width:"100%",maxWidth:480,borderRadius:24,overflow:"hidden",boxShadow:"0 24px 60px rgba(0,0,0,0.22)",padding:20,display:"flex",flexDirection:"column",gap:10}} onClick={e=>e.stopPropagation()}>
-            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}><h2 style={{fontSize:16,fontWeight:700,color:"#1e293b",margin:0}}>{t("newModal.title")}</h2><button onClick={()=>setNewForm(null)} style={{width:32,height:32,background:"#f1f5f9",border:"none",borderRadius:10,cursor:"pointer",fontSize:14,fontWeight:700,color:"#64748b"}} className="hover:bg-red-500 hover:text-white transition-all">?</button></div>
+            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}><h2 style={{fontSize:16,fontWeight:700,color:"#1e293b",margin:0}}>{t("newModal.title")}</h2><button onClick={()=>setNewForm(null)} style={{width:32,height:32,background:"#f1f5f9",border:"none",borderRadius:10,cursor:"pointer",fontSize:14,fontWeight:700,color:"#64748b"}} className="hover:bg-red-500 hover:text-white transition-all">✕</button></div>
                         <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
               <div style={{background:"#fffbeb",border:"1.5px solid #fcd34d",borderRadius:14,padding:"10px 14px"}}>
                 <p style={{fontSize:8,fontWeight:700,color:"#92400e",textTransform:"uppercase",marginBottom:4}}>Data</p>
