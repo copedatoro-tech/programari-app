@@ -318,6 +318,7 @@ export default function RootLayoutClient({ children }: { children: React.ReactNo
                 </button>
 
                 {isMenuOpen && (
+                  <>
                   <div className="fixed inset-0 z-[290]" onClick={() => setIsMenuOpen(false)} />
                   <div className="fixed top-12 sm:top-[70px] right-2 sm:right-6 w-64 max-w-[calc(100vw-16px)] max-h-[80vh] overflow-y-auto bg-white border-2 border-slate-900 rounded-[25px] shadow-2xl p-2 z-[300]">
                     <div className="space-y-0.5">
@@ -355,6 +356,7 @@ export default function RootLayoutClient({ children }: { children: React.ReactNo
                       </button>
                     </div>
                   </div>
+                  </>
                 )}
               </div>
             </div>
