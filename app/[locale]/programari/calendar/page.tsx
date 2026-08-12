@@ -714,7 +714,7 @@ function DayView({ selectedDate, programari, rawStaff, rawServices, serviceById,
               })}
               {hasUnassigned&&(
                 <div style={{ flex:1, minWidth:MIN_COL_W, display:"flex", alignItems:"center", justifyContent:"center", padding:"5px 1px", borderLeft:"2px solid #e2e8f0" }}>
-                  <span style={{ fontSize:10, fontWeight:700, color:"#94a3b8" }}>ΓÇö</span>
+                  <span style={{ fontSize:10, fontWeight:700, color:"#94a3b8" }}>—</span>
                 </div>
               )}
             </div>
@@ -965,7 +965,7 @@ function WeekView({ selectedDate, programariByDate, rawStaff, serviceById, onEdi
                 )}
                 {!isClosed&&dayAppts.length===0&&(
                   <div style={{flex:1,display:"flex",alignItems:"center",justifyContent:"center",padding:"16px 4px"}}>
-                    <span style={{fontSize:10,color:"#cbd5e1",fontWeight:600}}>ΓÇö</span>
+                    <span style={{fontSize:10,color:"#cbd5e1",fontWeight:600}}>—</span>
                   </div>
                 )}
                 {dayAppts.map(p=>{
@@ -1418,7 +1418,7 @@ function CalendarContent() {
   },[newForm?.expertId,rawStaff,rawServices]);
   const dateTitles:Record<ViewMode,string> = {
     day: selectedDate.toLocaleDateString(localeCode,{weekday:"long",day:"numeric",month:"long",year:"numeric"}),
-    week:(()=>{const ws=getWeekStart(selectedDate),we=addDays(ws,6);return`${ws.getDate()} ${monthsShort[ws.getMonth()]} ΓÇô ${we.getDate()} ${monthsShort[we.getMonth()]} ${we.getFullYear()}`;})(),
+    week:(()=>{const ws=getWeekStart(selectedDate),we=addDays(ws,6);return`${ws.getDate()} ${monthsShort[ws.getMonth()]} – ${we.getDate()} ${monthsShort[we.getMonth()]} ${we.getFullYear()}`;})(),
     month:`${months[selectedDate.getMonth()]} ${selectedDate.getFullYear()}`,
     year:`${selectedDate.getFullYear()}`,
   };
@@ -1441,7 +1441,7 @@ function CalendarContent() {
                 </div>
                 <div style={{flex:1,minWidth:0}}>
                   <h2 style={{fontSize:14,fontWeight:700,color:"#fff",margin:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{editForm.nume}</h2>
-                  <p style={{fontSize:10,color:"#64748b",margin:0}}>{editForm.data} ┬╖ {editForm.ora}{editForm.isOnline?" ":""}</p>
+                  <p style={{fontSize:10,color:"#64748b",margin:0}}>{editForm.data} · {editForm.ora}{editForm.isOnline?" 🌐":""}</p>
                   {editForm.paymentStatus==="deposit_paid"&&<span style={{display:"inline-block",marginTop:3,fontSize:9,fontWeight:800,color:"#fbbf24",background:"rgba(251,191,36,0.15)",padding:"2px 7px",borderRadius:6}}>{t("depositPaidLabel",{paid:(editForm.amountPaid||0).toFixed(0),rest:((editForm.totalPrice||0)-(editForm.amountPaid||0)).toFixed(0)})}</span>}
                   {editForm.paymentStatus==="fully_paid"&&<span style={{display:"inline-block",marginTop:3,fontSize:9,fontWeight:800,color:"#6ee7b7",background:"rgba(110,231,183,0.15)",padding:"2px 7px",borderRadius:6}}>? {t("fullyPaidLabel")}</span>}
                 </div>
@@ -1458,7 +1458,7 @@ function CalendarContent() {
                   </button>
                   <button onClick={()=>{setShowTimePicker(true);setShowDatePicker(false);}} style={{background:"#0f172a",color:"#fff",border:"none",borderRadius:12,padding:"7px 4px",cursor:"pointer",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:1,minWidth:0,overflow:"hidden"}} className="hover:bg-slate-800 transition-all">
                     <span style={{fontSize:7,color:"#64748b",fontWeight:700,textTransform:"uppercase"}}>{t("editModal.timeLabel")}</span>
-                    <span style={{fontSize:10,fontWeight:700,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis",maxWidth:"100%"}}>{editForm.ora||"ΓÇö"}</span>
+                    <span style={{fontSize:10,fontWeight:700,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis",maxWidth:"100%"}}>{editForm.ora||"—"}</span>
                   </button>
                 </div>
                 <div style={{background:"#f8fafc",border:"1.5px solid #e2e8f0",borderRadius:12,padding:"7px 10px",minWidth:0,overflow:"hidden"}}><p style={{fontSize:7,fontWeight:700,color:"#94a3b8",textTransform:"uppercase",marginBottom:2}}>{t("workLocationLabel")}</p><select style={{width:"100%",background:"transparent",border:"none",fontSize:11,fontWeight:700,color:"#1e293b",outline:"none",cursor:"pointer",minWidth:0}} value={editForm.workLocationId||""} onChange={e=>{const id=e.target.value;const loc=workLocations.find(l=>l.id===id);setEditForm(p=>p?{...p,workLocationId:id,workLocationName:loc?.name||"",workLocationAddress:loc?.address||"",workLocationMapsUrl:loc?.maps_url||""}:null);}}><option value="">{t("allWorkLocationsOpt")}</option>{workLocations.map(loc=><option key={loc.id} value={loc.id}>{loc.name}</option>)}</select></div>
