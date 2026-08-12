@@ -178,16 +178,45 @@ export default function BazaDateClienti() {
     [t]
   );
 
+  const normalizeClientText = (value: unknown) =>
+    String(value || "")
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .trim();
+
+  const normalizeClientPhone = (value: unknown) => String(value || "").replace(/\D/g, "");
+
   const filtrati = useMemo(() => {
-    const tt = cautare.toLowerCase().trim();
-    if (!tt) return dosare;
-    return dosare.filter(
-      (d) =>
-        (d.client_name || "").toLowerCase().includes(tt) ||
-        (d.phone_number || "").replace(/\D/g, "").includes(tt.replace(/\D/g, "")) ||
-        (d.phone_number || "").includes(tt) ||
-        (d.client_email || "").toLowerCase().includes(tt)
-    );
+    const textQuery = normalizeClientText(cautare);
+    const phoneQuery = normalizeClientPhone(cautare);
+
+    if (!textQuery && !phoneQuery) return dosare;
+
+    return dosare.filter((d) => {
+      const searchableText = normalizeClientText([
+        d.client_name,
+        d.name,
+        d.title,
+        d.nume,
+        d.prenume,
+        d.client_email,
+        d.email,
+      ].join(" "));
+
+      const phone = normalizeClientPhone(d.phone_number || d.phone || d.telefon);
+      const phoneWithoutCountry = phone.startsWith("40") ? "0" + phone.slice(2) : phone;
+      const phoneWithCountry = phone.startsWith("0") ? "40" + phone.slice(1) : phone;
+
+      const matchesText = !!textQuery && searchableText.includes(textQuery);
+      const matchesPhone =
+        !!phoneQuery &&
+        (phone.includes(phoneQuery) ||
+          phoneWithoutCountry.includes(phoneQuery) ||
+          phoneWithCountry.includes(phoneQuery));
+
+      return matchesText || matchesPhone;
+    });
   }, [dosare, cautare]);
 
   return (
