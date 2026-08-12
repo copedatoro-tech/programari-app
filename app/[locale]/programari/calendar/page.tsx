@@ -160,9 +160,9 @@ function mapRow(it: any): Prog {
     id: it.id, nume: it.title||it.prenume||it.nume||"Client",
     email: it.email || "", data: raw.includes("T") ? raw.split("T")[0] : raw,
     ora: it.time || "", telefon: it.phone || "", motiv: it.details || "",
-    poza: it.pozait.file_urlnull, documente: normDocs(it.documente),
+    poza: it.poza ?? it.file_url ?? null, documente: normDocs(it.documente),
     expertId: it.angajat_id || "", serviciuId: it.serviciu_id || "",
-    duration: it.duration0, isOnline: it.is_client_bookingfalse,
+    duration: it.duration ?? 0, isOnline: it.is_client_booking ?? false,
     totalPrice: it.total_price || 0, amountPaid: it.amount_paid || 0, paymentStatus: it.payment_status || "unpaid",
     workLocationId: it.work_location_id || "", workLocationName: it.work_location_name || "", workLocationAddress: it.work_location_address || "", workLocationMapsUrl: it.work_location_maps_url || "",
   };
