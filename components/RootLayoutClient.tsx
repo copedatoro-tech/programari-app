@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 import { Link, usePathname, useRouter } from "@/i18n/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import Image from "next/image";
-import { Crown, Gem, ShieldCheck, Zap, CalendarDays, ClipboardList, Users, Package, Menu as MenuIcon } from "lucide-react";
+import { Crown, Gem, ShieldCheck, Zap, CalendarDays, ClipboardList, Users, Clock, BarChart3 } from "lucide-react";
 
 import GDPRModal from "@/components/GDPRModal";
 import TermeniModal from "@/components/TermeniModal";
@@ -318,6 +318,7 @@ export default function RootLayoutClient({ children }: { children: React.ReactNo
                 </button>
 
                 {isMenuOpen && (
+                  <div className="fixed inset-0 z-[290]" onClick={() => setIsMenuOpen(false)} />
                   <div className="fixed top-12 sm:top-[70px] right-2 sm:right-6 w-64 max-w-[calc(100vw-16px)] max-h-[80vh] overflow-y-auto bg-white border-2 border-slate-900 rounded-[25px] shadow-2xl p-2 z-[300]">
                     <div className="space-y-0.5">
                       {menuItems.map((item) => (
@@ -380,15 +381,14 @@ export default function RootLayoutClient({ children }: { children: React.ReactNo
             <Users className="w-5 h-5" strokeWidth={path === "/clienti" ? 2.4 : 1.8} />
             <span className="text-[8px] font-black uppercase italic">{t("nav.clienti")}</span>
           </Link>
-          <Link href="/resurse" className={`flex-1 flex flex-col items-center justify-center gap-0.5 ${path === "/resurse" ? "text-amber-600" : "text-slate-400"}`}>
-            <Package className="w-5 h-5" strokeWidth={path === "/resurse" ? 2.4 : 1.8} />
-            <span className="text-[8px] font-black uppercase italic">{t("nav.servicii")}</span>
+          <Link href="/lista-asteptare" className={`flex-1 flex flex-col items-center justify-center gap-0.5 ${path === "/lista-asteptare" ? "text-amber-600" : "text-slate-400"}`}>
+            <Clock className="w-5 h-5" strokeWidth={path === "/lista-asteptare" ? 2.4 : 1.8} />
+            <span className="text-[8px] font-black uppercase italic">{t("nav.listaAsteptare")}</span>
           </Link>
-          <button type="button" onClick={(e) => { e.stopPropagation(); setIsMenuOpen((v) => !v); }}
-            className={`flex-1 flex flex-col items-center justify-center gap-0.5 ${isMenuOpen ? "text-amber-600" : "text-slate-400"}`}>
-            <MenuIcon className="w-5 h-5" strokeWidth={isMenuOpen ? 2.4 : 1.8} />
-            <span className="text-[8px] font-black uppercase italic">{t("header.menuOpen")}</span>
-          </button>
+          <Link href="/rapoarte" className={`flex-1 flex flex-col items-center justify-center gap-0.5 ${path === "/rapoarte" ? "text-amber-600" : "text-slate-400"}`}>
+            <BarChart3 className="w-5 h-5" strokeWidth={path === "/rapoarte" ? 2.4 : 1.8} />
+            <span className="text-[8px] font-black uppercase italic">{t("pageTitles.rapoarte")}</span>
+          </Link>
         </nav>
       )}
 

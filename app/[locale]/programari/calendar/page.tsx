@@ -489,7 +489,7 @@ function FilterBar({ rawStaff, rawServices, programari, selectedExpert, onSelect
   return (
     <div style={{ flexShrink:0, background:"#fff", borderBottom:"2px solid #e2e8f0", padding:"5px 10px", display:"flex", alignItems:"center", gap:8, flexWrap:"wrap" }}>
       {workLocations.length>0&&(
-        <FilterDropdownButton label="Punct" allLabel={t("allWorkLocationsOpt")} placeholder="Cauta punct de lucru..."
+        <FilterDropdownButton label="Punct" allLabel="Toate" placeholder="Cauta punct de lucru..."
           items={locationItems} selectedId={selectedWorkLocation}
           onSelect={onSelectWorkLocation} />
       )}
