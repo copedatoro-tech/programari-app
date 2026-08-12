@@ -234,7 +234,7 @@ function AppointmentHoverCard({ prog, anchorRect, serviceById, rawStaff, staffCo
           <div style={{flex:1,minWidth:0}}>
             <p style={{fontSize:14,fontWeight:700,color:"#1e293b",margin:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{prog.nume}</p>
             <p style={{fontSize:11,fontWeight:700,color:color.border,margin:"2px 0 0"}}>
-              {prog.ora}{endTime?` ? ${endTime}`:""}
+              {prog.ora}{endTime?` → ${endTime}`:""}
               {prog.isOnline&&<span style={{marginLeft:5}}>{t("onlineLabel")}</span>}
             </p>
           </div>
@@ -575,6 +575,8 @@ function DayView({ selectedDate, programari, rawStaff, rawServices, serviceById,
   const scrollRef = useRef<HTMLDivElement>(null);
   const [hoverCard, setHoverCard] = useState<{prog:Prog;rect:DOMRect}|null>(null);
   const hoverTimer = useRef<ReturnType<typeof setTimeout>|null>(null);
+  const longPressFired = useRef(false);
+  const longPressTimer = useRef<ReturnType<typeof setTimeout>|null>(null);
   const slots = useMemo(() => {
     if (isClosed||!whStart||!whEnd) return ALL_SLOTS;
     const s = Math.max(0, timeToMin(whStart)-30);
@@ -806,9 +808,12 @@ function DayView({ selectedDate, programari, rawStaff, rawServices, serviceById,
               const col = p.expertId && colIndexOf[p.expertId]!=null ? colIndexOf[p.expertId] : totalCols-1;
               return (
                 <button key={p.id}
-                  onClick={()=>{setHoverCard(null);onEdit(p);}}
+                  onClick={()=>{if(longPressFired.current){longPressFired.current=false;return;}if(hoverTimer.current)clearTimeout(hoverTimer.current);setHoverCard(null);onEdit(p);}}
                   onMouseEnter={e=>handleMouseEnter(p,e)}
                   onMouseLeave={handleMouseLeave}
+                  onTouchStart={e=>{longPressFired.current=false;const ct=e.currentTarget as HTMLElement;if(longPressTimer.current)clearTimeout(longPressTimer.current);longPressTimer.current=setTimeout(()=>{longPressFired.current=true;setHoverCard({prog:p,rect:ct.getBoundingClientRect()});},500);}}
+                  onTouchEnd={()=>{if(longPressTimer.current)clearTimeout(longPressTimer.current);}}
+                  onTouchMove={()=>{if(longPressTimer.current)clearTimeout(longPressTimer.current);}}
                   style={{
                     position:"absolute", top:topPx+2, height:heightPx, zIndex:15,
                     left:`calc(2px + ${col} * (100% - 2px) / ${totalCols})`,
@@ -923,6 +928,8 @@ function WeekView({ selectedDate, programariByDate, rawStaff, serviceById, onEdi
   }, [rawStaff]);
   const [hoverCard, setHoverCard] = useState<{prog:Prog;rect:DOMRect}|null>(null);
   const hoverTimer = useRef<ReturnType<typeof setTimeout>|null>(null);
+  const longPressFired = useRef(false);
+  const longPressTimer = useRef<ReturnType<typeof setTimeout>|null>(null);
   const handleMouseEnter = (p: Prog, e: React.MouseEvent) => {
     if(hoverTimer.current) clearTimeout(hoverTimer.current);
     const ct = e.currentTarget as HTMLElement;
@@ -976,9 +983,12 @@ function WeekView({ selectedDate, programariByDate, rawStaff, serviceById, onEdi
                   const spec = rawStaff.find(s=>s.id===p.expertId);
                   return (
                     <button key={p.id}
-                      onClick={()=>{setHoverCard(null);onEdit(p);}}
+                      onClick={()=>{if(longPressFired.current){longPressFired.current=false;return;}if(hoverTimer.current)clearTimeout(hoverTimer.current);setHoverCard(null);onEdit(p);}}
                       onMouseEnter={e=>handleMouseEnter(p,e)}
                       onMouseLeave={handleMouseLeave}
+                      onTouchStart={e=>{longPressFired.current=false;const ct=e.currentTarget as HTMLElement;if(longPressTimer.current)clearTimeout(longPressTimer.current);longPressTimer.current=setTimeout(()=>{longPressFired.current=true;setHoverCard({prog:p,rect:ct.getBoundingClientRect()});},500);}}
+                      onTouchEnd={()=>{if(longPressTimer.current)clearTimeout(longPressTimer.current);}}
+                      onTouchMove={()=>{if(longPressTimer.current)clearTimeout(longPressTimer.current);}}
                       style={{
                         width:"100%",textAlign:"left",cursor:"pointer",
                         background:color.chipBg,
@@ -1035,6 +1045,8 @@ function MonthView({ selectedDate, programariByDate, rawStaff, serviceById, onEd
   const whByDay = useMemo(()=>{const m:Record<string,WorkingHour>={};adminWorkingHours.forEach(h=>{m[h.day]=h;});return m;},[adminWorkingHours]);
   const [hoverCard, setHoverCard] = useState<{prog:Prog;rect:DOMRect}|null>(null);
   const hoverTimer = useRef<ReturnType<typeof setTimeout>|null>(null);
+  const longPressFired = useRef(false);
+  const longPressTimer = useRef<ReturnType<typeof setTimeout>|null>(null);
   const grid = useMemo(()=>{
     const yr=selectedDate.getFullYear(),mo=selectedDate.getMonth();
     const first=new Date(yr,mo,1);const startDow=(first.getDay()+6)%7;const daysInMonth=new Date(yr,mo+1,0).getDate();
@@ -1087,7 +1099,10 @@ function MonthView({ selectedDate, programariByDate, rawStaff, serviceById, onEd
                 {appts.slice(0,3).map(p=>{
                   const ci=staffMap[p.expertId||""] ?? 0;const color=SC[ci];
                   return (
-                    <button key={p.id} onClick={e=>{e.stopPropagation();setHoverCard(null);onEdit(p);}} onMouseEnter={e=>{e.stopPropagation();handleMouseEnter(p,e);}} onMouseLeave={handleMouseLeave}
+                    <button key={p.id} onClick={e=>{e.stopPropagation();if(longPressFired.current){longPressFired.current=false;return;}if(hoverTimer.current)clearTimeout(hoverTimer.current);setHoverCard(null);onEdit(p);}} onMouseEnter={e=>{e.stopPropagation();handleMouseEnter(p,e);}} onMouseLeave={handleMouseLeave}
+                      onTouchStart={e=>{e.stopPropagation();longPressFired.current=false;const ct=e.currentTarget as HTMLElement;if(longPressTimer.current)clearTimeout(longPressTimer.current);longPressTimer.current=setTimeout(()=>{longPressFired.current=true;setHoverCard({prog:p,rect:ct.getBoundingClientRect()});},500);}}
+                      onTouchEnd={e=>{e.stopPropagation();if(longPressTimer.current)clearTimeout(longPressTimer.current);}}
+                      onTouchMove={e=>{e.stopPropagation();if(longPressTimer.current)clearTimeout(longPressTimer.current);}}
                       style={{display:"flex",alignItems:"center",gap:4,padding:"2px 6px",borderRadius:4,background:color.chipBg,borderTop:`1px solid ${color.chipBorder}`,borderRight:`1px solid ${color.chipBorder}`,borderBottom:`1px solid ${color.chipBorder}`,borderLeft:`3px solid ${color.border}`,textAlign:"left",cursor:"pointer",transition:"all 0.15s"}}
                       className="hover:brightness-95 transition-all">
                       <span style={{fontSize:9,fontWeight:700,color:"#64748b",flexShrink:0}}>{p.ora}</span>
@@ -1527,7 +1542,7 @@ function CalendarContent() {
                 <div style={{display:"flex",gap:6,paddingTop:2,borderTop:"1.5px solid #f1f5f9"}}>
                   <button onClick={closeModal} style={{flex:1,padding:"8px",background:"#f1f5f9",border:"none",borderRadius:12,fontSize:11,fontWeight:700,color:"#64748b",cursor:"pointer"}} className="hover:bg-slate-200 transition-all">{t("editModal.cancelBtn")}</button>
                   <button onClick={handleUpdate} style={{flex:2,padding:"8px",background:"#0f172a",border:"none",borderRadius:12,fontSize:11,fontWeight:700,color:"#fff",cursor:"pointer"}} className="hover:bg-amber-600 transition-all">{t("editModal.saveBtn")}</button>
-                  <button onClick={handleDelete} style={{width:36,padding:"8px",background:"#fff1f2",border:"1.5px solid #fecdd3",borderRadius:12,fontSize:14,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}} className="hover:bg-red-500 hover:text-white transition-all" title={t("editModal.deleteTooltip")}>?</button>
+                  <button onClick={handleDelete} style={{width:36,padding:"8px",background:"#fff1f2",border:"1.5px solid #fecdd3",borderRadius:12,fontSize:14,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}} className="hover:bg-red-500 hover:text-white transition-all" title={t("editModal.deleteTooltip")}>🗑</button>
                 </div>
               </div>
             </div>

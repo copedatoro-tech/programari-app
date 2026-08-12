@@ -318,8 +318,8 @@ export default function RootLayoutClient({ children }: { children: React.ReactNo
                 </button>
 
                 {isMenuOpen && (
-                  <div className="fixed top-12 sm:top-[70px] right-2 sm:right-6 w-64 max-w-[calc(100vw-16px)] bg-white border-2 border-slate-900 rounded-[25px] shadow-2xl p-2 z-[300]">
-                    <div className="space-y-0.5 max-h-[70vh] overflow-y-auto scrollbar-none">
+                  <div className="fixed top-12 sm:top-[70px] right-2 sm:right-6 w-64 max-w-[calc(100vw-16px)] max-h-[80vh] overflow-y-auto bg-white border-2 border-slate-900 rounded-[25px] shadow-2xl p-2 z-[300]">
+                    <div className="space-y-0.5">
                       {menuItems.map((item) => (
                         <Link key={item.href} href={item.href} onClick={() => setIsMenuOpen(false)}
                           className={`flex items-center gap-3 p-3 rounded-xl font-black text-[10px] uppercase italic transition-all ${
