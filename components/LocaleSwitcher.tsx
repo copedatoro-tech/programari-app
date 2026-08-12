@@ -62,7 +62,7 @@ export default function LocaleSwitcher() {
         <ChevronDown className={`w-3.5 h-3.5 text-slate-400 transition-transform ${open ? "rotate-180" : ""}`} />
       </button>
       {open && (
-        <div className="fixed left-4 right-4 top-24 sm:absolute sm:left-auto sm:right-0 sm:top-full sm:mt-2 sm:w-48 bg-white border-2 border-slate-900 rounded-2xl shadow-2xl p-2 z-[110] max-h-80 overflow-y-auto">
+        <div className="fixed left-4 right-4 top-24 sm:absolute sm:left-auto sm:right-0 sm:top-full sm:mt-2 sm:w-48 bg-white border-2 border-slate-900 rounded-2xl shadow-2xl p-2 z-[500] max-h-80 overflow-y-auto">
           {routing.locales.map((loc) => {
             const info = LOCALE_INFO[loc] ?? { label: loc, flag: "🌐" };
             return (

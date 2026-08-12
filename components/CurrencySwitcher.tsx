@@ -36,7 +36,7 @@ export default function CurrencySwitcher() {
         <ChevronDown className={`w-3.5 h-3.5 text-slate-400 transition-transform ${open ? "rotate-180" : ""}`} />
       </button>
       {open && (
-        <div className="fixed left-4 right-4 top-24 sm:absolute sm:left-auto sm:right-0 sm:top-full sm:mt-2 sm:w-52 bg-white border-2 border-slate-900 rounded-2xl shadow-2xl p-2 z-[110] max-h-80 overflow-y-auto">
+        <div className="fixed left-4 right-4 top-24 sm:absolute sm:left-auto sm:right-0 sm:top-full sm:mt-2 sm:w-52 bg-white border-2 border-slate-900 rounded-2xl shadow-2xl p-2 z-[500] max-h-80 overflow-y-auto">
           {CURRENCY_ORDER.map((cur) => {
             const info = CURRENCY_INFO[cur];
             return (

@@ -271,8 +271,8 @@ export default function RootLayoutClient({ children }: { children: React.ReactNo
       )}
 
       {!isPublicPage && (
-        <header className="chronos-app-header w-screen max-w-[100vw] bg-white border-b-2 border-slate-100 fixed sm:sticky top-0 left-0 right-0 z-[200] shadow-sm h-10 sm:h-16 flex items-center overflow-hidden">
-          <div className="w-full max-w-[100vw] px-1.5 sm:px-6 flex justify-between items-center h-full gap-1 sm:gap-4 overflow-hidden">
+        <header className="chronos-app-header w-screen max-w-[100vw] bg-white border-b-2 border-slate-100 fixed sm:sticky top-0 left-0 right-0 z-[200] shadow-sm h-10 sm:h-16 flex items-center overflow-hidden sm:overflow-visible">
+          <div className="w-full max-w-[100vw] px-1.5 sm:px-6 flex justify-between items-center h-full gap-1 sm:gap-4 overflow-hidden sm:overflow-visible">
             <Link href="/programari/calendar" className="flex items-center gap-1.5 sm:gap-3 h-full py-1 group shrink-0 min-w-0">
               <div className="h-full aspect-square flex items-center justify-center transition-transform group-hover:scale-105">
                 <Image src="/logo-chronos.png" alt="Logo" width={44} height={44} priority className="object-contain h-full w-auto" />
