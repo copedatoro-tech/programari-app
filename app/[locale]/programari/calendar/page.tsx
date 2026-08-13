@@ -1297,6 +1297,8 @@ function CalendarContent() {
   const [customMsg, setCustomMsg] = useState("");
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showTimePicker, setShowTimePicker] = useState(false);
+  const [showNewDatePicker, setShowNewDatePicker] = useState(false);
+  const [showNewTimePicker, setShowNewTimePicker] = useState(false);
   const [searchResults, setSearchResults] = useState<Prog[]>([]);
   const [showSearchDrop, setShowSearchDrop] = useState(false);
   const [debouncedSearch, setDebouncedSearch] = useState("");
@@ -1361,7 +1363,7 @@ function CalendarContent() {
   useEffect(()=>{const timer=setTimeout(()=>setDebouncedSearch(searchTerm),250);return()=>clearTimeout(timer);},[searchTerm]);
   const handleSearch = useCallback((q:string)=>{if(!q.trim()){setSearchResults([]);return;}setSearchResults(programari.filter(p=>p.nume.toLowerCase().includes(q.toLowerCase())||p.telefon?.includes(q)||p.email?.toLowerCase().includes(q.toLowerCase())).slice(0,8));},[programari]);
   const openEdit = useCallback((p:Prog)=>{setEditForm({...p});setShowDatePicker(false);setShowTimePicker(false);setShowSearchDrop(false);},[]);
-  const closeModal = useCallback(()=>{setEditForm(null);setNewForm(null);setShowDatePicker(false);setShowTimePicker(false);setShowSearchDrop(false);},[]);
+  const closeModal = useCallback(()=>{setEditForm(null);setNewForm(null);setShowDatePicker(false);setShowTimePicker(false);setShowNewDatePicker(false);setShowNewTimePicker(false);setShowSearchDrop(false);},[]);
   useEffect(()=>{if(!editForm)return;const sn=rawServices.find(s=>s.id===editForm.serviciuId)?.nume_serviciu;const base=t("editModal.whatsappMessageBase",{nume:editForm.nume,data:editForm.data,ora:editForm.ora});const suffix=sn?t("editModal.whatsappMessageServiceSuffix",{serviciu:sn}):"";const locationBlock=editForm.workLocationAddress?`\n${t("editModal.whatsappLocationLine",{location:editForm.workLocationName||editForm.workLocationAddress})}\n${t("editModal.whatsappMapsLine",{maps:editForm.workLocationMapsUrl||`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(editForm.workLocationAddress)}`})}`:"";setCustomMsg(`${base}${suffix}.${locationBlock}`);},[editForm?.id,rawServices,t]);
   useEffect(()=>{function h(e:MouseEvent){if(modalRef.current&&!modalRef.current.contains(e.target as Node)&&!showDatePicker&&!showTimePicker)closeModal();}if(editForm)document.addEventListener("mousedown",h);return()=>document.removeEventListener("mousedown",h);},[editForm,showDatePicker,showTimePicker]);
   const handleUpdate = async()=>{
@@ -1421,6 +1423,20 @@ function CalendarContent() {
     ).map(p=>({time:p.ora,duration:p.duration||30}));
   },[programari,editForm]);
   const editSvcDur = useMemo(()=>{if(!editForm?.serviciuId)return 0;return rawServices.find(s=>s.id===editForm.serviciuId)?.duration||0;},[editForm?.serviciuId,rawServices]);
+  const newWorkingHours = useMemo(() => {
+    if (!newForm?.expertId) return adminWorkingHours;
+    const st = rawStaff.find(s => s.id === newForm.expertId);
+    const staffWH = parseWH(st?.working_hours);
+    return staffWH.length > 0 ? staffWH : adminWorkingHours;
+  }, [newForm?.expertId, rawStaff, adminWorkingHours]);
+  const newExisting = useMemo(()=>{
+    if(!newForm)return[];
+    return programari.filter(p=>
+      p.data===newForm.date &&
+      !!newForm.expertId && p.expertId===newForm.expertId
+    ).map(p=>({time:p.ora,duration:p.duration||30}));
+  },[programari,newForm]);
+  const newSvcDur = useMemo(()=>{if(!newForm?.serviciuId)return 0;return rawServices.find(s=>s.id===newForm.serviciuId)?.duration||0;},[newForm?.serviciuId,rawServices]);
 
   const getLocationFilteredStaff = useCallback((locationId?: string)=>{
     const loc = workLocations.find(l=>l.id===locationId);
@@ -1591,6 +1607,8 @@ function CalendarContent() {
         </>
       )}
 
+      {showNewDatePicker&&newForm&&(<div style={{position:"fixed",inset:0,zIndex:900,background:"rgba(0,0,0,0.5)",backdropFilter:"blur(4px)",display:"flex",alignItems:"center",justifyContent:"center",padding:16}} onClick={()=>setShowNewDatePicker(false)}><div onClick={e=>e.stopPropagation()}><ChronosDatePicker value={newForm.date} onChange={v=>{setNewForm(p=>p?{...p,date:v,time:""}:null);setShowNewDatePicker(false);}} onClose={()=>setShowNewDatePicker(false)} workingHours={newWorkingHours}/></div></div>)}
+      {showNewTimePicker&&newForm&&(<div style={{position:"fixed",inset:0,zIndex:900,background:"rgba(0,0,0,0.5)",backdropFilter:"blur(4px)",display:"flex",alignItems:"center",justifyContent:"center",padding:16}} onClick={()=>setShowNewTimePicker(false)}><div onClick={e=>e.stopPropagation()}><ChronosTimePicker value={newForm.time||"09:00"} onChange={v=>{setNewForm(p=>p?{...p,time:v}:null);setShowNewTimePicker(false);}} onClose={()=>setShowNewTimePicker(false)} workingHours={newWorkingHours} existingAppointments={newExisting} selectedDate={newForm.date} serviceDuration={newSvcDur} manualBlocks={adminManualBlocks}/></div></div>)}
       {newForm&&(
         <div style={{position:"fixed",inset:0,background:"rgba(15,23,42,0.72)",backdropFilter:"blur(6px)",zIndex:500,display:"flex",alignItems:"center",justifyContent:"center",padding:16}} onClick={()=>setNewForm(null)}>
           <div style={{background:"#fff",width:"100%",maxWidth:480,borderRadius:24,overflow:"hidden",boxShadow:"0 24px 60px rgba(0,0,0,0.22)",padding:20,display:"flex",flexDirection:"column",gap:10}} onClick={e=>e.stopPropagation()}>
@@ -1598,11 +1616,11 @@ function CalendarContent() {
                         <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
               <div style={{background:"#fffbeb",border:"1.5px solid #fcd34d",borderRadius:14,padding:"10px 14px"}}>
                 <p style={{fontSize:8,fontWeight:700,color:"#92400e",textTransform:"uppercase",marginBottom:4}}>Data</p>
-                <SimpleDatePicker value={newForm.date} onChange={v=>setNewForm(p=>p?{...p,date:v}:null)} />
+                <button onClick={()=>{setShowNewDatePicker(true);setShowNewTimePicker(false);}} style={{width:"100%",background:"transparent",border:"none",fontSize:13,fontWeight:700,color:"#1e293b",outline:"none",textAlign:"left",cursor:"pointer"}}>{newForm.date}</button>
               </div>
               <div style={{background:"#fffbeb",border:"1.5px solid #fcd34d",borderRadius:14,padding:"10px 14px"}}>
                 <p style={{fontSize:8,fontWeight:700,color:"#92400e",textTransform:"uppercase",marginBottom:4}}>Ora</p>
-                <SimpleTimePicker value={newForm.time} onChange={v=>setNewForm(p=>p?{...p,time:v}:null)} />
+                <button onClick={()=>{setShowNewTimePicker(true);setShowNewDatePicker(false);}} style={{width:"100%",background:"transparent",border:"none",fontSize:13,fontWeight:700,color:"#1e293b",outline:"none",textAlign:"left",cursor:"pointer"}}>{newForm.time||"09:00"}</button>
               </div>
             </div>
 <div style={{background:"#f8fafc",border:"1.5px solid #e2e8f0",borderRadius:14,padding:"10px 14px"}}><p style={{fontSize:8,fontWeight:700,color:"#94a3b8",textTransform:"uppercase",marginBottom:4}}>{t("workLocationLabel")}</p><select style={{width:"100%",background:"transparent",border:"none",fontSize:12,fontWeight:700,color:"#1e293b",outline:"none",cursor:"pointer"}} value={newForm.workLocationId||""} onChange={e=>setNewForm(p=>p?{...p,workLocationId:e.target.value,serviciuId:"",expertId:""}:null)}><option value="">{t("allWorkLocationsOpt")}</option>{workLocations.map(loc=><option key={loc.id} value={loc.id}>{loc.name}</option>)}</select></div>
