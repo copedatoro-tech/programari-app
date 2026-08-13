@@ -7,7 +7,6 @@ import { showToast, showConfirm } from "@/lib/toast";
 import { useTranslations } from "next-intl";
 import { ChronosTimePicker, ChronosDatePicker } from "@/components/ChronosDateTimePickers";
 import SimpleTimePicker from "@/components/SimpleTimePicker";
-import SimpleDatePicker from "@/components/SimpleDatePicker";
 // --- Constants ----------------------------------------------------------------
 const SLOT_H = 34;
 const TIME_COL_W = 44;
