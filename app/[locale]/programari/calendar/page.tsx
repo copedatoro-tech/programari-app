@@ -1419,18 +1419,52 @@ function CalendarContent() {
       String(p.id)!==String(editForm.id) &&
       !!editForm.expertId && p.expertId===editForm.expertId
     ).map(p=>({time:p.ora,duration:p.duration||30}));
-  },[programari,editForm?.data,editForm?.id,editForm?.expertId]);
+  },[programari,editForm]);
   const editSvcDur = useMemo(()=>{if(!editForm?.serviciuId)return 0;return rawServices.find(s=>s.id===editForm.serviciuId)?.duration||0;},[editForm?.serviciuId,rawServices]);
+
+  const getLocationFilteredStaff = useCallback((locationId?: string)=>{
+    const loc = workLocations.find(l=>l.id===locationId);
+    if(!loc?.staff_ids?.length) return rawStaff;
+    return rawStaff.filter(st=>loc.staff_ids?.includes(st.id));
+  },[rawStaff,workLocations]);
+
+  const getLocationFilteredServices = useCallback((locationId?: string)=>{
+    const loc = workLocations.find(l=>l.id===locationId);
+    if(!loc?.service_ids?.length) return rawServices;
+    return rawServices.filter(svc=>loc.service_ids?.includes(svc.id));
+  },[rawServices,workLocations]);
+
   const newAngOpts = useMemo(()=>{
-    if(!newForm?.serviciuId)return rawStaff;
-    return rawStaff.filter(a=>a.services?.includes(newForm.serviciuId));
-  },[newForm?.serviciuId,rawStaff]);
+    let opts = getLocationFilteredStaff(newForm?.workLocationId);
+    if(newForm?.serviciuId) opts = opts.filter(a=>a.services?.includes(newForm.serviciuId));
+    return opts;
+  },[newForm?.serviciuId,newForm?.workLocationId,getLocationFilteredStaff]);
+
   const newSvcOpts = useMemo(()=>{
-    if(!newForm?.expertId)return rawServices;
-    const a=rawStaff.find(s=>s.id===newForm.expertId);
-    if(!a?.services?.length)return rawServices;
-    return rawServices.filter(s=>a.services.includes(s.id));
-  },[newForm?.expertId,rawStaff,rawServices]);
+    let opts = getLocationFilteredServices(newForm?.workLocationId);
+    if(newForm?.expertId){
+      const a=rawStaff.find(s=>s.id===newForm.expertId);
+      if(a?.services?.length) opts = opts.filter(s=>a.services.includes(s.id));
+    }
+    return opts;
+  },[newForm?.expertId,newForm?.workLocationId,rawStaff,getLocationFilteredServices]);
+
+  const editAngOpts = useMemo(()=>{
+    const selectedServiceId = editForm?.serviciuId || "";
+    let opts = getLocationFilteredStaff(editForm?.workLocationId);
+    if(selectedServiceId) opts = opts.filter(a=>a.services?.includes(selectedServiceId));
+    return opts;
+  },[editForm?.serviciuId,editForm?.workLocationId,getLocationFilteredStaff]);
+
+  const editSvcOpts = useMemo(()=>{
+    let opts = getLocationFilteredServices(editForm?.workLocationId);
+    if(editForm?.expertId){
+      const a=rawStaff.find(s=>s.id===editForm.expertId);
+      if(a?.services?.length) opts = opts.filter(s=>a.services.includes(s.id));
+    }
+    return opts;
+  },[editForm?.expertId,editForm?.workLocationId,rawStaff,getLocationFilteredServices]);
+
   const dateTitles:Record<ViewMode,string> = {
     day: selectedDate.toLocaleDateString(localeCode,{weekday:"long",day:"numeric",month:"long",year:"numeric"}),
     week:(()=>{const ws=getWeekStart(selectedDate),we=addDays(ws,6);return`${ws.getDate()} ${monthsShort[ws.getMonth()]} – ${we.getDate()} ${monthsShort[we.getMonth()]} ${we.getFullYear()}`;})(),
@@ -1476,7 +1510,16 @@ function CalendarContent() {
                     <span style={{fontSize:10,fontWeight:700,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis",maxWidth:"100%"}}>{editForm.ora||"—"}</span>
                   </button>
                 </div>
-                <div style={{background:"#f8fafc",border:"1.5px solid #e2e8f0",borderRadius:12,padding:"7px 10px",minWidth:0,overflow:"hidden"}}><p style={{fontSize:7,fontWeight:700,color:"#94a3b8",textTransform:"uppercase",marginBottom:2}}>{t("workLocationLabel")}</p><select style={{width:"100%",background:"transparent",border:"none",fontSize:11,fontWeight:700,color:"#1e293b",outline:"none",cursor:"pointer",minWidth:0}} value={editForm.workLocationId||""} onChange={e=>{const id=e.target.value;const loc=workLocations.find(l=>l.id===id);setEditForm(p=>p?{...p,workLocationId:id,workLocationName:loc?.name||"",workLocationAddress:loc?.address||"",workLocationMapsUrl:loc?.maps_url||""}:null);}}><option value="">{t("allWorkLocationsOpt")}</option>{workLocations.map(loc=><option key={loc.id} value={loc.id}>{loc.name}</option>)}</select></div>
+                <div style={{background:"#f8fafc",border:"1.5px solid #e2e8f0",borderRadius:12,padding:"7px 10px",minWidth:0,overflow:"hidden"}}><p style={{fontSize:7,fontWeight:700,color:"#94a3b8",textTransform:"uppercase",marginBottom:2}}>{t("workLocationLabel")}</p><select style={{width:"100%",background:"transparent",border:"none",fontSize:11,fontWeight:700,color:"#1e293b",outline:"none",cursor:"pointer",minWidth:0}} value={editForm.workLocationId||""} onChange={e=>{
+  const id=e.target.value;
+  const loc=workLocations.find(l=>l.id===id);
+  setEditForm(p=>{
+    if(!p)return null;
+    const staffOk=!id||!loc?.staff_ids?.length||!p.expertId||loc.staff_ids.includes(p.expertId);
+    const serviceOk=!id||!loc?.service_ids?.length||!p.serviciuId||loc.service_ids.includes(p.serviciuId);
+    return {...p,workLocationId:id,workLocationName:loc?.name||"",workLocationAddress:loc?.address||"",workLocationMapsUrl:loc?.maps_url||"",expertId:staffOk?p.expertId:"",serviciuId:serviceOk?p.serviciuId:""};
+  });
+}}><option value="">{t("allWorkLocationsOpt")}</option>{workLocations.map(loc=><option key={loc.id} value={loc.id}>{loc.name}</option>)}</select></div>
                 <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:6,minWidth:0}}>
                   {[{label:t("editModal.phoneLabel"),key:"telefon"},{label:t("editModal.emailLabel"),key:"email"}].map(f=>(
                     <div key={f.key} id={f.key==="telefon"?"onboarding-prog-phone":"onboarding-prog-email"} style={{background:"#f8fafc",border:"1.5px solid #e2e8f0",borderRadius:12,padding:"7px 10px",minWidth:0,overflow:"hidden"}}>
@@ -1497,8 +1540,7 @@ function CalendarContent() {
                         setEditForm(p=>p?{...p,expertId:nid,serviciuId:ok?p.serviciuId:""}:null);
                       }}>
                       <option value="" style={{background:"#0f172a"}}>{t("editModal.chooseOpt")}</option>
-                      {(editForm.serviciuId?rawStaff.filter(s=>s.services?.includes(editForm.serviciuId!)):rawStaff)
-                        .map(o=><option key={o.id} value={o.id} style={{background:"#0f172a"}}>{o.name}</option>)}
+                      {editAngOpts.map(o=><option key={o.id} value={o.id} style={{background:"#0f172a"}}>{o.name}</option>)}
                     </select>
                   </div>
                   <div style={{background:"#0f172a",borderRadius:12,padding:"7px 8px",minWidth:0,overflow:"hidden"}}>
@@ -1512,8 +1554,7 @@ function CalendarContent() {
                         setEditForm(p=>p?{...p,serviciuId:nid,expertId:ok?p.expertId:""}:null);
                       }}>
                       <option value="" style={{background:"#0f172a"}}>{t("editModal.chooseOpt")}</option>
-                      {(editForm.expertId?rawServices.filter(s=>{const sp=rawStaff.find(x=>x.id===editForm.expertId);return sp?.services?.includes(s.id);}):rawServices)
-                        .map(o=><option key={o.id} value={o.id} style={{background:"#0f172a"}}>{o.nume_serviciu}</option>)}
+                      {editSvcOpts.map(o=><option key={o.id} value={o.id} style={{background:"#0f172a"}}>{o.nume_serviciu}</option>)}
                     </select>
                   </div>
                 </div>

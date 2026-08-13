@@ -30,6 +30,14 @@ function timeToMinutes(t: string): number {
   const [h, m] = t.split(":").map(Number);
   return h * 60 + (m || 0);
 }
+
+function isInsideManualBlockInterval(time: string, manualBlocksForDay: string[]): boolean {
+  const slotMinutes = timeToMinutes(time);
+  return manualBlocksForDay.some((blockedTime) => {
+    const blockStart = timeToMinutes(blockedTime);
+    return slotMinutes >= blockStart && slotMinutes < blockStart + 15;
+  });
+}
 function formatKey(d: Date) {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
@@ -68,7 +76,7 @@ function getSlotStatus(
   }
   if (!withinAnyRange) return "outside";
   if (!fitsInAnyInterval) return "overlap";
-  if (manualBlocksForDay.includes(time)) return "manual_block";
+  if (isInsideManualBlockInterval(time, manualBlocksForDay)) return "manual_block";
   const newStart = slotMinutes;
   const newEnd = slotMinutes + serviceLen;
   for (const appt of existingAppointments) {
