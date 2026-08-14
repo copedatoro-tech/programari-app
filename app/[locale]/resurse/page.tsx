@@ -927,8 +927,14 @@ return (
 
           {/* Location form (separate) */}
           {locationForm && (
-            <div className={`bg-white p-6 rounded-2xl border border-slate-100 mt-6`}>
-              <h4 className="text-[10px] font-black uppercase text-slate-700 mb-3">{selectedLocationId ? t("update") : t("addWorkLocationBtn")}</h4>
+            <div className="fixed inset-0 bg-slate-900/70 backdrop-blur-md z-[400] flex items-center justify-center p-4" onClick={cancelLocationEdit}>
+              <div className="bg-white w-full max-w-2xl rounded-[35px] p-6 md:p-8 shadow-2xl max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+                <div className="flex items-center justify-between mb-4 sticky top-0 bg-white z-10 pb-2 -mt-2">
+                  <h4 className="text-[10px] font-black uppercase text-slate-700">{selectedLocationId ? t("update") : t("addWorkLocationBtn")}</h4>
+                  <button onClick={cancelLocationEdit} className="w-9 h-9 flex items-center justify-center bg-slate-100 rounded-xl font-black text-slate-400 hover:bg-red-500 hover:text-white transition-all">
+✕
+</button>
+                </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="md:col-span-1">
                   <label className="text-[9px] font-black uppercase text-slate-400">{t("workLocationNameLabel")}</label>
@@ -975,6 +981,7 @@ return (
               <div className="mt-4 flex gap-3">
                 <button onClick={saveLocation} className="px-4 py-2 bg-slate-900 text-amber-500 rounded-xl font-black uppercase text-[11px]">{t("save")}</button>
                 <button onClick={cancelLocationEdit} className="px-4 py-2 bg-white text-slate-700 rounded-xl font-black uppercase text-[11px] border border-slate-100">{t("cancel")}</button>
+              </div>
               </div>
             </div>
           )}
