@@ -1,11 +1,10 @@
-﻿"use client";
+"use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { createBrowserClient } from "@supabase/ssr";
 import { useRouter } from "next/navigation";
 import { useTranslations, useLocale } from "next-intl";
 import { showConfirm, showToast } from "@/lib/toast";
-import { ChronosTimePicker, ChronosDatePicker } from "@/components/ChronosDateTimePickers";
 import { CalendarDays, Clock3 } from "lucide-react";
 
 interface WaitlistEntry {
@@ -36,12 +35,12 @@ export default function ListaAsteptarePage() {
   const [staff, setStaff] = useState<StaffRow[]>([]);
   const [services, setServices] = useState<ServiceRow[]>([]);
   const [showAddModal, setShowAddModal] = useState(false);
-  const [showDatePicker, setShowDatePicker] = useState(false);
-  const [showTimePicker, setShowTimePicker] = useState(false);
+  const [allAppointments, setAllAppointments] = useState<any[]>([]);
+  const [selectedApptId, setSelectedApptId] = useState<string>("");
   const [adding, setAdding] = useState(false);
   const today = new Date().toISOString().split("T")[0];
   const [addForm, setAddForm] = useState({
-    clientName: "", clientPhone: "", clientEmail: "", date: today, time: "",
+    specialistId: "", serviciuId: "", workLocationId: "",
     specialistId: "", serviciuId: "",
   });
 
@@ -51,24 +50,31 @@ export default function ListaAsteptarePage() {
   );
 
   const [adminWorkingHours, setAdminWorkingHours] = useState<any[]>([]);
+  const [workLocations, setWorkLocations] = useState<any[]>([]);
   const load = useCallback(async () => {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) { router.replace("/login"); return; }
     try {
-      const [waitlistRes, staffRes, servicesRes, profileRes] = await Promise.all([
+      const todayKey = new Date().toISOString().split("T")[0];
+      const [waitlistRes, staffRes, servicesRes, profileRes, apptRes] = await Promise.all([
         fetch("/api/waitlist/admin"),
         supabase.from("staff").select("id, name, services").eq("user_id", session.user.id),
         supabase.from("services").select("id, nume_serviciu").eq("user_id", session.user.id),
-        supabase.from("profiles").select("working_hours").eq("id", session.user.id).single(),
+        supabase.from("profiles").select("working_hours, work_locations").eq("id", session.user.id).single(),
+        supabase.from("appointments").select("id,title,prenume,nume,date,time,angajat_id,serviciu_id,duration,work_location_id").eq("user_id", session.user.id).gte("date", new Date().toISOString().split("T")[0]).order("date", { ascending: true }).order("time", { ascending: true }),
       ]);
       const data = await waitlistRes.json();
       setEntries(data.entries || []);
       if (staffRes.data) setStaff(staffRes.data);
       if (servicesRes.data) setServices(servicesRes.data);
+      if (apptRes.data) setAllAppointments(apptRes.data);
       if (profileRes.data?.working_hours) {
         const wh = profileRes.data.working_hours;
         const parsed = typeof wh === "string" ? JSON.parse(wh) : wh;
         setAdminWorkingHours(Array.isArray(parsed) ? parsed : []);
+      }
+      if (Array.isArray(profileRes.data?.work_locations)) {
+        setWorkLocations(profileRes.data.work_locations);
       }
     } catch {
       // ignorăm
@@ -80,6 +86,21 @@ export default function ListaAsteptarePage() {
   useEffect(() => { load(); }, [load]);
 
   const handleAdd = async () => {
+  const handleSelectAppointment = (a: any) => {
+  const filteredAppts = useMemo(() => allAppointments.filter((a: any) =>
+    (!addForm.workLocationId || a.work_location_id === addForm.workLocationId) &&
+    (!addForm.specialistId || a.angajat_id === addForm.specialistId) &&
+    (!addForm.serviciuId || a.serviciu_id === addForm.serviciuId)
+  ), [allAppointments, addForm.workLocationId, addForm.specialistId, addForm.serviciuId]);
+    setSelectedApptId(a.id);
+    setAddForm((f) => ({
+      ...f,
+      date: a.date,
+      time: a.time || "",
+      specialistId: a.angajat_id || "",
+      serviciuId: a.serviciu_id || "",
+    }));
+  };
     if (!addForm.clientName.trim() || !addForm.clientEmail.trim() || !addForm.date) {
       await showToast({ message: t("addNameEmailDateRequired"), type: "error" });
       return;
@@ -106,7 +127,7 @@ export default function ListaAsteptarePage() {
       }
       await showToast({ message: t("addSuccess"), type: "success" });
       setShowAddModal(false);
-      setAddForm({ clientName: "", clientPhone: "", clientEmail: "", date: today, time: "", specialistId: "", serviciuId: "" });
+      setAddForm({ clientName: "", clientPhone: "", clientEmail: "", date: today, time: "", specialistId: "", serviciuId: "", workLocationId: "" });
       load();
     } catch {
       await showToast({ message: t("addError"), type: "error" });
@@ -247,37 +268,6 @@ export default function ListaAsteptarePage() {
         )}
       </div>
 
-      {/* PICKER DATA */}
-      {showDatePicker && (
-        <div className="fixed inset-0 z-[900] bg-slate-950/50 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => setShowDatePicker(false)}>
-          <div onClick={(e) => e.stopPropagation()}>
-            <ChronosDatePicker
-              value={addForm.date}
-              onChange={(val) => { setAddForm((f) => ({ ...f, date: val })); setShowDatePicker(false); }}
-              onClose={() => setShowDatePicker(false)}
-              workingHours={adminWorkingHours}
-            />
-          </div>
-        </div>
-      )}
-
-      {/* PICKER ORA */}
-      {showTimePicker && (
-        <div className="fixed inset-0 z-[900] bg-slate-950/50 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => setShowTimePicker(false)}>
-          <div onClick={(e) => e.stopPropagation()}>
-            <ChronosTimePicker
-              value={addForm.time || "09:00"}
-              onChange={(val) => { setAddForm((f) => ({ ...f, time: val })); setShowTimePicker(false); }}
-              onClose={() => setShowTimePicker(false)}
-              workingHours={adminWorkingHours}
-              existingAppointments={[]}
-              selectedDate={addForm.date}
-              serviceDuration={30}
-              manualBlocks={{}}
-            />
-          </div>
-        </div>
-      )}
 
       {/* MODAL ADAUGARE MANUALA */}
       {showAddModal && (
@@ -319,29 +309,41 @@ export default function ListaAsteptarePage() {
                 </div>
               </div>
 
-              {/* ✅ Picker native Chronos pentru dată și oră, la fel ca in restul aplicatiei */}
-              <div className="grid grid-cols-2 gap-3">
-                <div className="flex flex-col gap-1">
-                  <span className="text-[9px] font-black text-slate-400 ml-3 uppercase">{t("addDateLabel")}</span>
-                  <button
-                    type="button"
-                    onClick={() => setShowDatePicker(true)}
-                    className="bg-slate-900 text-white rounded-2xl py-4 px-4 font-black text-[13px] uppercase italic hover:bg-slate-800 transition-all flex items-center justify-center gap-2"
-                  >
-                    <CalendarDays className="w-4 h-4 shrink-0" strokeWidth={2.6} />
-                    <span>{new Date(addForm.date + "T00:00:00").toLocaleDateString(locale, { day: "2-digit", month: "2-digit", year: "numeric" })}</span>
-                  </button>
-                </div>
-                <div className="flex flex-col gap-1">
-                  <span className="text-[9px] font-black text-slate-400 ml-3 uppercase">{t("addTimeLabel")}</span>
-                  <button
-                    type="button"
-                    onClick={() => setShowTimePicker(true)}
-                    className={`rounded-2xl py-4 px-4 font-black text-[13px] uppercase italic transition-all flex items-center justify-center gap-2 ${addForm.time ? "bg-amber-500 text-white hover:bg-amber-600" : "bg-slate-900 text-white hover:bg-slate-800"}`}
-                  >
-                    <Clock3 className="w-4 h-4 shrink-0" strokeWidth={2.6} />
-                    <span>{addForm.time || t("anyOpt")}</span>
-                  </button>
+              <div className="flex flex-col gap-1">
+                <span className="text-[9px] font-black text-slate-400 ml-3 uppercase">Punct de lucru</span>
+                <select
+                  className="bg-slate-50 p-4 rounded-2xl font-bold text-[12px] outline-none border-2 border-transparent focus:border-amber-400 transition-all"
+                  value={addForm.workLocationId}
+                  onChange={(e) => setAddForm((f) => ({ ...f, workLocationId: e.target.value }))}
+                >
+                  <option value="">{t("anyOpt")}</option>
+                  {workLocations.map((loc: any) => <option key={loc.id} value={loc.id}>{loc.name}</option>)}
+                </select>
+              </div>
+
+              <div className="flex flex-col gap-1">
+                <span className="text-[9px] font-black text-slate-400 ml-3 uppercase">Selecteaza programarea existenta</span>
+                <div className="max-h-56 overflow-y-auto rounded-2xl border-2 border-slate-100 bg-slate-50 p-2 space-y-1.5">
+                  {filteredAppts.length === 0 ? (
+                    <p className="text-[11px] font-bold text-slate-300 italic text-center py-4">Nicio programare viitoare gasita</p>
+                  ) : (
+                    filteredAppts.map((a: any) => {
+                      const isSel = selectedApptId === a.id;
+                      const specName = staff.find((s: any) => s.id === a.angajat_id)?.name || "-";
+                      const dateLabel = new Date(a.date + "T00:00:00").toLocaleDateString(locale, { day: "2-digit", month: "2-digit" });
+                      return (
+                        <button key={a.id} type="button" onClick={() => handleSelectAppointment(a)}
+                          className={`w-full flex items-center gap-2 rounded-xl px-3 py-2.5 text-left transition-all border-2 ${isSel ? "bg-amber-500 border-amber-600 text-white" : "bg-white border-transparent hover:border-slate-200 text-slate-700"}`}>
+                          <CalendarDays className="w-3.5 h-3.5 shrink-0" strokeWidth={2.6} />
+                          <span className="text-[11px] font-black">{dateLabel}</span>
+                          <Clock3 className="w-3.5 h-3.5 shrink-0 ml-1" strokeWidth={2.6} />
+                          <span className="text-[11px] font-black">{a.time}</span>
+                          <span className="flex-1 text-[10px] font-bold uppercase italic truncate ml-1">{a.title || a.prenume || a.nume || "Client"}</span>
+                          <span className={`text-[9px] font-bold italic ${isSel ? "text-white/80" : "text-slate-400"}`}>{specName}</span>
+                        </button>
+                      );
+                    })
+                  )}
                 </div>
               </div>
 
