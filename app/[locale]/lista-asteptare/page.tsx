@@ -1,12 +1,10 @@
 "use client";
-
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { createBrowserClient } from "@supabase/ssr";
 import { useRouter } from "next/navigation";
 import { useTranslations, useLocale } from "next-intl";
 import { showConfirm, showToast } from "@/lib/toast";
 import { CalendarDays, Clock3 } from "lucide-react";
-
 interface WaitlistEntry {
   id: string;
   clientName: string;
@@ -19,17 +17,14 @@ interface WaitlistEntry {
   specialistName: string | null;
   serviceName: string | null;
 }
-
 interface StaffRow { id: string; name: string; services: string[] }
 interface ServiceRow { id: string; nume_serviciu: string }
-
 export default function ListaAsteptarePage() {
   const t = useTranslations("listaAsteptare");
   const locale = useLocale();
   const router = useRouter();
   const [entries, setEntries] = useState<WaitlistEntry[]>([]);
   const [loading, setLoading] = useState(true);
-
   // ✅ Adăugare manuală — util pentru admin/specialist când știe direct
   // că cineva vrea o anumită dată (ex. "nuntă", data solicitată de client)
   const [staff, setStaff] = useState<StaffRow[]>([]);
@@ -38,19 +33,16 @@ export default function ListaAsteptarePage() {
   const [allAppointments, setAllAppointments] = useState<any[]>([]);
   const [selectedApptId, setSelectedApptId] = useState<string>("");
   const [adding, setAdding] = useState(false);
+  const [workLocations, setWorkLocations] = useState<any[]>([]);
   const today = new Date().toISOString().split("T")[0];
   const [addForm, setAddForm] = useState({
+    clientName: "", clientPhone: "", clientEmail: "", date: today, time: "",
     specialistId: "", serviciuId: "", workLocationId: "",
-    specialistId: "", serviciuId: "",
   });
-
   const supabase = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   );
-
-  const [adminWorkingHours, setAdminWorkingHours] = useState<any[]>([]);
-  const [workLocations, setWorkLocations] = useState<any[]>([]);
   const load = useCallback(async () => {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) { router.replace("/login"); return; }
@@ -60,19 +52,14 @@ export default function ListaAsteptarePage() {
         fetch("/api/waitlist/admin"),
         supabase.from("staff").select("id, name, services").eq("user_id", session.user.id),
         supabase.from("services").select("id, nume_serviciu").eq("user_id", session.user.id),
-        supabase.from("profiles").select("working_hours, work_locations").eq("id", session.user.id).single(),
-        supabase.from("appointments").select("id,title,prenume,nume,date,time,angajat_id,serviciu_id,duration,work_location_id").eq("user_id", session.user.id).gte("date", new Date().toISOString().split("T")[0]).order("date", { ascending: true }).order("time", { ascending: true }),
+        supabase.from("profiles").select("work_locations").eq("id", session.user.id).single(),
+        supabase.from("appointments").select("id,title,prenume,nume,date,time,angajat_id,serviciu_id,duration,work_location_id").eq("user_id", session.user.id).gte("date", todayKey).order("date", { ascending: true }).order("time", { ascending: true }),
       ]);
       const data = await waitlistRes.json();
       setEntries(data.entries || []);
       if (staffRes.data) setStaff(staffRes.data);
       if (servicesRes.data) setServices(servicesRes.data);
       if (apptRes.data) setAllAppointments(apptRes.data);
-      if (profileRes.data?.working_hours) {
-        const wh = profileRes.data.working_hours;
-        const parsed = typeof wh === "string" ? JSON.parse(wh) : wh;
-        setAdminWorkingHours(Array.isArray(parsed) ? parsed : []);
-      }
       if (Array.isArray(profileRes.data?.work_locations)) {
         setWorkLocations(profileRes.data.work_locations);
       }
@@ -82,16 +69,8 @@ export default function ListaAsteptarePage() {
       setLoading(false);
     }
   }, [router, supabase]);
-
   useEffect(() => { load(); }, [load]);
-
-  const handleAdd = async () => {
   const handleSelectAppointment = (a: any) => {
-  const filteredAppts = useMemo(() => allAppointments.filter((a: any) =>
-    (!addForm.workLocationId || a.work_location_id === addForm.workLocationId) &&
-    (!addForm.specialistId || a.angajat_id === addForm.specialistId) &&
-    (!addForm.serviciuId || a.serviciu_id === addForm.serviciuId)
-  ), [allAppointments, addForm.workLocationId, addForm.specialistId, addForm.serviciuId]);
     setSelectedApptId(a.id);
     setAddForm((f) => ({
       ...f,
@@ -101,6 +80,12 @@ export default function ListaAsteptarePage() {
       serviciuId: a.serviciu_id || "",
     }));
   };
+  const filteredAppts = useMemo(() => allAppointments.filter((a: any) =>
+    (!addForm.workLocationId || a.work_location_id === addForm.workLocationId) &&
+    (!addForm.specialistId || a.angajat_id === addForm.specialistId) &&
+    (!addForm.serviciuId || a.serviciu_id === addForm.serviciuId)
+  ), [allAppointments, addForm.workLocationId, addForm.specialistId, addForm.serviciuId]);
+  const handleAdd = async () => {
     if (!addForm.clientName.trim() || !addForm.clientEmail.trim() || !addForm.date) {
       await showToast({ message: t("addNameEmailDateRequired"), type: "error" });
       return;
@@ -135,7 +120,6 @@ export default function ListaAsteptarePage() {
       setAdding(false);
     }
   };
-
   const handleRemove = async (id: string) => {
     const confirmed = await showConfirm({
       title: t("removeBtn"),
@@ -153,7 +137,6 @@ export default function ListaAsteptarePage() {
       await showToast({ message: "Eroare", type: "error" });
     }
   };
-
   const statusBadge = (status: string) => {
     const map: Record<string, { label: string; color: string }> = {
       waiting: { label: t("statusWaiting"), color: "bg-slate-100 text-slate-600" },
@@ -164,7 +147,6 @@ export default function ListaAsteptarePage() {
     const conf = map[status] || map.waiting;
     return <span className={`text-[9px] font-black uppercase px-3 py-1.5 rounded-full ${conf.color}`}>{conf.label}</span>;
   };
-
   const fmtDate = (d: string) => {
     if (!d) return "";
     return new Date(d + "T00:00:00").toLocaleDateString(locale, { day: "2-digit", month: "2-digit", year: "numeric" });
@@ -173,20 +155,29 @@ export default function ListaAsteptarePage() {
     if (!d) return "";
     return new Date(d).toLocaleDateString(locale, { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
   };
-
-  const availableServices = addForm.specialistId
-    ? services.filter((s) => staff.find((st) => st.id === addForm.specialistId)?.services?.includes(s.id))
-    : services;
-  const availableStaff = addForm.serviciuId
-    ? staff.filter((st) => st.services?.includes(addForm.serviciuId))
+  const locationStaff = addForm.workLocationId
+    ? staff.filter((st: any) => {
+        const loc = workLocations.find((l: any) => l.id === addForm.workLocationId);
+        return !loc?.staff_ids?.length || loc.staff_ids.includes(st.id);
+      })
     : staff;
-
+  const locationServices = addForm.workLocationId
+    ? services.filter((s: any) => {
+        const loc = workLocations.find((l: any) => l.id === addForm.workLocationId);
+        return !loc?.service_ids?.length || loc.service_ids.includes(s.id);
+      })
+    : services;
+  const availableServices = addForm.specialistId
+    ? locationServices.filter((s) => locationStaff.find((st) => st.id === addForm.specialistId)?.services?.includes(s.id))
+    : locationServices;
+  const availableStaff = addForm.serviciuId
+    ? locationStaff.filter((st) => st.services?.includes(addForm.serviciuId))
+    : locationStaff;
   if (loading) return (
     <div className="min-h-screen flex items-center justify-center bg-slate-50">
       <div className="text-center font-black italic text-amber-600 animate-pulse uppercase tracking-[0.3em] text-[10px]">{t("loading")}</div>
     </div>
   );
-
   return (
     <div className="min-h-screen bg-[#fcfcfc] p-4 md:p-16 font-sans text-slate-900">
       <div className="max-w-6xl mx-auto">
@@ -212,7 +203,6 @@ export default function ListaAsteptarePage() {
             </button>
           </div>
         </header>
-
         {entries.length === 0 ? (
           <div className="py-20 text-center bg-white rounded-[40px] border-2 border-dashed border-slate-100">
             <span className="text-5xl block mb-3">📋</span>
@@ -267,17 +257,14 @@ export default function ListaAsteptarePage() {
           </div>
         )}
       </div>
-
-
       {/* MODAL ADAUGARE MANUALA */}
       {showAddModal && (
         <div className="fixed inset-0 bg-slate-900/70 backdrop-blur-md z-[200] flex items-center justify-center p-4" onClick={() => setShowAddModal(false)}>
           <div className="bg-white w-full max-w-md rounded-[40px] p-8 md:p-10 shadow-2xl border-t-[10px] border-amber-500 max-h-[85vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
-            <div className="flex justify-between items-start mb-6">
+            <div className="flex justify-between items-start mb-6 sticky top-0 bg-white z-10 pb-2 -mt-2">
               <h3 className="text-xl font-black uppercase italic text-slate-900 tracking-tighter">{t("addManualTitle")}</h3>
               <button onClick={() => setShowAddModal(false)} className="w-10 h-10 flex items-center justify-center bg-slate-100 rounded-xl font-black text-slate-400 hover:bg-red-500 hover:text-white transition-all">✕</button>
             </div>
-
             <div className="space-y-4">
               <div className="flex flex-col gap-1">
                 <span className="text-[9px] font-black text-slate-400 ml-3 uppercase">{t("addNameLabel")}</span>
@@ -308,7 +295,6 @@ export default function ListaAsteptarePage() {
                   />
                 </div>
               </div>
-
               <div className="flex flex-col gap-1">
                 <span className="text-[9px] font-black text-slate-400 ml-3 uppercase">Punct de lucru</span>
                 <select
@@ -320,7 +306,6 @@ export default function ListaAsteptarePage() {
                   {workLocations.map((loc: any) => <option key={loc.id} value={loc.id}>{loc.name}</option>)}
                 </select>
               </div>
-
               <div className="flex flex-col gap-1">
                 <span className="text-[9px] font-black text-slate-400 ml-3 uppercase">Selecteaza programarea existenta</span>
                 <div className="max-h-56 overflow-y-auto rounded-2xl border-2 border-slate-100 bg-slate-50 p-2 space-y-1.5">
@@ -346,7 +331,6 @@ export default function ListaAsteptarePage() {
                   )}
                 </div>
               </div>
-
               <div className="grid grid-cols-2 gap-3">
                 <div className="flex flex-col gap-1">
                   <span className="text-[9px] font-black text-slate-400 ml-3 uppercase">{t("addSpecialistLabel")}</span>
@@ -371,7 +355,6 @@ export default function ListaAsteptarePage() {
                   </select>
                 </div>
               </div>
-
               <button
                 onClick={handleAdd}
                 disabled={adding}
