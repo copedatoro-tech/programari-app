@@ -1057,6 +1057,10 @@
       "team": {
         "nume": "CHRONOS TEAM",
         "limita": "Rezervări nelimitate"
+      },
+      "business": {
+        "nume": "CHRONOS BUSINESS",
+        "limita": "Rezervări nelimitate"
       }
     },
     "workLocationsTitle": "Adrese de lucru",

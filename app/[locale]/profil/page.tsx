@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useState, useMemo } from "react";
 import { createBrowserClient } from '@supabase/ssr';
@@ -51,7 +51,8 @@ export default function ProfilPage() {
     "chronos free": { nume: t("plans.free.nume"), limita: t("plans.free.limita"), culoare: "text-slate-900" },
     "chronos pro": { nume: t("plans.pro.nume"), limita: t("plans.pro.limita"), culoare: "text-slate-900" },
     "chronos elite": { nume: t("plans.elite.nume"), limita: t("plans.elite.limita"), culoare: "text-slate-900" },
-    "chronos team": { nume: t("plans.team.nume"), limita: t("plans.team.limita"), culoare: "text-slate-900" }
+    "chronos team": { nume: t("plans.team.nume"), limita: t("plans.team.limita"), culoare: "text-slate-900" },
+    "chronos business": { nume: t("plans.business.nume"), limita: t("plans.business.limita"), culoare: "text-slate-900" }
   };
 
   const formatSlug = (text: string) => {
