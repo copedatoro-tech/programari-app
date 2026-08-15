@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 import { useState, useEffect, useRef, useMemo, useCallback, Suspense } from "react";
 import { QueryClient, QueryClientProvider, useQuery } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabaseClient";
@@ -18,7 +18,7 @@ type ServiceRow = { id: string; nume_serviciu: string; price: number; duration: 
 type WorkingHourEntry = { day: string; start: string; end: string; closed: boolean; work_location_id?: string };
 const LIMITE_ABONAMENTE: Record<string, number> = {
   "chronos free": 30, "start (gratuit)": 30,
-  "chronos pro": 150, "chronos elite": 500, "chronos team": 999999,
+  "chronos pro": 150, "chronos elite": 500, "chronos team": 999999, "chronos business": 999999,
 };
 function parseWH(d: any): WorkingHourEntry[] {
   if (!d) return [];

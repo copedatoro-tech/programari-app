@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 import { useEffect, useState, useRef, useCallback } from "react";
 import { Link } from "@/i18n/navigation";
 import { supabase } from "@/lib/supabaseClient";
@@ -86,7 +86,7 @@ export default function PareriClienti() {
 
         // ✅ Accesul la recenzii ține cont de trial — cine e în perioada de
         // probă are automat acces Team, indiferent de planul salvat efectiv
-        const areAcces = trialActive || rawPlan === "CHRONOS ELITE" || rawPlan === "CHRONOS TEAM";
+        const areAcces = trialActive || rawPlan === "CHRONOS ELITE" || rawPlan === "CHRONOS TEAM" || rawPlan === "CHRONOS BUSINESS";
         if (areAcces) {
           preiaFeedback(adminIdToUse);
           if (channelRef.current) {
