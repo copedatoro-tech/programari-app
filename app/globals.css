@@ -1,4 +1,4 @@
-﻿@import "tailwindcss";
+@import "tailwindcss";
 /* Folosim @layer base pentru variabilele de tema 
   pentru a fi recunoscute corect de compilator 
 */
@@ -121,6 +121,5 @@ a, button, input, textarea, select, div[tabindex] {
    scroll-ul orizontal accidental la nivel de pagină, fără să forțeze
    nicio lățime (spre deosebire de blocurile eliminate mai sus). */
 html, body {
-  overflow-x: hidden;
-  max-width: 100vw;
+  overflow-x: clip;
 }
