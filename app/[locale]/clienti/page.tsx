@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import { useRouter } from "next/navigation";
@@ -268,9 +268,9 @@ export default function BazaDateClienti() {
               <div
                 key={d.id}
                 onClick={() => setDosarSelectat(d)}
-                className="group bg-white p-6 rounded-[40px] border border-slate-100 hover:border-amber-400 shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer flex items-center gap-6"
+                className="group bg-white p-3 sm:p-6 rounded-[24px] sm:rounded-[40px] border border-slate-100 hover:border-amber-400 shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer flex items-center gap-3 sm:gap-6"
               >
-                <div className="w-20 h-20 shrink-0 bg-slate-900 rounded-[25px] overflow-hidden flex items-center justify-center border-4 border-slate-50 group-hover:scale-105 transition-transform shadow-lg">
+                <div className="w-12 h-12 sm:w-20 sm:h-20 shrink-0 bg-slate-900 rounded-[14px] sm:rounded-[25px] overflow-hidden flex items-center justify-center border-2 sm:border-4 border-slate-50 group-hover:scale-105 transition-transform shadow-lg">
                   {d.poza ? (
                     <img
                       src={d.poza}
@@ -278,13 +278,13 @@ export default function BazaDateClienti() {
                       alt="Client"
                     />
                   ) : (
-                    <span className="text-2xl font-black text-amber-500 italic">
+                    <span className="text-base sm:text-2xl font-black text-amber-500 italic">
                       {(d.client_name || "C").charAt(0)}
                     </span>
                   )}
                 </div>
                 <div className="min-w-0">
-                  <h3 className="font-black text-slate-900 uppercase italic truncate tracking-tight text-lg">
+                  <h3 className="font-black text-slate-900 uppercase italic truncate tracking-tight text-sm sm:text-lg">
                     {d.client_name}
                   </h3>
                   <p className="text-[10px] font-bold text-amber-600 bg-amber-50 px-2 py-1 rounded-md inline-block mt-1">
