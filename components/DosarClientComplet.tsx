@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 import { useState, useCallback } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import { useTranslations } from "next-intl";
@@ -387,7 +387,7 @@ function ManagerFisiere({
       {/* Previzualizare fișier */}
       {previzualizare && (
         <div
-          className="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-[200] flex items-center justify-center p-4"
+          className="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-[510] flex items-center justify-center p-4"
           onClick={() => setPrevizualizare(null)}
         >
           <div className="max-w-3xl w-full bg-white rounded-[40px] overflow-hidden shadow-2xl" onClick={(e) => e.stopPropagation()}>
@@ -548,7 +548,7 @@ export default function DosarClientComplet({
 
   return (
     <div
-      className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[100] flex items-center justify-center p-4"
+      className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[500] flex items-center justify-center p-4"
       onClick={onClose}
     >
       <div
