@@ -776,7 +776,7 @@ function DayView({ selectedDate, programari, rawStaff, rawServices, serviceById,
               return Array.from({ length: totalCols }, (_, colI) => {
                 const staffIdForCol = colI < dayStaffList.length ? dayStaffList[colI].id : "";
                 const isBlocked = !!staffIdForCol && (staffBlocksBySlot[staffIdForCol]?.[dateKey] || []).includes(slot);
-                const disabled = baseDisabled || isBlocked;
+                const disabled = baseDisabled;
                 return (
                   <button key={`e-${slot}-${colI}`}
                     onClick={(e)=>{ if(disabled) return; const rect=(e.currentTarget as HTMLElement).getBoundingClientRect(); setSlotMenu({ x:rect.left, y:rect.bottom, time:slot, staffId:staffIdForCol }); }}
