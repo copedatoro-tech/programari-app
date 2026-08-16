@@ -735,8 +735,9 @@ function DayView({ selectedDate, programari, rawStaff, rawServices, serviceById,
                     const isHour = slot.endsWith(":00");
                     const isHalf = slot.endsWith(":30");
                     const hasSchedule = !!(whStart && whEnd);
-                    const isWork = !isClosed && hasSchedule && isWorkingSlot(slot,whStart,whEnd);
-                    const isOutsideHours = !isClosed && hasSchedule && !isWork;
+                    const isManualBlocked = (adminManualBlocks[dateKey] || []).includes(slot);
+                    const isWork = !isClosed && !isManualBlocked && (!hasSchedule || isWorkingSlot(slot,whStart,whEnd));
+                    const isOutsideHours = !isClosed && (isManualBlocked || (hasSchedule && !isWork));
                     return (
                       <div key={slot} style={{
                         position:"absolute", left:0, right:0, top:i*SLOT_H, height:SLOT_H,
@@ -843,7 +844,7 @@ function DayView({ selectedDate, programari, rawStaff, rawServices, serviceById,
       <SummaryBar programari={programari} rawServices={rawServices} selectedDate={selectedDate}
         selectedExpert={selectedExpert} selectedServiciu={selectedServiciu} onSelectServiciu={onSelectServiciu}/>
       {slotMenu && (()=>{
-        const slotOutside = isClosed || !whStart || !whEnd || !isWorkingSlot(slotMenu.time, whStart, whEnd);
+        const slotOutside = isClosed || (adminManualBlocks[dateKey] || []).includes(slotMenu.time) || (!!whStart && !!whEnd && !isWorkingSlot(slotMenu.time, whStart, whEnd));
         return (
         <div style={{ position:"fixed", inset:0, zIndex:400 }} onClick={()=>setSlotMenu(null)}>
           <div onClick={e=>e.stopPropagation()} style={{
