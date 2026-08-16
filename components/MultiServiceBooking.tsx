@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState, useMemo, useCallback, useEffect } from "react";
 import { supabase } from "@/lib/supabaseClient";
@@ -176,6 +176,7 @@ function SlotRow({
               selectedDate={slot.data}
               serviceDuration={svc?.duration || 30}
               manualBlocks={manualBlocks}
+              allowOverride={true}
             />
           </div>
         </div>

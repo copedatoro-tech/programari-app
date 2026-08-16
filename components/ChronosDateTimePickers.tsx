@@ -97,6 +97,7 @@ export function ChronosTimePicker({
   selectedDate,
   serviceDuration = 0,
   manualBlocks = {},
+  allowOverride = false,
 }: {
   value: string;
   onChange: (val: string) => void;
@@ -106,6 +107,7 @@ export function ChronosTimePicker({
   selectedDate?: string;
   serviceDuration?: number;
   manualBlocks?: Record<string, string[]>;
+  allowOverride?: boolean;
 }) {
   const t = useTranslations("chronosPickers");
   const localeCode = t("localeCode");
@@ -174,11 +176,11 @@ export function ChronosTimePicker({
     }
   }, [selectedDate, isClosed, checkStatus, hoursToShow, minutes, value]);
   const hourHasAvailable = useCallback(
-    (h: string) => minutes.some((m) => checkStatus(h, m) === "available"),
+    (h: string) => minutes.some((m) => allowOverride ? checkStatus(h, m) !== "past" : checkStatus(h, m) === "available"),
     [checkStatus, minutes]
   );
   const handleSelectMinute = (m: string) => {
-    if (checkStatus(selHour, m) !== "available") return;
+    if (allowOverride ? checkStatus(selHour, m) === "past" : checkStatus(selHour, m) !== "available") return;
     setSelMinute(m);
     onChange(`${selHour}:${m}`);
     onClose();
@@ -217,7 +219,7 @@ export function ChronosTimePicker({
         )}
       </div>
       <div className="p-3 space-y-2.5">
-        {isClosed ? (
+        {(isClosed && !allowOverride) ? (
           <div className="text-center py-6">
             <div className="text-3xl mb-2">🚫</div>
             <p className="font-black uppercase italic text-slate-500 text-[11px]">{t("closedMessage")}</p>
@@ -269,7 +271,7 @@ export function ChronosTimePicker({
                       key={m}
                       type="button"
                       onClick={() => handleSelectMinute(m)}
-                      disabled={!isAvail}
+                      disabled={allowOverride ? status === "past" : !isAvail}
                       className={`py-2 rounded-lg font-black text-[13px] transition-all border-2 flex flex-col items-center justify-center ${minuteCls}`}
                     >
                       {m}
