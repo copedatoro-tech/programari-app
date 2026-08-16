@@ -272,7 +272,7 @@ export function ChronosTimePicker({
                       type="button"
                       onClick={() => handleSelectMinute(m)}
                       disabled={allowOverride ? status === "past" : !isAvail}
-                      className={`py-2 rounded-lg font-black text-[13px] transition-all border-2 flex flex-col items-center justify-center ${minuteCls}`}
+                      className={`py-2 rounded-lg font-black text-[13px] transition-all border-2 flex flex-col items-center justify-center ${minuteCls} ${allowOverride && status !== "past" ? "!cursor-pointer" : ""}`}
                     >
                       {m}
                       {!isAvail && (
