@@ -771,7 +771,7 @@ function DayView({ selectedDate, programari, rawStaff, rawServices, serviceById,
             )}
             {slots.flatMap((slot,i) => {
               const isPastSlot = dateKey === todayKeyRef && timeToMin(slot) <= nowMinutesRef;
-              const baseDisabled = isClosed || isPastSlot;
+              const baseDisabled = isPastSlot;
               return Array.from({ length: totalCols }, (_, colI) => {
                 const staffIdForCol = colI < dayStaffList.length ? dayStaffList[colI].id : "";
                 const isBlocked = !!staffIdForCol && (staffBlocksBySlot[staffIdForCol]?.[dateKey] || []).includes(slot);
@@ -842,7 +842,9 @@ function DayView({ selectedDate, programari, rawStaff, rawServices, serviceById,
       </div>
       <SummaryBar programari={programari} rawServices={rawServices} selectedDate={selectedDate}
         selectedExpert={selectedExpert} selectedServiciu={selectedServiciu} onSelectServiciu={onSelectServiciu}/>
-      {slotMenu && (
+      {slotMenu && (()=>{
+        const slotOutside = isClosed || !whStart || !whEnd || !isWorkingSlot(slotMenu.time, whStart, whEnd);
+        return (
         <div style={{ position:"fixed", inset:0, zIndex:400 }} onClick={()=>setSlotMenu(null)}>
           <div onClick={e=>e.stopPropagation()} style={{
             position:"fixed",
@@ -852,18 +854,21 @@ function DayView({ selectedDate, programari, rawStaff, rawServices, serviceById,
             overflow:"hidden", minWidth:190,
           }}>
             <button onClick={()=>{ onAddNew(slotMenu.time, dateKey, slotMenu.staffId); setSlotMenu(null); }}
-              style={{ width:"100%", textAlign:"left", padding:"11px 14px", fontSize:11, fontWeight:700, color:"#1e293b", background:"transparent", border:"none", cursor:"pointer", borderBottom:"1px solid #f1f5f9" }}
+              style={{ width:"100%", textAlign:"left", padding:"11px 14px", fontSize:11, fontWeight:700, color:"#1e293b", background:"transparent", border:"none", cursor:"pointer", borderBottom: slotOutside ? "none" : "1px solid #f1f5f9" }}
               className="hover:bg-slate-50 transition-colors">
               Adauga programare - {slotMenu.time}
             </button>
+            {!slotOutside && (
             <button onClick={()=>{ setBlockPopup({ date:dateKey, staffId:slotMenu.staffId, start:slotMenu.time, end:addMinutesToTime(slotMenu.time,60) }); setSlotMenu(null); }}
               style={{ width:"100%", textAlign:"left", padding:"11px 14px", fontSize:11, fontWeight:700, color:"#dc2626", background:"transparent", border:"none", cursor:"pointer" }}
               className="hover:bg-red-50 transition-colors">
               Blocheaza timp
             </button>
+            )}
           </div>
         </div>
-      )}
+        );
+      })()}
       {blockPopup && (
         <div style={{ position:"fixed", inset:0, background:"rgba(15,23,42,0.6)", zIndex:410, display:"flex", alignItems:"center", justifyContent:"center", padding:16 }} onClick={()=>setBlockPopup(null)}>
           <div onClick={e=>e.stopPropagation()} style={{ background:"#fff", borderRadius:20, padding:22, width:"100%", maxWidth:340, boxShadow:"0 24px 60px rgba(0,0,0,0.25)" }}>
