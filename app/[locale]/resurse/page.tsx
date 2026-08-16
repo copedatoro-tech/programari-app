@@ -1095,7 +1095,7 @@ return (
           {/* Servicii Lista */}
           <div className="bg-white p-10 rounded-[50px] shadow-xl border border-slate-50 relative">
             <h2 className="text-[11px] font-black uppercase italic text-slate-400 mb-10 tracking-[0.3em] border-b pb-6">
-              {t("activeServicesTitle")} ({services.length} / {getLimitaServicii() >= 999 ? 'âˆž' : getLimitaServicii()})
+              {t("activeServicesTitle")} ({services.length} / {getLimitaServicii() >= 999 ? '∞' : getLimitaServicii()})
             </h2>
             <div className="max-h-[420px] overflow-y-scroll pr-2 space-y-4">
               {services.map(s => (
@@ -1143,7 +1143,7 @@ return (
           {/* Experti Lista */}
           <div className="bg-white p-10 rounded-[50px] shadow-xl border border-slate-50 relative">
             <h2 className="text-[11px] font-black uppercase italic text-slate-400 mb-10 tracking-[0.3em] border-b pb-6 text-right">
-              {t("teamTitle")} ({staff.length} / {getLimitaStaff() >= 999 ? 'âˆž' : getLimitaStaff()})
+              {t("teamTitle")} ({staff.length} / {getLimitaStaff() >= 999 ? '∞' : getLimitaStaff()})
             </h2>
             <div className="max-h-[650px] overflow-y-scroll pr-2 space-y-4">
               {staff.map(p => (
