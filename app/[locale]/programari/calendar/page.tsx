@@ -688,8 +688,8 @@ function DayView({ selectedDate, programari, rawStaff, rawServices, serviceById,
   return (
     <div className="chronos-calendar-day-view" style={{ display:"flex", flexDirection:"column", flex:1, overflow:"hidden" }}>
       {isClosed&&(
-        <div style={{ flexShrink:0, background:"#fff5f5", borderBottom:"1px solid #fca5a5", padding:"6px 16px" }}>
-          <span style={{ fontSize:11, fontWeight:700, color:"#dc2626" }}>{t("dayClosedBanner")}</span>
+        <div style={{ flexShrink:0, background:"#f1f5f9", borderBottom:"1px solid #e2e8f0", padding:"6px 16px" }}>
+          <span style={{ fontSize:11, fontWeight:700, color:"#94a3b8" }}>{t("dayClosedBanner")}</span>
         </div>
       )}
       {hoverCard&&(
