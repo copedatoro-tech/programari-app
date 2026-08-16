@@ -265,7 +265,9 @@ export function ChronosTimePicker({
                       ? "border-slate-950 bg-amber-500 text-slate-950"
                       : isAvail
                         ? "border-transparent bg-white text-slate-600 hover:bg-amber-100"
-                        : statusColors[status];
+                        : isLandmark
+                          ? statusColors[status] + " !border-amber-500"
+                          : statusColors[status];
                   return (
                     <button
                       key={m}
