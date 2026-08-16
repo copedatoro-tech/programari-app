@@ -323,8 +323,8 @@ function WeekStrip({ selectedDate, onSelectDate, programariByDate, adminWorkingH
             const appts = programariByDate[key] || [];
             const total = appts.length;
             const online = appts.filter(p => p.isOnline).length;
-            const dow = (day.getDay() + 6) % 7;
             const wh = whByDay[dayLong[day.getDay()]];
+            const dow = (day.getDay() + 6) % 7;
             const isClosed = !!wh?.closed;
             return (
               <button key={i} onClick={() => onSelectDate(day)}
@@ -332,14 +332,14 @@ function WeekStrip({ selectedDate, onSelectDate, programariByDate, adminWorkingH
                   flex:1, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center",
                   gap:1, padding:"4px 2px", border:"none", cursor:"pointer", position:"relative",
                   borderLeft: i===0 ? "none" : "1px solid #f1f5f9",
-                  background: isSel ? "#0f172a" : isClosed ? "#fff5f5" : isToday ? "#fffbeb" : "#fff",
-                  borderBottom: isSel ? "2px solid #f59e0b" : isClosed ? "2px solid #fca5a5" : "2px solid transparent",
+                  background: isSel ? "#0f172a" : isClosed ? "#f1f5f9" : isToday ? "#fffbeb" : "#fff",
+                  borderBottom: isSel ? "2px solid #f59e0b" : isClosed ? "2px solid #cbd5e1" : "2px solid transparent",
                   transition:"background 0.15s",
                 }}>
-                <span style={{ fontSize:8, fontWeight:700, textTransform:"uppercase", letterSpacing:"0.05em", color: isSel?"#f59e0b":isToday?"#d97706":isClosed?"#f87171":"#64748b" }}>
+                <span style={{ fontSize:8, fontWeight:700, textTransform:"uppercase", letterSpacing:"0.05em", color: isSel?"#f59e0b":isToday?"#d97706":isClosed?"#94a3b8":"#64748b" }}>
                   {dayShort[dow]}
                 </span>
-                <span style={{ fontSize:14, fontWeight:700, lineHeight:1.1, color: isSel?"#fff":isToday?"#d97706":isClosed?"#f87171":"#1e293b" }}>
+                <span style={{ fontSize:14, fontWeight:700, lineHeight:1.1, color: isSel?"#fff":isToday?"#d97706":isClosed?"#94a3b8":"#1e293b" }}>
                   {day.getDate()}
                 </span>
                 {total>0&&(
@@ -348,7 +348,7 @@ function WeekStrip({ selectedDate, onSelectDate, programariByDate, adminWorkingH
                     {online>0&&<span style={{ fontSize:8, fontWeight:700, padding:"0px 4px", borderRadius:99, background:"#3b82f6", color:"#fff" }}>{online}</span>}
                   </div>
                 )}
-                {isClosed&&<span style={{ fontSize:6, fontWeight:700, color:"#f87171" }}>{t("closedBadge")}</span>}
+                {isClosed&&<span style={{ fontSize:6, fontWeight:700, color:"#94a3b8" }}>{t("closedBadge")}</span>}
               </button>
             );
           })}
@@ -730,29 +730,24 @@ function DayView({ selectedDate, programari, rawStaff, rawServices, serviceById,
               const ci = staffIdForCol ? (staffMap[staffIdForCol] ?? 0) : -1;
               const tint = ci>=0 ? SC[ci].workBg : "#f8fafc";
               return (
-                <div key={`tint-${colI}`} style={{
-                  position:"absolute", left:`calc(${colI} * 100% / ${totalCols})`, width:`calc(100% / ${totalCols})`,
-                  top:0, height:gridH, background:tint,
-                  borderRight: colI < totalCols-1 ? "1.5px solid #dde3ea" : "none",
-                }} />
-              );
-            })}
-            {slots.map((slot,i) => {
-              const isHour = slot.endsWith(":00");
-              const isHalf = slot.endsWith(":30");
-              const hasSchedule = !!(whStart && whEnd);
-              const isWork = !isClosed && hasSchedule && isWorkingSlot(slot,whStart,whEnd);
-              const isOutsideHours = !isClosed && hasSchedule && !isWork;
-              return (
-                <div key={slot} style={{
-                  position:"absolute", left:0, right:0, top:i*SLOT_H, height:SLOT_H,
-                  background: isClosed
-                    ? "repeating-linear-gradient(135deg,rgba(239,68,68,0.10) 0px,rgba(239,68,68,0.10) 4px,rgba(254,242,242,1) 4px,rgba(254,242,242,1) 8px)"
-                    : isOutsideHours
-                      ? "repeating-linear-gradient(45deg,rgba(148,163,184,0.28) 0px,rgba(148,163,184,0.28) 2px,transparent 2px,transparent 10px),repeating-linear-gradient(135deg,rgba(148,163,184,0.28) 0px,rgba(148,163,184,0.28) 2px,transparent 2px,transparent 10px),#eef1f5"
-                      : "transparent",
-                  borderTop: isHour?"1.5px solid #94a3b8":isHalf?"1px solid #cbd5e1":"1px solid #e2e8f0",
-                }} />
+                <div key={`col-${colI}`} style={{ position:"absolute", left:`calc(${colI} * 100% / ${totalCols})`, width:`calc(100% / ${totalCols})`, top:0, height:gridH, borderRight: colI < totalCols-1 ? "1.5px solid #dde3ea" : "none" }}>
+                  {slots.map((slot,i) => {
+                    const isHour = slot.endsWith(":00");
+                    const isHalf = slot.endsWith(":30");
+                    const hasSchedule = !!(whStart && whEnd);
+                    const isWork = !isClosed && hasSchedule && isWorkingSlot(slot,whStart,whEnd);
+                    const isOutsideHours = !isClosed && hasSchedule && !isWork;
+                    return (
+                      <div key={slot} style={{
+                        position:"absolute", left:0, right:0, top:i*SLOT_H, height:SLOT_H,
+                        background: (isClosed || isOutsideHours)
+                          ? "repeating-linear-gradient(45deg,rgba(148,163,184,0.28) 0px,rgba(148,163,184,0.28) 2px,transparent 2px,transparent 10px),repeating-linear-gradient(135deg,rgba(148,163,184,0.28) 0px,rgba(148,163,184,0.28) 2px,transparent 2px,transparent 10px),#eef1f5"
+                          : tint,
+                        borderTop: isHour?"1.5px solid #94a3b8":isHalf?"1px solid #cbd5e1":"1px solid #e2e8f0",
+                      }} />
+                    );
+                  })}
+                </div>
               );
             })}
             {!isClosed&&whStart&&whEnd&&(()=>{
@@ -942,7 +937,7 @@ function WeekView({ selectedDate, programariByDate, rawStaff, serviceById, onEdi
           rawStaff={rawStaff} staffColorIndex={staffMap[hoverCard.prog.expertId||""] ?? 0} onClose={()=>setHoverCard(null)}/>
       )}
       <div style={{flex:1,overflowY:"auto",overflowX:"hidden"}}>
-        <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)",flex:1,alignItems:"start"}}>
+        <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)",flex:1}}>
           {weekDays.map((day,di)=>{
             const key = formatDateKey(day);
             const dn = dayLong[day.getDay()];
@@ -957,16 +952,15 @@ function WeekView({ selectedDate, programariByDate, rawStaff, serviceById, onEdi
             return (
               <div key={di} style={{
                 minHeight:120,
-                borderRight:di<6?(isClosed?"1px solid #fca5a5":"1px solid #e2e8f0"):"none",
-                borderBottom: isClosed ? "1px solid #fca5a5" : "1px solid #e2e8f0",
-                boxShadow: isClosed ? "inset 0 0 0 2px #fca5a5" : "none",
-                background:isClosed?"#fef2f2":isToday?"rgba(251,191,36,0.04)":"#fff",
+                borderRight:di<6?"1px solid #e2e8f0":"none",
+                borderBottom: "1px solid #e2e8f0",
+                background:isClosed?"#f1f5f9":isToday?"rgba(251,191,36,0.04)":"#fff",
                 padding:"8px 6px",
                 display:"flex",flexDirection:"column",gap:5,
               }}>
                 {isClosed&&(
                   <div style={{display:"flex",justifyContent:"center",marginBottom:6}}>
-                    <span style={{fontSize:8,fontWeight:800,color:"#fff",background:"#dc2626",padding:"2px 8px",borderRadius:5,letterSpacing:"0.02em"}}>{t("closedBadgeCaps")}</span>
+                    <span style={{fontSize:8,fontWeight:800,color:"#94a3b8",background:"#e2e8f0",padding:"2px 8px",borderRadius:5,letterSpacing:"0.02em"}}>{t("closedBadgeCaps")}</span>
                   </div>
                 )}
                 {!isClosed&&dayAppts.length===0&&(
@@ -1081,15 +1075,14 @@ function MonthView({ selectedDate, programariByDate, rawStaff, serviceById, onEd
             <div key={idx} onClick={()=>onDayClick(day)}
               style={{
                 minHeight:110,padding:"6px 6px 4px",display:"flex",flexDirection:"column",cursor:"pointer",
-                borderBottom: isClosed&&isCurMo ? "1px solid #fca5a5" : "1px solid #e2e8f0",
-                borderRight:(day.getDay()+6)%7<6?(isClosed&&isCurMo?"1px solid #fca5a5":"1px solid #e2e8f0"):"none",
-                boxShadow: isClosed&&isCurMo ? "inset 0 0 0 2px #fca5a5" : "none",
-                background:!isCurMo?"#f8fafc":isClosed?"#fef2f2":isToday?"rgba(251,191,36,0.06)":"#fff",
+                borderBottom: "1px solid #e2e8f0",
+                borderRight:(day.getDay()+6)%7<6?"1px solid #e2e8f0":"none",
+                background:!isCurMo?"#f8fafc":isClosed?"#f1f5f9":isToday?"rgba(251,191,36,0.06)":"#fff",
                 opacity:!isCurMo?0.38:1,transition:"background 0.15s"}}>
               <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:4}}>
-                <span style={{fontSize:12,fontWeight:700,width:24,height:24,display:"flex",alignItems:"center",justifyContent:"center",borderRadius:6,flexShrink:0,background:isToday?"#f59e0b":isSel?"#1e293b":isClosed?"#fecaca":"transparent",color:isToday||isSel?"#fff":isClosed?"#b91c1c":"#334155"}}>{day.getDate()}</span>
+                <span style={{fontSize:12,fontWeight:700,width:24,height:24,display:"flex",alignItems:"center",justifyContent:"center",borderRadius:6,flexShrink:0,background:isToday?"#f59e0b":isSel?"#1e293b":isClosed?"#e2e8f0":"transparent",color:isToday||isSel?"#fff":isClosed?"#94a3b8":"#334155"}}>{day.getDate()}</span>
                 <div style={{display:"flex",gap:3,alignItems:"center"}}>
-                  {isClosed&&isCurMo&&<span style={{fontSize:8,fontWeight:800,color:"#fff",background:"#dc2626",padding:"2px 6px",borderRadius:5,letterSpacing:"0.02em"}}>{t("closedBadgeCaps")}</span>}
+                  {isClosed&&isCurMo&&<span style={{fontSize:8,fontWeight:800,color:"#94a3b8",background:"#e2e8f0",padding:"2px 6px",borderRadius:5,letterSpacing:"0.02em"}}>{t("closedBadgeCaps")}</span>}
                   {appts.length>0&&<span style={{fontSize:9,fontWeight:700,padding:"1px 5px",borderRadius:99,background:"#e2e8f0",color:"#475569"}}>{appts.length}</span>}
                   {online>0&&<span style={{fontSize:9,fontWeight:700,padding:"1px 5px",borderRadius:99,background:"#3b82f6",color:"#fff"}}>{online}</span>}
                 </div>
