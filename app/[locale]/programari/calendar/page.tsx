@@ -311,7 +311,7 @@ function WeekStrip({ selectedDate, onSelectDate, programariByDate, adminWorkingH
       <div style={{ display:"flex", alignItems:"stretch", minHeight:44 }}>
         <div style={{ display:"flex", alignItems:"center", justifyContent:"center", padding:"0 8px", borderRight:"2px solid #e2e8f0", flexShrink:0, minWidth:140 }}>
           <div style={{ textAlign:"center" }}>
-            <p style={{ fontSize:10, fontWeight:700, color:"#1e293b", lineHeight:1.2 }}>Saptamana {weekNumber}</p>
+            <p style={{ fontSize:10, fontWeight:700, color:"#1e293b", lineHeight:1.2 }}>{t("weekLabel",{n:weekNumber})}</p>
             <p style={{ fontSize:8, fontWeight:700, color:"#94a3b8", marginTop:1 }}>{monthLabel}</p>
           </div>
         </div>
@@ -488,7 +488,7 @@ function FilterBar({ rawStaff, rawServices, programari, selectedExpert, onSelect
   return (
     <div style={{ flexShrink:0, background:"#fff", borderBottom:"2px solid #e2e8f0", padding:"5px 10px", display:"flex", alignItems:"center", gap:8, flexWrap:"wrap" }}>
       {workLocations.length>0&&(
-        <FilterDropdownButton label="Punct" allLabel="Toate" placeholder="Cauta punct de lucru..."
+        <FilterDropdownButton label="Punct" allLabel={t("filterAll")} placeholder="Cauta punct de lucru..."
           items={locationItems} selectedId={selectedWorkLocation}
           onSelect={onSelectWorkLocation} />
       )}
@@ -1597,7 +1597,7 @@ function CalendarContent() {
                 <div style={{display:"flex",gap:6,paddingTop:2,borderTop:"1.5px solid #f1f5f9"}}>
                   <button onClick={closeModal} style={{flex:1,padding:"8px",background:"#f1f5f9",border:"none",borderRadius:12,fontSize:11,fontWeight:700,color:"#64748b",cursor:"pointer"}} className="hover:bg-slate-200 transition-all">{t("editModal.cancelBtn")}</button>
                   <button onClick={handleUpdate} style={{flex:2,padding:"8px",background:"#0f172a",border:"none",borderRadius:12,fontSize:11,fontWeight:700,color:"#fff",cursor:"pointer"}} className="hover:bg-amber-600 transition-all">{t("editModal.saveBtn")}</button>
-                  <button onClick={()=>{const ef=editForm;closeModal();setTimeout(()=>{setNewForm({date:formatDateKey(new Date()),time:"",nume:ef?.nume||"",telefon:ef?.telefon||"",email:ef?.email||"",serviciuId:ef?.serviciuId||"",expertId:ef?.expertId||"",motiv:ef?.motiv||"",workLocationId:ef?.workLocationId||""});},50);}} style={{width:36,padding:"8px",background:"#eff6ff",border:"1.5px solid #bfdbfe",borderRadius:12,fontSize:14,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}} className="hover:bg-blue-500 hover:text-white transition-all" title="Repeta programarea">🔄</button>
+                  <button onClick={()=>{const ef=editForm;closeModal();setTimeout(()=>{setNewForm({date:formatDateKey(new Date()),time:"",nume:ef?.nume||"",telefon:ef?.telefon||"",email:ef?.email||"",serviciuId:ef?.serviciuId||"",expertId:ef?.expertId||"",motiv:ef?.motiv||"",workLocationId:ef?.workLocationId||""});},50);}} style={{width:36,padding:"8px",background:"#eff6ff",border:"1.5px solid #bfdbfe",borderRadius:12,fontSize:14,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}} className="hover:bg-blue-500 hover:text-white transition-all" title={t("repeatApptTooltip")}>🔄</button>
                   <button onClick={handleDelete} style={{width:36,padding:"8px",background:"#fff1f2",border:"1.5px solid #fecdd3",borderRadius:12,fontSize:14,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}} className="hover:bg-red-500 hover:text-white transition-all" title={t("editModal.deleteTooltip")}>🗑</button>
                 </div>
               </div>

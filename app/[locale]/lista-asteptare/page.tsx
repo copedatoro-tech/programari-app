@@ -296,7 +296,7 @@ export default function ListaAsteptarePage() {
                 </div>
               </div>
               <div className="flex flex-col gap-1">
-                <span className="text-[9px] font-black text-slate-400 ml-3 uppercase">Punct de lucru</span>
+                <span className="text-[9px] font-black text-slate-400 ml-3 uppercase">{t("filterWorkLocationLabel")}</span>
                 <select
                   className="bg-slate-50 p-4 rounded-2xl font-bold text-[12px] outline-none border-2 border-transparent focus:border-amber-400 transition-all"
                   value={addForm.workLocationId}
@@ -307,10 +307,10 @@ export default function ListaAsteptarePage() {
                 </select>
               </div>
               <div className="flex flex-col gap-1">
-                <span className="text-[9px] font-black text-slate-400 ml-3 uppercase">Selecteaza programarea existenta</span>
+                <span className="text-[9px] font-black text-slate-400 ml-3 uppercase">{t("selectExistingApptLabel")}</span>
                 <div className="max-h-56 overflow-y-auto rounded-2xl border-2 border-slate-100 bg-slate-50 p-2 space-y-1.5">
                   {filteredAppts.length === 0 ? (
-                    <p className="text-[11px] font-bold text-slate-300 italic text-center py-4">Nicio programare viitoare gasita</p>
+                    <p className="text-[11px] font-bold text-slate-300 italic text-center py-4">{t("noUpcomingApptsFound")}</p>
                   ) : (
                     filteredAppts.map((a: any) => {
                       const isSel = selectedApptId === a.id;
