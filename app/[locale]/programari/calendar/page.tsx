@@ -1490,7 +1490,7 @@ function CalendarContent() {
   const btnStyle=(active:boolean):React.CSSProperties=>({padding:"6px 12px",borderRadius:8,fontSize:10,fontWeight:700,textTransform:"uppercase",border:"none",cursor:"pointer",transition:"all 0.15s",background:active?"#0f172a":"#f1f5f9",color:active?"#fff":"#64748b"});
 
   return (
-    <div style={{display:"flex",flexDirection:"column",height:"100%",minHeight:0,background:"#f8fafc",overflow:"hidden"}}>
+    <div className="h-[calc(100dvh-88px)] sm:h-[calc(100dvh-64px)]" style={{display:"flex",flexDirection:"column",minHeight:0,background:"#f8fafc",overflow:"hidden"}}>
       {editForm&&(
         <>
           {showDatePicker&&(<div style={{position:"fixed",inset:0,zIndex:900,background:"rgba(0,0,0,0.5)",backdropFilter:"blur(4px)",display:"flex",alignItems:"center",justifyContent:"center",padding:16}} onClick={()=>setShowDatePicker(false)}><div onClick={e=>e.stopPropagation()}><ChronosDatePicker value={editForm.data} onChange={v=>{setEditForm(p=>p?{...p,data:v,ora:""}:null);setShowDatePicker(false);}} onClose={()=>setShowDatePicker(false)} workingHours={editWorkingHours}/></div></div>)}
