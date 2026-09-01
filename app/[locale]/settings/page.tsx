@@ -34,8 +34,8 @@ function SettingsContent() {
   const [userId, setUserId] = useState<string | null>(null);
   const [userPlan, setUserPlan] = useState("CHRONOS FREE");
   const [mounted, setMounted] = useState(false);
-  const [slug, setSlug] = useState("");
   const [updatingSlug, setUpdatingSlug] = useState(false);
+  const [slug, setSlug] = useState("");
   const handleUpdateSlug = async () => {
     if (!userId) return;
     setUpdatingSlug(true);
@@ -65,7 +65,11 @@ function SettingsContent() {
       setSlug(finalSlug);
       alert(tp("slugSuccess"));
     } catch (err: any) {
-      alert(tp("errorPrefix") + err.message);
+      if (err?.code === "23505" || (err?.message || "").includes("unique_slug") || (err?.message || "").includes("duplicate key")) {
+        alert(tp("slugTaken", { slug: formatSlug(slug) }));
+      } else {
+        alert(tp("errorPrefix") + err.message);
+      }
     } finally {
       setUpdatingSlug(false);
     }
