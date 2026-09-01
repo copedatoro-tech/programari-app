@@ -73,7 +73,7 @@ function RapoarteContent() {
         supabase.from('appointments').select('*').eq('user_id', user.id),
         supabase.from('services').select('*').eq('user_id', user.id),
         supabase.from('staff').select('*').eq('user_id', user.id),
-        supabase.from('profiles').select('full_name, email, plan_type, work_locations').eq('id', user.id).maybeSingle(),
+        supabase.from('profiles').select('full_name, email, plan_type, trial_started_at, work_locations').eq('id', user.id).maybeSingle(),
       ]);
 
       if (apptsRes.data) setAppointments(apptsRes.data);
@@ -81,7 +81,8 @@ function RapoarteContent() {
       if (staffRes.data) setStaff(staffRes.data);
       if (profileRes.data) {
         setUserName(profileRes.data.full_name || user.email || "");
-        setPlanType((profileRes.data.plan_type || "CHRONOS FREE").toUpperCase());
+        const trialActive = !!profileRes.data.trial_started_at && (Date.now() - new Date(profileRes.data.trial_started_at).getTime() < 10 * 24 * 60 * 60 * 1000);
+        setPlanType(trialActive ? "CHRONOS TEAM" : (profileRes.data.plan_type || "CHRONOS FREE").toUpperCase());
         setWorkLocations(Array.isArray(profileRes.data.work_locations) ? profileRes.data.work_locations : []);
       }
     } catch (err) {
