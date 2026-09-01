@@ -42,7 +42,7 @@ function SettingsContent() {
     try {
       const finalSlug = formatSlug(slug);
       if (finalSlug.length < 3) {
-        alert(tp("slugMinLength"));
+        await showToast({ message: tp("slugMinLength"), type: "error" });
         setUpdatingSlug(false);
         return;
       }
@@ -53,7 +53,7 @@ function SettingsContent() {
         .neq("id", userId)
         .maybeSingle();
       if (existingSlug) {
-        alert(tp("slugTaken", { slug: finalSlug }));
+        await showToast({ message: tp("slugTaken", { slug: finalSlug }), type: "error" });
         setUpdatingSlug(false);
         return;
       }
@@ -63,12 +63,12 @@ function SettingsContent() {
       }).eq("id", userId);
       if (error) throw error;
       setSlug(finalSlug);
-      alert(tp("slugSuccess"));
+      await showToast({ message: tp("slugSuccess"), type: "success" });
     } catch (err: any) {
       if (err?.code === "23505" || (err?.message || "").includes("unique_slug") || (err?.message || "").includes("duplicate key")) {
-        alert(tp("slugTaken", { slug: formatSlug(slug) }));
+        await showToast({ message: tp("slugTaken", { slug: formatSlug(slug) }), type: "error" });
       } else {
-        alert(tp("errorPrefix") + err.message);
+        await showToast({ message: tp("errorPrefix") + err.message, type: "error" });
       }
     } finally {
       setUpdatingSlug(false);

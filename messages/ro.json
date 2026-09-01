@@ -1034,7 +1034,6 @@
                    "profileUpdated":  "✅ Profil actualizat!",
                    "saveErrorPrefix":  "Eroare la salvare: ",
                    "slugMinLength":  "âš ï¸ Adresa unicÄƒ (slug) trebuie sÄƒ aibÄƒ minim 3 caractere.",
-                   "slugTaken":  "âŒ Eroare: Numele \"{slug}\" este deja rezervat de altcineva. Te rugÄƒm sÄƒ alegi o altÄƒ variantÄƒ.",
                    "slugSuccess":  "✅ Felicitări! Adresa ta unică a fost rezervată cu succes.",
                    "errorPrefix":  "Eroare: ",
                    "passwordMismatch":  "Parolele nu coincid!",
@@ -1071,7 +1070,8 @@
                    "noWorkLocations":  "Nu ai adaugat inca nicio adresa de lucru.",
                    "workLocationNamePlaceholder":  "Denumire locatie {n}",
                    "workLocationAddressPlaceholder":  "Strada, numar, oras (pentru link Google Maps)",
-                   "deleteWorkLocationBtn":  "Șterge"
+                   "deleteWorkLocationBtn":  "Șterge",
+                   "slugTaken":  "Numele \"{slug}\" este deja rezervat de altcineva. Te rugam sa alegi o alta varianta."
                },
     "resurse":  {
                     "headingLine1":  "Gestiune",
