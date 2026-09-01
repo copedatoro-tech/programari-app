@@ -145,7 +145,6 @@ export default function RegisterPage() {
           email: form.email,
           plan_type: 'chronos free',
           role: 'Administrator',
-          staff: [],
           // ✅ Dovada consimțământului — data exactă a acceptării
           terms_accepted_at: new Date().toISOString()
         }]);
