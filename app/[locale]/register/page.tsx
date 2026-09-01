@@ -138,16 +138,15 @@ export default function RegisterPage() {
       }
 
       if (authData.user) {
-        const { error: profileError } = await supabase.from('profiles').upsert([{
-          id: authData.user.id,
+        const { error: profileError } = await supabase.from('profiles').update({
           full_name: form.nume,
           phone: telefonFinal,
           email: form.email,
-          plan_type: 'chronos free',
           role: 'Administrator',
           // ✅ Dovada consimțământului — data exactă a acceptării
           terms_accepted_at: new Date().toISOString()
-        }]);
+        }).eq('id', authData.user.id);
+
 
         // 🐛 FIX: eroarea de la inserarea profilului era citită dar niciodată
         // verificata — userul vedea mereu "cont creat cu succes" si era
