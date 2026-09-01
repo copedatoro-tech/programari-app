@@ -101,6 +101,8 @@ export default function ResursePage() {
   const [editForm, setEditForm]   = useState<any>(null);
   const [selectedLocationId, setSelectedLocationId] = useState<string | null>(null);
   const [locationForm, setLocationForm] = useState<any | null>(null);
+  const [showAddServiceModal, setShowAddServiceModal] = useState(false);
+  const [showAddStaffModal, setShowAddStaffModal] = useState(false);
 
   // Program individual per specialist
   const [scheduleStaffId, setScheduleStaffId] = useState<string | null>(null);
@@ -254,16 +256,16 @@ export default function ResursePage() {
   const hasTeamFeatures = () => userPlan === 'chronos team' || userPlan === 'chronos business';
 
   async function handleAddService() {
-    if (!newService.name.trim() || !userId || isDemo) return;
+    if (!newService.name.trim() || !userId || isDemo) return false;
     if (services.length >= getLimitaServicii()) {
       alert(t("serviceLimitReached", { limit: getLimitaServicii() }));
-      return;
+      return false;
     }
     const minuteLibere = Math.max(0, Math.min(59, parseInt(newService.minute) || 0));
     const durataTotala = (parseInt(newService.hour) * 60) + minuteLibere;
     if (durataTotala <= 0) {
       alert(t("durationLabel"));
-      return;
+      return false;
     }
     const { error } = await supabase.from('services').insert([{
       nume_serviciu: newService.name.trim(),
@@ -271,16 +273,17 @@ export default function ResursePage() {
       duration: durataTotala,
       user_id: userId
     }]);
-    if (error) { alert(`${t("errorPrefix")}${error.message}`); return; }
+    if (error) { alert(`${t("errorPrefix")}${error.message}`); return false; }
     setNewService({ name: '', price: '', hour: '0', minute: '30' });
     await fetchResurse(userId);
+    return true;
   }
 
   async function handleAddStaff() {
-    if (!newStaff.name.trim() || !userId || isDemo) return;
+    if (!newStaff.name.trim() || !userId || isDemo) return false;
     if (staff.length >= getLimitaStaff()) {
       alert(t("staffLimitReached", { limit: getLimitaStaff() }));
-      return;
+      return false;
     }
     const { error } = await supabase.from('staff').insert([{
       name: newStaff.name.trim(),
@@ -289,9 +292,10 @@ export default function ResursePage() {
       services: [],
       user_id: userId
     }]);
-    if (error) { alert(`${t("errorPrefix")}${error.message}`); return; }
+    if (error) { alert(`${t("errorPrefix")}${error.message}`); return false; }
     setNewStaff({ name: '', phone: '', email: '' });
     await fetchResurse(userId);
+    return true;
   }
 
   async function handleDelete(id: string, type: 'services' | 'staff') {
@@ -986,106 +990,177 @@ return (
             </div>
           )}
 
-          {/* Formular SERVICIU */}
+          {/* Buton adaugare SERVICIU */}
           <div className={`bg-white p-8 rounded-[35px] shadow-xl border border-slate-100 transition-all ${isDemo ? 'opacity-40 pointer-events-none grayscale' : ''}`}>
-            <h3 className="text-[10px] font-black uppercase italic text-amber-600 mb-6 tracking-widest">{t("addServiceTitle")}</h3>
-            <div className="flex flex-wrap gap-4 items-end">
-              <div className="flex-1 min-w-[200px] flex flex-col gap-1">
-                <span className="text-[8px] font-black text-slate-400 ml-3 uppercase">{t("serviceNameLabel")}</span>
-                <input
-                  className="bg-slate-50 p-5 rounded-2xl font-black uppercase italic text-[11px] outline-none border-2 border-transparent focus:border-amber-500 transition-all shadow-inner"
-                  placeholder={t("serviceNamePlaceholder")}
-                  value={newService.name}
-                  onChange={e => setNewService({ ...newService, name: e.target.value })}
-                />
-              </div>
-              <div id="onboarding-service-duration" className="flex flex-col gap-1">
-                <span className="text-[8px] font-black text-slate-400 ml-3 uppercase">{t("durationLabel")}</span>
-                <div className="flex gap-1 bg-slate-50 p-2 rounded-2xl border border-slate-100 shadow-inner">
-                  <select
-                    className="bg-white px-3 py-3 rounded-xl font-black text-[11px] outline-none shadow-sm"
-                    value={newService.hour}
-                    onChange={e => setNewService({ ...newService, hour: e.target.value })}
-                  >
-                    {oreOptiuni.map(h => <option key={h} value={h}>{h} {t("hourUnit")}</option>)}
-                  </select>
-                  <select
-                    className="bg-white px-3 py-3 rounded-xl font-black text-[11px] outline-none shadow-sm"
-                    value={newService.minute}
-                    onChange={e => setNewService({ ...newService, minute: e.target.value })}
-                  >
-                    {minuteOptiuni.map(m => <option key={m} value={m}>{m} {t("minuteUnit")}</option>)}
-                  </select>
-                </div>
-              </div>
-              <div id="onboarding-service-price" className="flex flex-col gap-1">
-                <span className="text-[8px] font-black text-slate-400 ml-3 uppercase">{t("priceLabel")} <span className="text-amber-600">({businessCurrency})</span></span>
-                <div className="relative">
-                  <input
-                    type="number"
-                    className="w-32 bg-slate-50 p-5 pr-12 rounded-2xl font-black uppercase italic text-[11px] outline-none border-2 border-transparent focus:border-amber-500 transition-all shadow-inner"
-                    placeholder={businessCurrency}
-                    value={newService.price}
-                    onChange={e => setNewService({ ...newService, price: e.target.value })}
-                  />
-                  <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[9px] font-black text-slate-400">{businessCurrency}</span>
-                </div>
-              </div>
-              <button
-                onClick={handleAddService}
-                disabled={services.length >= getLimitaServicii()}
-                className="px-8 py-5 rounded-2xl font-black uppercase italic text-[11px] bg-slate-900 text-amber-500 border-b-4 border-slate-800 hover:bg-amber-500 hover:text-black transition-all active:translate-y-1 active:border-b-0 shadow-lg"
-                title={t("addServiceBtn")}
-              >
-                {t("addServiceBtn")}
-              </button>
+            <div className="flex items-center justify-between">
+              <h3 className="text-[10px] font-black uppercase italic text-amber-600 tracking-widest">{t("addServiceTitle")}</h3>
+              <button onClick={() => setShowAddServiceModal(true)} disabled={services.length >= getLimitaServicii()} className="px-6 py-3 bg-amber-500 text-black rounded-xl font-black uppercase text-[11px] disabled:opacity-50">{t("addServiceBtn")}</button>
             </div>
           </div>
 
-          {/* Formular EXPERT */}
+          {showAddServiceModal && (
+            <div className="fixed inset-0 bg-slate-900/70 backdrop-blur-md z-[400] flex items-center justify-center p-4" onClick={() => setShowAddServiceModal(false)}>
+              <div className="bg-white w-full max-w-lg rounded-[35px] p-6 md:p-8 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+                <div className="flex items-center justify-between mb-4">
+                  <h4 className="text-[10px] font-black uppercase text-slate-700">{t("addServiceTitle")}</h4>
+                  <button onClick={() => setShowAddServiceModal(false)} className="w-9 h-9 flex items-center justify-center bg-slate-100 rounded-xl font-black text-slate-400 hover:bg-red-500 hover:text-white transition-all">✕</button>
+                </div>
+                <div className="flex flex-col gap-4">
+                  <div className="flex flex-col gap-1">
+                    <span className="text-[8px] font-black text-slate-400 ml-3 uppercase">{t("serviceNameLabel")}</span>
+                    <input className="bg-slate-50 p-5 rounded-2xl font-black uppercase italic text-[11px] outline-none border-2 border-transparent focus:border-amber-500 transition-all shadow-inner"
+                      placeholder={t("serviceNamePlaceholder")} value={newService.name} onChange={e => setNewService({ ...newService, name: e.target.value })} />
+                  </div>
+                  <div id="onboarding-service-duration" className="flex flex-col gap-1">
+                    <span className="text-[8px] font-black text-slate-400 ml-3 uppercase">{t("durationLabel")}</span>
+                    <div className="flex gap-1 bg-slate-50 p-2 rounded-2xl border border-slate-100 shadow-inner">
+                      <select className="bg-white px-3 py-3 rounded-xl font-black text-[11px] outline-none shadow-sm flex-1" value={newService.hour} onChange={e => setNewService({ ...newService, hour: e.target.value })}>
+                        {oreOptiuni.map(h => <option key={h} value={h}>{h} {t("hourUnit")}</option>)}
+                      </select>
+                      <select className="bg-white px-3 py-3 rounded-xl font-black text-[11px] outline-none shadow-sm flex-1" value={newService.minute} onChange={e => setNewService({ ...newService, minute: e.target.value })}>
+                        {minuteOptiuni.map(m => <option key={m} value={m}>{m} {t("minuteUnit")}</option>)}
+                      </select>
+                    </div>
+                  </div>
+                  <div id="onboarding-service-price" className="flex flex-col gap-1">
+                    <span className="text-[8px] font-black text-slate-400 ml-3 uppercase">{t("priceLabel")} <span className="text-amber-600">({businessCurrency})</span></span>
+                    <div className="relative">
+                      <input type="number" className="w-full bg-slate-50 p-5 pr-12 rounded-2xl font-black uppercase italic text-[11px] outline-none border-2 border-transparent focus:border-amber-500 transition-all shadow-inner"
+                        placeholder={businessCurrency} value={newService.price} onChange={e => setNewService({ ...newService, price: e.target.value })} />
+                      <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[9px] font-black text-slate-400">{businessCurrency}</span>
+                    </div>
+                  </div>
+                  <button onClick={async () => { const ok = await handleAddService(); if (ok) setShowAddServiceModal(false); }} disabled={services.length >= getLimitaServicii()}
+                    className="px-8 py-5 rounded-2xl font-black uppercase italic text-[11px] bg-slate-900 text-amber-500 border-b-4 border-slate-800 hover:bg-amber-500 hover:text-black transition-all active:translate-y-1 active:border-b-0 shadow-lg">
+                    {t("addServiceBtn")}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Buton adaugare EXPERT */}
           <div className={`bg-white p-8 rounded-[35px] shadow-xl border border-slate-100 transition-all ${isDemo ? 'opacity-40 pointer-events-none grayscale' : ''}`}>
-            <h3 className="text-[10px] font-black uppercase italic text-amber-600 mb-6 tracking-widest">{t("addStaffTitle")}</h3>
-            <div className="flex flex-wrap gap-4 items-end">
-              <div className="flex-1 min-w-[200px] flex flex-col gap-1">
-                <span className="text-[8px] font-black text-slate-400 ml-3 uppercase">{t("staffNameLabel")}</span>
-                <input
-                  className="bg-slate-50 p-5 rounded-2xl font-black uppercase italic text-[11px] outline-none border-2 border-transparent focus:border-amber-500 transition-all shadow-inner"
-                  placeholder={t("staffNamePlaceholder")}
-                  value={newStaff.name}
-                  onChange={e => setNewStaff({ ...newStaff, name: e.target.value })}
-                />
-              </div>
-              <div className="min-w-[180px] flex-1 flex flex-col gap-1">
-                <span className="text-[8px] font-black text-slate-400 ml-3 uppercase">{t("phoneLabel")}</span>
-                <input
-                  type="tel"
-                  className="bg-slate-50 p-5 rounded-2xl font-black uppercase italic text-[11px] outline-none border-2 border-transparent focus:border-amber-500 transition-all shadow-inner"
-                  placeholder={t("phonePlaceholder")}
-                  value={newStaff.phone}
-                  onChange={e => setNewStaff({ ...newStaff, phone: e.target.value.replace(/[^0-9+]/g, "") })}
-                />
-              </div>
-              <div className="min-w-[220px] flex-1 flex flex-col gap-1">
-                <span className="text-[8px] font-black text-slate-400 ml-3 uppercase">{t("emailLabel")}</span>
-                <input
-                  type="email"
-                  className="bg-slate-50 p-5 rounded-2xl font-black uppercase italic text-[11px] outline-none border-2 border-transparent focus:border-amber-500 transition-all shadow-inner"
-                  placeholder={t("emailPlaceholder")}
-                  value={newStaff.email}
-                  onChange={e => setNewStaff({ ...newStaff, email: e.target.value })}
-                />
-              </div>
-              <button
-                id="onboarding-add-staff-btn"
-                onClick={handleAddStaff}
-                disabled={staff.length >= getLimitaStaff()}
-                className="px-8 py-5 rounded-2xl font-black uppercase italic text-[11px] bg-slate-900 text-amber-500 border-b-4 border-slate-800 hover:bg-amber-500 hover:text-black transition-all active:translate-y-1 active:border-b-0 shadow-lg"
-                title={t("addStaffBtn")}
-              >
-                {t("addStaffBtn")}
-              </button>
+            <div className="flex items-center justify-between">
+              <h3 className="text-[10px] font-black uppercase italic text-amber-600 tracking-widest">{t("addStaffTitle")}</h3>
+              <button id="onboarding-add-staff-btn" onClick={() => setShowAddStaffModal(true)} disabled={staff.length >= getLimitaStaff()} className="px-6 py-3 bg-amber-500 text-black rounded-xl font-black uppercase text-[11px] disabled:opacity-50">{t("addStaffBtn")}</button>
             </div>
           </div>
+
+          {showAddStaffModal && (
+            <div className="fixed inset-0 bg-slate-900/70 backdrop-blur-md z-[400] flex items-center justify-center p-4" onClick={() => setShowAddStaffModal(false)}>
+              <div className="bg-white w-full max-w-lg rounded-[35px] p-6 md:p-8 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+                <div className="flex items-center justify-between mb-4">
+                  <h4 className="text-[10px] font-black uppercase text-slate-700">{t("addStaffTitle")}</h4>
+                  <button onClick={() => setShowAddStaffModal(false)} className="w-9 h-9 flex items-center justify-center bg-slate-100 rounded-xl font-black text-slate-400 hover:bg-red-500 hover:text-white transition-all">✕</button>
+                </div>
+                <div className="flex flex-col gap-4">
+                  <div className="flex flex-col gap-1">
+                    <span className="text-[8px] font-black text-slate-400 ml-3 uppercase">{t("staffNameLabel")}</span>
+                    <input className="bg-slate-50 p-5 rounded-2xl font-black uppercase italic text-[11px] outline-none border-2 border-transparent focus:border-amber-500 transition-all shadow-inner"
+                      placeholder={t("staffNamePlaceholder")} value={newStaff.name} onChange={e => setNewStaff({ ...newStaff, name: e.target.value })} />
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <span className="text-[8px] font-black text-slate-400 ml-3 uppercase">{t("phoneLabel")}</span>
+                    <input type="tel" className="bg-slate-50 p-5 rounded-2xl font-black uppercase italic text-[11px] outline-none border-2 border-transparent focus:border-amber-500 transition-all shadow-inner"
+                      placeholder={t("phonePlaceholder")} value={newStaff.phone} onChange={e => setNewStaff({ ...newStaff, phone: e.target.value.replace(/[^0-9+]/g, "") })} />
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <span className="text-[8px] font-black text-slate-400 ml-3 uppercase">{t("emailLabel")}</span>
+                    <input type="email" className="bg-slate-50 p-5 rounded-2xl font-black uppercase italic text-[11px] outline-none border-2 border-transparent focus:border-amber-500 transition-all shadow-inner"
+                      placeholder={t("emailPlaceholder")} value={newStaff.email} onChange={e => setNewStaff({ ...newStaff, email: e.target.value })} />
+                  </div>
+                  <button id="onboarding-add-staff-btn-modal" onClick={async () => { const ok = await handleAddStaff(); if (ok) setShowAddStaffModal(false); }} disabled={staff.length >= getLimitaStaff()}
+                    className="px-8 py-5 rounded-2xl font-black uppercase italic text-[11px] bg-slate-900 text-amber-500 border-b-4 border-slate-800 hover:bg-amber-500 hover:text-black transition-all active:translate-y-1 active:border-b-0 shadow-lg">
+                    {t("addStaffBtn")}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {editingId && editForm && (
+            <div className="fixed inset-0 bg-slate-900/70 backdrop-blur-md z-[400] flex items-center justify-center p-4" onClick={() => { setEditingId(null); setEditForm(null); }}>
+              <div className="bg-white w-full max-w-lg rounded-[35px] p-6 md:p-8 shadow-2xl max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+                <div className="flex items-center justify-between mb-4">
+                  <h4 className="text-[10px] font-black uppercase text-slate-700">{t("update")}</h4>
+                  <button onClick={() => { setEditingId(null); setEditForm(null); }} className="w-9 h-9 flex items-center justify-center bg-slate-100 rounded-xl font-black text-slate-400 hover:bg-red-500 hover:text-white transition-all">✕</button>
+                </div>
+                {editForm.tip === 'service' ? (
+                  <div className="space-y-4">
+                    <input className="w-full p-4 rounded-xl border-2 border-slate-100 font-black uppercase italic text-[11px]"
+                      value={editForm.name || ""} onChange={e => setEditForm({ ...editForm, name: e.target.value })} />
+                    <div className="flex gap-2">
+                      <input className="flex-1 p-4 rounded-xl border-2 border-slate-100 font-black text-[11px]"
+                        placeholder={businessCurrency}
+                        value={editForm.price || ""} onChange={e => setEditForm({ ...editForm, price: e.target.value })} />
+                      <select className="flex-1 p-4 rounded-xl border-2 border-slate-100 font-black text-[11px]"
+                        value={editForm.hour || "0"} onChange={e => setEditForm({ ...editForm, hour: e.target.value })}>
+                        {oreOptiuni.map(h => <option key={h} value={h}>{h} {t("hourUnit")}</option>)}
+                      </select>
+                      <select className="flex-1 p-4 rounded-xl border-2 border-slate-100 font-black text-[11px]"
+                        value={editForm.minute || "0"} onChange={e => setEditForm({ ...editForm, minute: e.target.value })}>
+                        {minuteOptiuni.map(m => <option key={m} value={m}>{m} {t("minuteUnit")}</option>)}
+                      </select>
+                    </div>
+                    <div className="flex gap-3">
+                      <button onClick={salveazaEditare} className="flex-1 bg-slate-900 text-amber-500 p-4 rounded-xl text-[10px] font-black uppercase italic">{t("save")}</button>
+                      <button onClick={() => { setEditingId(null); setEditForm(null); }} className="flex-1 bg-slate-100 p-4 rounded-xl text-[10px] font-black uppercase italic text-slate-400">{t("cancel")}</button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-6">
+                    <div className="flex flex-col sm:flex-row gap-4 items-center sm:items-start">
+                      <div className="relative w-24 h-24 rounded-[28px] overflow-hidden bg-slate-100 border-2 border-slate-200 flex items-center justify-center shrink-0">
+                        {editForm.photo_url ? (
+                          <Image src={editForm.photo_url} alt={editForm.name || t("staffPhotoAlt")} fill className="object-cover" />
+                        ) : (
+                          <span className="text-3xl font-black text-amber-500 uppercase italic">{(editForm.name || "?").slice(0, 1)}</span>
+                        )}
+                      </div>
+                      <div className="flex-1 w-full space-y-3">
+                        <input className="w-full p-4 rounded-xl border-2 border-slate-100 font-black uppercase italic text-[11px]"
+                          value={editForm.name || ""} onChange={e => setEditForm({ ...editForm, name: e.target.value })} />
+                        <div className="flex flex-wrap gap-2">
+                          <label className="cursor-pointer px-4 py-3 bg-slate-50 border-2 border-slate-100 text-amber-600 rounded-xl text-[9px] font-black uppercase italic hover:bg-amber-500 hover:text-white transition-all">
+                            {t("staffPhotoUploadBtn")}
+                            <input type="file" accept="image/*" className="hidden" onChange={(e) => handleUploadStaffPhoto(editingId!, e.target.files?.[0])} />
+                          </label>
+                          {editForm.photo_url && (
+                            <button onClick={() => handleRemoveStaffPhoto(editingId!)} className="px-4 py-3 bg-slate-50 border-2 border-slate-100 text-red-500 rounded-xl text-[9px] font-black uppercase italic hover:bg-red-500 hover:text-white transition-all">
+                              {t("staffPhotoRemoveBtn")}
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                      <input className="w-full p-4 rounded-xl border-2 border-slate-100 font-black uppercase italic text-[11px]"
+                        placeholder={t("phoneLabel")}
+                        value={editForm.phone || ""}
+                        onChange={e => setEditForm({ ...editForm, phone: e.target.value.replace(/[^0-9+]/g, "") })} />
+                      <input className="w-full p-4 rounded-xl border-2 border-slate-100 font-black uppercase italic text-[11px]"
+                        placeholder={t("emailLabel")}
+                        value={editForm.email || ""}
+                        onChange={e => setEditForm({ ...editForm, email: e.target.value })} />
+                    </div>
+                    <div className="grid grid-cols-2 gap-2 max-h-40 overflow-y-auto pr-2">
+                      {services.map(s => (
+                        <button key={s.id} onClick={() => toggleServiciuStaff(s.id)}
+                          className={`p-3 rounded-xl text-[9px] font-black uppercase italic transition-all border-2 ${(editForm.services || []).includes(s.id) ? 'bg-amber-500 border-amber-500 text-slate-900' : 'bg-slate-50 border-slate-100 text-slate-400'}`}>
+                          {s.nume_serviciu}
+                        </button>
+                      ))}
+                    </div>
+                    <div className="flex gap-3">
+                      <button onClick={salveazaEditare} className="flex-1 bg-slate-900 text-amber-500 p-4 rounded-xl text-[10px] font-black uppercase italic">{t("save")}</button>
+                      <button onClick={() => { setEditingId(null); setEditForm(null); }} className="flex-1 bg-slate-100 p-4 rounded-xl text-[10px] font-black uppercase italic text-slate-400">{t("close")}</button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
 
         </div>
 
@@ -1097,44 +1172,20 @@ return (
             <h2 className="text-[11px] font-black uppercase italic text-slate-400 mb-10 tracking-[0.3em] border-b pb-6">
               {t("activeServicesTitle")} ({services.length} / {getLimitaServicii() >= 999 ? '∞' : getLimitaServicii()})
             </h2>
-            <div className="max-h-[420px] overflow-y-scroll pr-2 space-y-4">
+            <div className="max-h-[280px] overflow-y-scroll pr-2 space-y-4">
               {services.map(s => (
                 <div key={s.id} className="group bg-slate-50 rounded-[28px] border-l-8 border-amber-500 hover:bg-white transition-all border border-transparent hover:border-slate-100 overflow-hidden relative shadow-sm">
-                  {editingId === s.id ? (
-                    <div ref={editServiciuRef} className="p-8 space-y-4 bg-white animate-in slide-in-from-top-2 duration-200">
-                      <input className="w-full p-4 rounded-xl border-2 border-slate-100 font-black uppercase italic text-[11px]"
-                        value={editForm?.name || ""} onChange={e => setEditForm({ ...editForm, name: e.target.value })} />
-                      <div className="flex gap-2">
-                         <input className="flex-1 p-4 rounded-xl border-2 border-slate-100 font-black text-[11px]"
-                          placeholder={businessCurrency}
-                          value={editForm?.price || ""} onChange={e => setEditForm({ ...editForm, price: e.target.value })} />
-                         <select className="flex-1 p-4 rounded-xl border-2 border-slate-100 font-black text-[11px]"
-                          value={editForm?.hour || "0"} onChange={e => setEditForm({ ...editForm, hour: e.target.value })}>
-                            {oreOptiuni.map(h => <option key={h} value={h}>{h} {t("hourUnit")}</option>)}
-                         </select>
-                         <select className="flex-1 p-4 rounded-xl border-2 border-slate-100 font-black text-[11px]"
-                          value={editForm?.minute || "0"} onChange={e => setEditForm({ ...editForm, minute: e.target.value })}>
-                            {minuteOptiuni.map(m => <option key={m} value={m}>{m} {t("minuteUnit")}</option>)}
-                         </select>
-                      </div>
-                      <div className="flex gap-3">
-                        <button onClick={salveazaEditare} className="flex-1 bg-slate-900 text-amber-500 p-4 rounded-xl text-[10px] font-black uppercase italic">{t("save")}</button>
-                        <button onClick={() => { setEditingId(null); setEditForm(null); }} className="flex-1 bg-slate-100 p-4 rounded-xl text-[10px] font-black uppercase italic text-slate-400">{t("cancel")}</button>
-                      </div>
+                  <div className="p-6 flex justify-between items-center cursor-pointer" onClick={() => activeazaEditare(s, 'service')}>
+                    <div>
+                      <p className="font-black uppercase italic text-[13px] text-slate-900 group-hover:text-amber-600 transition-colors">{s.nume_serviciu}</p>
+                      <p className="text-[10px] font-bold text-slate-400 mt-1 uppercase italic tracking-widest">
+                        {s.price} {businessCurrency} - {Math.floor(s.duration / 60) > 0 ? `${Math.floor(s.duration / 60)}${t("hourUnit")} ` : ""}{s.duration % 60} {t("minuteUnit")}
+                      </p>
                     </div>
-                  ) : (
-                    <div className="p-6 flex justify-between items-center cursor-pointer" onClick={() => activeazaEditare(s, 'service')}>
-                      <div>
-                        <p className="font-black uppercase italic text-[13px] text-slate-900 group-hover:text-amber-600 transition-colors">{s.nume_serviciu}</p>
-                        <p className="text-[10px] font-bold text-slate-400 mt-1 uppercase italic tracking-widest">
-                          {s.price} {businessCurrency} - {Math.floor(s.duration / 60) > 0 ? `${Math.floor(s.duration / 60)}${t("hourUnit")} ` : ""}{s.duration % 60} {t("minuteUnit")}
-                        </p>
-                      </div>
-                      {!isDemo && (
-                        <button onClick={e => { e.stopPropagation(); handleDelete(s.id, 'services'); }} className="bg-white text-red-500 w-10 h-10 flex items-center justify-center rounded-xl shadow-md border border-red-100 hover:bg-red-500 hover:text-white transition-all"><X className="w-4 h-4" strokeWidth={3} /></button>
-                      )}
-                    </div>
-                  )}
+                    {!isDemo && (
+                      <button onClick={e => { e.stopPropagation(); handleDelete(s.id, 'services'); }} className="bg-white text-red-500 w-10 h-10 flex items-center justify-center rounded-xl shadow-md border border-red-100 hover:bg-red-500 hover:text-white transition-all"><X className="w-4 h-4" strokeWidth={3} /></button>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>
@@ -1145,59 +1196,9 @@ return (
             <h2 className="text-[11px] font-black uppercase italic text-slate-400 mb-10 tracking-[0.3em] border-b pb-6 text-right">
               {t("teamTitle")} ({staff.length} / {getLimitaStaff() >= 999 ? '∞' : getLimitaStaff()})
             </h2>
-            <div className="max-h-[650px] overflow-y-scroll pr-2 space-y-4">
+            <div className="max-h-[380px] overflow-y-scroll pr-2 space-y-4">
               {staff.map(p => (
                 <div key={p.id} className="group bg-slate-900 rounded-[28px] border-l-8 border-slate-700 hover:border-amber-500 transition-all overflow-hidden relative shadow-lg">
-                  {editingId === p.id ? (
-                    <div ref={editStaffRef} className="p-8 space-y-6 bg-slate-800 animate-in slide-in-from-bottom-2 duration-200">
-                      <div className="flex flex-col sm:flex-row gap-4 items-center sm:items-start">
-                        <div className="relative w-24 h-24 rounded-[28px] overflow-hidden bg-slate-900 border-2 border-slate-700 flex items-center justify-center shrink-0">
-                          {editForm?.photo_url ? (
-                            <Image src={editForm.photo_url} alt={editForm?.name || t("staffPhotoAlt")} fill className="object-cover" />
-                          ) : (
-                            <span className="text-3xl font-black text-amber-500 uppercase italic">{(editForm?.name || "?").slice(0, 1)}</span>
-                          )}
-                        </div>
-                        <div className="flex-1 w-full space-y-3">
-                          <input className="w-full p-4 rounded-xl border-2 border-slate-700 bg-slate-900 text-white font-black uppercase italic text-[11px]"
-                            value={editForm?.name || ""} onChange={e => setEditForm({ ...editForm, name: e.target.value })} />
-                          <div className="flex flex-wrap gap-2">
-                            <label className="cursor-pointer px-4 py-3 bg-slate-900 border-2 border-slate-700 text-amber-500 rounded-xl text-[9px] font-black uppercase italic hover:bg-amber-500 hover:text-slate-900 transition-all">
-                              {t("staffPhotoUploadBtn")}
-                              <input type="file" accept="image/*" className="hidden" onChange={(e) => handleUploadStaffPhoto(editingId!, e.target.files?.[0])} />
-                            </label>
-                            {editForm?.photo_url && (
-                              <button onClick={() => handleRemoveStaffPhoto(editingId!)} className="px-4 py-3 bg-slate-900 border-2 border-slate-700 text-red-400 rounded-xl text-[9px] font-black uppercase italic hover:bg-red-500 hover:text-white transition-all">
-                                {t("staffPhotoRemoveBtn")}
-                              </button>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                        <input className="w-full p-4 rounded-xl border-2 border-slate-700 bg-slate-900 text-white font-black uppercase italic text-[11px]"
-                          placeholder={t("phoneLabel")}
-                          value={editForm?.phone || ""}
-                          onChange={e => setEditForm({ ...editForm, phone: e.target.value.replace(/[^0-9+]/g, "") })} />
-                        <input className="w-full p-4 rounded-xl border-2 border-slate-700 bg-slate-900 text-white font-black uppercase italic text-[11px]"
-                          placeholder={t("emailLabel")}
-                          value={editForm?.email || ""}
-                          onChange={e => setEditForm({ ...editForm, email: e.target.value })} />
-                      </div>
-                      <div className="grid grid-cols-2 gap-2 max-h-40 overflow-y-auto pr-2">
-                        {services.map(s => (
-                          <button key={s.id} onClick={() => toggleServiciuStaff(s.id)}
-                            className={`p-3 rounded-xl text-[9px] font-black uppercase italic transition-all border-2 ${(editForm?.services || []).includes(s.id) ? 'bg-amber-500 border-amber-500 text-slate-900' : 'bg-slate-900 border-slate-700 text-slate-500'}`}>
-                            {s.nume_serviciu}
-                          </button>
-                        ))}
-                      </div>
-                      <div className="flex gap-3">
-                        <button onClick={salveazaEditare} className="flex-1 bg-amber-500 text-slate-900 p-4 rounded-xl text-[10px] font-black uppercase italic">{t("save")}</button>
-                        <button onClick={() => { setEditingId(null); setEditForm(null); }} className="flex-1 bg-slate-700 p-4 rounded-xl text-[10px] font-black uppercase italic text-slate-300">{t("close")}</button>
-                      </div>
-                    </div>
-                  ) : (
                     <div className="p-6 flex justify-between items-center gap-4 cursor-pointer" onClick={() => activeazaEditare(p, 'staff')}>
                       <div className="relative w-16 h-16 rounded-2xl overflow-hidden bg-slate-800 border border-slate-700 flex items-center justify-center shrink-0">
                         {p.photo_url ? (
@@ -1266,7 +1267,6 @@ return (
                         )}
                       </div>
                     </div>
-                  )}
                 </div>
               ))}
             </div>
