@@ -23,6 +23,7 @@ const LOCATION_BLOCKS_KEY = "__work_location_manual_blocks";
 
 function SettingsContent() {
   const t = useTranslations("settings");
+  const tp = useTranslations("profil");
   const router = useRouter();
   const searchParams = useSearchParams();
   const supabase = useMemo(() => createBrowserClient(
@@ -34,6 +35,41 @@ function SettingsContent() {
   const [userPlan, setUserPlan] = useState("CHRONOS FREE");
   const [mounted, setMounted] = useState(false);
   const [slug, setSlug] = useState("");
+  const [updatingSlug, setUpdatingSlug] = useState(false);
+  const handleUpdateSlug = async () => {
+    if (!userId) return;
+    setUpdatingSlug(true);
+    try {
+      const finalSlug = formatSlug(slug);
+      if (finalSlug.length < 3) {
+        alert(tp("slugMinLength"));
+        setUpdatingSlug(false);
+        return;
+      }
+      const { data: existingSlug } = await supabase
+        .from("profiles")
+        .select("id")
+        .eq("slug", finalSlug)
+        .neq("id", userId)
+        .maybeSingle();
+      if (existingSlug) {
+        alert(tp("slugTaken", { slug: finalSlug }));
+        setUpdatingSlug(false);
+        return;
+      }
+      const { error } = await supabase.from("profiles").update({
+        slug: finalSlug,
+        updated_at: new Date().toISOString(),
+      }).eq("id", userId);
+      if (error) throw error;
+      setSlug(finalSlug);
+      alert(tp("slugSuccess"));
+    } catch (err: any) {
+      alert(tp("errorPrefix") + err.message);
+    } finally {
+      setUpdatingSlug(false);
+    }
+  };
   const [baseUrl, setBaseUrl] = useState("");
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
@@ -637,9 +673,14 @@ function SettingsContent() {
           <div className={`flex flex-col md:flex-row items-center justify-between gap-6 transition-all ${!isEliteOrTeam ? 'blur-sm grayscale opacity-30 pointer-events-none' : ''}`}>
             <div className="flex-1 w-full md:w-auto">
               <h2 className="text-amber-500 font-black italic uppercase tracking-widest text-[8px] mb-2">{t("linkSectionTitle")}</h2>
-              <div className="bg-white/5 border border-white/10 rounded-xl px-5 py-6 flex items-center overflow-hidden">
-                <span className="text-white/40 font-mono text-sm mr-1 truncate">{baseUrl}/rezervare/</span>
-                <span className="text-amber-500 font-black font-mono text-base md:text-lg truncate">{slug || t("slugUnset")}</span>
+              <div className="bg-white/5 border border-white/10 rounded-xl px-5 py-4 flex items-center gap-2 overflow-hidden">
+                <span className="text-white/40 font-mono text-sm flex-shrink-0">{baseUrl}/rezervare/</span>
+                <input type="text" value={slug} onChange={(e) => setSlug(formatSlug(e.target.value))} placeholder={t("slugUnset")}
+                  className="bg-transparent text-amber-500 font-black font-mono text-base md:text-lg outline-none flex-1 min-w-0" />
+                <button type="button" onClick={handleUpdateSlug} disabled={updatingSlug || !slug || slug.length < 3}
+                  className="flex-shrink-0 bg-amber-500 text-black px-4 py-2 rounded-lg font-black uppercase text-[9px] italic hover:bg-white transition-all disabled:opacity-40">
+                  {updatingSlug ? "..." : tp("reserveLinkBtn")}
+                </button>
               </div>
             </div>
             <div className="flex items-center gap-2">
