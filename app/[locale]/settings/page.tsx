@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 import { useState, useEffect, useRef, useMemo, useCallback, startTransition, Suspense } from "react";
 import { createBrowserClient } from "@supabase/ssr";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -174,7 +174,11 @@ function SettingsContent() {
         .maybeSingle();
       if (profileError) { setTechnicalError(true); return; }
       if (profile) {
-      setUserPlan(profile.plan_type?.toUpperCase() || "CHRONOS FREE");
+      let effectivePlan = profile.plan_type?.toUpperCase() || "CHRONOS FREE";
+      if (profile.trial_started_at && Date.now() - new Date(profile.trial_started_at).getTime() < 10*24*60*60*1000) {
+        effectivePlan = "CHRONOS TEAM";
+      }
+      setUserPlan(effectivePlan);
       setBookingInterval(profile.booking_interval || 60);
       setStripeOnboarded(!!profile.stripe_onboarded);
       setStripeAccountId(profile.stripe_account_id || null);

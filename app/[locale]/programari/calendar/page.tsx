@@ -618,6 +618,45 @@ function DayView({ selectedDate, programari, rawStaff, rawServices, serviceById,
 
     return rawStaff;
   }, [selectedExpert, rawStaff]);
+  const [scrollBarInfo, setScrollBarInfo] = useState({ left: 0, thumbPct: 100 });
+  const scrollTrackRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const update = () => {
+      const sw = el.scrollWidth, cw = el.clientWidth, sl = el.scrollLeft;
+      const thumbPct = Math.min(100, (cw / sw) * 100);
+      const maxLeft = sw - cw;
+      const leftPct = maxLeft > 0 ? (sl / maxLeft) * (100 - thumbPct) : 0;
+      setScrollBarInfo({ left: leftPct, thumbPct });
+    };
+    update();
+    el.addEventListener("scroll", update);
+    window.addEventListener("resize", update);
+    return () => { el.removeEventListener("scroll", update); window.removeEventListener("resize", update); };
+  }, [dayStaffList.length]);
+  const handleTrackPointer = (clientX: number) => {
+    const track = scrollTrackRef.current;
+    const el = scrollRef.current;
+    if (!track || !el) return;
+    const rect = track.getBoundingClientRect();
+    const ratio = Math.min(1, Math.max(0, (clientX - rect.left) / rect.width));
+    el.scrollLeft = ratio * (el.scrollWidth - el.clientWidth);
+  };
+  const handleTrackStart = (clientX: number) => {
+    handleTrackPointer(clientX);
+    const onMove = (e: any) => { const x = e.touches ? e.touches[0].clientX : e.clientX; handleTrackPointer(x); };
+    const onEnd = () => {
+      window.removeEventListener("mousemove", onMove);
+      window.removeEventListener("mouseup", onEnd);
+      window.removeEventListener("touchmove", onMove);
+      window.removeEventListener("touchend", onEnd);
+    };
+    window.addEventListener("mousemove", onMove);
+    window.addEventListener("mouseup", onEnd);
+    window.addEventListener("touchmove", onMove);
+    window.addEventListener("touchend", onEnd);
+  };
   const hasUnassigned = useMemo(
     () => dayAppts.some(p => !p.expertId || !dayStaffList.some(s => s.id === p.expertId)),
     [dayAppts, dayStaffList]
@@ -628,8 +667,8 @@ function DayView({ selectedDate, programari, rawStaff, rawServices, serviceById,
     return m;
   }, [dayStaffList]);
   const totalCols = Math.max(dayStaffList.length + (hasUnassigned ? 1 : 0), 1);
-  const MIN_COL_W = 34;
-  const showColName = dayStaffList.length + (hasUnassigned?1:0) <= 4;
+  const MIN_COL_W = 90;
+  const showColName = true;
   const gridMinWidth = `max(100%, ${TIME_COL_W + totalCols * MIN_COL_W}px)`;
   // ? Blocarile per specialist (salvate pe staff.manual_blocks), citite pentru
   // ziua curenta ΓÇö folosite ca sa dezactivam sloturile blocate din fiecare
@@ -700,22 +739,35 @@ function DayView({ selectedDate, programari, rawStaff, rawServices, serviceById,
         onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
         <div className="chronos-calendar-day-grid" style={{ minWidth: gridMinWidth }}>
           {dayStaffList.length>0&&(
-            <div style={{ display:"flex", position:"sticky", top:0, zIndex:30, background:"#fff", borderBottom:"2px solid #e2e8f0" }}>
-              <div style={{ width:TIME_COL_W, flexShrink:0, borderRight:"2px solid #e2e8f0", background:"#fff" }} />
-              {dayStaffList.map((s,i) => {
-                const color = SC[(staffMap[s.id] ?? i) % SC.length];
-                return (
-                  <div key={s.id} title={s.name} style={{ flex:1, minWidth:MIN_COL_W, display:"flex", alignItems:"center", justifyContent:showColName?"flex-start":"center", gap:3, padding:showColName?"5px 4px":"5px 1px", borderLeft:"2px solid #e2e8f0" }}>
-                    <span style={{ width:15, height:15, borderRadius:"50%", background:color.border, display:"flex", alignItems:"center", justifyContent:"center", fontSize:8, fontWeight:700, color:"#fff", flexShrink:0 }}>
-                      {s.name.charAt(0).toUpperCase()}
-                    </span>
-                    {showColName&&<span style={{ fontSize:10, fontWeight:700, color:"#334155", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{s.name}</span>}
+            <div style={{ position:"sticky", top:0, zIndex:30, background:"#fff" }}>
+              <div style={{ display:"flex", borderBottom:"2px solid #e2e8f0" }}>
+                <div style={{ width:TIME_COL_W, flexShrink:0, borderRight:"2px solid #e2e8f0", background:"#fff" }} />
+                {dayStaffList.map((s,i) => {
+                  const color = SC[(staffMap[s.id] ?? i) % SC.length];
+                  return (
+                    <div key={s.id} title={s.name} style={{ flex:1, minWidth:MIN_COL_W, display:"flex", alignItems:"center", justifyContent:showColName?"flex-start":"center", gap:3, padding:showColName?"5px 4px":"5px 1px", borderLeft:"2px solid #e2e8f0" }}>
+                      <span style={{ width:15, height:15, borderRadius:"50%", background:color.border, display:"flex", alignItems:"center", justifyContent:"center", fontSize:8, fontWeight:700, color:"#fff", flexShrink:0 }}>
+                        {s.name.charAt(0).toUpperCase()}
+                      </span>
+                      {showColName&&<span style={{ fontSize:10, fontWeight:700, color:"#334155", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{s.name}</span>}
+                    </div>
+                  );
+                })}
+                {hasUnassigned&&(
+                  <div style={{ flex:1, minWidth:MIN_COL_W, display:"flex", alignItems:"center", justifyContent:"center", padding:"5px 1px", borderLeft:"2px solid #e2e8f0" }}>
+                    <span style={{ fontSize:10, fontWeight:700, color:"#94a3b8" }}>—</span>
                   </div>
-                );
-              })}
-              {hasUnassigned&&(
-                <div style={{ flex:1, minWidth:MIN_COL_W, display:"flex", alignItems:"center", justifyContent:"center", padding:"5px 1px", borderLeft:"2px solid #e2e8f0" }}>
-                  <span style={{ fontSize:10, fontWeight:700, color:"#94a3b8" }}>—</span>
+                )}
+              </div>
+              {scrollBarInfo.thumbPct < 100 && (
+                <div style={{ display:"flex", alignItems:"center", padding:"4px 0", background:"#f8fafc", borderBottom:"2px solid #e2e8f0" }}>
+                  <div style={{ width:TIME_COL_W, flexShrink:0 }} />
+                  <div ref={scrollTrackRef}
+                    onMouseDown={(e)=>handleTrackStart(e.clientX)}
+                    onTouchStart={(e)=>handleTrackStart(e.touches[0].clientX)}
+                    style={{ flex:1, height:10, background:"#e2e8f0", borderRadius:99, position:"relative", cursor:"pointer", margin:"0 6px" }}>
+                    <div style={{ position:"absolute", top:0, height:"100%", borderRadius:99, background:"#f59e0b", left:`${scrollBarInfo.left}%`, width:`${scrollBarInfo.thumbPct}%` }} />
+                  </div>
                 </div>
               )}
             </div>
