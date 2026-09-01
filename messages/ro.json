@@ -980,7 +980,6 @@
                          "confirmPassword":  "Confirmă Parola",
                          "passwordMismatch":  "âŒ Parolele nu coincid!",
                          "passwordTooShort":  "âŒ Parola trebuie sÄƒ aibÄƒ cel puÈ›in 6 caractere!",
-                         "unexpectedError":  "âŒ Eroare neaÈ™teptatÄƒ la server.",
                          "accountCreated":  "✅ Cont creat cu succes! Acum te poți loga.",
                          "processing":  "SE PROCESEAZÄ‚...",
                          "registerBtn":  "ÎNREGISTRARE CONT NOU",
@@ -992,7 +991,8 @@
                          "termsCheckboxAnd":  "si cu",
                          "gdprLinkLabel":  "Politica GDPR",
                          "otherCountry":  "ðŸŒ Alta tara",
-                         "customCodeRequired":  "Introdu codul de tara (ex: +41)."
+                         "customCodeRequired":  "Introdu codul de tara (ex: +41).",
+                         "unexpectedError":  "❌ Eroare neasteptata la server."
                      },
     "forgotPasswordPage":  {
                                "title":  "RECUPERARE",

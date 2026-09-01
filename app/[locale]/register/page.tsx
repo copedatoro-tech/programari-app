@@ -143,10 +143,9 @@ export default function RegisterPage() {
           full_name: form.nume,
           phone: telefonFinal,
           email: form.email,
-          plan_type: 'start (gratuit)',
+          plan_type: 'chronos free',
           role: 'Administrator',
           staff: [],
-          services: [],
           // ✅ Dovada consimțământului — data exactă a acceptării
           terms_accepted_at: new Date().toISOString()
         }]);
@@ -167,7 +166,8 @@ export default function RegisterPage() {
         await supabase.auth.signOut();
         router.push("/login");
       }
-    } catch {
+    } catch (err) {
+      console.error("Eroare neasteptata la inregistrare:", err);
       setError(t("unexpectedError"));
     } finally {
       setLoading(false);
