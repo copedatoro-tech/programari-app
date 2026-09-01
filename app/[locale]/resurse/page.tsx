@@ -869,76 +869,337 @@ export default function ResursePage() {
         )}
 
         {/* SECTIUNI ADAUGARE */}
-        <div className="space-y-6 mb-16">
-
-          {/* Work locations management */}
-          <div className={`bg-white p-8 rounded-[35px] shadow-xl border border-slate-100 transition-all ${isDemo ? 'opacity-40 pointer-events-none grayscale' : ''}`}>
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-[10px] font-black uppercase italic text-amber-600 mb-0 tracking-widest">{t("workLocationsTitle")}</h3>
-              <div className="flex items-center gap-2">
-                <button onClick={openAddLocation} className="px-4 py-2 bg-amber-500 text-black rounded-xl font-black uppercase text-[11px]">{t("addWorkLocationBtn")}</button>
-              </div>
-            </div>
-            <div className="space-y-4">
-              {workLocations.length === 0 && <div className="text-sm text-slate-400 italic">{t("noWorkLocationsMsg")}</div>}
-              <div className="max-h-[520px] overflow-y-auto space-y-4">
-                {workLocations.map((loc) => (
-                  <div key={loc.id} className="p-3 border rounded-xl bg-slate-50 flex items-center justify-between">
-                    <div className="flex-1 pr-4">
-                      <p className="text-sm font-black uppercase tracking-tight text-slate-900 truncate">{loc.name || t("workLocationNamePlaceholder")}</p>
-                      <p className="text-xs text-slate-500 mt-1 truncate">{loc.address || t("workLocationAddressPlaceholder")}</p>
-                      <div className="mt-3 space-y-2">
-                        {(() => {
-                          const sel = Array.isArray(loc.service_ids) ? services.filter(s => loc.service_ids.includes(s.id)).map(s => s.nume_serviciu) : [];
-                          return (
-                            <div>
-                              <p className="text-[9px] font-black uppercase text-slate-400 mb-1">{t("workLocationServicesLabel")}</p>
-                              <div className="flex flex-wrap items-center gap-2">
-                                {sel.slice(0,3).map((name, i) => (
-                                  <span key={i} className="px-2 py-1 bg-amber-50 text-amber-700 rounded-full text-[12px] font-black">{name}</span>
-                                ))}
-                                {sel.length > 3 && <span title={sel.slice(3).join(", ")} className="text-xs text-slate-500 cursor-help">{t("othersShort", { count: sel.length - 3 })}</span>}
-                              </div>
-                            </div>
-                          );
-                        })()}
-                        {(() => {
-                          const sel = Array.isArray(loc.staff_ids) ? staff.filter(st => loc.staff_ids.includes(st.id)).map(st => st.name) : [];
-
-return (
-                            <div>
-                              <p className="text-[9px] font-black uppercase text-slate-400 mb-1">{t("workLocationStaffLabel")}</p>
-                              <div className="flex flex-wrap items-center gap-2">
-                                {sel.slice(0,3).map((name, i) => (
-                                  <span key={`st-${i}`} className="px-2 py-1 bg-slate-100 text-slate-700 rounded-full text-[12px] font-black">{name}</span>
-                                ))}
-                                {sel.length > 3 && <span title={sel.slice(3).join(", ")} className="text-xs text-slate-500 cursor-help">{t("othersShort", { count: sel.length - 3 })}</span>}
-                              </div>
-                            </div>
-                          );
-                        })()}
-                      </div>
-                    </div>
-                    <div className="flex-shrink-0 flex gap-2">
-                      <button onClick={() => openEditLocation(loc)} className="px-3 py-2 bg-slate-900 text-amber-500 rounded-xl font-black uppercase text-[11px]">{t("update")}</button>
-                      <button onClick={() => handleDeleteLocation(loc.id)} className="px-3 py-2 bg-white text-red-500 rounded-xl font-black uppercase text-[11px] border border-red-100">{t("deleteWorkLocationBtn")}</button>
-                    </div>
+        {/* Servicii - banda completa */}
+        <div className={`bg-white p-8 rounded-[35px] shadow-xl border border-slate-100 transition-all mb-6 ${isDemo ? 'opacity-40 pointer-events-none grayscale' : ''}`}>
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-[10px] font-black uppercase italic text-amber-600 tracking-widest">
+              {t("activeServicesTitle")} ({services.length} / {getLimitaServicii() >= 999 ? '∞' : getLimitaServicii()})
+            </h3>
+            <button onClick={() => setShowAddServiceModal(true)} disabled={services.length >= getLimitaServicii()} className="px-6 py-3 bg-amber-500 text-black rounded-xl font-black uppercase text-[11px] disabled:opacity-50">{t("addServiceBtn")}</button>
+          </div>
+          <div className="max-h-[280px] overflow-y-scroll pr-2 space-y-4">
+            {services.map(s => (
+              <div key={s.id} className="group bg-slate-50 rounded-[28px] border-l-8 border-amber-500 hover:bg-white transition-all border border-transparent hover:border-slate-100 overflow-hidden relative shadow-sm">
+                <div className="p-6 flex justify-between items-center cursor-pointer" onClick={() => activeazaEditare(s, 'service')}>
+                  <div>
+                    <p className="font-black uppercase italic text-[13px] text-slate-900 group-hover:text-amber-600 transition-colors">{s.nume_serviciu}</p>
+                    <p className="text-[10px] font-bold text-slate-400 mt-1 uppercase italic tracking-widest">
+                      {s.price} {businessCurrency} - {Math.floor(s.duration / 60) > 0 ? `${Math.floor(s.duration / 60)}${t("hourUnit")} ` : ""}{s.duration % 60} {t("minuteUnit")}
+                    </p>
                   </div>
-                ))}
+                  {!isDemo && (
+                    <button onClick={e => { e.stopPropagation(); handleDelete(s.id, 'services'); }} className="bg-white text-red-500 w-10 h-10 flex items-center justify-center rounded-xl shadow-md border border-red-100 hover:bg-red-500 hover:text-white transition-all"><X className="w-4 h-4" strokeWidth={3} /></button>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {showAddServiceModal && (
+          <div className="fixed inset-0 bg-slate-900/70 backdrop-blur-md z-[400] flex items-center justify-center p-4" onClick={() => setShowAddServiceModal(false)}>
+            <div className="bg-white w-full max-w-lg rounded-[35px] p-6 md:p-8 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-4">
+                <h4 className="text-[10px] font-black uppercase text-slate-700">{t("addServiceTitle")}</h4>
+                <button onClick={() => setShowAddServiceModal(false)} className="w-9 h-9 flex items-center justify-center bg-slate-100 rounded-xl font-black text-slate-400 hover:bg-red-500 hover:text-white transition-all">✕</button>
+              </div>
+              <div className="flex flex-col gap-4">
+                <div className="flex flex-col gap-1">
+                  <span className="text-[8px] font-black text-slate-400 ml-3 uppercase">{t("serviceNameLabel")}</span>
+                  <input className="bg-slate-50 p-5 rounded-2xl font-black uppercase italic text-[11px] outline-none border-2 border-transparent focus:border-amber-500 transition-all shadow-inner"
+                    placeholder={t("serviceNamePlaceholder")} value={newService.name} onChange={e => setNewService({ ...newService, name: e.target.value })} />
+                </div>
+                <div id="onboarding-service-duration" className="flex flex-col gap-1">
+                  <span className="text-[8px] font-black text-slate-400 ml-3 uppercase">{t("durationLabel")}</span>
+                  <div className="flex gap-1 bg-slate-50 p-2 rounded-2xl border border-slate-100 shadow-inner">
+                    <select className="bg-white px-3 py-3 rounded-xl font-black text-[11px] outline-none shadow-sm flex-1" value={newService.hour} onChange={e => setNewService({ ...newService, hour: e.target.value })}>
+                      {oreOptiuni.map(h => <option key={h} value={h}>{h} {t("hourUnit")}</option>)}
+                    </select>
+                    <select className="bg-white px-3 py-3 rounded-xl font-black text-[11px] outline-none shadow-sm flex-1" value={newService.minute} onChange={e => setNewService({ ...newService, minute: e.target.value })}>
+                      {minuteOptiuni.map(m => <option key={m} value={m}>{m} {t("minuteUnit")}</option>)}
+                    </select>
+                  </div>
+                </div>
+                <div id="onboarding-service-price" className="flex flex-col gap-1">
+                  <span className="text-[8px] font-black text-slate-400 ml-3 uppercase">{t("priceLabel")} <span className="text-amber-600">({businessCurrency})</span></span>
+                  <div className="relative">
+                    <input type="number" className="w-full bg-slate-50 p-5 pr-12 rounded-2xl font-black uppercase italic text-[11px] outline-none border-2 border-transparent focus:border-amber-500 transition-all shadow-inner"
+                      placeholder={businessCurrency} value={newService.price} onChange={e => setNewService({ ...newService, price: e.target.value })} />
+                    <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[9px] font-black text-slate-400">{businessCurrency}</span>
+                  </div>
+                </div>
+                <button onClick={async () => { const ok = await handleAddService(); if (ok) setShowAddServiceModal(false); }} disabled={services.length >= getLimitaServicii()}
+                  className="px-8 py-5 rounded-2xl font-black uppercase italic text-[11px] bg-slate-900 text-amber-500 border-b-4 border-slate-800 hover:bg-amber-500 hover:text-black transition-all active:translate-y-1 active:border-b-0 shadow-lg">
+                  {t("addServiceBtn")}
+                </button>
               </div>
             </div>
           </div>
+        )}
 
-          {/* Location form (separate) */}
-          {locationForm && (
-            <div className="fixed inset-0 bg-slate-900/70 backdrop-blur-md z-[400] flex items-center justify-center p-4" onClick={cancelLocationEdit}>
-              <div className="bg-white w-full max-w-2xl rounded-[35px] p-6 md:p-8 shadow-2xl max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
-                <div className="flex items-center justify-between mb-4 sticky top-0 bg-white z-10 pb-2 -mt-2">
-                  <h4 className="text-[10px] font-black uppercase text-slate-700">{selectedLocationId ? t("update") : t("addWorkLocationBtn")}</h4>
-                  <button onClick={cancelLocationEdit} className="w-9 h-9 flex items-center justify-center bg-slate-100 rounded-xl font-black text-slate-400 hover:bg-red-500 hover:text-white transition-all">
-✕
-</button>
+        {/* Specialisti - banda completa */}
+        <div className={`bg-white p-8 rounded-[35px] shadow-xl border border-slate-100 transition-all mb-6 ${isDemo ? 'opacity-40 pointer-events-none grayscale' : ''}`}>
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-[10px] font-black uppercase italic text-amber-600 tracking-widest">
+              {t("teamTitle")} ({staff.length} / {getLimitaStaff() >= 999 ? '∞' : getLimitaStaff()})
+            </h3>
+            <button id="onboarding-add-staff-btn" onClick={() => setShowAddStaffModal(true)} disabled={staff.length >= getLimitaStaff()} className="px-6 py-3 bg-amber-500 text-black rounded-xl font-black uppercase text-[11px] disabled:opacity-50">{t("addStaffBtn")}</button>
+          </div>
+          <div className="max-h-[380px] overflow-y-scroll pr-2 space-y-4">
+            {staff.map(p => (
+              <div key={p.id} className="group bg-slate-900 rounded-[28px] border-l-8 border-slate-700 hover:border-amber-500 transition-all overflow-hidden relative shadow-lg">
+                <div className="p-6 flex justify-between items-center gap-4 cursor-pointer" onClick={() => activeazaEditare(p, 'staff')}>
+                  <div className="relative w-16 h-16 rounded-2xl overflow-hidden bg-slate-800 border border-slate-700 flex items-center justify-center shrink-0">
+                    {p.photo_url ? (
+                      <Image src={p.photo_url} alt={p.name || t("staffPhotoAlt")} fill className="object-cover" />
+                    ) : (
+                      <span className="text-2xl font-black text-amber-500 uppercase italic">{(p.name || "?").slice(0, 1)}</span>
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-black uppercase italic text-[13px] text-white group-hover:text-amber-500 transition-colors truncate">{p.name}</p>
+                    {(p.phone || p.email) && (
+                      <div className="flex flex-wrap gap-1.5 mt-2">
+                        {p.phone && <span className="text-[8px] bg-slate-800 text-slate-300 px-3 py-1 rounded-full border border-slate-700 uppercase font-black">{p.phone}</span>}
+                        {p.email && <span className="text-[8px] bg-slate-800 text-slate-300 px-3 py-1 rounded-full border border-slate-700 uppercase font-black">{p.email}</span>}
+                      </div>
+                    )}
+                    <div className="flex flex-wrap gap-1.5 mt-3">
+                      {(p.services || []).map((servId: string, idx: number) => {
+                        const service = services.find(s => s.id === servId);
+                        return (
+                          <span key={idx} className="text-[8px] bg-slate-800 text-slate-400 px-3 py-1 rounded-full border border-slate-700 uppercase font-black">
+                            {service ? service.nume_serviciu : t("deletedService")}
+                          </span>
+                        );
+                      })}
+                    </div>
+                  </div>
+                  <div className="flex flex-col gap-2 items-end">
+                    {!isDemo && (
+                      <button
+                        onClick={e => { e.stopPropagation(); openScheduleModal(p); }}
+                        className="bg-slate-800 text-amber-500 px-3 py-2 flex items-center justify-center rounded-xl border border-slate-700 hover:bg-amber-500 hover:text-slate-900 transition-all text-[9px] font-black uppercase italic whitespace-nowrap"
+                      >{t("scheduleBtn")}</button>
+                    )}
+                    {!isDemo && (
+                      <button
+                        onClick={e => { e.stopPropagation(); openPermissionsModal(p); }}
+                        className="bg-slate-800 text-purple-300 px-3 py-2 flex items-center justify-center rounded-xl border border-slate-700 hover:bg-purple-500 hover:text-white transition-all text-[9px] font-black uppercase italic whitespace-nowrap"
+                      >{t("clientPermissions.button")}</button>
+                    )}
+                    {!isDemo && (
+                      p.auth_user_id ? (
+                        <button
+                          onClick={e => { e.stopPropagation(); openManageModal(p); }}
+                          className="bg-emerald-900/40 text-emerald-400 px-3 py-2 flex items-center justify-center rounded-xl border border-emerald-800 hover:bg-emerald-500 hover:text-white transition-all text-[9px] font-black uppercase italic whitespace-nowrap"
+                        >
+                          {t("staffPortal.activeAccountBadge")}
+                        </button>
+                      ) : hasTeamFeatures() ? (
+                        <button
+                          onClick={e => { e.stopPropagation(); openInviteModal(p); }}
+                          className="bg-slate-800 text-blue-400 px-3 py-2 flex items-center justify-center rounded-xl border border-slate-700 hover:bg-blue-500 hover:text-white transition-all text-[9px] font-black uppercase italic whitespace-nowrap"
+                        >
+                          {t("staffPortal.inviteBtn")}
+                        </button>
+                      ) : (
+                        <button
+                          onClick={e => { e.stopPropagation(); router.push('/abonamente'); }}
+                          title={t("staffPortal.teamOrBusinessHint")}
+                          className="bg-slate-800/50 text-slate-500 px-3 py-2 flex items-center justify-center rounded-xl border border-slate-700 hover:border-amber-500 hover:text-amber-500 transition-all text-[9px] font-black uppercase italic whitespace-nowrap"
+                        >{t("staffPortal.teamOrBusinessBadge")}</button>
+                      )
+                    )}
+                    {!isDemo && (
+                      <button onClick={e => { e.stopPropagation(); handleDelete(p.id, 'staff'); }} className="bg-slate-800 text-red-400 w-10 h-10 flex items-center justify-center rounded-xl border border-slate-700 hover:bg-red-500 hover:text-white transition-all"><X className="w-4 h-4" strokeWidth={3} /></button>
+                    )}
+                  </div>
                 </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {showAddStaffModal && (
+          <div className="fixed inset-0 bg-slate-900/70 backdrop-blur-md z-[400] flex items-center justify-center p-4" onClick={() => setShowAddStaffModal(false)}>
+            <div className="bg-white w-full max-w-lg rounded-[35px] p-6 md:p-8 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-4">
+                <h4 className="text-[10px] font-black uppercase text-slate-700">{t("addStaffTitle")}</h4>
+                <button onClick={() => setShowAddStaffModal(false)} className="w-9 h-9 flex items-center justify-center bg-slate-100 rounded-xl font-black text-slate-400 hover:bg-red-500 hover:text-white transition-all">✕</button>
+              </div>
+              <div className="flex flex-col gap-4">
+                <div className="flex flex-col gap-1">
+                  <span className="text-[8px] font-black text-slate-400 ml-3 uppercase">{t("staffNameLabel")}</span>
+                  <input className="bg-slate-50 p-5 rounded-2xl font-black uppercase italic text-[11px] outline-none border-2 border-transparent focus:border-amber-500 transition-all shadow-inner"
+                    placeholder={t("staffNamePlaceholder")} value={newStaff.name} onChange={e => setNewStaff({ ...newStaff, name: e.target.value })} />
+                </div>
+                <div className="flex flex-col gap-1">
+                  <span className="text-[8px] font-black text-slate-400 ml-3 uppercase">{t("phoneLabel")}</span>
+                  <input type="tel" className="bg-slate-50 p-5 rounded-2xl font-black uppercase italic text-[11px] outline-none border-2 border-transparent focus:border-amber-500 transition-all shadow-inner"
+                    placeholder={t("phonePlaceholder")} value={newStaff.phone} onChange={e => setNewStaff({ ...newStaff, phone: e.target.value.replace(/[^0-9+]/g, "") })} />
+                </div>
+                <div className="flex flex-col gap-1">
+                  <span className="text-[8px] font-black text-slate-400 ml-3 uppercase">{t("emailLabel")}</span>
+                  <input type="email" className="bg-slate-50 p-5 rounded-2xl font-black uppercase italic text-[11px] outline-none border-2 border-transparent focus:border-amber-500 transition-all shadow-inner"
+                    placeholder={t("emailPlaceholder")} value={newStaff.email} onChange={e => setNewStaff({ ...newStaff, email: e.target.value })} />
+                </div>
+                <button id="onboarding-add-staff-btn-modal" onClick={async () => { const ok = await handleAddStaff(); if (ok) setShowAddStaffModal(false); }} disabled={staff.length >= getLimitaStaff()}
+                  className="px-8 py-5 rounded-2xl font-black uppercase italic text-[11px] bg-slate-900 text-amber-500 border-b-4 border-slate-800 hover:bg-amber-500 hover:text-black transition-all active:translate-y-1 active:border-b-0 shadow-lg">
+                  {t("addStaffBtn")}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {editingId && editForm && (
+          <div className="fixed inset-0 bg-slate-900/70 backdrop-blur-md z-[400] flex items-center justify-center p-4" onClick={() => { setEditingId(null); setEditForm(null); }}>
+            <div className="bg-white w-full max-w-lg rounded-[35px] p-6 md:p-8 shadow-2xl max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-4">
+                <h4 className="text-[10px] font-black uppercase text-slate-700">{t("update")}</h4>
+                <button onClick={() => { setEditingId(null); setEditForm(null); }} className="w-9 h-9 flex items-center justify-center bg-slate-100 rounded-xl font-black text-slate-400 hover:bg-red-500 hover:text-white transition-all">✕</button>
+              </div>
+              {editForm.tip === 'service' ? (
+                <div className="space-y-4">
+                  <input className="w-full p-4 rounded-xl border-2 border-slate-100 font-black uppercase italic text-[11px]"
+                    value={editForm.name || ""} onChange={e => setEditForm({ ...editForm, name: e.target.value })} />
+                  <div className="flex gap-2">
+                    <input className="flex-1 p-4 rounded-xl border-2 border-slate-100 font-black text-[11px]"
+                      placeholder={businessCurrency}
+                      value={editForm.price || ""} onChange={e => setEditForm({ ...editForm, price: e.target.value })} />
+                    <select className="flex-1 p-4 rounded-xl border-2 border-slate-100 font-black text-[11px]"
+                      value={editForm.hour || "0"} onChange={e => setEditForm({ ...editForm, hour: e.target.value })}>
+                      {oreOptiuni.map(h => <option key={h} value={h}>{h} {t("hourUnit")}</option>)}
+                    </select>
+                    <select className="flex-1 p-4 rounded-xl border-2 border-slate-100 font-black text-[11px]"
+                      value={editForm.minute || "0"} onChange={e => setEditForm({ ...editForm, minute: e.target.value })}>
+                      {minuteOptiuni.map(m => <option key={m} value={m}>{m} {t("minuteUnit")}</option>)}
+                    </select>
+                  </div>
+                  <div className="flex gap-3">
+                    <button onClick={salveazaEditare} className="flex-1 bg-slate-900 text-amber-500 p-4 rounded-xl text-[10px] font-black uppercase italic">{t("save")}</button>
+                    <button onClick={() => { setEditingId(null); setEditForm(null); }} className="flex-1 bg-slate-100 p-4 rounded-xl text-[10px] font-black uppercase italic text-slate-400">{t("cancel")}</button>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-6">
+                  <div className="flex flex-col sm:flex-row gap-4 items-center sm:items-start">
+                    <div className="relative w-24 h-24 rounded-[28px] overflow-hidden bg-slate-100 border-2 border-slate-200 flex items-center justify-center shrink-0">
+                      {editForm.photo_url ? (
+                        <Image src={editForm.photo_url} alt={editForm.name || t("staffPhotoAlt")} fill className="object-cover" />
+                      ) : (
+                        <span className="text-3xl font-black text-amber-500 uppercase italic">{(editForm.name || "?").slice(0, 1)}</span>
+                      )}
+                    </div>
+                    <div className="flex-1 w-full space-y-3">
+                      <input className="w-full p-4 rounded-xl border-2 border-slate-100 font-black uppercase italic text-[11px]"
+                        value={editForm.name || ""} onChange={e => setEditForm({ ...editForm, name: e.target.value })} />
+                      <div className="flex flex-wrap gap-2">
+                        <label className="cursor-pointer px-4 py-3 bg-slate-50 border-2 border-slate-100 text-amber-600 rounded-xl text-[9px] font-black uppercase italic hover:bg-amber-500 hover:text-white transition-all">
+                          {t("staffPhotoUploadBtn")}
+                          <input type="file" accept="image/*" className="hidden" onChange={(e) => handleUploadStaffPhoto(editingId, e.target.files?.[0])} />
+                        </label>
+                        {editForm.photo_url && (
+                          <button onClick={() => handleRemoveStaffPhoto(editingId)} className="px-4 py-3 bg-slate-50 border-2 border-slate-100 text-red-500 rounded-xl text-[9px] font-black uppercase italic hover:bg-red-500 hover:text-white transition-all">
+                            {t("staffPhotoRemoveBtn")}
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                    <input className="w-full p-4 rounded-xl border-2 border-slate-100 font-black uppercase italic text-[11px]"
+                      placeholder={t("phoneLabel")}
+                      value={editForm.phone || ""}
+                      onChange={e => setEditForm({ ...editForm, phone: e.target.value.replace(/[^0-9+]/g, "") })} />
+                    <input className="w-full p-4 rounded-xl border-2 border-slate-100 font-black uppercase italic text-[11px]"
+                      placeholder={t("emailLabel")}
+                      value={editForm.email || ""}
+                      onChange={e => setEditForm({ ...editForm, email: e.target.value })} />
+                  </div>
+                  <div className="grid grid-cols-2 gap-2 max-h-40 overflow-y-auto pr-2">
+                    {services.map(s => (
+                      <button key={s.id} onClick={() => toggleServiciuStaff(s.id)}
+                        className={`p-3 rounded-xl text-[9px] font-black uppercase italic transition-all border-2 ${(editForm.services || []).includes(s.id) ? 'bg-amber-500 border-amber-500 text-slate-900' : 'bg-slate-50 border-slate-100 text-slate-400'}`}>
+                        {s.nume_serviciu}
+                      </button>
+                    ))}
+                  </div>
+                  <div className="flex gap-3">
+                    <button onClick={salveazaEditare} className="flex-1 bg-slate-900 text-amber-500 p-4 rounded-xl text-[10px] font-black uppercase italic">{t("save")}</button>
+                    <button onClick={() => { setEditingId(null); setEditForm(null); }} className="flex-1 bg-slate-100 p-4 rounded-xl text-[10px] font-black uppercase italic text-slate-400">{t("close")}</button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Puncte de lucru - banda completa, ultima (valabila doar pentru un plan) */}
+        <div className={`bg-white p-8 rounded-[35px] shadow-xl border border-slate-100 transition-all mb-6 ${isDemo ? 'opacity-40 pointer-events-none grayscale' : ''}`}>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-[10px] font-black uppercase italic text-amber-600 mb-0 tracking-widest">{t("workLocationsTitle")}</h3>
+            <div className="flex items-center gap-2">
+              <button onClick={openAddLocation} className="px-4 py-2 bg-amber-500 text-black rounded-xl font-black uppercase text-[11px]">{t("addWorkLocationBtn")}</button>
+            </div>
+          </div>
+          <div className="space-y-4">
+            {workLocations.length === 0 && <div className="text-sm text-slate-400 italic">{t("noWorkLocationsMsg")}</div>}
+            <div className="max-h-[380px] overflow-y-auto space-y-4">
+              {workLocations.map((loc) => (
+                <div key={loc.id} className="p-3 border rounded-xl bg-slate-50 flex items-center justify-between">
+                  <div className="flex-1 pr-4">
+                    <p className="text-sm font-black uppercase tracking-tight text-slate-900 truncate">{loc.name || t("workLocationNamePlaceholder")}</p>
+                    <p className="text-xs text-slate-500 mt-1 truncate">{loc.address || t("workLocationAddressPlaceholder")}</p>
+                    <div className="mt-3 space-y-2">
+                      {(() => {
+                        const sel = Array.isArray(loc.service_ids) ? services.filter(s => loc.service_ids.includes(s.id)).map(s => s.nume_serviciu) : [];
+                        return (
+                          <div>
+                            <p className="text-[9px] font-black uppercase text-slate-400 mb-1">{t("workLocationServicesLabel")}</p>
+                            <div className="flex flex-wrap items-center gap-2">
+                              {sel.slice(0,3).map((name, i) => (
+                                <span key={i} className="px-2 py-1 bg-amber-50 text-amber-700 rounded-full text-[12px] font-black">{name}</span>
+                              ))}
+                              {sel.length > 3 && <span title={sel.slice(3).join(", ")} className="text-xs text-slate-500 cursor-help">{t("othersShort", { count: sel.length - 3 })}</span>}
+                            </div>
+                          </div>
+                        );
+                      })()}
+                      {(() => {
+                        const sel = Array.isArray(loc.staff_ids) ? staff.filter(st => loc.staff_ids.includes(st.id)).map(st => st.name) : [];
+                        return (
+                          <div>
+                            <p className="text-[9px] font-black uppercase text-slate-400 mb-1">{t("workLocationStaffLabel")}</p>
+                            <div className="flex flex-wrap items-center gap-2">
+                              {sel.slice(0,3).map((name, i) => (
+                                <span key={`st-${i}`} className="px-2 py-1 bg-slate-100 text-slate-700 rounded-full text-[12px] font-black">{name}</span>
+                              ))}
+                              {sel.length > 3 && <span title={sel.slice(3).join(", ")} className="text-xs text-slate-500 cursor-help">{t("othersShort", { count: sel.length - 3 })}</span>}
+                            </div>
+                          </div>
+                        );
+                      })()}
+                    </div>
+                  </div>
+                  <div className="flex-shrink-0 flex gap-2">
+                    <button onClick={() => openEditLocation(loc)} className="px-3 py-2 bg-slate-900 text-amber-500 rounded-xl font-black uppercase text-[11px]">{t("update")}</button>
+                    <button onClick={() => handleDeleteLocation(loc.id)} className="px-3 py-2 bg-white text-red-500 rounded-xl font-black uppercase text-[11px] border border-red-100">{t("deleteWorkLocationBtn")}</button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {locationForm && (
+          <div className="fixed inset-0 bg-slate-900/70 backdrop-blur-md z-[400] flex items-center justify-center p-4" onClick={cancelLocationEdit}>
+            <div className="bg-white w-full max-w-2xl rounded-[35px] p-6 md:p-8 shadow-2xl max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-4 sticky top-0 bg-white z-10 pb-2 -mt-2">
+                <h4 className="text-[10px] font-black uppercase text-slate-700">{selectedLocationId ? t("update") : t("addWorkLocationBtn")}</h4>
+                <button onClick={cancelLocationEdit} className="w-9 h-9 flex items-center justify-center bg-slate-100 rounded-xl font-black text-slate-400 hover:bg-red-500 hover:text-white transition-all">✕</button>
+              </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="md:col-span-1">
                   <label className="text-[9px] font-black uppercase text-slate-400">{t("workLocationNameLabel")}</label>
@@ -946,7 +1207,6 @@ return (
                   <label className="text-[9px] font-black uppercase text-slate-400 mt-2 block">{t("workLocationAddressLabel")}</label>
                   <input value={locationForm.address} onChange={(e) => setLocationForm({ ...locationForm, address: e.target.value })} className="w-full p-2 rounded-md border text-sm" />
                 </div>
-
                 <div>
                   <p className="text-[9px] font-black uppercase text-slate-400 mb-2">{t("workLocationServicesLabel")}</p>
                   <div className="max-h-[112px] overflow-y-auto pr-2 grid grid-cols-1 md:grid-cols-2 gap-2 text-sm border rounded-md p-2">
@@ -963,7 +1223,6 @@ return (
                     ))}
                   </div>
                 </div>
-
                 <div>
                   <p className="text-[9px] font-black uppercase text-slate-400 mb-2">{t("workLocationStaffLabel")}</p>
                   <div className="max-h-[112px] overflow-y-auto pr-2 grid grid-cols-1 md:grid-cols-2 gap-2 text-sm border rounded-md p-2">
@@ -981,298 +1240,13 @@ return (
                   </div>
                 </div>
               </div>
-
               <div className="mt-4 flex gap-3">
                 <button onClick={saveLocation} className="px-4 py-2 bg-slate-900 text-amber-500 rounded-xl font-black uppercase text-[11px]">{t("save")}</button>
                 <button onClick={cancelLocationEdit} className="px-4 py-2 bg-white text-slate-700 rounded-xl font-black uppercase text-[11px] border border-slate-100">{t("cancel")}</button>
               </div>
-              </div>
-            </div>
-          )}
-
-          {/* Buton adaugare SERVICIU */}
-          <div className={`bg-white p-8 rounded-[35px] shadow-xl border border-slate-100 transition-all ${isDemo ? 'opacity-40 pointer-events-none grayscale' : ''}`}>
-            <div className="flex items-center justify-between">
-              <h3 className="text-[10px] font-black uppercase italic text-amber-600 tracking-widest">{t("addServiceTitle")}</h3>
-              <button onClick={() => setShowAddServiceModal(true)} disabled={services.length >= getLimitaServicii()} className="px-6 py-3 bg-amber-500 text-black rounded-xl font-black uppercase text-[11px] disabled:opacity-50">{t("addServiceBtn")}</button>
             </div>
           </div>
-
-          {showAddServiceModal && (
-            <div className="fixed inset-0 bg-slate-900/70 backdrop-blur-md z-[400] flex items-center justify-center p-4" onClick={() => setShowAddServiceModal(false)}>
-              <div className="bg-white w-full max-w-lg rounded-[35px] p-6 md:p-8 shadow-2xl" onClick={(e) => e.stopPropagation()}>
-                <div className="flex items-center justify-between mb-4">
-                  <h4 className="text-[10px] font-black uppercase text-slate-700">{t("addServiceTitle")}</h4>
-                  <button onClick={() => setShowAddServiceModal(false)} className="w-9 h-9 flex items-center justify-center bg-slate-100 rounded-xl font-black text-slate-400 hover:bg-red-500 hover:text-white transition-all">✕</button>
-                </div>
-                <div className="flex flex-col gap-4">
-                  <div className="flex flex-col gap-1">
-                    <span className="text-[8px] font-black text-slate-400 ml-3 uppercase">{t("serviceNameLabel")}</span>
-                    <input className="bg-slate-50 p-5 rounded-2xl font-black uppercase italic text-[11px] outline-none border-2 border-transparent focus:border-amber-500 transition-all shadow-inner"
-                      placeholder={t("serviceNamePlaceholder")} value={newService.name} onChange={e => setNewService({ ...newService, name: e.target.value })} />
-                  </div>
-                  <div id="onboarding-service-duration" className="flex flex-col gap-1">
-                    <span className="text-[8px] font-black text-slate-400 ml-3 uppercase">{t("durationLabel")}</span>
-                    <div className="flex gap-1 bg-slate-50 p-2 rounded-2xl border border-slate-100 shadow-inner">
-                      <select className="bg-white px-3 py-3 rounded-xl font-black text-[11px] outline-none shadow-sm flex-1" value={newService.hour} onChange={e => setNewService({ ...newService, hour: e.target.value })}>
-                        {oreOptiuni.map(h => <option key={h} value={h}>{h} {t("hourUnit")}</option>)}
-                      </select>
-                      <select className="bg-white px-3 py-3 rounded-xl font-black text-[11px] outline-none shadow-sm flex-1" value={newService.minute} onChange={e => setNewService({ ...newService, minute: e.target.value })}>
-                        {minuteOptiuni.map(m => <option key={m} value={m}>{m} {t("minuteUnit")}</option>)}
-                      </select>
-                    </div>
-                  </div>
-                  <div id="onboarding-service-price" className="flex flex-col gap-1">
-                    <span className="text-[8px] font-black text-slate-400 ml-3 uppercase">{t("priceLabel")} <span className="text-amber-600">({businessCurrency})</span></span>
-                    <div className="relative">
-                      <input type="number" className="w-full bg-slate-50 p-5 pr-12 rounded-2xl font-black uppercase italic text-[11px] outline-none border-2 border-transparent focus:border-amber-500 transition-all shadow-inner"
-                        placeholder={businessCurrency} value={newService.price} onChange={e => setNewService({ ...newService, price: e.target.value })} />
-                      <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[9px] font-black text-slate-400">{businessCurrency}</span>
-                    </div>
-                  </div>
-                  <button onClick={async () => { const ok = await handleAddService(); if (ok) setShowAddServiceModal(false); }} disabled={services.length >= getLimitaServicii()}
-                    className="px-8 py-5 rounded-2xl font-black uppercase italic text-[11px] bg-slate-900 text-amber-500 border-b-4 border-slate-800 hover:bg-amber-500 hover:text-black transition-all active:translate-y-1 active:border-b-0 shadow-lg">
-                    {t("addServiceBtn")}
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Buton adaugare EXPERT */}
-          <div className={`bg-white p-8 rounded-[35px] shadow-xl border border-slate-100 transition-all ${isDemo ? 'opacity-40 pointer-events-none grayscale' : ''}`}>
-            <div className="flex items-center justify-between">
-              <h3 className="text-[10px] font-black uppercase italic text-amber-600 tracking-widest">{t("addStaffTitle")}</h3>
-              <button id="onboarding-add-staff-btn" onClick={() => setShowAddStaffModal(true)} disabled={staff.length >= getLimitaStaff()} className="px-6 py-3 bg-amber-500 text-black rounded-xl font-black uppercase text-[11px] disabled:opacity-50">{t("addStaffBtn")}</button>
-            </div>
-          </div>
-
-          {showAddStaffModal && (
-            <div className="fixed inset-0 bg-slate-900/70 backdrop-blur-md z-[400] flex items-center justify-center p-4" onClick={() => setShowAddStaffModal(false)}>
-              <div className="bg-white w-full max-w-lg rounded-[35px] p-6 md:p-8 shadow-2xl" onClick={(e) => e.stopPropagation()}>
-                <div className="flex items-center justify-between mb-4">
-                  <h4 className="text-[10px] font-black uppercase text-slate-700">{t("addStaffTitle")}</h4>
-                  <button onClick={() => setShowAddStaffModal(false)} className="w-9 h-9 flex items-center justify-center bg-slate-100 rounded-xl font-black text-slate-400 hover:bg-red-500 hover:text-white transition-all">✕</button>
-                </div>
-                <div className="flex flex-col gap-4">
-                  <div className="flex flex-col gap-1">
-                    <span className="text-[8px] font-black text-slate-400 ml-3 uppercase">{t("staffNameLabel")}</span>
-                    <input className="bg-slate-50 p-5 rounded-2xl font-black uppercase italic text-[11px] outline-none border-2 border-transparent focus:border-amber-500 transition-all shadow-inner"
-                      placeholder={t("staffNamePlaceholder")} value={newStaff.name} onChange={e => setNewStaff({ ...newStaff, name: e.target.value })} />
-                  </div>
-                  <div className="flex flex-col gap-1">
-                    <span className="text-[8px] font-black text-slate-400 ml-3 uppercase">{t("phoneLabel")}</span>
-                    <input type="tel" className="bg-slate-50 p-5 rounded-2xl font-black uppercase italic text-[11px] outline-none border-2 border-transparent focus:border-amber-500 transition-all shadow-inner"
-                      placeholder={t("phonePlaceholder")} value={newStaff.phone} onChange={e => setNewStaff({ ...newStaff, phone: e.target.value.replace(/[^0-9+]/g, "") })} />
-                  </div>
-                  <div className="flex flex-col gap-1">
-                    <span className="text-[8px] font-black text-slate-400 ml-3 uppercase">{t("emailLabel")}</span>
-                    <input type="email" className="bg-slate-50 p-5 rounded-2xl font-black uppercase italic text-[11px] outline-none border-2 border-transparent focus:border-amber-500 transition-all shadow-inner"
-                      placeholder={t("emailPlaceholder")} value={newStaff.email} onChange={e => setNewStaff({ ...newStaff, email: e.target.value })} />
-                  </div>
-                  <button id="onboarding-add-staff-btn-modal" onClick={async () => { const ok = await handleAddStaff(); if (ok) setShowAddStaffModal(false); }} disabled={staff.length >= getLimitaStaff()}
-                    className="px-8 py-5 rounded-2xl font-black uppercase italic text-[11px] bg-slate-900 text-amber-500 border-b-4 border-slate-800 hover:bg-amber-500 hover:text-black transition-all active:translate-y-1 active:border-b-0 shadow-lg">
-                    {t("addStaffBtn")}
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {editingId && editForm && (
-            <div className="fixed inset-0 bg-slate-900/70 backdrop-blur-md z-[400] flex items-center justify-center p-4" onClick={() => { setEditingId(null); setEditForm(null); }}>
-              <div className="bg-white w-full max-w-lg rounded-[35px] p-6 md:p-8 shadow-2xl max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
-                <div className="flex items-center justify-between mb-4">
-                  <h4 className="text-[10px] font-black uppercase text-slate-700">{t("update")}</h4>
-                  <button onClick={() => { setEditingId(null); setEditForm(null); }} className="w-9 h-9 flex items-center justify-center bg-slate-100 rounded-xl font-black text-slate-400 hover:bg-red-500 hover:text-white transition-all">✕</button>
-                </div>
-                {editForm.tip === 'service' ? (
-                  <div className="space-y-4">
-                    <input className="w-full p-4 rounded-xl border-2 border-slate-100 font-black uppercase italic text-[11px]"
-                      value={editForm.name || ""} onChange={e => setEditForm({ ...editForm, name: e.target.value })} />
-                    <div className="flex gap-2">
-                      <input className="flex-1 p-4 rounded-xl border-2 border-slate-100 font-black text-[11px]"
-                        placeholder={businessCurrency}
-                        value={editForm.price || ""} onChange={e => setEditForm({ ...editForm, price: e.target.value })} />
-                      <select className="flex-1 p-4 rounded-xl border-2 border-slate-100 font-black text-[11px]"
-                        value={editForm.hour || "0"} onChange={e => setEditForm({ ...editForm, hour: e.target.value })}>
-                        {oreOptiuni.map(h => <option key={h} value={h}>{h} {t("hourUnit")}</option>)}
-                      </select>
-                      <select className="flex-1 p-4 rounded-xl border-2 border-slate-100 font-black text-[11px]"
-                        value={editForm.minute || "0"} onChange={e => setEditForm({ ...editForm, minute: e.target.value })}>
-                        {minuteOptiuni.map(m => <option key={m} value={m}>{m} {t("minuteUnit")}</option>)}
-                      </select>
-                    </div>
-                    <div className="flex gap-3">
-                      <button onClick={salveazaEditare} className="flex-1 bg-slate-900 text-amber-500 p-4 rounded-xl text-[10px] font-black uppercase italic">{t("save")}</button>
-                      <button onClick={() => { setEditingId(null); setEditForm(null); }} className="flex-1 bg-slate-100 p-4 rounded-xl text-[10px] font-black uppercase italic text-slate-400">{t("cancel")}</button>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="space-y-6">
-                    <div className="flex flex-col sm:flex-row gap-4 items-center sm:items-start">
-                      <div className="relative w-24 h-24 rounded-[28px] overflow-hidden bg-slate-100 border-2 border-slate-200 flex items-center justify-center shrink-0">
-                        {editForm.photo_url ? (
-                          <Image src={editForm.photo_url} alt={editForm.name || t("staffPhotoAlt")} fill className="object-cover" />
-                        ) : (
-                          <span className="text-3xl font-black text-amber-500 uppercase italic">{(editForm.name || "?").slice(0, 1)}</span>
-                        )}
-                      </div>
-                      <div className="flex-1 w-full space-y-3">
-                        <input className="w-full p-4 rounded-xl border-2 border-slate-100 font-black uppercase italic text-[11px]"
-                          value={editForm.name || ""} onChange={e => setEditForm({ ...editForm, name: e.target.value })} />
-                        <div className="flex flex-wrap gap-2">
-                          <label className="cursor-pointer px-4 py-3 bg-slate-50 border-2 border-slate-100 text-amber-600 rounded-xl text-[9px] font-black uppercase italic hover:bg-amber-500 hover:text-white transition-all">
-                            {t("staffPhotoUploadBtn")}
-                            <input type="file" accept="image/*" className="hidden" onChange={(e) => handleUploadStaffPhoto(editingId!, e.target.files?.[0])} />
-                          </label>
-                          {editForm.photo_url && (
-                            <button onClick={() => handleRemoveStaffPhoto(editingId!)} className="px-4 py-3 bg-slate-50 border-2 border-slate-100 text-red-500 rounded-xl text-[9px] font-black uppercase italic hover:bg-red-500 hover:text-white transition-all">
-                              {t("staffPhotoRemoveBtn")}
-                            </button>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                      <input className="w-full p-4 rounded-xl border-2 border-slate-100 font-black uppercase italic text-[11px]"
-                        placeholder={t("phoneLabel")}
-                        value={editForm.phone || ""}
-                        onChange={e => setEditForm({ ...editForm, phone: e.target.value.replace(/[^0-9+]/g, "") })} />
-                      <input className="w-full p-4 rounded-xl border-2 border-slate-100 font-black uppercase italic text-[11px]"
-                        placeholder={t("emailLabel")}
-                        value={editForm.email || ""}
-                        onChange={e => setEditForm({ ...editForm, email: e.target.value })} />
-                    </div>
-                    <div className="grid grid-cols-2 gap-2 max-h-40 overflow-y-auto pr-2">
-                      {services.map(s => (
-                        <button key={s.id} onClick={() => toggleServiciuStaff(s.id)}
-                          className={`p-3 rounded-xl text-[9px] font-black uppercase italic transition-all border-2 ${(editForm.services || []).includes(s.id) ? 'bg-amber-500 border-amber-500 text-slate-900' : 'bg-slate-50 border-slate-100 text-slate-400'}`}>
-                          {s.nume_serviciu}
-                        </button>
-                      ))}
-                    </div>
-                    <div className="flex gap-3">
-                      <button onClick={salveazaEditare} className="flex-1 bg-slate-900 text-amber-500 p-4 rounded-xl text-[10px] font-black uppercase italic">{t("save")}</button>
-                      <button onClick={() => { setEditingId(null); setEditForm(null); }} className="flex-1 bg-slate-100 p-4 rounded-xl text-[10px] font-black uppercase italic text-slate-400">{t("close")}</button>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-
-        </div>
-
-        {/* GRID AFISARE */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-
-          {/* Servicii Lista */}
-          <div className="bg-white p-10 rounded-[50px] shadow-xl border border-slate-50 relative">
-            <h2 className="text-[11px] font-black uppercase italic text-slate-400 mb-10 tracking-[0.3em] border-b pb-6">
-              {t("activeServicesTitle")} ({services.length} / {getLimitaServicii() >= 999 ? '∞' : getLimitaServicii()})
-            </h2>
-            <div className="max-h-[280px] overflow-y-scroll pr-2 space-y-4">
-              {services.map(s => (
-                <div key={s.id} className="group bg-slate-50 rounded-[28px] border-l-8 border-amber-500 hover:bg-white transition-all border border-transparent hover:border-slate-100 overflow-hidden relative shadow-sm">
-                  <div className="p-6 flex justify-between items-center cursor-pointer" onClick={() => activeazaEditare(s, 'service')}>
-                    <div>
-                      <p className="font-black uppercase italic text-[13px] text-slate-900 group-hover:text-amber-600 transition-colors">{s.nume_serviciu}</p>
-                      <p className="text-[10px] font-bold text-slate-400 mt-1 uppercase italic tracking-widest">
-                        {s.price} {businessCurrency} - {Math.floor(s.duration / 60) > 0 ? `${Math.floor(s.duration / 60)}${t("hourUnit")} ` : ""}{s.duration % 60} {t("minuteUnit")}
-                      </p>
-                    </div>
-                    {!isDemo && (
-                      <button onClick={e => { e.stopPropagation(); handleDelete(s.id, 'services'); }} className="bg-white text-red-500 w-10 h-10 flex items-center justify-center rounded-xl shadow-md border border-red-100 hover:bg-red-500 hover:text-white transition-all"><X className="w-4 h-4" strokeWidth={3} /></button>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Experti Lista */}
-          <div className="bg-white p-10 rounded-[50px] shadow-xl border border-slate-50 relative">
-            <h2 className="text-[11px] font-black uppercase italic text-slate-400 mb-10 tracking-[0.3em] border-b pb-6 text-right">
-              {t("teamTitle")} ({staff.length} / {getLimitaStaff() >= 999 ? '∞' : getLimitaStaff()})
-            </h2>
-            <div className="max-h-[380px] overflow-y-scroll pr-2 space-y-4">
-              {staff.map(p => (
-                <div key={p.id} className="group bg-slate-900 rounded-[28px] border-l-8 border-slate-700 hover:border-amber-500 transition-all overflow-hidden relative shadow-lg">
-                    <div className="p-6 flex justify-between items-center gap-4 cursor-pointer" onClick={() => activeazaEditare(p, 'staff')}>
-                      <div className="relative w-16 h-16 rounded-2xl overflow-hidden bg-slate-800 border border-slate-700 flex items-center justify-center shrink-0">
-                        {p.photo_url ? (
-                          <Image src={p.photo_url} alt={p.name || t("staffPhotoAlt")} fill className="object-cover" />
-                        ) : (
-                          <span className="text-2xl font-black text-amber-500 uppercase italic">{(p.name || "?").slice(0, 1)}</span>
-                        )}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="font-black uppercase italic text-[13px] text-white group-hover:text-amber-500 transition-colors truncate">{p.name}</p>
-                        {(p.phone || p.email) && (
-                          <div className="flex flex-wrap gap-1.5 mt-2">
-                            {p.phone && <span className="text-[8px] bg-slate-800 text-slate-300 px-3 py-1 rounded-full border border-slate-700 uppercase font-black">{p.phone}</span>}
-                            {p.email && <span className="text-[8px] bg-slate-800 text-slate-300 px-3 py-1 rounded-full border border-slate-700 uppercase font-black">{p.email}</span>}
-                          </div>
-                        )}
-                        <div className="flex flex-wrap gap-1.5 mt-3">
-                          {(p.services || []).map((servId: string, idx: number) => {
-                            const service = services.find(s => s.id === servId);
-                            return (
-                              <span key={idx} className="text-[8px] bg-slate-800 text-slate-400 px-3 py-1 rounded-full border border-slate-700 uppercase font-black">
-                                {service ? service.nume_serviciu : t("deletedService")}
-                              </span>
-                            );
-                          })}
-                        </div>
-                      </div>
-                      <div className="flex flex-col gap-2 items-end">
-                        {!isDemo && (
-                          <button
-                            onClick={e => { e.stopPropagation(); openScheduleModal(p); }}
-                            className="bg-slate-800 text-amber-500 px-3 py-2 flex items-center justify-center rounded-xl border border-slate-700 hover:bg-amber-500 hover:text-slate-900 transition-all text-[9px] font-black uppercase italic whitespace-nowrap"
-                          >{t("scheduleBtn")}</button>
-                        )}
-                        {!isDemo && (
-                          <button
-                            onClick={e => { e.stopPropagation(); openPermissionsModal(p); }}
-                            className="bg-slate-800 text-purple-300 px-3 py-2 flex items-center justify-center rounded-xl border border-slate-700 hover:bg-purple-500 hover:text-white transition-all text-[9px] font-black uppercase italic whitespace-nowrap"
-                          >{t("clientPermissions.button")}</button>
-                        )}
-                        {!isDemo && (
-                          p.auth_user_id ? (
-                            <button
-                              onClick={e => { e.stopPropagation(); openManageModal(p); }}
-                              className="bg-emerald-900/40 text-emerald-400 px-3 py-2 flex items-center justify-center rounded-xl border border-emerald-800 hover:bg-emerald-500 hover:text-white transition-all text-[9px] font-black uppercase italic whitespace-nowrap"
-                            >
-                              {t("staffPortal.activeAccountBadge")}
-                            </button>
-                          ) : hasTeamFeatures() ? (
-                            <button
-                              onClick={e => { e.stopPropagation(); openInviteModal(p); }}
-                              className="bg-slate-800 text-blue-400 px-3 py-2 flex items-center justify-center rounded-xl border border-slate-700 hover:bg-blue-500 hover:text-white transition-all text-[9px] font-black uppercase italic whitespace-nowrap"
-                            >
-                              {t("staffPortal.inviteBtn")}
-                            </button>
-                          ) : (
-                            <button
-                              onClick={e => { e.stopPropagation(); router.push('/abonamente'); }}
-                              title={t("staffPortal.teamOrBusinessHint")}
-                              className="bg-slate-800/50 text-slate-500 px-3 py-2 flex items-center justify-center rounded-xl border border-slate-700 hover:border-amber-500 hover:text-amber-500 transition-all text-[9px] font-black uppercase italic whitespace-nowrap"
-                            >{t("staffPortal.teamOrBusinessBadge")}</button>
-                          )
-                        )}
-                        {!isDemo && (
-                          <button onClick={e => { e.stopPropagation(); handleDelete(p.id, 'staff'); }} className="bg-slate-800 text-red-400 w-10 h-10 flex items-center justify-center rounded-xl border border-slate-700 hover:bg-red-500 hover:text-white transition-all"><X className="w-4 h-4" strokeWidth={3} /></button>
-                        )}
-                      </div>
-                    </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-        </div>
+        )}
       </div>
 
       {/* MODAL PROGRAM INDIVIDUAL PER SPECIALIST */}
