@@ -149,16 +149,16 @@ export default function ResursePage() {
     try {
       setLoading(true);
       setErrorMsg(null);
-
       const { data: profiles, error: profileError } = await supabase
         .from('profiles')
-        .select('plan_type, currency, work_locations')
+        .select('plan_type, currency, work_locations, trial_started_at')
         .eq('id', uid);
 
       if (profileError) console.error("Eroare profil:", profileError.message);
 
       const profile = profiles && profiles.length > 0 ? profiles[0] : null;
-      const planNormalizat = normalizeazaPlan(profile?.plan_type || "");
+      const trialActive = !!profile?.trial_started_at && (Date.now() - new Date(profile.trial_started_at).getTime() < 10 * 24 * 60 * 60 * 1000);
+      const planNormalizat = trialActive ? "chronos team" : normalizeazaPlan(profile?.plan_type || "");
       setUserPlan(planNormalizat);
       setBusinessCurrency(profile?.currency || "RON");
       setWorkLocations(Array.isArray(profile?.work_locations) ? profile.work_locations : []);
