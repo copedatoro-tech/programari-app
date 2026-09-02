@@ -230,14 +230,15 @@ export default function ContacteUtilePage() {
         const { data: { user }, error } = await supabase.auth.getUser();
         if (!mounted || error || !user) { setLoading(false); return; }
         setCurrentUser(user);
-
         const [profileRes, contactsRes, foldereRes] = await Promise.all([
-          supabase.from("profiles").select("plan_type").eq("id", user.id).single(),
+
+          supabase.from("profiles").select("plan_type, trial_started_at").eq("id", user.id).single(),
           supabase.from("contacts").select("*").eq("user_id", user.id).order("name", { ascending: true }),
           supabase.from("contact_folders").select("*").eq("user_id", user.id).order("created_at", { ascending: true }),
         ]);
 
-        if (profileRes.data) setUserPlan(profileRes.data.plan_type ?? "START (GRATUIT)");
+        const trialActive = !!profileRes.data?.trial_started_at && (Date.now() - new Date(profileRes.data.trial_started_at).getTime() < 10 * 24 * 60 * 60 * 1000);
+        if (profileRes.data) setUserPlan(trialActive ? "CHRONOS TEAM" : (profileRes.data.plan_type ?? "START (GRATUIT)"));
 
         if (!contactsRes.error) {
           const raw: any[] = contactsRes.data ?? [];
