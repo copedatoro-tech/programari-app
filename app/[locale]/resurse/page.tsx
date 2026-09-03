@@ -139,8 +139,6 @@ export default function ResursePage() {
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
     ), []);
 
-  const editServiciuRef = useRef<HTMLDivElement>(null);
-  const editStaffRef    = useRef<HTMLDivElement>(null);
   const oreOptiuni      = Array.from({ length: 25 }, (_, i) => i);
   const minuteOptiuni      = Array.from({ length: 60 }, (_, i) => i);
   const scheduleDayNames = t.raw("scheduleDayNames") as string[];
@@ -225,10 +223,6 @@ export default function ResursePage() {
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as Node;
-      if (editingId && !editServiciuRef.current?.contains(target) && !editStaffRef.current?.contains(target)) {
-        setEditingId(null);
-        setEditForm(null);
-      }
       if (scheduleStaffId && scheduleModalRef.current && !scheduleModalRef.current.contains(target)) {
         setScheduleStaffId(null);
       }
