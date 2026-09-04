@@ -9,7 +9,7 @@ import { useTranslations } from "next-intl";
 import LocaleSwitcher from "@/components/LocaleSwitcher";
 import { ChronosTimePicker, ChronosDatePicker } from "@/components/ChronosDateTimePickers";
 import { CalendarDays, Clock3, Star, X, Check } from "lucide-react";
-
+interface StaffRow { id: string; name: string; services: string[]; working_hours?: any; manual_blocks?: any; photo_url?: string | null }
 interface StaffRow { id: string; name: string; services: string[]; working_hours?: any; photo_url?: string | null }
 interface ServiceRow { id: string; nume_serviciu: string; price: number; duration: number }
 interface ExistingAppointment { time: string; duration: number }
@@ -218,7 +218,7 @@ function RezervareContent() {
     }
   }, []);
 
-  const isDateAvailable = useCallback((dateStr: string, whToUse: WorkingHourEntry[] = adminWorkingHours): boolean => {
+  const isDateAvailable = useCallback((dateStr: string, whToUse: WorkingHourEntry[] = adminWorkingHours, blocksToUse: Record<string, string[]> = adminManualBlocks): boolean => {
     if (!dateStr) return false;
     const [y, mo, d] = dateStr.split("-").map(Number);
     const dateObj = new Date(y, mo - 1, d);
@@ -227,7 +227,7 @@ function RezervareContent() {
       const schedule = whToUse.find((h) => h.day === dayName);
       if (!schedule || schedule.closed) return false;
     }
-    const dayBlocks = adminManualBlocks[dateStr] || [];
+    const dayBlocks = blocksToUse[dateStr] || [];
     if (dayBlocks.length >= 94) return false;
     return true;
   }, [adminWorkingHours, adminManualBlocks]);
@@ -702,6 +702,16 @@ function RezervareContent() {
       : staffWH;
     return locationFilteredStaffWH.length > 0 ? locationFilteredStaffWH : adminWorkingHours;
   }, [activeBooking?.specialist_id, specialisti, adminWorkingHours, selectedWorkLocationId]);
+  const effectiveManualBlocks = useMemo(() => {
+    if (!activeBooking?.specialist_id) return adminManualBlocks;
+    const staffMember = specialisti.find(s => s.id === activeBooking.specialist_id);
+    const staffWH = parseWH(staffMember?.working_hours);
+    const locationFilteredStaffWH = selectedWorkLocationId
+      ? staffWH.filter((h) => !h.work_location_id || h.work_location_id === selectedWorkLocationId)
+      : staffWH;
+    if (locationFilteredStaffWH.length === 0) return adminManualBlocks;
+    return (staffMember?.manual_blocks && typeof staffMember.manual_blocks === "object") ? staffMember.manual_blocks : {};
+  }, [activeBooking?.specialist_id, specialisti, adminManualBlocks, selectedWorkLocationId]);
 
   const avgRating = feedbacks.length > 0
     ? (feedbacks.reduce((sum, f) => sum + (f.stele || 0), 0) / feedbacks.length)
@@ -775,7 +785,7 @@ function RezervareContent() {
               }}
               onClose={() => setPickerControl(null)}
               workingHours={effectiveWorkingHours}
-              isDateAvailable={(d) => isDateAvailable(d, effectiveWorkingHours)}
+              isDateAvailable={(d) => isDateAvailable(d, effectiveWorkingHours, effectiveManualBlocks)}
             />
           </div>
         </div>
@@ -795,7 +805,7 @@ function RezervareContent() {
               existingAppointments={activeBookingAppts}
               selectedDate={activeBooking.data}
               serviceDuration={servicii.find(s => s.id === activeBooking.serviciu_id)?.duration || 30}
-              manualBlocks={adminManualBlocks}
+              manualBlocks={effectiveManualBlocks}
             />
           </div>
         </div>
