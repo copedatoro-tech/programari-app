@@ -1049,23 +1049,23 @@ function RezervareContent() {
                     <p className="text-xs font-bold text-slate-500 italic">{t("workLocationHint")}</p>
                   </div>
 
-                  <div className="bg-white rounded-[25px] border-2 border-amber-200 p-5 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                  <div className="bg-white rounded-[25px] border-2 border-amber-200 p-5 space-y-4">
                     <div className="min-w-0">
                       <p className="text-sm font-black text-slate-900 uppercase italic">{selectedWorkLocation?.name || t("defaultWorkLocationName")}</p>
-                      <p className="text-xs font-bold text-slate-500 mt-1">{selectedWorkLocation?.address || ""}</p>
+                      <p className="text-xs font-bold text-slate-500 mt-1">{(selectedWorkLocation?.address || "").replace(/\n/g, ", ")}</p>
                     </div>
-                    <div className="flex flex-col sm:flex-row gap-2 shrink-0">
+                    <div className="flex flex-col sm:flex-row gap-2">
                       {(adminProfile?.work_locations?.length || 0) > 1 && (
                         <button
                           type="button"
                           onClick={() => setShowWorkLocationPicker(true)}
-                          className="bg-amber-500 text-slate-950 px-5 py-3 rounded-2xl text-[10px] font-black uppercase italic hover:bg-slate-900 hover:text-amber-500 transition-all"
+                          className="flex-1 bg-amber-500 text-slate-950 px-5 py-3 rounded-2xl text-[10px] font-black uppercase italic hover:bg-slate-900 hover:text-amber-500 transition-all"
                         >
                           {t("workLocationTitle")}
                         </button>
                       )}
                       {selectedWorkLocation?.address && (
-                        <a href={toMapsLink(selectedWorkLocation.address)} target="_blank" rel="noopener noreferrer" className="bg-slate-900 text-amber-500 px-5 py-3 rounded-2xl text-[10px] font-black uppercase italic hover:bg-amber-500 hover:text-slate-900 transition-all text-center">
+                        <a href={toMapsLink(selectedWorkLocation.address)} target="_blank" rel="noopener noreferrer" className="flex-1 bg-slate-900 text-amber-500 px-5 py-3 rounded-2xl text-[10px] font-black uppercase italic hover:bg-amber-500 hover:text-slate-900 transition-all text-center">
                           {t("openMapsBtn")}
                         </a>
                       )}
