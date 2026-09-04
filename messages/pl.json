@@ -445,7 +445,7 @@
                                                    },
                                                    {
                                                        "titlu":  "Raporty \u0026 AI Insights",
-                                                       "desc":  "Automatyczne analizy wydajności, generowane przez AI — ruchliwe dni, spokojne dni, trendy."
+                                                       "desc":  "Automatyczne analizy wydajności, generowane przez sztuczną inteligencję — dni z dużym ruchem, słabsze dni, trendy — eksportowalne w dowolnym momencie do Excela."
                                                    },
                                                    {
                                                        "titlu":  "Baza Danych Klientów",
@@ -457,7 +457,7 @@
                                                    },
                                                    {
                                                        "titlu":  "Automatyczne Potwierdzenia i Przypomnienia",
-                                                       "desc":  "Automatyczne e-maile, wysyłane natychmiast — potwierdzenia rezerwacji, przypomnienia wysyłane dzień wcześniej."
+                                                       "desc":  "Automatyczne e-maile, wysyłane natychmiast — potwierdzenia rezerwacji, przypomnienia dzień wcześniej oraz opcjonalnie 2 godziny przed wizytą."
                                                    },
                                                    {
                                                        "titlu":  "Kod QR do Szybkiej Rezerwacji",
@@ -474,6 +474,30 @@
                                                    {
                                                        "titlu":  "Dostępna w 9 Językach",
                                                        "desc":  "Aplikacja jest w pełni przetłumaczona na rumuński, angielski, francuski, niemiecki, hiszpański, włoski, węgierski, portugalski i polski."
+                                                   },
+                                                   {
+                                                       "titlu":  "Wiele Punktów Obsługi",
+                                                       "desc":  "Zarządzaj kilkoma lokalizacjami z jednego konta, każda z własnym grafikiem, zespołem i usługami — klienci wybierają preferowaną lokalizację bezpośrednio na stronie rezerwacji."
+                                                   },
+                                                   {
+                                                       "titlu":  "Lista Oczekujących",
+                                                       "desc":  "Jeśli termin jest zajęty, klient może zapisać się na listę oczekujących i zostać automatycznie powiadomionym, gdy tylko zwolni się miejsce."
+                                                   },
+                                                   {
+                                                       "titlu":  "Zmiana Terminu i Anulowanie z Linku",
+                                                       "desc":  "Klient może samodzielnie zmienić termin lub anulować wizytę bezpośrednio z otrzymanego linku, bez konieczności dzwonienia."
+                                                   },
+                                                   {
+                                                       "titlu":  "Przypomnienia o Powrocie",
+                                                       "desc":  "Klienci, którzy dawno nie byli, otrzymują automatyczne przypomnienie, dzięki czemu wracają bez dodatkowego wysiłku z Twojej strony."
+                                                   },
+                                                   {
+                                                       "titlu":  "Uprawnienia dla Każdego Specjalisty",
+                                                       "desc":  "To Ty decydujesz, jakie dane klienta widzi każdy specjalista — imię, telefon, historię czy tylko bieżącą wizytę."
+                                                   },
+                                                   {
+                                                       "titlu":  "Ręczne Wysyłanie WhatsApp",
+                                                       "desc":  "Z poziomu kalendarza możesz w każdej chwili wysłać szybką wiadomość WhatsApp do klienta — przydatne przy potwierdzeniach lub zmianach w ostatniej chwili (e-maile pozostają automatyczne)."
                                                    }
                                                ]
                                  },

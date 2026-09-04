@@ -445,7 +445,7 @@
                                                    },
                                                    {
                                                        "titlu":  "Berichte \u0026 KI-Insights",
-                                                       "desc":  "Automatische, KI-generierte Leistungsanalysen — geschäftige Tage, ruhige Tage, Trends."
+                                                       "desc":  "Automatische Leistungsanalysen, erstellt durch künstliche Intelligenz — stark ausgelastete Tage, schwache Tage, Trends — jederzeit als Excel exportierbar."
                                                    },
                                                    {
                                                        "titlu":  "Kundendatenbank",
@@ -457,7 +457,7 @@
                                                    },
                                                    {
                                                        "titlu":  "Automatische Bestätigungen \u0026 Erinnerungen",
-                                                       "desc":  "Automatische E-Mails, sofort versendet — Buchungsbestätigungen, Erinnerungen einen Tag im Voraus."
+                                                       "desc":  "Automatische E-Mails, sofort versendet — Buchungsbestätigungen, Erinnerungen einen Tag vorher und optional 2 Stunden vor dem Termin."
                                                    },
                                                    {
                                                        "titlu":  "Schnellbuchungs-QR-Code",
@@ -474,6 +474,30 @@
                                                    {
                                                        "titlu":  "Verfügbar in 9 Sprachen",
                                                        "desc":  "Die App ist vollständig übersetzt in Rumänisch, Englisch, Französisch, Deutsch, Spanisch, Italienisch, Ungarisch, Portugiesisch und Polnisch."
+                                                   },
+                                                   {
+                                                       "titlu":  "Mehrere Standorte",
+                                                       "desc":  "Verwalten Sie mehrere Standorte über ein einziges Konto, jeder mit eigenem Zeitplan, Team und Leistungen — Kunden wählen ihren gewünschten Standort direkt auf der Buchungsseite."
+                                                   },
+                                                   {
+                                                       "titlu":  "Warteliste",
+                                                       "desc":  "Ist ein Termin ausgebucht, kann sich der Kunde auf die Warteliste setzen und wird automatisch benachrichtigt, sobald ein Platz frei wird."
+                                                   },
+                                                   {
+                                                       "titlu":  "Umbuchung und Stornierung per Link",
+                                                       "desc":  "Kunden können ihren Termin selbst verschieben oder stornieren, direkt über den erhaltenen Link, ohne anzurufen."
+                                                   },
+                                                   {
+                                                       "titlu":  "Rückgewinnungs-Erinnerungen",
+                                                       "desc":  "Kunden, die länger nicht mehr da waren, erhalten automatisch eine Erinnerung — sie kommen zurück, ohne dass Sie etwas tun müssen."
+                                                   },
+                                                   {
+                                                       "titlu":  "Berechtigungen pro Mitarbeiter",
+                                                       "desc":  "Sie entscheiden genau, welche Kundendaten jeder Mitarbeiter sehen darf — Name, Telefonnummer, Verlauf oder nur den aktuellen Termin."
+                                                   },
+                                                   {
+                                                       "titlu":  "Manueller WhatsApp-Versand",
+                                                       "desc":  "Senden Sie jederzeit direkt aus dem Kalender eine schnelle WhatsApp-Nachricht an einen Kunden — praktisch für Bestätigungen oder kurzfristige Änderungen (E-Mails bleiben automatisch)."
                                                    }
                                                ]
                                  },

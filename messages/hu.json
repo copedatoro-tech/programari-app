@@ -445,7 +445,7 @@
                                                    },
                                                    {
                                                        "titlu":  "Jelentések \u0026 AI Insights",
-                                                       "desc":  "Automatikus, MI által generált teljesítményelemzés — forgalmas napok, csendes napok, trendek."
+                                                       "desc":  "Automatikus teljesítményelemzés, mesterséges intelligencia által generálva — zsúfolt napok, gyengébb napok, trendek — bármikor exportálható Excelbe."
                                                    },
                                                    {
                                                        "titlu":  "Ügyfél Adatbázis",
@@ -457,7 +457,7 @@
                                                    },
                                                    {
                                                        "titlu":  "Automatikus Visszaigazolások és Emlékeztetők",
-                                                       "desc":  "Automatikus emailek, azonnal elküldve — foglalás-visszaigazolások, egy nappal korábban küldött emlékeztetők."
+                                                       "desc":  "Automatikus e-mailek, azonnal elküldve — foglalás visszaigazolása, emlékeztető egy nappal előtte és opcionálisan 2 órával a foglalás előtt."
                                                    },
                                                    {
                                                        "titlu":  "Gyors Foglalási QR-kód",
@@ -474,6 +474,30 @@
                                                    {
                                                        "titlu":  "9 Nyelven Elérhető",
                                                        "desc":  "Az alkalmazás teljesen le van fordítva románra, angolra, franciára, németre, spanyolra, olaszra, magyarra, portugálra és lengyelre."
+                                                   },
+                                                   {
+                                                       "titlu":  "Több Telephely",
+                                                       "desc":  "Egyetlen fiókból kezelhetsz több telephelyet, mindegyiknek saját nyitvatartása, csapata és szolgáltatásai vannak — az ügyfelek közvetlenül a foglalási oldalon választhatják ki a kívánt helyszínt."
+                                                   },
+                                                   {
+                                                       "titlu":  "Várólista",
+                                                       "desc":  "Ha egy időpont foglalt, az ügyfél feliratkozhat a várólistára, és automatikusan értesítést kap, amint felszabadul egy hely."
+                                                   },
+                                                   {
+                                                       "titlu":  "Átütemezés és Lemondás Linkből",
+                                                       "desc":  "Az ügyfél saját maga is átütemezheti vagy lemondhatja az időpontot, közvetlenül a kapott linkről, telefonhívás nélkül."
+                                                   },
+                                                   {
+                                                       "titlu":  "Visszatérési Emlékeztetők",
+                                                       "desc":  "Azok az ügyfelek, akik régóta nem jártak nálad, automatikus emlékeztetőt kapnak, hogy külön erőfeszítés nélkül visszahozd őket."
+                                                   },
+                                                   {
+                                                       "titlu":  "Szakemberenkénti Jogosultságok",
+                                                       "desc":  "Te döntöd el pontosan, hogy az egyes szakemberek milyen ügyféladatokat láthatnak — nevet, telefonszámot, előzményeket vagy csak az aktuális foglalást."
+                                                   },
+                                                   {
+                                                       "titlu":  "Kézi WhatsApp Üzenetküldés",
+                                                       "desc":  "A naptárból bármikor küldhetsz gyors WhatsApp üzenetet az ügyfélnek — hasznos visszaigazolásokhoz vagy utolsó pillanatos változtatásokhoz (az e-mailek automatikusak maradnak)."
                                                    }
                                                ]
                                  },

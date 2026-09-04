@@ -445,7 +445,7 @@
                                                    },
                                                    {
                                                        "titlu":  "Rapports \u0026 AI Insights",
-                                                       "desc":  "Analyses automatiques de performance, générées par IA — jours chargés, jours calmes, tendances."
+                                                       "desc":  "Analyses automatiques de performance, générées par intelligence artificielle — jours chargés, jours creux, tendances — exportables à tout moment en Excel."
                                                    },
                                                    {
                                                        "titlu":  "Base de Données Clients",
@@ -457,7 +457,7 @@
                                                    },
                                                    {
                                                        "titlu":  "Confirmations \u0026 Rappels Automatiques",
-                                                       "desc":  "Emails automatiques, envoyés instantanément — confirmations de réservation, rappels envoyés la veille."
+                                                       "desc":  "E-mails automatiques, envoyés instantanément — confirmations de réservation, rappels la veille et, en option, 2 heures avant le rendez-vous."
                                                    },
                                                    {
                                                        "titlu":  "Code QR de Réservation Rapide",
@@ -474,6 +474,30 @@
                                                    {
                                                        "titlu":  "Disponible en 9 Langues",
                                                        "desc":  "L\u0027application est entièrement traduite en roumain, anglais, français, allemand, espagnol, italien, hongrois, portugais et polonais."
+                                                   },
+                                                   {
+                                                       "titlu":  "Plusieurs Points de Vente",
+                                                       "desc":  "Gérez plusieurs emplacements depuis un seul compte, chacun avec son propre horaire, son équipe et ses services — les clients choisissent leur emplacement directement depuis la page de réservation."
+                                                   },
+                                                   {
+                                                       "titlu":  "Liste d\u0027Attente",
+                                                       "desc":  "Si un créneau est complet, le client peut s\u0027inscrire sur la liste d\u0027attente et être averti automatiquement dès qu\u0027une place se libère."
+                                                   },
+                                                   {
+                                                       "titlu":  "Reprogrammation et Annulation depuis le Lien",
+                                                       "desc":  "Le client peut reprogrammer ou annuler seul son rendez-vous, directement depuis le lien reçu, sans avoir à vous appeler."
+                                                   },
+                                                   {
+                                                       "titlu":  "Rappels de Fidélisation",
+                                                       "desc":  "Les clients qui ne sont pas revenus depuis un moment reçoivent automatiquement un rappel, pour les faire revenir sans effort supplémentaire."
+                                                   },
+                                                   {
+                                                       "titlu":  "Permissions par Spécialiste",
+                                                       "desc":  "Vous décidez exactement quelles données client chaque spécialiste peut voir — nom, téléphone, historique ou juste le rendez-vous en cours."
+                                                   },
+                                                   {
+                                                       "titlu":  "Envoi Manuel WhatsApp",
+                                                       "desc":  "Depuis le calendrier, envoyez à tout moment un message WhatsApp rapide à un client — utile pour les confirmations ou changements de dernière minute (les e-mails restent automatiques)."
                                                    }
                                                ]
                                  },

@@ -445,7 +445,7 @@
                                                    },
                                                    {
                                                        "titlu":  "Relatórios \u0026 AI Insights",
-                                                       "desc":  "Análises automáticas de desempenho, geradas por IA — dias movimentados, dias calmos, tendências."
+                                                       "desc":  "Análises automáticas de desempenho, geradas por inteligência artificial — dias de maior movimento, dias mais fracos, tendências — exportáveis a qualquer momento para Excel."
                                                    },
                                                    {
                                                        "titlu":  "Base de Dados de Clientes",
@@ -457,7 +457,7 @@
                                                    },
                                                    {
                                                        "titlu":  "Confirmações e Lembretes Automáticos",
-                                                       "desc":  "Emails automáticos, enviados instantaneamente — confirmações de reserva, lembretes enviados um dia antes."
+                                                       "desc":  "E-mails automáticos, enviados instantaneamente — confirmações de reserva, lembretes um dia antes e, opcionalmente, 2 horas antes do agendamento."
                                                    },
                                                    {
                                                        "titlu":  "Código QR de Marcação Rápida",
@@ -474,6 +474,30 @@
                                                    {
                                                        "titlu":  "Disponível em 9 Idiomas",
                                                        "desc":  "A aplicação está totalmente traduzida em romeno, inglês, francês, alemão, espanhol, italiano, húngaro, português e polaco."
+                                                   },
+                                                   {
+                                                       "titlu":  "Vários Pontos de Atendimento",
+                                                       "desc":  "Gere várias localizações a partir de uma única conta, cada uma com o seu próprio horário, equipa e serviços — os clientes escolhem a localização pretendida diretamente na página de reservas."
+                                                   },
+                                                   {
+                                                       "titlu":  "Lista de Espera",
+                                                       "desc":  "Se um horário estiver ocupado, o cliente pode entrar na lista de espera e é avisado automaticamente assim que surge uma vaga."
+                                                   },
+                                                   {
+                                                       "titlu":  "Reagendamento e Cancelamento pelo Link",
+                                                       "desc":  "O cliente pode reagendar ou cancelar sozinho o agendamento, diretamente pelo link recebido, sem precisar de ligar."
+                                                   },
+                                                   {
+                                                       "titlu":  "Lembretes de Retorno",
+                                                       "desc":  "Os clientes que não voltam há algum tempo recebem automaticamente um lembrete, trazendo-os de volta sem esforço adicional."
+                                                   },
+                                                   {
+                                                       "titlu":  "Permissões por Especialista",
+                                                       "desc":  "Você decide exatamente que dados do cliente cada especialista pode ver — nome, telefone, histórico ou apenas o agendamento atual."
+                                                   },
+                                                   {
+                                                       "titlu":  "Envio Manual pelo WhatsApp",
+                                                       "desc":  "A partir do calendário, envie a qualquer momento uma mensagem rápida pelo WhatsApp ao cliente — útil para confirmações ou alterações de última hora (os e-mails continuam automáticos)."
                                                    }
                                                ]
                                  },
