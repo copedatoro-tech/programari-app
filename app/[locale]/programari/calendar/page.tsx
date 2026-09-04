@@ -1460,6 +1460,13 @@ function CalendarContent() {
     const staffWH = parseWH(st?.working_hours);
     return staffWH.length > 0 ? staffWH : adminWorkingHours;
   }, [editForm?.expertId, rawStaff, adminWorkingHours]);
+  const editManualBlocks = useMemo(() => {
+    if (!editForm?.expertId) return adminManualBlocks;
+    const st = rawStaff.find(s => s.id === editForm.expertId);
+    const staffWH = parseWH(st?.working_hours);
+    if (staffWH.length === 0) return adminManualBlocks;
+    return parseStaffBlocks(st?.manual_blocks);
+  }, [editForm?.expertId, rawStaff, adminManualBlocks]);
 
   const handleSelectExpert = useCallback((id:string)=>{setSelectedExpert(id);if(id&&selectedServiciu){const st=rawStaff.find(s=>s.id===id);if(st?.services?.length&&!st.services.includes(selectedServiciu))setSelectedServiciu("");}},[selectedServiciu,rawStaff]);
   const handleSelectServiciu = useCallback((id:string)=>{setSelectedServiciu(id);if(id&&selectedExpert){const st=rawStaff.find(s=>s.id===selectedExpert);if(st?.services?.length&&!st.services.includes(id))setSelectedExpert("");}},[selectedExpert,rawStaff]);
@@ -1479,6 +1486,13 @@ function CalendarContent() {
     const staffWH = parseWH(st?.working_hours);
     return staffWH.length > 0 ? staffWH : adminWorkingHours;
   }, [newForm?.expertId, rawStaff, adminWorkingHours]);
+  const newManualBlocks = useMemo(() => {
+    if (!newForm?.expertId) return adminManualBlocks;
+    const st = rawStaff.find(s => s.id === newForm.expertId);
+    const staffWH = parseWH(st?.working_hours);
+    if (staffWH.length === 0) return adminManualBlocks;
+    return parseStaffBlocks(st?.manual_blocks);
+  }, [newForm?.expertId, rawStaff, adminManualBlocks]);
   const newExisting = useMemo(()=>{
     if(!newForm)return[];
     return programari.filter(p=>
@@ -1546,7 +1560,7 @@ function CalendarContent() {
       {editForm&&(
         <>
           {showDatePicker&&(<div style={{position:"fixed",inset:0,zIndex:900,background:"rgba(0,0,0,0.5)",backdropFilter:"blur(4px)",display:"flex",alignItems:"center",justifyContent:"center",padding:16}} onClick={()=>setShowDatePicker(false)}><div onClick={e=>e.stopPropagation()}><ChronosDatePicker value={editForm.data} onChange={v=>{setEditForm(p=>p?{...p,data:v,ora:""}:null);setShowDatePicker(false);}} onClose={()=>setShowDatePicker(false)} workingHours={editWorkingHours}/></div></div>)}
-          {showTimePicker&&(<div style={{position:"fixed",inset:0,zIndex:900,background:"rgba(0,0,0,0.5)",backdropFilter:"blur(4px)",display:"flex",alignItems:"center",justifyContent:"center",padding:16}} onClick={()=>setShowTimePicker(false)}><div onClick={e=>e.stopPropagation()}><ChronosTimePicker value={editForm.ora||"09:00"} onChange={v=>{setEditForm(p=>p?{...p,ora:v}:null);setShowTimePicker(false);}} onClose={()=>setShowTimePicker(false)} workingHours={editWorkingHours} existingAppointments={editExisting} selectedDate={editForm.data} serviceDuration={editSvcDur} manualBlocks={adminManualBlocks}/></div></div>)}
+          {showTimePicker&&(<div style={{position:"fixed",inset:0,zIndex:900,background:"rgba(0,0,0,0.5)",backdropFilter:"blur(4px)",display:"flex",alignItems:"center",justifyContent:"center",padding:16}} onClick={()=>setShowTimePicker(false)}><div onClick={e=>e.stopPropagation()}><ChronosTimePicker value={editForm.ora||"09:00"} onChange={v=>{setEditForm(p=>p?{...p,ora:v}:null);setShowTimePicker(false);}} onClose={()=>setShowTimePicker(false)} workingHours={editWorkingHours} existingAppointments={editExisting} selectedDate={editForm.data} serviceDuration={editSvcDur} manualBlocks={editManualBlocks}/></div></div>)}
           <div style={{position:"fixed",inset:0,background:"rgba(15,23,42,0.72)",backdropFilter:"blur(6px)",zIndex:500,display:"flex",alignItems:"center",justifyContent:"center",padding:12}} onClick={closeModal}>
             <div ref={modalRef} onClick={e=>e.stopPropagation()} style={{background:"#fff",width:"100%",maxWidth:540,minWidth:0,borderRadius:20,overflow:"hidden",boxShadow:"0 24px 60px rgba(0,0,0,0.25)",border:"1px solid #e2e8f0",position:"relative",display:"flex",flexDirection:"column",maxHeight:"96vh"}}>
               <button onClick={closeModal} style={{position:"absolute",top:10,right:10,width:28,height:28,background:"#1e293b",border:"none",borderRadius:8,cursor:"pointer",fontSize:12,fontWeight:700,color:"#94a3b8",zIndex:30,display:"flex",alignItems:"center",justifyContent:"center"}} className="hover:bg-red-500 hover:text-white transition-all">✕</button>
@@ -1659,7 +1673,7 @@ function CalendarContent() {
       )}
 
       {showNewDatePicker&&newForm&&(<div style={{position:"fixed",inset:0,zIndex:900,background:"rgba(0,0,0,0.5)",backdropFilter:"blur(4px)",display:"flex",alignItems:"center",justifyContent:"center",padding:16}} onClick={()=>setShowNewDatePicker(false)}><div onClick={e=>e.stopPropagation()}><ChronosDatePicker value={newForm.date} onChange={v=>{setNewForm(p=>p?{...p,date:v,time:""}:null);setShowNewDatePicker(false);}} onClose={()=>setShowNewDatePicker(false)} workingHours={newWorkingHours}/></div></div>)}
-      {showNewTimePicker&&newForm&&(<div style={{position:"fixed",inset:0,zIndex:900,background:"rgba(0,0,0,0.5)",backdropFilter:"blur(4px)",display:"flex",alignItems:"center",justifyContent:"center",padding:16}} onClick={()=>setShowNewTimePicker(false)}><div onClick={e=>e.stopPropagation()}><ChronosTimePicker value={newForm.time||"09:00"} onChange={v=>{setNewForm(p=>p?{...p,time:v}:null);setShowNewTimePicker(false);}} onClose={()=>setShowNewTimePicker(false)} workingHours={newWorkingHours} existingAppointments={newExisting} selectedDate={newForm.date} serviceDuration={newSvcDur} manualBlocks={adminManualBlocks}/></div></div>)}
+      {showNewTimePicker&&newForm&&(<div style={{position:"fixed",inset:0,zIndex:900,background:"rgba(0,0,0,0.5)",backdropFilter:"blur(4px)",display:"flex",alignItems:"center",justifyContent:"center",padding:16}} onClick={()=>setShowNewTimePicker(false)}><div onClick={e=>e.stopPropagation()}><ChronosTimePicker value={newForm.time||"09:00"} onChange={v=>{setNewForm(p=>p?{...p,time:v}:null);setShowNewTimePicker(false);}} onClose={()=>setShowNewTimePicker(false)} workingHours={newWorkingHours} existingAppointments={newExisting} selectedDate={newForm.date} serviceDuration={newSvcDur} manualBlocks={newManualBlocks}/></div></div>)}
       {newForm&&(
         <div style={{position:"fixed",inset:0,background:"rgba(15,23,42,0.72)",backdropFilter:"blur(6px)",zIndex:500,display:"flex",alignItems:"center",justifyContent:"center",padding:16}} onClick={()=>setNewForm(null)}>
           <div style={{background:"#fff",width:"100%",maxWidth:480,borderRadius:24,overflow:"hidden",boxShadow:"0 24px 60px rgba(0,0,0,0.22)",padding:20,display:"flex",flexDirection:"column",gap:10}} onClick={e=>e.stopPropagation()}>
