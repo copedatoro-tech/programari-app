@@ -445,7 +445,7 @@
                                                    },
                                                    {
                                                        "titlu":  "Rapoarte \u0026 AI Insights",
-                                                       "desc":  "Analize automate despre performanță, generate de inteligență artificială — zilele aglomerate, cele slabe, tendințe."
+                                                       "desc":  "Analize automate despre performanță, generate de inteligență artificială — zilele aglomerate, cele slabe, tendințe — exportabile oricând în Excel."
                                                    },
                                                    {
                                                        "titlu":  "Bază de Date Clienți",
@@ -457,7 +457,7 @@
                                                    },
                                                    {
                                                        "titlu":  "Confirmări \u0026 Reamintiri Automate",
-                                                       "desc":  "Email-uri automate, trimise instant — confirmări la rezervare, reamintiri cu o zi înainte."
+                                                       "desc":  "Email-uri automate, trimise instant — confirmări la rezervare, reamintiri cu o zi înainte și, opțional, cu 2 ore înainte de programare."
                                                    },
                                                    {
                                                        "titlu":  "Cod QR de Rezervare Rapidă",
@@ -474,6 +474,30 @@
                                                    {
                                                        "titlu":  "Disponibilă în 9 Limbi",
                                                        "desc":  "Aplicația e tradusă complet în română, engleză, franceză, germană, spaniolă, italiană, maghiară, portugheză și poloneză."
+                                                   },
+                                                   {
+                                                       "titlu":  "Puncte de Lucru Multiple",
+                                                       "desc":  "Gestionezi mai multe locații dintr-un singur cont, fiecare cu propriul program, echipă și servicii — clienții aleg locația dorită direct din pagina de rezervare."
+                                                   },
+                                                   {
+                                                       "titlu":  "Lista de Așteptare",
+                                                       "desc":  "Dacă un interval e ocupat, clientul se poate înscrie pe lista de așteptare și e anunțat automat dacă apare un loc liber."
+                                                   },
+                                                   {
+                                                       "titlu":  "Reprogramare și Anulare din Link",
+                                                       "desc":  "Clientul își poate reprograma sau anula singur programarea, direct din linkul primit, fără să te mai sune."
+                                                   },
+                                                   {
+                                                       "titlu":  "Reamintiri de Revenire",
+                                                       "desc":  "Clienții care nu au mai revenit de un timp primesc automat un reminder, ca să-i aduci înapoi fără efort suplimentar."
+                                                   },
+                                                   {
+                                                       "titlu":  "Permisiuni per Specialist",
+                                                       "desc":  "Tu decizi exact ce date vede fiecare specialist despre clienți — nume, telefon, istoric sau doar programarea de moment."
+                                                   },
+                                                   {
+                                                       "titlu":  "Trimitere Manuală pe WhatsApp",
+                                                       "desc":  "Din calendar, poți trimite oricând un mesaj rapid pe WhatsApp către client — util pentru confirmări sau modificări de ultim moment (email-urile rămân automate)."
                                                    }
                                                ]
                                  },
