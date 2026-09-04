@@ -1839,19 +1839,19 @@
                                                               "available":  true
                                                           },
                                                           {
-                                                              "text":  "Rapoarte pe puncte de lucru",
+                                                              "text":  "Jelentések telephelyenként",
                                                               "available":  true
                                                           },
                                                           {
-                                                              "text":  "Calendar si programari pe puncte de lucru",
+                                                              "text":  "Naptár és foglalások telephelyenként",
                                                               "available":  true
                                                           },
                                                           {
-                                                              "text":  "Servicii si specialisti pe fiecare punct de lucru",
+                                                              "text":  "Szolgáltatások és szakemberek telephelyenként",
                                                               "available":  true
                                                           },
                                                           {
-                                                              "text":  "Program specialist pe fiecare punct de lucru",
+                                                              "text":  "Szakember beosztása telephelyenként",
                                                               "available":  true
                                                           }
                                                       ],

@@ -1839,19 +1839,19 @@
                                                               "available":  true
                                                           },
                                                           {
-                                                              "text":  "Rapoarte pe puncte de lucru",
+                                                              "text":  "Relatórios por ponto de atendimento",
                                                               "available":  true
                                                           },
                                                           {
-                                                              "text":  "Calendar si programari pe puncte de lucru",
+                                                              "text":  "Calendário e agendamentos por ponto de atendimento",
                                                               "available":  true
                                                           },
                                                           {
-                                                              "text":  "Servicii si specialisti pe fiecare punct de lucru",
+                                                              "text":  "Serviços e especialistas para cada ponto de atendimento",
                                                               "available":  true
                                                           },
                                                           {
-                                                              "text":  "Program specialist pe fiecare punct de lucru",
+                                                              "text":  "Horário dos especialistas para cada ponto de atendimento",
                                                               "available":  true
                                                           }
                                                       ],

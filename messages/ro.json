@@ -123,11 +123,11 @@
                                                      "titlu":  "Profil Utilizator",
                                                      "subtitlu":  "Primul pas important — completează toate datele afacerii tale.",
                                                      "pasi":  [
-                                                                  "ðŸ“ AdaugÄƒ numele afacerii tale â€” apare pe pagina publicÄƒ de rezervÄƒri",
+                                                                  "📝 Adaugă numele afacerii tale — apare pe pagina publică de rezervări",
                                                                   "🔗 Setează slug-ul unic (ex: salon-maria) — acesta generează link-ul tău personal și codul QR pentru rezervări online",
                                                                   "📞 Adaugă telefonul și email-ul de contact — sunt datele persoanei responsabile de aplicație",
-                                                                  "ðŸ–¼ï¸ ÃŽncarcÄƒ logo-ul afacerii â€” apare pe pagina de rezervÄƒri È™i Ã®n aplicaÈ›ie",
-                                                                  "ðŸ“ AdaugÄƒ adresa â€” clienÈ›ii o vor putea vedea pe pagina de rezervÄƒri pentru a È™ti unde sÄƒ vinÄƒ"
+                                                                  "🖼️ Încarcă logo-ul afacerii — apare pe pagina de rezervări și în aplicație",
+                                                                  "📍 Adaugă adresa — clienții o vor putea vedea pe pagina de rezervări pentru a ști unde să vină"
                                                               ],
                                                      "tip":  "Slug-ul este esențial — fără el nu se poate genera link-ul de rezervări și codul QR! Datele de contact sunt ale persoanei responsabile și pot fi accesate în caz de urgență."
                                                  },
@@ -135,7 +135,7 @@
                                                        "titlu":  "Setări Sistem",
                                                        "subtitlu":  "Configurează programul de lucru și disponibilitatea.",
                                                        "pasi":  [
-                                                                    "ðŸ• SeteazÄƒ orele de lucru pentru fiecare zi a sÄƒptÄƒmÃ¢nii â€” ex: Luniâ€“Vineri 09:00â€“18:00",
+                                                                    "🕐 Setează orele de lucru pentru fiecare zi a săptămânii — ex: Luni–Vineri 09:00–18:00",
                                                                     "🚫 Marchează zilele închise (ex: Duminică) — acestea apar vizual diferit în Calendar cu fond roșcat",
                                                                     "🔗 Generează link-ul public de rezervări și codul QR din această pagină",
                                                                     "⛔ Poți bloca manual anumite ore când nu ești disponibil puntual",
@@ -147,10 +147,10 @@
                                                       "titlu":  "Gestiune Servicii \u0026 Specialiști",
                                                       "subtitlu":  "Adaugă echipa ta și serviciile oferite de fiecare.",
                                                       "pasi":  [
-                                                                   "ðŸ‘¨â€ðŸ’¼ AdaugÄƒ fiecare specialist cu numele complet (È™i opÈ›ional telefon/email pentru notificÄƒri)",
-                                                                   "âœ‚ï¸ CreeazÄƒ serviciile oferite â€” completeazÄƒ preÈ›ul È™i durata pentru fiecare",
+                                                                   "👨‍💼 Adaugă fiecare specialist cu numele complet (și opțional telefon/email pentru notificări)",
+                                                                   "✂️ Creează serviciile oferite — completează prețul și durata pentru fiecare",
                                                                    "🔗 Asociază fiecare specialist cu serviciile pe care le oferă el — aceasta filtrează automat opțiunile la programare",
-                                                                   "â±ï¸ Durata serviciului blocheazÄƒ automat slotul Ã®n calendar È™i previne suprapunerile",
+                                                                   "⏱️ Durata serviciului blochează automat slotul în calendar și previne suprapunerile",
                                                                    "💰 Prețul și durata generează rapoarte detaliate de productivitate și profit per specialist"
                                                                ],
                                                       "tip":  "Asocierea specialist–serviciu este esențială! La crearea unei programări, sistemul arată doar specialiștii care oferă serviciul ales și invers. Durata și prețul sunt folosite pentru rapoarte de productivitate."
@@ -160,7 +160,7 @@
                                                          "subtitlu":  "Aici creezi programări noi și le gestionezi pe cele existente.",
                                                          "pasi":  [
                                                                       "➕ Completează datele clientului (nume, telefon, email) — se salvează automat în dosarul clientului",
-                                                                      "ðŸ‘¨â€ðŸ’¼ Alege specialistul È™i serviciul oferit de acesta â€” lista se filtreazÄƒ automat Ã®n funcÈ›ie de asocierile setate",
+                                                                      "👨‍💼 Alege specialistul și serviciul oferit de acesta — lista se filtrează automat în funcție de asocierile setate",
                                                                       "📅 Selectează data și ora — sistemul blochează automat orele ocupate ale specialistului ales",
                                                                       "📎 Poți atașa documente, imagini, audio sau video relevante pentru programare",
                                                                       "✅ Programările create apar automat în Calendar și în dosarul clientului din pagina Clienți"
@@ -172,9 +172,9 @@
                                                        "subtitlu":  "Vizualizează, editează și organizează toate programările.",
                                                        "pasi":  [
                                                                     "📆 Comută între Zi, Săptămână, Lună sau An — fiecare vizualizare are avantajele ei",
-                                                                    "ðŸ• ÃŽn vizualizarea pe Zi: orele din programul de lucru au fond alb, orele Ã®n afara programului au fond dungat gri â€” uÈ™or de distins",
+                                                                    "🕐 În vizualizarea pe Zi: orele din programul de lucru au fond alb, orele în afara programului au fond dungat gri — ușor de distins",
                                                                     "🚫 Zilele închise (setate în Setări) apar cu fond roșcat atât în Săptămână cât și în Lună",
-                                                                    "ðŸ‘¨â€ðŸ’¼ FiltreazÄƒ dupÄƒ specialist sau serviciu pentru a vedea agenda fiecÄƒruia separat",
+                                                                    "👨‍💼 Filtrează după specialist sau serviciu pentru a vedea agenda fiecăruia separat",
                                                                     "âœï¸ Click pe orice programare pentru a o edita, muta sau adÄƒuga documente"
                                                                 ],
                                                        "tip":  "Mai mulți specialiști pot avea programări la aceeași oră — fiecare are agenda lui separată! Orele ocupate sunt blocate per specialist, nu per zi."
@@ -184,10 +184,10 @@
                                                       "subtitlu":  "Arhiva completă și dosarul fiecărui client.",
                                                       "pasi":  [
                                                                    "🔄 Clienții se salvează automat din programări după numărul de telefon — nu trebuie adăugați manual",
-                                                                   "ðŸ“ Fiecare client are un dosar complet: istoric programÄƒri, lucrÄƒri efectuate È™i fiÈ™iere ataÈ™ate",
+                                                                   "📁 Fiecare client are un dosar complet: istoric programări, lucrări efectuate și fișiere atașate",
                                                                    "📎 Poți atașa fișiere, imagini, audio sau video la dosarul fiecărui client (ex: foto înainte/după, rețete, specificații)",
                                                                    "🔧 Secțiunea Lucrări calculează automat costul materialelor, profitul și marja per client",
-                                                                   "ðŸ” CautÄƒ rapid dupÄƒ nume, telefon sau email"
+                                                                   "🔍 Caută rapid după nume, telefon sau email"
                                                                ],
                                                       "tip":  "Dosarul clientului se actualizează automat la fiecare programare nouă! Documentele atașate la programări apar și în dosarul clientului."
                                                   },
@@ -196,7 +196,7 @@
                                                          "subtitlu":  "Alege planul potrivit — și când să activezi trial-ul.",
                                                          "pasi":  [
                                                                       "âš ï¸ ActiveazÄƒ trial-ul de 10 zile DOAR dupÄƒ ce ai configurat complet: Profil, SetÄƒri, Servicii È™i SpecialiÈ™ti",
-                                                                      "ðŸŽ Trial-ul Ã®È›i oferÄƒ acces la planul Team (nelimitat) timp de 10 zile â€” nu Ã®l pierde pe setÄƒri",
+                                                                      "🎁 Trial-ul îți oferă acces la planul Team (nelimitat) timp de 10 zile — nu îl pierde pe setări",
                                                                       "📊 Free: 30 prog/lună · Pro: 150 · Elite: 500 · Team: nelimitat",
                                                                       "📧 Toate planurile includ confirmări și reamintiri automate trimise clienților prin email",
                                                                       "🔓 Link-ul de rezervări, codul QR și rapoartele avansate sunt disponibile din planul Pro"
@@ -209,7 +209,7 @@
                                                        "pasi":  [
                                                                     "📈 Vezi numărul de programări per zi, săptămână sau lună",
                                                                     "💰 Analizează veniturile și profitul per serviciu și per specialist",
-                                                                    "â­ UrmÄƒreÈ™te rata programÄƒrilor online vs. faÈ›Äƒ Ã®n faÈ›Äƒ",
+                                                                    "⭐ Urmărește rata programărilor online vs. față în față",
                                                                     "📉 Identifică zilele și orele cu cea mai mare activitate pentru a optimiza programul",
                                                                     "🔧 Rapoartele sunt mai detaliate dacă ai setat prețul și durata pentru fiecare serviciu în Gestiune Servicii"
                                                                 ],
@@ -219,7 +219,7 @@
                                                        "titlu":  "Recenzii Clienți",
                                                        "subtitlu":  "Gestionează reputația afacerii tale online.",
                                                        "pasi":  [
-                                                                    "â­ Vezi toate recenziile lÄƒsate de clienÈ›i prin pagina publicÄƒ de rezervÄƒri",
+                                                                    "⭐ Vezi toate recenziile lăsate de clienți prin pagina publică de rezervări",
                                                                     "➕ Poți adăuga manual recenzii de la clienți fideli care nu au lăsat feedback online",
                                                                     "📈 Cu cât ai mai multe recenzii pozitive, cu atât pagina ta de rezervări atrage mai mulți clienți noi",
                                                                     "💬 Recenziile sunt vizibile pe pagina publică de rezervări a afacerii tale",
@@ -231,7 +231,7 @@
                                                             "titlu":  "Contacte Utile",
                                                             "subtitlu":  "Agenda ta de contacte profesionale și de urgență.",
                                                             "pasi":  [
-                                                                         "ðŸ­ SalveazÄƒ numerele furnizorilor de produse È™i materiale pentru comenzi rapide",
+                                                                         "🏭 Salvează numerele furnizorilor de produse și materiale pentru comenzi rapide",
                                                                          "🔧 Adaugă contactele tehnicienilor, instalatorilor, partenerilor sau colaboratorilor",
                                                                          "⚡ Acces rapid în situații de urgență — panaje, defecțiuni, aprovizionări de urgență",
                                                                          "📋 Această pagină este separată de clienți — clienții se găsesc automat în pagina Clienți",
@@ -365,7 +365,7 @@
                                                                       }
                                                      }
                                   },
-                   "trialSuffix":  " (PERIOADÄ‚ PROBÄ‚)",
+                   "trialSuffix":  " (PERIOADĂ PROBĂ)",
                    "newBookingToastPrefix":  "Programare nouă:"
                },
     "landing":  {
@@ -632,7 +632,7 @@
                                      "heading1":  "GATA SĂ ÎNCERCI?",
                                      "heading2":  "10 ZILE. GRATUIT. ACCES COMPLET TEAM.",
                                      "paragraph":  "Completezi profilul, setezi programul, adaugi serviciile și specialiștii — apoi activezi trial-ul gratuit când ești pregătit. Chronos se ocupă de programări, ca tu să oferi calitate și să câștigi timp liber pentru tine.",
-                                     "button":  "CREEAZÄ‚ CONT GRATUIT",
+                                     "button":  "CREEAZĂ CONT GRATUIT",
                                      "note":  "Fără card. Fără obligații. Mai multă calitate. Mai mult timp pentru tine."
                                  },
                     "footer":  {
@@ -706,18 +706,18 @@
                                          "min":  "MIN",
                                          "sec":  "SEC"
                                      },
-                       "activateTrialBtn":  "ACTIVEAZÄ‚ TRIAL GRATUIT",
-                       "perMonth":  "/ LUNÄ‚",
+                       "activateTrialBtn":  "ACTIVEAZĂ TRIAL GRATUIT",
+                       "perMonth":  "/ LUNĂ",
                        "badges":  {
                                       "popular":  "CEL MAI POPULAR",
-                                      "active":  "PLANUL TÄ‚U"
+                                      "active":  "PLANUL TĂU"
                                   },
                        "alreadyActiveBtn":  "PLAN ACTIV",
                        "modal":  {
                                      "title":  "Confirmă schimbarea",
                                      "message":  "Ești în perioada de probă Chronos Team. Dacă treci la {plan}, trial-ul se va încheia imediat. Continui?",
-                                     "confirmBtn":  "DA, CONTINUÄ‚",
-                                     "cancelBtn":  "ANULEAZÄ‚"
+                                     "confirmBtn":  "DA, CONTINUĂ",
+                                     "cancelBtn":  "ANULEAZĂ"
                                  },
                        "errors":  {
                                       "trialActivate":  "Eroare la activarea perioadei de probă.",
@@ -916,10 +916,10 @@
                     "title":  "Bază Date",
                     "titleHighlight":  "Clienți",
                     "profilesFound":  "{count} Profile Identificate",
-                    "searchPlaceholder":  "CAUTÄ‚ DUPÄ‚ NUME, TELEFON SAU EMAIL...",
+                    "searchPlaceholder":  "CAUTĂ DUPĂ NUME, TELEFON SAU EMAIL...",
                     "syncing":  "Sincronizare bază date...",
                     "noneFound":  "Niciun client găsit",
-                    "noPhone":  "FÄ‚RÄ‚ TELEFON",
+                    "noPhone":  "FĂRĂ TELEFON",
                     "confirmDelete":  "Ștergi acest client definitiv?"
                 },
     "contacteUtile":  {
@@ -962,8 +962,8 @@
                           "nameRequired":  "NUMELE ESTE OBLIGATORIU!",
                           "phoneRequired":  "TELEFONUL ESTE OBLIGATORIU!",
                           "invalidEmail":  "EMAIL INVALID!",
-                          "planLimitReached":  "LIMITA PLANULUI {plan} ATINSÄ‚!",
-                          "sessionExpired":  "SESIUNE EXPIRATÄ‚.",
+                          "planLimitReached":  "LIMITA PLANULUI {plan} ATINSĂ!",
+                          "sessionExpired":  "SESIUNE EXPIRATĂ.",
                           "errorPrefix":  "EROARE: ",
                           "contactSaved":  "CONTACT SALVAT!",
                           "confirmDeleteContact":  "ȘTERGI DEFINITIV?",
@@ -977,10 +977,10 @@
                       "emailPlaceholder":  "ADRESA EMAIL",
                       "passwordPlaceholder":  "PAROLA",
                       "forgotPassword":  "Ai uitat parola?",
-                      "checking":  "SE VERIFICÄ‚...",
+                      "checking":  "SE VERIFICĂ...",
                       "loginBtn":  "INTRĂ ÎN CONT",
                       "noAccount":  "Nu ai un cont încă?",
-                      "createAccount":  "CREEAZÄ‚ CONT NOU",
+                      "createAccount":  "CREEAZĂ CONT NOU",
                       "sessionExpired":  "Sesiunea a expirat. Vă rugăm să încercați din nou.",
                       "errorPrefix":  "Eroare: ",
                       "sessionNotCreated":  "Sesiunea nu a putut fi creată.",
@@ -1003,24 +1003,24 @@
                          "password":  "Parolă",
                          "confirmPassword":  "Confirmă Parola",
                          "passwordMismatch":  "âŒ Parolele nu coincid!",
-                         "passwordTooShort":  "âŒ Parola trebuie sÄƒ aibÄƒ cel puÈ›in 6 caractere!",
+                         "passwordTooShort":  "❌ Parola trebuie să aibă cel puțin 6 caractere!",
                          "accountCreated":  "✅ Cont creat cu succes! Acum te poți loga.",
-                         "processing":  "SE PROCESEAZÄ‚...",
+                         "processing":  "SE PROCESEAZĂ...",
                          "registerBtn":  "ÎNREGISTRARE CONT NOU",
                          "haveAccount":  "AI DEJA CONT?",
-                         "loginLink":  "LOGHEAZÄ‚-TE",
+                         "loginLink":  "LOGHEAZĂ-TE",
                          "termsRequired":  "Trebuie sa accepti Termenii si Politica GDPR pentru a continua.",
                          "termsCheckboxPrefix":  "Am citit si sunt de acord cu",
                          "termsLinkLabel":  "Termenii si Conditiile",
                          "termsCheckboxAnd":  "si cu",
                          "gdprLinkLabel":  "Politica GDPR",
-                         "otherCountry":  "ðŸŒ Alta tara",
+                         "otherCountry":  "🌍 Alta tara",
                          "customCodeRequired":  "Introdu codul de tara (ex: +41).",
                          "unexpectedError":  "❌ Eroare neasteptata la server."
                      },
     "forgotPasswordPage":  {
                                "title":  "RECUPERARE",
-                               "titleHighlight":  "PAROLÄ‚",
+                               "titleHighlight":  "PAROLĂ",
                                "email":  "Adresa Email",
                                "emailPlaceholder":  "email@exemplu.com",
                                "emailSent":  "✅ Email trimis! Verifică căsuța de email.",
@@ -1053,8 +1053,8 @@
                    "warningText":  "Această adresă (Slug) este identitatea ta digitală. Orice modificare a acestui link va invalida automat Codurile QR generate anterior și link-urile trimise deja clienților. Vă rugăm să alegeți un nume reprezentativ (ex: salon-art-nails) pe care să nu îl mai schimbați ulterior pentru a păstra conexiunea activă cu scanările clienților.",
                    "changePasswordBtn":  "🔒 Schimbă parola de acces",
                    "passwordModalTitle":  "Securitate",
-                   "newPasswordPlaceholder":  "PAROLÄ‚ NOUÄ‚",
-                   "confirmPasswordPlaceholder":  "CONFIRMÄ‚ PAROLA",
+                   "newPasswordPlaceholder":  "PAROLĂ NOUĂ",
+                   "confirmPasswordPlaceholder":  "CONFIRMĂ PAROLA",
                    "profileUpdated":  "✅ Profil actualizat!",
                    "saveErrorPrefix":  "Eroare la salvare: ",
                    "slugMinLength":  "âš ï¸ Adresa unicÄƒ (slug) trebuie sÄƒ aibÄƒ minim 3 caractere.",
@@ -1114,7 +1114,7 @@
                     "minuteUnit":  "MIN",
                     "priceLabel":  "Preț",
                     "pricePlaceholder":  "RON",
-                    "addServiceBtn":  "+ ADAUGÄ‚ SERVICIU",
+                    "addServiceBtn":  "+ ADAUGĂ SERVICIU",
                     "addStaffTitle":  "Adaugă Expert Nou",
                     "staffNameLabel":  "Nume Expert",
                     "staffNamePlaceholder":  "EX: ION MARIN...",
@@ -1122,16 +1122,16 @@
                     "phonePlaceholder":  "EX: 07...",
                     "emailLabel":  "Email",
                     "emailPlaceholder":  "expert@email.com",
-                    "addStaffBtn":  "+ ADAUGÄ‚ EXPERT",
+                    "addStaffBtn":  "+ ADAUGĂ EXPERT",
                     "activeServicesTitle":  "SERVICII ACTIVE",
                     "teamTitle":  "ECHIPĂ EXPERȚI",
-                    "save":  "SALVEAZÄ‚",
-                    "cancel":  "ANULEAZÄ‚",
-                    "update":  "ACTUALIZEAZÄ‚",
+                    "save":  "SALVEAZĂ",
+                    "cancel":  "ANULEAZĂ",
+                    "update":  "ACTUALIZEAZĂ",
                     "close":  "ÎNCHIDE",
                     "deletedService":  "Serviciu șters",
                     "serviceLimitReached":  "âš ï¸ LimitÄƒ atinsÄƒ! Planul tÄƒu permite doar {limit} servicii.",
-                    "staffLimitReached":  "âš ï¸ LimitÄƒ atinsÄƒ! Planul tÄƒu permite doar {limit} experÈ›i.",
+                    "staffLimitReached":  "⚠️ Limită atinsă! Planul tău permite doar {limit} experți.",
                     "errorPrefix":  "Eroare: ",
                     "confirmDeleteResource":  "Sigur vrei să ștergi resursa?",
                     "loading":  "Sincronizare Chronos...",
@@ -1284,8 +1284,8 @@
                      "starAriaLabel":  "Acordă {n} stele",
                      "namePlaceholder":  "NUME CLIENT",
                      "commentPlaceholder":  "COMENTARIU...",
-                     "submitBtn":  "ADAUGÄ‚ RECENZIE MANUAL",
-                     "submitting":  "SE SALVEAZÄ‚...",
+                     "submitBtn":  "ADAUGĂ RECENZIE MANUAL",
+                     "submitting":  "SE SALVEAZĂ...",
                      "successTitle":  "Adăugat cu succes!",
                      "closeBtn":  "Închide",
                      "missingFieldsAlert":  "Completează toate câmpurile!",
@@ -1330,7 +1330,7 @@
                      "slugUnset":  "nesetat",
                      "copyBtn":  "Copiază",
                      "whatsappBtn":  "WhatsApp",
-                     "printBtn":  "ðŸ–¨ï¸ PRINTARE",
+                     "printBtn":  "🖨️ PRINTARE",
                      "printWindowTitle":  "Listare Cod QR Chronos",
                      "whatsappMessage":  "Salut! Poți face o programare direct aici: {url}",
                      "toastCopiedTitle":  "Copiat!",
@@ -1357,7 +1357,7 @@
                      "blockAllBtn":  "🚫 Blochează tot",
                      "presetScheduleBtn":  "📋 Setează program predefinit",
                      "bookingStepLabel":  "Pas Rezervare",
-                     "oneHourOption":  "1 ORÄ‚ (Fixo)",
+                     "oneHourOption":  "1 ORĂ (fix)",
                      "minutesOption":  "{v} MINUTE",
                      "confirmAvailabilityBtn":  "Confirmă Disponibilitatea",
                      "successTitle":  "Operațiune Reușită!",
@@ -1554,7 +1554,7 @@
                                           "saveBtn":  "Salvează",
                                           "addedToast":  "Programare adăugată!"
                                       },
-                         "newBookingNotifTitle":  "ðŸŒ Programare Online NouÄƒ",
+                         "newBookingNotifTitle":  "🌐 Programare Online Nouă",
                          "newBookingNotifMsg":  "{nume} tocmai a făcut o programare online.",
                          "searchSpecialistPlaceholder":  "Caută specialist...",
                          "searchServicePlaceholder":  "Caută serviciu...",
@@ -1770,7 +1770,7 @@
     "programariPage":  {
                            "successTitle":  "Programări Salvate!",
                            "successText":  "Toate programările au fost înregistrate cu succes.",
-                           "continueBtn":  "CONTINUÄ‚",
+                           "continueBtn":  "CONTINUĂ",
                            "confirmDelete":  "Ștergi programarea?",
                            "trialTitle":  "Trial Premium Activ",
                            "trialSubtitle":  "Acces Chronos Team — {n} zile rămase",
@@ -1820,8 +1820,8 @@
                                                  "totalSuffix":  "total",
                                                  "onlineSuffix":  "online",
                                                  "receptionSuffix":  "recepție",
-                                                 "onlineBadge":  "ðŸŒ Online",
-                                                 "receptionBadge":  "ðŸ  RecepÈ›ie",
+                                                 "onlineBadge":  "🌐 Online",
+                                                 "receptionBadge":  "🏠 Recepție",
                                                  "depositPaid":  "Avans {paid} RON · rest {rest} RON",
                                                  "fullyPaid":  "Plătit Integral"
                                              }
@@ -1839,13 +1839,13 @@
                                 "chooseTimeBtn":  "ORA",
                                 "chooseServiceFirstAlert":  "Alege mai întâi serviciul.",
                                 "reservedIntervalLabel":  "Interval rezervat",
-                                "addServiceBtn":  "ADAUGÄ‚ SERVICIU NOU",
+                                "addServiceBtn":  "ADAUGĂ SERVICIU NOU",
                                 "summaryTitle":  "📋 Sumar Rezervare",
                                 "firstAvailFallback":  "Prima disponibilitate",
                                 "totalLabel":  "TOTAL",
                                 "minutesSuffix":  " minute",
-                                "attentionTitle":  "âš ï¸ AtenÈ›ie",
-                                "processingBtn":  "SE PROCESEAZÄ‚...",
+                                "attentionTitle":  "⚠️ Atenție",
+                                "processingBtn":  "SE PROCESEAZĂ...",
                                 "saveBtn":  "✓ SALVEAZĂ {n} PROGRAMĂRI",
                                 "errClientData":  "Te rugăm să completezi Numele, Telefonul și Email-ul clientului.",
                                 "errChooseService":  "Serviciul #{n}: alege un serviciu.",
@@ -1872,9 +1872,9 @@
     "termeniModal":  {
                          "title":  "Termeni \u0026 ",
                          "titleHighlight":  "Condiții",
-                         "text1":  "Prin utilizarea platformei Chronos, sunteti de acord cu urmatoarele reguli de functionare.",
+                         "text1":  "Prin utilizarea platformei Chronos, sunteți de acord cu următoarele reguli de funcționare.",
                          "text2":  "Sistemul este destinat gestiunii eficiente a timpului si a resurselor profesionale ale afacerii dumneavoastra.",
-                         "text3":  "Utilizatorul este responsabil pentru acuratetea informatiilor introduse in calendar si pentru confidentialitatea datelor de autentificare ale contului sau.",
+                         "text3":  "Utilizatorul este responsabil pentru acuratețea informațiilor introduse în calendar și pentru confidențialitatea datelor de autentificare ale contului său.",
                          "text4":  "Ne rezervam dreptul de a actualiza acesti termeni; continuarea utilizarii platformei dupa modificari reprezinta acceptarea lor.",
                          "contactLabel":  "Întrebări despre termeni Scrie-ne la ",
                          "acceptBtn":  "ACCEPT",
@@ -1885,9 +1885,9 @@
                       "title":  "Politică",
                       "titleHighlight":  "GDPR",
                       "text1":  "Operatorul de date cu caracter personal este EXPLORE WORLD S.R.L., cu sediul social in Municipiul Cluj-Napoca, Str. Gruia, Nr. 58, Ap. 17, Judet Cluj, avand CUI 45995975, inregistrata la Registrul Comertului Cluj.",
-                      "text2":  "Colectam date minime necesare pentru functionarea serviciului de programari si securitatea contului dumneavoastra: nume, email, telefon, si date de facturare, dupa caz.",
+                      "text2":  "Colectăm date minime necesare pentru funcționarea serviciului de programări și securitatea contului dumneavoastră: nume, email, telefon, și date de facturare, după caz.",
                       "text3":  "Prelucrarea se bazeaza pe executarea contractului dintre noi si pe consimtamantul dumneavoastra explicit. Nu vindem datele dumneavoastra catre terti si folosim infrastructura securizata pentru stocare.",
-                      "text4":  "Pentru functionarea platformei, colaboram cu urmatorii procesatori de date, care actioneaza exclusiv in numele nostru: Stripe (procesare plati), Supabase (baza de date si autentificare), si Resend (email-uri tranzactionale).",
+                      "text4":  "Pentru funcționarea platformei, colaborăm cu următorii procesatori de date, care acționează exclusiv în numele nostru: Stripe (procesare plăți), Supabase (bază de date și autentificare), și Resend (email-uri tranzacționale).",
                       "contactLabel":  "Pentru solicitări privind datele personale, scrieți-ne la ",
                       "understoodBtn":  "AM ÎNȚELES",
                       "text5":  "Pastram datele dumneavoastra cat timp contul este activ, plus o perioada rezonabila dupa incetarea acestuia, conform obligatiilor legale contabile si fiscale. Aveti dreptul de a solicita oricand accesul, corectarea, portabilitatea sau stergerea datelor dumneavoastra personale.",
@@ -1897,7 +1897,7 @@
     "resetPasswordPage":  {
                               "checkingSecurity":  "Verificare Securitate...",
                               "titleLine1":  "SETARE",
-                              "titleHighlight":  "PAROLÄ‚",
+                              "titleHighlight":  "PAROLĂ",
                               "validSession":  "Sesiune Validă",
                               "newPasswordLabel":  "Noua Parolă",
                               "confirmPasswordLabel":  "Confirmă Parola",
@@ -2072,7 +2072,7 @@
                                            "titleHighlight":  "Specialist",
                                            "subtitle":  "Acces doar pentru echipă",
                                            "emailPlaceholder":  "EMAIL",
-                                           "passwordPlaceholder":  "PAROLÄ‚",
+                                           "passwordPlaceholder":  "PAROLĂ",
                                            "wrongCredentials":  "Email sau parolă greșită.",
                                            "notSpecialistAccount":  "Acest cont nu este asociat unui specialist.",
                                            "connectionError":  "Eroare de conexiune. Încearcă din nou.",
@@ -2094,7 +2094,7 @@
                                                "todayTitle":  "Astăzi",
                                                "noApptsToday":  "Nicio programare azi",
                                                "upcomingTitle":  "Zilele următoare",
-                                               "onlineBadge":  "ðŸŒ Online",
+                                               "onlineBadge":  "🌐 Online",
                                                "newBookingToastPrefix":  "📅 Programare nouă:",
                                                "soundChoiceLabel":  "Alege sunetul de notificare",
                                                "previewSoundTitle":  "Ascultă",
@@ -2139,7 +2139,7 @@
                       "confirmDisableMsg":  "Sigur vrei sa dezactivezi autentificarea in 2 pasi?"
                   },
     "cookieConsent":  {
-                          "message":  "Folosim cookie-uri tehnice esentiale pentru functionarea contului tau. Poti alege ce optiuni accepti.",
+                          "message":  "Folosim cookie-uri tehnice esențiale pentru funcționarea contului tău. Poți alege ce opțiuni accepți.",
                           "essentialOnlyBtn":  "Doar esentiale",
                           "acceptAllBtn":  "Accept toate"
                       },
