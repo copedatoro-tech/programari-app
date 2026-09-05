@@ -1070,6 +1070,19 @@ function RezervareContent() {
                         </a>
                       )}
                     </div>
+                    {selectedWorkLocation?.address && (
+                      <div className="rounded-2xl overflow-hidden border-2 border-slate-100 h-48">
+                        <iframe
+                          src={`https://maps.google.com/maps?q=${encodeURIComponent(selectedWorkLocation.address)}&output=embed`}
+                          width="100%"
+                          height="100%"
+                          style={{ border: 0 }}
+                          loading="lazy"
+                          referrerPolicy="no-referrer-when-downgrade"
+                          title="Harta locatie"
+                        />
+                      </div>
+                    )}
                   </div>
                 </div>
               )}
