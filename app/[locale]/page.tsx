@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -14,6 +14,7 @@ import {
   ArrowRight, ShieldCheck, Mail, BellRing,
   Calendar, Users, Zap, Star, FileText, BarChart2,
   Phone, CheckCircle2, Package, Smartphone, CreditCard, Paperclip, Globe, Menu, X,
+  MapPin, ListOrdered, Link2, RotateCcw, Lock, MessageCircle,
 } from "lucide-react";
 // ✅ Modale legale — deschise direct pe pagina de landing, în loc să
 // navigheze greșit către alte rute (ex. /login)
@@ -75,8 +76,11 @@ export default function LandingPage() {
     <Smartphone className="w-6 h-6" key="smart" />,
     <CreditCard className="w-6 h-6" key="card" />, <Paperclip className="w-6 h-6" key="clip" />,
     <Globe className="w-6 h-6" key="globe" />,
+    <MapPin className="w-6 h-6" key="mappin" />, <ListOrdered className="w-6 h-6" key="listord" />,
+    <Link2 className="w-6 h-6" key="link2" />, <RotateCcw className="w-6 h-6" key="rotate" />,
+    <Lock className="w-6 h-6" key="lock" />, <MessageCircle className="w-6 h-6" key="msg" />,
   ];
-  const featureColors = ["bg-amber-500","bg-blue-500","bg-emerald-500","bg-violet-500","bg-rose-500","bg-cyan-500","bg-amber-400","bg-teal-500","bg-indigo-500","bg-green-500","bg-orange-500","bg-sky-500"];
+  const featureColors = ["bg-amber-500","bg-blue-500","bg-emerald-500","bg-violet-500","bg-rose-500","bg-cyan-500","bg-amber-400","bg-teal-500","bg-indigo-500","bg-green-500","bg-orange-500","bg-sky-500","bg-pink-500","bg-lime-500","bg-fuchsia-500","bg-yellow-500","bg-red-500","bg-purple-600"];
   const stepIcons = ["👤", "⚙️", "🔗", "📊"];
 
   return (
