@@ -7,11 +7,15 @@ import { ChronosTimePicker, ChronosDatePicker } from "@/components/ChronosDateTi
 
 // ─── Tipuri ────────────────────────────────────────────────────────────────────
 interface ServiceRow   { id: string; nume_serviciu: string; price: number; duration: number }
-interface StaffRow     { id: string; name: string; services: string[]; working_hours?: any }
+interface StaffRow     { id: string; name: string; services: string[]; working_hours?: any; manual_blocks?: any }
 interface WorkingHour  { day: string; start: string; end: string; closed: boolean; work_location_id?: string }
 interface WorkLocationRow { id: string; name: string; address?: string; maps_url?: string; service_ids?: string[]; staff_ids?: string[] }
 interface ExistingAppt { time: string; duration: number }
 
+function parseStaffBlocks(d: any): Record<string, string[]> {
+  if (!d || typeof d !== "object" || Array.isArray(d)) return {};
+  return d as Record<string, string[]>;
+}
 function parseWH(raw: any): WorkingHour[] {
   if (!raw) return [];
   if (typeof raw === "string") { try { return JSON.parse(raw); } catch { return []; } }
@@ -106,6 +110,14 @@ function SlotRow({
     return staffWH.length > 0 ? staffWH : workingHours;
   }, [slot.specialist_id, specialisti, workingHours]);
 
+  // ✅ Blocaje efective: ale specialistului ales, daca are propriul orar — altfel cele generale
+  const effectiveManualBlocks = useMemo(() => {
+    if (!slot.specialist_id) return manualBlocks;
+    const st = specialisti.find((s) => s.id === slot.specialist_id);
+    const staffWH = parseWH(st?.working_hours);
+    return staffWH.length > 0 ? parseStaffBlocks(st?.manual_blocks) : manualBlocks;
+  }, [slot.specialist_id, specialisti, manualBlocks]);
+
   // Specialiștii care oferă serviciul ales
   const filteredSpec = useMemo(() =>
     slot.serviciu_id
@@ -175,7 +187,7 @@ function SlotRow({
               existingAppointments={apptForSlot}
               selectedDate={slot.data}
               serviceDuration={svc?.duration || 30}
-              manualBlocks={manualBlocks}
+              manualBlocks={effectiveManualBlocks}
               allowOverride={true}
             />
           </div>
