@@ -102,21 +102,27 @@ function SlotRow({
 
   const svc = locationServices.find((s) => s.id === slot.serviciu_id);
 
-  // ✅ Program efectiv: al specialistului ales pentru acest serviciu, dacă are unul propriu — altfel cel general
+  // ✅ Program efectiv: al specialistului ales, filtrat pe punctul de lucru selectat pentru acest slot
   const effectiveWH = useMemo(() => {
     if (!slot.specialist_id) return workingHours;
     const st = specialisti.find((s) => s.id === slot.specialist_id);
     const staffWH = parseWH(st?.working_hours);
-    return staffWH.length > 0 ? staffWH : workingHours;
-  }, [slot.specialist_id, specialisti, workingHours]);
+    const locationFilteredWH = slot.work_location_id
+      ? staffWH.filter((h: any) => !h.work_location_id || h.work_location_id === slot.work_location_id)
+      : staffWH;
+    return locationFilteredWH.length > 0 ? locationFilteredWH : workingHours;
+  }, [slot.specialist_id, slot.work_location_id, specialisti, workingHours]);
 
-  // ✅ Blocaje efective: ale specialistului ales, daca are propriul orar — altfel cele generale
+  // ✅ Blocaje efective: ale specialistului ales, filtrate pe punctul de lucru selectat
   const effectiveManualBlocks = useMemo(() => {
     if (!slot.specialist_id) return manualBlocks;
     const st = specialisti.find((s) => s.id === slot.specialist_id);
     const staffWH = parseWH(st?.working_hours);
-    return staffWH.length > 0 ? parseStaffBlocks(st?.manual_blocks) : manualBlocks;
-  }, [slot.specialist_id, specialisti, manualBlocks]);
+    const locationFilteredWH = slot.work_location_id
+      ? staffWH.filter((h: any) => !h.work_location_id || h.work_location_id === slot.work_location_id)
+      : staffWH;
+    return locationFilteredWH.length > 0 ? parseStaffBlocks(st?.manual_blocks) : manualBlocks;
+  }, [slot.specialist_id, slot.work_location_id, specialisti, manualBlocks]);
 
   // Specialiștii care oferă serviciul ales
   const filteredSpec = useMemo(() =>

@@ -1458,15 +1458,17 @@ function CalendarContent() {
     if (!editForm?.expertId) return adminWorkingHours;
     const st = rawStaff.find(s => s.id === editForm.expertId);
     const staffWH = parseWH(st?.working_hours);
-    return staffWH.length > 0 ? staffWH : adminWorkingHours;
-  }, [editForm?.expertId, rawStaff, adminWorkingHours]);
+    const locWH = editForm?.workLocationId ? staffWH.filter((h:any) => !h.work_location_id || h.work_location_id === editForm.workLocationId) : staffWH;
+    return locWH.length > 0 ? locWH : adminWorkingHours;
+  }, [editForm?.expertId, editForm?.workLocationId, rawStaff, adminWorkingHours]);
   const editManualBlocks = useMemo(() => {
     if (!editForm?.expertId) return adminManualBlocks;
     const st = rawStaff.find(s => s.id === editForm.expertId);
     const staffWH = parseWH(st?.working_hours);
-    if (staffWH.length === 0) return adminManualBlocks;
+    const locWH = editForm?.workLocationId ? staffWH.filter((h:any) => !h.work_location_id || h.work_location_id === editForm.workLocationId) : staffWH;
+    if (locWH.length === 0) return adminManualBlocks;
     return parseStaffBlocks(st?.manual_blocks);
-  }, [editForm?.expertId, rawStaff, adminManualBlocks]);
+  }, [editForm?.expertId, editForm?.workLocationId, rawStaff, adminManualBlocks]);
 
   const handleSelectExpert = useCallback((id:string)=>{setSelectedExpert(id);if(id&&selectedServiciu){const st=rawStaff.find(s=>s.id===id);if(st?.services?.length&&!st.services.includes(selectedServiciu))setSelectedServiciu("");}},[selectedServiciu,rawStaff]);
   const handleSelectServiciu = useCallback((id:string)=>{setSelectedServiciu(id);if(id&&selectedExpert){const st=rawStaff.find(s=>s.id===selectedExpert);if(st?.services?.length&&!st.services.includes(id))setSelectedExpert("");}},[selectedExpert,rawStaff]);
@@ -1484,15 +1486,17 @@ function CalendarContent() {
     if (!newForm?.expertId) return adminWorkingHours;
     const st = rawStaff.find(s => s.id === newForm.expertId);
     const staffWH = parseWH(st?.working_hours);
-    return staffWH.length > 0 ? staffWH : adminWorkingHours;
-  }, [newForm?.expertId, rawStaff, adminWorkingHours]);
+    const locWH = newForm?.workLocationId ? staffWH.filter((h:any) => !h.work_location_id || h.work_location_id === newForm.workLocationId) : staffWH;
+    return locWH.length > 0 ? locWH : adminWorkingHours;
+  }, [newForm?.expertId, newForm?.workLocationId, rawStaff, adminWorkingHours]);
   const newManualBlocks = useMemo(() => {
     if (!newForm?.expertId) return adminManualBlocks;
     const st = rawStaff.find(s => s.id === newForm.expertId);
     const staffWH = parseWH(st?.working_hours);
-    if (staffWH.length === 0) return adminManualBlocks;
+    const locWH = newForm?.workLocationId ? staffWH.filter((h:any) => !h.work_location_id || h.work_location_id === newForm.workLocationId) : staffWH;
+    if (locWH.length === 0) return adminManualBlocks;
     return parseStaffBlocks(st?.manual_blocks);
-  }, [newForm?.expertId, rawStaff, adminManualBlocks]);
+  }, [newForm?.expertId, newForm?.workLocationId, rawStaff, adminManualBlocks]);
   const newExisting = useMemo(()=>{
     if(!newForm)return[];
     return programari.filter(p=>
