@@ -108,6 +108,8 @@ export default function ResursePage() {
   const [scheduleStaffId, setScheduleStaffId] = useState<string | null>(null);
   const [scheduleByDay, setScheduleByDay] = useState<Record<string, { start: string; end: string }[]>>({});
   const [selectedScheduleLocationId, setSelectedScheduleLocationId] = useState("");
+  const [copyFromDay, setCopyFromDay] = useState<string | null>(null);
+  const [copyToDays, setCopyToDays] = useState<string[]>([]);
   const [savingSchedule, setSavingSchedule] = useState(false);
   const scheduleModalRef = useRef<HTMLDivElement>(null);
 
@@ -492,6 +494,22 @@ export default function ResursePage() {
 
   const clearSchedule = () => {
     setScheduleByDay({});
+  };
+
+  const toggleCopyToDay = (day: string) => {
+    setCopyToDays(prev => prev.includes(day) ? prev.filter(d => d !== day) : [...prev, day]);
+  };
+
+  const applyCopyToDays = () => {
+    if (!copyFromDay || copyToDays.length === 0) return;
+    const sourceIntervals = scheduleByDay[copyFromDay] || [];
+    setScheduleByDay(prev => {
+      const updated = { ...prev };
+      copyToDays.forEach(day => { updated[day] = sourceIntervals.map(iv => ({ ...iv })); });
+      return updated;
+    });
+    setCopyFromDay(null);
+    setCopyToDays([]);
   };
 
   const getScheduleLocationOptions = () => {
@@ -1317,6 +1335,14 @@ export default function ResursePage() {
                               {t("addIntervalBtn")}
                             </button>
                           )}
+                          {!isClosed && (
+                            <button
+                              onClick={() => { setCopyFromDay(dayRo); setCopyToDays([]); }}
+                              className="px-3 py-2 rounded-xl text-[9px] font-black uppercase italic bg-blue-500 text-white hover:bg-blue-600 transition-all"
+                            >
+                              COPIAZA PE...
+                            </button>
+                          )}
                         </div>
                       </div>
                       {intervals.map((iv, idx) => (
@@ -1330,6 +1356,32 @@ export default function ResursePage() {
                           >ELIMINA</button>
                         </div>
                       ))}
+                      {copyFromDay === dayRo && (
+                        <div className="mt-2 p-3 bg-blue-50 border-2 border-blue-200 rounded-xl space-y-2">
+                          <p className="text-[9px] font-black uppercase text-blue-700">Aplica orarul si pe:</p>
+                          <div className="flex flex-wrap gap-2">
+                            {DISPLAY_ORDER.filter(di => RO_DAY_NAMES[di] !== dayRo).map(di => {
+                              const otherDay = RO_DAY_NAMES[di];
+                              const checked = copyToDays.includes(otherDay);
+                              return (
+                                <button key={otherDay} type="button" onClick={() => toggleCopyToDay(otherDay)}
+                                  className={`px-3 py-1.5 rounded-lg text-[9px] font-black uppercase italic transition-all ${checked ? "bg-blue-600 text-white" : "bg-white text-blue-600 border border-blue-300"}`}
+                                >
+                                  {scheduleDayNames[di]}
+                                </button>
+                              );
+                            })}
+                          </div>
+                          <div className="flex gap-2 pt-1">
+                            <button onClick={applyCopyToDays} disabled={copyToDays.length === 0}
+                              className="px-4 py-2 rounded-lg text-[9px] font-black uppercase italic bg-blue-600 text-white hover:bg-blue-700 transition-all disabled:opacity-40"
+                            >Aplica</button>
+                            <button onClick={() => { setCopyFromDay(null); setCopyToDays([]); }}
+                              className="px-4 py-2 rounded-lg text-[9px] font-black uppercase italic bg-white text-blue-600 border border-blue-300 hover:bg-blue-100 transition-all"
+                            >Anuleaza</button>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   );
                 })}
