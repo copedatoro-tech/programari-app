@@ -104,13 +104,15 @@ function SlotRow({
 
   // ✅ Program efectiv: al specialistului ales, filtrat pe punctul de lucru selectat pentru acest slot
   const effectiveWH = useMemo(() => {
-    if (!slot.specialist_id) return workingHours;
+    const locationOwnWH = Array.isArray((selectedWorkLocation as any)?.working_hours) ? (selectedWorkLocation as any).working_hours : [];
+    const locationFallback = locationOwnWH.length > 0 ? locationOwnWH : workingHours;
+    if (!slot.specialist_id) return locationFallback;
     const st = specialisti.find((s) => s.id === slot.specialist_id);
     const staffWH = parseWH(st?.working_hours);
     const locationFilteredWH = slot.work_location_id
       ? staffWH.filter((h: any) => !h.work_location_id || h.work_location_id === slot.work_location_id)
       : staffWH;
-    return locationFilteredWH.length > 0 ? locationFilteredWH : workingHours;
+    return locationFilteredWH.length > 0 ? locationFilteredWH : locationFallback;
   }, [slot.specialist_id, slot.work_location_id, specialisti, workingHours]);
 
   // ✅ Blocaje efective: ale specialistului ales, filtrate pe punctul de lucru selectat

@@ -1455,11 +1455,14 @@ function CalendarContent() {
   }, [selectedExpert, rawStaff, adminWorkingHours]);
 
   const editWorkingHours = useMemo(() => {
-    if (!editForm?.expertId) return adminWorkingHours;
+    const loc = workLocations.find((l:any) => l.id === editForm?.workLocationId);
+    const locOwnWH = Array.isArray((loc as any)?.working_hours) ? (loc as any).working_hours : [];
+    const locFallback = locOwnWH.length > 0 ? locOwnWH : adminWorkingHours;
+    if (!editForm?.expertId) return locFallback;
     const st = rawStaff.find(s => s.id === editForm.expertId);
     const staffWH = parseWH(st?.working_hours);
     const locWH = editForm?.workLocationId ? staffWH.filter((h:any) => !h.work_location_id || h.work_location_id === editForm.workLocationId) : staffWH;
-    return locWH.length > 0 ? locWH : adminWorkingHours;
+    return locWH.length > 0 ? locWH : locFallback;
   }, [editForm?.expertId, editForm?.workLocationId, rawStaff, adminWorkingHours]);
   const editManualBlocks = useMemo(() => {
     if (!editForm?.expertId) return adminManualBlocks;
@@ -1483,11 +1486,14 @@ function CalendarContent() {
   },[programari,editForm]);
   const editSvcDur = useMemo(()=>{if(!editForm?.serviciuId)return 0;return rawServices.find(s=>s.id===editForm.serviciuId)?.duration||0;},[editForm?.serviciuId,rawServices]);
   const newWorkingHours = useMemo(() => {
-    if (!newForm?.expertId) return adminWorkingHours;
+    const loc = workLocations.find((l:any) => l.id === newForm?.workLocationId);
+    const locOwnWH = Array.isArray((loc as any)?.working_hours) ? (loc as any).working_hours : [];
+    const locFallback = locOwnWH.length > 0 ? locOwnWH : adminWorkingHours;
+    if (!newForm?.expertId) return locFallback;
     const st = rawStaff.find(s => s.id === newForm.expertId);
     const staffWH = parseWH(st?.working_hours);
     const locWH = newForm?.workLocationId ? staffWH.filter((h:any) => !h.work_location_id || h.work_location_id === newForm.workLocationId) : staffWH;
-    return locWH.length > 0 ? locWH : adminWorkingHours;
+    return locWH.length > 0 ? locWH : locFallback;
   }, [newForm?.expertId, newForm?.workLocationId, rawStaff, adminWorkingHours]);
   const newManualBlocks = useMemo(() => {
     if (!newForm?.expertId) return adminManualBlocks;

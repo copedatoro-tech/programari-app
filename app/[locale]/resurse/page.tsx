@@ -105,6 +105,7 @@ export default function ResursePage() {
   const [showAddStaffModal, setShowAddStaffModal] = useState(false);
 
   // Program individual per specialist
+  const [scheduleLocationId, setScheduleLocationId] = useState<string | null>(null);
   const [scheduleStaffId, setScheduleStaffId] = useState<string | null>(null);
   const [scheduleByDay, setScheduleByDay] = useState<Record<string, { start: string; end: string }[]>>({});
   const [selectedScheduleLocationId, setSelectedScheduleLocationId] = useState("");
@@ -225,8 +226,9 @@ export default function ResursePage() {
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as Node;
-      if (scheduleStaffId && scheduleModalRef.current && !scheduleModalRef.current.contains(target)) {
+      if ((scheduleStaffId || scheduleLocationId) && scheduleModalRef.current && !scheduleModalRef.current.contains(target)) {
         setScheduleStaffId(null);
+        setScheduleLocationId(null);
       }
       if (inviteStaff && inviteModalRef.current && !inviteModalRef.current.contains(target)) {
         setInviteStaff(null);
@@ -457,6 +459,20 @@ export default function ResursePage() {
     setScheduleStaffId(staffMember.id);
   };
 
+  // Deschide modalul de program propriu pentru un punct de lucru
+  const openLocationScheduleModal = (loc: any) => {
+    if (isDemo) return;
+    const existing = Array.isArray(loc?.working_hours) ? loc.working_hours : [];
+    const grouped: Record<string, { start: string; end: string }[]> = {};
+    existing.forEach((entry: any) => {
+      if (entry.closed) return;
+      if (!grouped[entry.day]) grouped[entry.day] = [];
+      grouped[entry.day].push({ start: entry.start, end: entry.end });
+    });
+    setScheduleByDay(grouped);
+    setScheduleLocationId(loc.id);
+  };
+
   const setDefaultSchedule = () => {
     const grouped: Record<string, { start: string; end: string }[]> = {};
     RO_DAY_NAMES.forEach((day) => { grouped[day] = [{ start: "09:00", end: "18:00" }]; });
@@ -544,8 +560,29 @@ export default function ResursePage() {
   const hasAnySchedule = Object.values(scheduleByDay).some(intervals => intervals.length > 0);
 
   const saveSchedule = async () => {
-    if (!scheduleStaffId || !userId || isDemo) return;
+    if ((!scheduleStaffId && !scheduleLocationId) || !userId || isDemo) return;
     setSavingSchedule(true);
+
+    if (scheduleLocationId) {
+      const flat: any[] = [];
+      RO_DAY_NAMES.forEach((day) => {
+        const intervals = scheduleByDay[day] || [];
+        if (intervals.length === 0) {
+          flat.push({ day, start: "00:00", end: "00:00", closed: true });
+        } else {
+          intervals.forEach((iv) => flat.push({ day, start: iv.start, end: iv.end, closed: false }));
+        }
+      });
+      const updatedLocations = workLocations.map((loc: any) => loc.id === scheduleLocationId ? { ...loc, working_hours: flat } : loc);
+      const { error } = await supabase.from("profiles").update({ work_locations: updatedLocations }).eq("id", userId);
+      setSavingSchedule(false);
+      if (error) { alert(error.message); return; }
+      await showToast({ message: t("scheduleSavedToast"), type: "success" });
+      setScheduleLocationId(null);
+      await fetchResurse(userId);
+      return;
+    }
+
     // TransformÄƒm Ã®n formatul plat, salvat Ã®n baza de date â€” o zi poate apÄƒrea
     // de mai multe ori, o datÄƒ per interval; zilele fÄƒrÄƒ intervale = Ã®nchise
     const locationId = selectedScheduleLocationId || "";
@@ -580,6 +617,7 @@ export default function ResursePage() {
   };
 
   const scheduleStaffMember = staff.find(s => s.id === scheduleStaffId);
+  const scheduleLocationObj = workLocations.find((l: any) => l.id === scheduleLocationId);
 
   // âœ… Deschide modalul de invitare cont pentru un specialist
   const openInviteModal = (staffMember: any) => {
@@ -1196,6 +1234,7 @@ export default function ResursePage() {
                     </div>
                   </div>
                   <div className="flex-shrink-0 flex gap-2">
+                    <button onClick={() => openLocationScheduleModal(loc)} className="px-3 py-2 bg-blue-500 text-white rounded-xl font-black uppercase text-[11px] hover:bg-blue-600">ORAR</button>
                     <button onClick={() => openEditLocation(loc)} className="px-3 py-2 bg-slate-900 text-amber-500 rounded-xl font-black uppercase text-[11px]">{t("update")}</button>
                     <button onClick={() => handleDeleteLocation(loc.id)} className="px-3 py-2 bg-white text-red-500 rounded-xl font-black uppercase text-[11px] border border-red-100">{t("deleteWorkLocationBtn")}</button>
                   </div>
@@ -1261,21 +1300,20 @@ export default function ResursePage() {
         )}
       </div>
 
-      {/* MODAL PROGRAM INDIVIDUAL PER SPECIALIST */}
-      {scheduleStaffId && scheduleStaffMember && (
+      {((scheduleStaffId && scheduleStaffMember) || (scheduleLocationId && scheduleLocationObj)) && (
         <div className="fixed inset-0 bg-slate-900/70 backdrop-blur-md z-[200] flex items-center justify-center p-4">
           <div ref={scheduleModalRef} className="bg-white w-full max-w-2xl rounded-[45px] p-8 md:p-10 shadow-2xl border-t-[10px] border-amber-500 max-h-[85vh] overflow-y-auto">
             <div className="flex justify-between items-start mb-2">
               <div>
-                <span className="text-[9px] font-black text-amber-500 uppercase tracking-widest italic mb-1 block">{t("scheduleModalTitle")}</span>
+                <span className="text-[9px] font-black text-amber-500 uppercase tracking-widest italic mb-1 block">{scheduleLocationId ? "ORAR PUNCT DE LUCRU" : t("scheduleModalTitle")}</span>
                 <h3 className="text-2xl font-black uppercase italic text-slate-900 tracking-tighter">
-                  {t("scheduleModalSubtitle")} {scheduleStaffMember.name}
+                  {scheduleLocationId ? scheduleLocationObj?.name : `${t("scheduleModalSubtitle")} ${scheduleStaffMember?.name}`}
                 </h3>
               </div>
-              <button onClick={() => setScheduleStaffId(null)} className="px-4 py-3 flex items-center justify-center bg-slate-100 rounded-xl font-black text-slate-500 hover:bg-red-500 hover:text-white transition-all text-[10px] uppercase italic">INCHIDE</button>
+              <button onClick={() => { setScheduleStaffId(null); setScheduleLocationId(null); }} className="px-4 py-3 flex items-center justify-center bg-slate-100 rounded-xl font-black text-slate-500 hover:bg-red-500 hover:text-white transition-all text-[10px] uppercase italic">INCHIDE</button>
             </div>
 
-            {workLocations.length > 0 && (
+            {!scheduleLocationId && workLocations.length > 0 && (
               <div className="mt-6 mb-4 p-4 bg-slate-50 rounded-2xl border border-slate-100">
                 <p className="text-[10px] font-black uppercase italic text-slate-400 mb-2">
                   Seteaza programul specialistului pentru punctul de lucru ales
@@ -1392,7 +1430,7 @@ export default function ResursePage() {
               {hasAnySchedule && (
                 <button onClick={clearSchedule} className="px-5 py-4 bg-slate-100 text-slate-500 rounded-xl font-black text-[10px] uppercase italic hover:bg-slate-200 transition-all">RESET ORAR</button>
               )}
-              <button onClick={() => setScheduleStaffId(null)} className="flex-1 py-4 bg-slate-100 text-slate-500 rounded-xl font-black text-[11px] uppercase italic hover:bg-slate-200 transition-all">
+              <button onClick={() => { setScheduleStaffId(null); setScheduleLocationId(null); }} className="flex-1 py-4 bg-slate-100 text-slate-500 rounded-xl font-black text-[11px] uppercase italic hover:bg-slate-200 transition-all">
                 {t("closeBtn")}
               </button>
               <button

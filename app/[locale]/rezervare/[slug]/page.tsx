@@ -694,13 +694,15 @@ function RezervareContent() {
     ? (appointmentsByDate[mkKey(activeBooking.data, activeBooking.specialist_id)] || [])
     : [];
   const effectiveWorkingHours = useMemo(() => {
-    if (!activeBooking?.specialist_id) return adminWorkingHours;
+    const locationOwnWH = Array.isArray((selectedWorkLocation as any)?.working_hours) ? (selectedWorkLocation as any).working_hours : [];
+    const locationFallback = locationOwnWH.length > 0 ? locationOwnWH : adminWorkingHours;
+    if (!activeBooking?.specialist_id) return locationFallback;
     const staffMember = specialisti.find(s => s.id === activeBooking.specialist_id);
     const staffWH = parseWH(staffMember?.working_hours);
     const locationFilteredStaffWH = selectedWorkLocationId
       ? staffWH.filter((h) => !h.work_location_id || h.work_location_id === selectedWorkLocationId)
       : staffWH;
-    return locationFilteredStaffWH.length > 0 ? locationFilteredStaffWH : adminWorkingHours;
+    return locationFilteredStaffWH.length > 0 ? locationFilteredStaffWH : locationFallback;
   }, [activeBooking?.specialist_id, specialisti, adminWorkingHours, selectedWorkLocationId]);
   const effectiveManualBlocks = useMemo(() => {
     if (!activeBooking?.specialist_id) return adminManualBlocks;
