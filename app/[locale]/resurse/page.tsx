@@ -1412,11 +1412,11 @@ export default function ResursePage() {
                           </div>
                           <div className="flex gap-2 pt-1">
                             <button onClick={applyCopyToDays} disabled={copyToDays.length === 0}
-                              className="px-4 py-2 rounded-lg text-[9px] font-black uppercase italic bg-blue-600 text-white hover:bg-blue-700 transition-all disabled:opacity-40"
-                            >Aplica</button>
+                              className="px-4 py-2 rounded-lg text-[9px] font-black uppercase italic bg-green-600 text-white hover:bg-green-700 transition-all disabled:opacity-40"
+                            >APLICA</button>
                             <button onClick={() => { setCopyFromDay(null); setCopyToDays([]); }}
-                              className="px-4 py-2 rounded-lg text-[9px] font-black uppercase italic bg-white text-blue-600 border border-blue-300 hover:bg-blue-100 transition-all"
-                            >Anuleaza</button>
+                              className="px-4 py-2 rounded-lg text-[9px] font-black uppercase italic bg-red-500 text-white hover:bg-red-600 transition-all"
+                            >ANULEAZA</button>
                           </div>
                         </div>
                       )}
