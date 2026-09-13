@@ -85,6 +85,9 @@ export default function ResursePage() {
   const router = useRouter();
   const [services, setServices]   = useState<any[]>([]);
   const [staff, setStaff]         = useState<any[]>([]);
+  const [packages, setPackages] = useState<any[]>([]);
+  const [packageForm, setPackageForm] = useState<any | null>(null);
+  const [savingPackage, setSavingPackage] = useState(false);
   const [workLocations, setWorkLocations] = useState<any[]>([]);
   const [userPlan, setUserPlan]   = useState("chronos free");
   const [businessCurrency, setBusinessCurrency] = useState("RON");
@@ -176,12 +179,20 @@ export default function ResursePage() {
         .eq('user_id', uid)
         .order('created_at', { ascending: false });
 
+      const { data: pkgs, error: errPkgs } = await supabase
+        .from('packages')
+        .select('*')
+        .eq('user_id', uid)
+        .order('created_at', { ascending: false });
+
       if (errSvs) setErrorMsg(`${t("dbErrorPrefix")}${errSvs.message}`);
       // âœ… DacÄƒ ambele interogÄƒri principale eÈ™ueazÄƒ, e o problemÄƒ tehnicÄƒ realÄƒ,
       // nu doar o listÄƒ goalÄƒ (caz normal pentru un cont nou)
       if (errSvs && errStf) setTechnicalError(true);
       setServices(svs ?? []);
       setStaff(stf ?? []);
+      setPackages(pkgs ?? []);
+      if (errPkgs) console.error("Eroare pachete:", errPkgs.message);
     } catch (err) {
       console.error("Eroare la preluarea datelor:", err);
       setTechnicalError(true);
@@ -369,6 +380,52 @@ export default function ResursePage() {
     setWorkLocations(updated);
     const { error } = await supabase.from('profiles').update({ work_locations: updated }).eq('id', userId);
     if (error) alert(error.message);
+    await fetchResurse(userId);
+  };
+
+  const openPackageModal = (pkg?: any) => {
+    if (isDemo) return;
+    setPackageForm(pkg ? { ...pkg } : { id: null, name: "", description: "", service_ids: [], price: 0, active: true });
+  };
+
+  const togglePackageService = (serviceId: string) => {
+    if (!packageForm) return;
+    const list = Array.isArray(packageForm.service_ids) ? [...packageForm.service_ids] : [];
+    const idx = list.indexOf(serviceId);
+    if (idx > -1) list.splice(idx, 1); else list.push(serviceId);
+    setPackageForm({ ...packageForm, service_ids: list });
+  };
+
+  const savePackage = async () => {
+    if (!userId || isDemo || !packageForm) return;
+    if (!packageForm.name || !packageForm.service_ids?.length) {
+      alert("Alege un nume si cel putin un serviciu pentru pachet.");
+      return;
+    }
+    setSavingPackage(true);
+    const payload = {
+      user_id: userId,
+      name: packageForm.name,
+      description: packageForm.description || null,
+      service_ids: packageForm.service_ids,
+      price: Number(packageForm.price) || 0,
+      active: !!packageForm.active,
+    };
+    const { error } = packageForm.id
+      ? await supabase.from("packages").update(payload).eq("id", packageForm.id)
+      : await supabase.from("packages").insert([payload]);
+    setSavingPackage(false);
+    if (error) { alert(error.message); return; }
+    await showToast({ message: "Pachet salvat!", type: "success" });
+    setPackageForm(null);
+    await fetchResurse(userId);
+  };
+
+  const deletePackage = async (id: string) => {
+    if (!userId || isDemo) return;
+    if (!confirm("Sigur stergi acest pachet?")) return;
+    const { error } = await supabase.from("packages").delete().eq("id", id);
+    if (error) { alert(error.message); return; }
     await fetchResurse(userId);
   };
 
@@ -1242,6 +1299,79 @@ export default function ResursePage() {
               ))}
             </div>
           </div>
+
+        <div className="bg-white rounded-[35px] p-6 md:p-8 shadow-sm border border-slate-100 mt-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-[11px] font-black uppercase tracking-widest text-slate-400">PACHETE DE SERVICII</h3>
+            <button onClick={() => openPackageModal()} className="px-4 py-2 bg-slate-900 text-amber-500 rounded-xl font-black uppercase text-[11px] hover:bg-amber-500 hover:text-slate-900 transition-all">+ ADAUGA PACHET</button>
+          </div>
+          {packages.length === 0 && <div className="text-sm text-slate-400 italic">Niciun pachet creat inca.</div>}
+          <div className="space-y-3">
+            {packages.map((pkg: any) => {
+              const serviceNames = Array.isArray(pkg.service_ids) ? services.filter((s: any) => pkg.service_ids.includes(s.id)).map((s: any) => s.nume_serviciu) : [];
+              return (
+                <div key={pkg.id} className="p-4 border rounded-xl bg-slate-50 flex items-center justify-between gap-3">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <p className="text-sm font-black uppercase text-slate-900 truncate">{pkg.name}</p>
+                      {!pkg.active && <span className="text-[9px] font-black uppercase bg-slate-200 text-slate-500 px-2 py-0.5 rounded-full">INACTIV</span>}
+                    </div>
+                    <p className="text-xs text-slate-500 mt-1 truncate">{serviceNames.join(", ")}</p>
+                    <p className="text-sm font-black text-amber-600 mt-1">{pkg.price} {businessCurrency}</p>
+                  </div>
+                  <div className="flex-shrink-0 flex gap-2">
+                    <button onClick={() => openPackageModal(pkg)} className="px-3 py-2 bg-slate-900 text-amber-500 rounded-xl font-black uppercase text-[11px]">{t("update")}</button>
+                    <button onClick={() => deletePackage(pkg.id)} className="px-3 py-2 bg-white text-red-500 rounded-xl font-black uppercase text-[11px] border border-red-100">STERGE</button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {packageForm && (
+          <div className="fixed inset-0 bg-slate-900/70 backdrop-blur-md z-[400] flex items-center justify-center p-4" onClick={() => setPackageForm(null)}>
+            <div className="bg-white w-full max-w-2xl rounded-[35px] p-6 md:p-8 shadow-2xl max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-4">
+                <h4 className="text-[10px] font-black uppercase text-slate-700">{packageForm.id ? "EDITEAZA PACHET" : "PACHET NOU"}</h4>
+                <button onClick={() => setPackageForm(null)} className="w-9 h-9 flex items-center justify-center bg-slate-100 rounded-xl font-black text-slate-400 hover:bg-red-500 hover:text-white transition-all">✕</button>
+              </div>
+              <div className="space-y-4">
+                <div>
+                  <label className="text-[9px] font-black uppercase text-slate-400">NUME PACHET</label>
+                  <input value={packageForm.name} onChange={(e) => setPackageForm({ ...packageForm, name: e.target.value })} className="w-full p-2 rounded-md border text-sm" />
+                </div>
+                <div>
+                  <label className="text-[9px] font-black uppercase text-slate-400">DESCRIERE (OPTIONAL)</label>
+                  <input value={packageForm.description || ""} onChange={(e) => setPackageForm({ ...packageForm, description: e.target.value })} className="w-full p-2 rounded-md border text-sm" />
+                </div>
+                <div>
+                  <p className="text-[9px] font-black uppercase text-slate-400 mb-2">SERVICII INCLUSE</p>
+                  <div className="max-h-[160px] overflow-y-auto pr-2 grid grid-cols-1 md:grid-cols-2 gap-2 text-sm border rounded-md p-2">
+                    {services.map((s: any) => (
+                      <label key={s.id} className="flex items-center gap-2">
+                        <input type="checkbox" className="w-4 h-4" checked={Array.isArray(packageForm.service_ids) ? packageForm.service_ids.includes(s.id) : false} onChange={() => togglePackageService(s.id)} />
+                        <span className="truncate">{s.nume_serviciu}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <label className="text-[9px] font-black uppercase text-slate-400">PRET PACHET ({businessCurrency})</label>
+                  <input type="number" value={packageForm.price} onChange={(e) => setPackageForm({ ...packageForm, price: e.target.value })} className="w-full p-2 rounded-md border text-sm" />
+                </div>
+                <label className="flex items-center gap-2 text-sm">
+                  <input type="checkbox" className="w-4 h-4" checked={!!packageForm.active} onChange={(e) => setPackageForm({ ...packageForm, active: e.target.checked })} />
+                  Pachet activ (vizibil pentru clienti)
+                </label>
+                <div className="flex gap-3 pt-2">
+                  <button onClick={() => setPackageForm(null)} className="flex-1 py-3 bg-slate-100 text-slate-500 rounded-xl font-black text-[11px] uppercase italic hover:bg-slate-200 transition-all">{t("closeBtn")}</button>
+                  <button onClick={savePackage} disabled={savingPackage} className="flex-1 py-3 bg-slate-900 text-amber-500 rounded-xl font-black text-[11px] uppercase italic hover:bg-amber-500 hover:text-slate-900 transition-all disabled:opacity-50">{savingPackage ? "..." : "SALVEAZA PACHET"}</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
         </div>
 
         {locationForm && (
