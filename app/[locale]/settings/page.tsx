@@ -27,7 +27,19 @@ type WhatsAppConnectionStatus = {
 } | null;
 
 const CURRENCY_OPTIONS = ["RON", "EUR", "USD", "GBP", "HUF", "PLN"];
-const WHATSAPP_COUNTRY_OPTIONS = ["RO", "IT", "FR", "DE", "ES", "PT", "PL", "HU", "GB", "IE", "US"];
+const WHATSAPP_COUNTRY_OPTIONS = [
+  { code: "RO", name: "România", prefix: "+40", example: "+40 7xx xxx xxx" },
+  { code: "IT", name: "Italia", prefix: "+39", example: "+39 3xx xxx xxxx" },
+  { code: "FR", name: "Franța", prefix: "+33", example: "+33 6 xx xx xx xx" },
+  { code: "DE", name: "Germania", prefix: "+49", example: "+49 15x xxxxxxxx" },
+  { code: "ES", name: "Spania", prefix: "+34", example: "+34 6xx xxx xxx" },
+  { code: "PT", name: "Portugalia", prefix: "+351", example: "+351 9xx xxx xxx" },
+  { code: "PL", name: "Polonia", prefix: "+48", example: "+48 5xx xxx xxx" },
+  { code: "HU", name: "Ungaria", prefix: "+36", example: "+36 20 xxx xxxx" },
+  { code: "GB", name: "Regatul Unit", prefix: "+44", example: "+44 7xxx xxx xxx" },
+  { code: "IE", name: "Irlanda", prefix: "+353", example: "+353 8x xxx xxxx" },
+  { code: "US", name: "Statele Unite", prefix: "+1", example: "+1 xxx xxx xxxx" },
+];
 const WHATSAPP_LANGUAGE_OPTIONS = ["ro", "it", "en", "fr", "de", "es", "pt", "pl", "hu"];
 const DEFAULT_NOTIF_SETTINGS: NotificationSettings = { in_app_enabled: true, system_enabled: false, sound_enabled: true, volume: 75 };
 const LOCATION_BLOCKS_KEY = "__work_location_manual_blocks";
@@ -135,6 +147,9 @@ function SettingsContent() {
   const isEliteOrTeam = useMemo(() => {
     return userPlan.includes("ELITE") || userPlan.includes("TEAM") || userPlan.includes("BUSINESS");
   }, [userPlan]);
+  const selectedWhatsAppCountry = useMemo(() => {
+    return WHATSAPP_COUNTRY_OPTIONS.find((country) => country.code === whatsAppCountry) || WHATSAPP_COUNTRY_OPTIONS[0];
+  }, [whatsAppCountry]);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -936,12 +951,16 @@ function SettingsContent() {
                 onChange={(e) => setWhatsAppCountry(e.target.value)}
                 className="bg-slate-50 border-2 border-slate-100 rounded-xl px-4 py-3 text-[12px] font-black outline-none focus:border-emerald-500"
               >
-                {WHATSAPP_COUNTRY_OPTIONS.map((country) => <option key={country} value={country}>{country}</option>)}
+                {WHATSAPP_COUNTRY_OPTIONS.map((country) => (
+                  <option key={country.code} value={country.code}>
+                    {country.name} ({country.prefix})
+                  </option>
+                ))}
               </select>
               <input
                 value={whatsAppPhone}
                 onChange={(e) => setWhatsAppPhone(e.target.value)}
-                placeholder="+39 ..."
+                placeholder={selectedWhatsAppCountry.example}
                 className="bg-slate-50 border-2 border-slate-100 rounded-xl px-4 py-3 text-[12px] font-bold outline-none focus:border-emerald-500"
               />
               <select
