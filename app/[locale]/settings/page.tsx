@@ -931,11 +931,21 @@ function SettingsContent() {
               <div className={`px-4 py-2 rounded-full text-[9px] font-black uppercase italic border ${
                 whatsAppConnection?.status === "connected"
                   ? "bg-emerald-50 text-emerald-700 border-emerald-200"
-                  : whatsAppConnection?.status === "setup_started"
+                  : whatsAppConnection?.status === "setup_failed"
+                    ? "bg-red-50 text-red-600 border-red-200"
+                    : whatsAppConnection?.status === "setup_started" || whatsAppConnection?.status === "meta_authorized"
                     ? "bg-amber-50 text-amber-700 border-amber-200"
                     : "bg-slate-50 text-slate-400 border-slate-200"
               }`}>
-                {whatsAppConnection?.status === "connected" ? "Conectat" : whatsAppConnection?.status === "setup_started" ? "Configurare pornită" : "Neconectat"}
+                {whatsAppConnection?.status === "connected"
+                  ? "Conectat"
+                  : whatsAppConnection?.status === "meta_authorized"
+                    ? "Autorizat Meta"
+                    : whatsAppConnection?.status === "setup_failed"
+                      ? "Eroare configurare"
+                      : whatsAppConnection?.status === "setup_started"
+                        ? "Configurare pornită"
+                        : "Neconectat"}
               </div>
             </div>
 
