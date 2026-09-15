@@ -143,6 +143,7 @@ function SettingsContent() {
   const localeCode = t("localeCode");
   const weekdaysShort = t.raw("weekdaysShort") as string[];
   const weekdayLetters = t.raw("weekdayLetters") as string[];
+  const whatsAppCountryLabels = t.raw("whatsappAutomations.countries") as Record<string, string>;
 
   const isEliteOrTeam = useMemo(() => {
     return userPlan.includes("ELITE") || userPlan.includes("TEAM") || userPlan.includes("BUSINESS");
@@ -386,11 +387,11 @@ function SettingsContent() {
       }
       setWhatsAppConnection(data.connection || null);
       await showToast({
-        message: "Datele WhatsApp au fost salvate. Următorul pas este configurarea Meta Embedded Signup.",
+        message: t("whatsappAutomations.savedMessage"),
         type: "info",
       });
     } catch (e: any) {
-      await showToast({ message: e?.message || "Eroare la conectarea WhatsApp.", type: "error" });
+      await showToast({ message: e?.message || t("whatsappAutomations.connectError"), type: "error" });
     } finally {
       setConnectingWhatsApp(false);
     }
@@ -908,7 +909,7 @@ function SettingsContent() {
           {!isEliteOrTeam && (
              <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-white/80 backdrop-blur-md p-6 text-center">
                 <div className="bg-amber-500 text-black px-4 py-1 rounded-full font-black text-[10px] uppercase mb-2">{t("premiumBadge")}</div>
-                <h3 className="text-slate-900 font-black uppercase italic text-lg tracking-tighter">WhatsApp Automations</h3>
+                <h3 className="text-slate-900 font-black uppercase italic text-lg tracking-tighter">{t("whatsappAutomations.title")}</h3>
                 <p className="text-slate-500 text-[10px] font-bold uppercase max-w-md mt-1">
                   {t("paymentPremiumTextBefore")}<span className="text-amber-600">{t("premiumElite")}</span>{t("premiumOr")}<span className="text-amber-600">{t("premiumTeam")}</span>
                 </p>
@@ -922,10 +923,10 @@ function SettingsContent() {
             <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-6">
               <div>
                 <h2 className="text-lg md:text-xl font-black uppercase italic text-slate-900 tracking-tighter mb-2 border-l-4 border-emerald-500 pl-3">
-                  WhatsApp Automations
+                  {t("whatsappAutomations.title")}
                 </h2>
                 <p className="text-slate-500 text-[11px] font-bold max-w-2xl">
-                  Conectează numărul firmei pentru confirmări și remindere automate trimise direct de pe WhatsApp-ul businessului.
+                  {t("whatsappAutomations.subtitle")}
                 </p>
               </div>
               <div className={`px-4 py-2 rounded-full text-[9px] font-black uppercase italic border ${
@@ -938,14 +939,14 @@ function SettingsContent() {
                     : "bg-slate-50 text-slate-400 border-slate-200"
               }`}>
                 {whatsAppConnection?.status === "connected"
-                  ? "Conectat"
+                  ? t("whatsappAutomations.statusConnected")
                   : whatsAppConnection?.status === "meta_authorized"
-                    ? "Autorizat Meta"
+                    ? t("whatsappAutomations.statusMetaAuthorized")
                     : whatsAppConnection?.status === "setup_failed"
-                      ? "Eroare configurare"
+                      ? t("whatsappAutomations.statusSetupFailed")
                       : whatsAppConnection?.status === "setup_started"
-                        ? "Configurare pornită"
-                        : "Neconectat"}
+                        ? t("whatsappAutomations.statusSetupStarted")
+                        : t("whatsappAutomations.statusNotConnected")}
               </div>
             </div>
 
@@ -953,7 +954,7 @@ function SettingsContent() {
               <input
                 value={whatsAppBusinessName}
                 onChange={(e) => setWhatsAppBusinessName(e.target.value)}
-                placeholder="Nume firmă"
+                placeholder={t("whatsappAutomations.businessNamePlaceholder")}
                 className="bg-slate-50 border-2 border-slate-100 rounded-xl px-4 py-3 text-[12px] font-bold outline-none focus:border-emerald-500"
               />
               <select
@@ -963,7 +964,7 @@ function SettingsContent() {
               >
                 {WHATSAPP_COUNTRY_OPTIONS.map((country) => (
                   <option key={country.code} value={country.code}>
-                    {country.name} ({country.prefix})
+                    {whatsAppCountryLabels[country.code] || country.name} ({country.prefix})
                   </option>
                 ))}
               </select>
@@ -989,21 +990,21 @@ function SettingsContent() {
                 disabled={connectingWhatsApp}
                 className="px-6 py-3 bg-emerald-500 text-white rounded-xl font-black text-[10px] uppercase italic hover:bg-emerald-600 transition-all shadow-md disabled:opacity-50"
               >
-                {connectingWhatsApp ? "Se pregătește..." : "Conectează WhatsApp Business"}
+                {connectingWhatsApp ? t("whatsappAutomations.connectingButton") : t("whatsappAutomations.connectButton")}
               </button>
               <button
                 type="button"
                 onClick={refreshWhatsAppStatus}
                 className="px-6 py-3 bg-white border-2 border-slate-200 text-slate-600 rounded-xl font-black text-[10px] uppercase italic hover:border-emerald-500 hover:text-emerald-600 transition-all"
               >
-                Verifică status
+                {t("whatsappAutomations.refreshButton")}
               </button>
             </div>
 
             <div className="mt-5 bg-slate-50 border-2 border-slate-100 rounded-[22px] p-5">
-              <p className="text-[10px] font-black uppercase italic text-slate-700 mb-2">Ce face Chronos automat</p>
+              <p className="text-[10px] font-black uppercase italic text-slate-700 mb-2">{t("whatsappAutomations.automaticTitle")}</p>
               <p className="text-[11px] font-bold text-slate-500 leading-relaxed">
-                Salvează conexiunea firmei, pregătește conectarea Meta, folosește numărul firmei pentru mesaje automate și va activa template-urile pe limbi după configurarea Embedded Signup.
+                {t("whatsappAutomations.automaticText")}
               </p>
               {whatsAppConnection?.last_error && (
                 <p className="mt-3 text-[10px] font-bold text-red-500 italic">{whatsAppConnection.last_error}</p>
