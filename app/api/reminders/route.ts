@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { Resend } from "resend";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import { checkAndConsumeWhatsAppQuota } from "@/lib/whatsappQuota";
+import { getBusinessWhatsAppCredentials, normalizePhone, type WhatsAppCredentialsResult } from "@/lib/businessWhatsApp";
 
 function escapeHtml(value: unknown) {
   return String(value ?? "")
@@ -59,29 +60,17 @@ function buildReminderHtml(nume: string, data: string, ora: string, appointmentI
   `;
 }
 
-// 📱 Normalizează numărul de telefon la formatul cerut de WhatsApp Graph API
-// (fără spații, fără liniuțe, fără "+", dar cu codul de țară).
-// Exemple acceptate din DB: "0770833473", "+40770833473", "40 770 833 473"
-function normalizePhone(raw: string): string | null {
-  if (!raw) return null;
-  let digits = raw.replace(/[^\d]/g, "");
-  if (digits.startsWith("00")) digits = digits.slice(2);
-  if (digits.startsWith("0")) digits = "40" + digits.slice(1); // presupunem România dacă începe cu 0
-  if (!digits.startsWith("40") && digits.length === 9) digits = "40" + digits; // fallback pt. numere fără prefix
-  return digits.length >= 10 ? digits : null;
-}
-
 // 📲 Trimite reamintirea prin WhatsApp folosind un Message Template aprobat de Meta.
 // Dacă rezervarea are un rest de plată (avans, nu integral), folosește un șablon
 // separat, care include și acea sumă. Returnează { ok: true } sau { ok: false, error }.
-async function sendWhatsAppReminder(phone: string, nume: string, data: string, ora: string, amountRemaining?: number) {
-  const phoneNumberId = process.env.WHATSAPP_PHONE_NUMBER_ID;
-  const accessToken = process.env.WHATSAPP_ACCESS_TOKEN;
-
-  if (!phoneNumberId || !accessToken) {
-    return { ok: false, error: "WHATSAPP_PHONE_NUMBER_ID sau WHATSAPP_ACCESS_TOKEN lipsesc din .env" };
-  }
-
+async function sendWhatsAppReminder(
+  whatsapp: Extract<WhatsAppCredentialsResult, { ok: true }>,
+  phone: string,
+  nume: string,
+  data: string,
+  ora: string,
+  amountRemaining?: number,
+) {
   const to = normalizePhone(phone);
   if (!to) {
     return { ok: false, error: `Număr de telefon invalid: "${phone}"` };
@@ -103,11 +92,11 @@ async function sendWhatsAppReminder(phone: string, nume: string, data: string, o
       ];
 
   try {
-    const res = await fetch(`https://graph.facebook.com/v23.0/${phoneNumberId}/messages`, {
+    const res = await fetch(`https://graph.facebook.com/v23.0/${whatsapp.phoneNumberId}/messages`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${accessToken}`,
+        Authorization: `Bearer ${whatsapp.accessToken}`,
       },
       body: JSON.stringify({
         messaging_product: "whatsapp",
@@ -115,7 +104,7 @@ async function sendWhatsAppReminder(phone: string, nume: string, data: string, o
         type: "template",
         template: {
           name: templateName,
-          language: { code: "ro" },
+          language: { code: whatsapp.language },
           components: [{ type: "body", parameters }],
         },
       }),
@@ -176,6 +165,10 @@ export async function GET(request: Request) {
     .in("id", userIds);
   const planByUser: Record<string, string> = {};
   (profiles || []).forEach((p) => { planByUser[p.id] = (p.plan_type || "").toUpperCase(); });
+  const whatsappByUser: Record<string, WhatsAppCredentialsResult> = {};
+  await Promise.all(userIds.map(async (userId) => {
+    whatsappByUser[userId] = await getBusinessWhatsAppCredentials(userId);
+  }));
   const hasWhatsAppAccess = (userId: string) => {
     const plan = planByUser[userId] || "";
     return plan.includes("ELITE") || plan.includes("TEAM") || plan.includes("BUSINESS");
@@ -210,6 +203,11 @@ export async function GET(request: Request) {
 
     // --- WHATSAPP (nou) — doar pentru conturi Elite/Team, cu respectarea cotei lunare ---
     if (!appt.reminder_whatsapp_sent && appt.phone && hasWhatsAppAccess(appt.user_id)) {
+      const whatsapp = whatsappByUser[appt.user_id];
+      if (!whatsapp?.ok) {
+        errors.push(`[whatsapp] ${appt.id}: ${whatsapp?.reason || "business_whatsapp_not_connected"}`);
+        continue;
+      }
       const quota = await checkAndConsumeWhatsAppQuota(appt.user_id, planByUser[appt.user_id] || "");
       if (!quota.allowed) {
         errors.push(`[whatsapp] ${appt.id}: cotă lunară epuizată (${quota.reason})`);
@@ -218,7 +216,7 @@ export async function GET(request: Request) {
       const remaining = appt.payment_status === "deposit_paid"
         ? Math.round(Math.max(0, (appt.total_price || 0) - (appt.amount_paid || 0)))
         : 0;
-      const waResult = await sendWhatsAppReminder(appt.phone, clientName, appt.date, appt.time, remaining);
+      const waResult = await sendWhatsAppReminder(whatsapp, appt.phone, clientName, appt.date, appt.time, remaining);
       if (waResult.ok) {
         await supabaseAdmin.from("appointments").update({ reminder_whatsapp_sent: true }).eq("id", appt.id);
         sentWhatsapp++;

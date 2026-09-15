@@ -1,15 +1,7 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import { checkAndConsumeWhatsAppQuota } from "@/lib/whatsappQuota";
-
-function normalizePhone(raw: string): string | null {
-  if (!raw) return null;
-  let digits = raw.replace(/[^\d]/g, "");
-  if (digits.startsWith("00")) digits = digits.slice(2);
-  if (digits.startsWith("0")) digits = "40" + digits.slice(1);
-  if (!digits.startsWith("40") && digits.length === 9) digits = "40" + digits;
-  return digits.length >= 10 ? digits : null;
-}
+import { getBusinessWhatsAppCredentials, normalizePhone } from "@/lib/businessWhatsApp";
 
 export async function POST(request: Request) {
   try {
@@ -67,11 +59,9 @@ export async function POST(request: Request) {
       return NextResponse.json({ skipped: true, reason: quota.reason });
     }
 
-    const phoneNumberId = process.env.WHATSAPP_PHONE_NUMBER_ID;
-    const accessToken = process.env.WHATSAPP_ACCESS_TOKEN;
-
-    if (!phoneNumberId || !accessToken) {
-      return NextResponse.json({ error: "WhatsApp neconfigurat." }, { status: 500 });
+    const whatsapp = await getBusinessWhatsAppCredentials(adminId);
+    if (!whatsapp.ok) {
+      return NextResponse.json({ skipped: true, reason: whatsapp.reason });
     }
 
     const to = normalizePhone(appointment.phone);
@@ -83,11 +73,11 @@ export async function POST(request: Request) {
       ? `${appointment.prenume} ${appointment.nume || ""}`.trim()
       : appointment.nume || "";
 
-    const res = await fetch(`https://graph.facebook.com/v23.0/${phoneNumberId}/messages`, {
+    const res = await fetch(`https://graph.facebook.com/v23.0/${whatsapp.phoneNumberId}/messages`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${accessToken}`,
+        Authorization: `Bearer ${whatsapp.accessToken}`,
       },
       body: JSON.stringify({
         messaging_product: "whatsapp",
@@ -95,7 +85,7 @@ export async function POST(request: Request) {
         type: "template",
         template: {
           name: "confirmare_programare",
-          language: { code: "ro" },
+          language: { code: whatsapp.language },
           components: [
             {
               type: "body",

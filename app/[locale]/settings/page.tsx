@@ -16,8 +16,19 @@ type WorkLocationRow = {
   address?: string;
 };
 type NotificationSettings = { in_app_enabled: boolean; system_enabled: boolean; sound_enabled: boolean; volume: number };
+type WhatsAppConnectionStatus = {
+  business_name?: string | null;
+  country_code?: string | null;
+  default_language?: string | null;
+  display_phone_number?: string | null;
+  status?: string | null;
+  templates_status?: string | null;
+  last_error?: string | null;
+} | null;
 
 const CURRENCY_OPTIONS = ["RON", "EUR", "USD", "GBP", "HUF", "PLN"];
+const WHATSAPP_COUNTRY_OPTIONS = ["RO", "IT", "FR", "DE", "ES", "PT", "PL", "HU", "GB", "IE", "US"];
+const WHATSAPP_LANGUAGE_OPTIONS = ["ro", "it", "en", "fr", "de", "es", "pt", "pl", "hu"];
 const DEFAULT_NOTIF_SETTINGS: NotificationSettings = { in_app_enabled: true, system_enabled: false, sound_enabled: true, volume: 75 };
 const LOCATION_BLOCKS_KEY = "__work_location_manual_blocks";
 
@@ -106,6 +117,12 @@ function SettingsContent() {
   const [depositPercent, setDepositPercent] = useState(100);
   const [reminder2hEnabled, setReminder2hEnabled] = useState(false);
   const [connectingStripe, setConnectingStripe] = useState(false);
+  const [whatsAppConnection, setWhatsAppConnection] = useState<WhatsAppConnectionStatus>(null);
+  const [whatsAppBusinessName, setWhatsAppBusinessName] = useState("");
+  const [whatsAppCountry, setWhatsAppCountry] = useState("RO");
+  const [whatsAppPhone, setWhatsAppPhone] = useState("");
+  const [whatsAppLanguage, setWhatsAppLanguage] = useState("ro");
+  const [connectingWhatsApp, setConnectingWhatsApp] = useState(false);
 
   // ✅ Notificări
   const [notifSettings, setNotifSettings] = useState<NotificationSettings>(DEFAULT_NOTIF_SETTINGS);
@@ -268,10 +285,12 @@ function SettingsContent() {
       const currentUid = session.user.id;
       setUserId(currentUid);
       await loadProfile(currentUid);
+      await refreshWhatsAppStatus();
       await fetchMonthlyAppointments(currentUid, currentMonth);
       setLoading(false);
     }
     initAdmin();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [supabase, router, currentMonth, fetchMonthlyAppointments, loadProfile]);
 
   useEffect(() => {
@@ -311,6 +330,54 @@ function SettingsContent() {
       // ignorăm
     } finally {
       setConnectingStripe(false);
+    }
+  };
+
+  const refreshWhatsAppStatus = async () => {
+    try {
+      const res = await fetch("/api/whatsapp/status");
+      const data = await res.json();
+      const connection = data.connection || null;
+      setWhatsAppConnection(connection);
+      if (connection) {
+        setWhatsAppBusinessName(connection.business_name || "");
+        setWhatsAppCountry(connection.country_code || "RO");
+        setWhatsAppPhone(connection.display_phone_number || "");
+        setWhatsAppLanguage(connection.default_language || "ro");
+      }
+    } catch {
+      // statusul WhatsApp este informativ; nu blocăm pagina de setări
+    }
+  };
+
+  const handleConnectWhatsApp = async () => {
+    setConnectingWhatsApp(true);
+    try {
+      const res = await fetch("/api/whatsapp/connect", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          businessName: whatsAppBusinessName,
+          countryCode: whatsAppCountry,
+          defaultLanguage: whatsAppLanguage,
+          displayPhoneNumber: whatsAppPhone,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Eroare la conectarea WhatsApp.");
+      if (data.url) {
+        window.location.href = data.url;
+        return;
+      }
+      setWhatsAppConnection(data.connection || null);
+      await showToast({
+        message: "Datele WhatsApp au fost salvate. Următorul pas este configurarea Meta Embedded Signup.",
+        type: "info",
+      });
+    } catch (e: any) {
+      await showToast({ message: e?.message || "Eroare la conectarea WhatsApp.", type: "error" });
+    } finally {
+      setConnectingWhatsApp(false);
     }
   };
 
@@ -817,6 +884,101 @@ function SettingsContent() {
             <div className="bg-amber-50 border-2 border-amber-200 rounded-[22px] p-5">
               <p className="text-[10px] font-black uppercase text-amber-800 italic mb-2">{t("commissionNoticeTitle")}</p>
               <p className="text-[11px] font-bold text-amber-900 leading-relaxed">{t("commissionNoticeText")}</p>
+            </div>
+          </div>
+        </section>
+
+        {/* ✅ SECTIUNE WHATSAPP AUTOMATIONS - PREGATITA PENTRU META EMBEDDED SIGNUP */}
+        <section className="relative bg-white rounded-[30px] p-6 md:p-8 mb-8 shadow-xl border border-slate-100 overflow-hidden">
+          {!isEliteOrTeam && (
+             <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-white/80 backdrop-blur-md p-6 text-center">
+                <div className="bg-amber-500 text-black px-4 py-1 rounded-full font-black text-[10px] uppercase mb-2">{t("premiumBadge")}</div>
+                <h3 className="text-slate-900 font-black uppercase italic text-lg tracking-tighter">WhatsApp Automations</h3>
+                <p className="text-slate-500 text-[10px] font-bold uppercase max-w-md mt-1">
+                  {t("paymentPremiumTextBefore")}<span className="text-amber-600">{t("premiumElite")}</span>{t("premiumOr")}<span className="text-amber-600">{t("premiumTeam")}</span>
+                </p>
+                <Link href="/upgrade" className="mt-4 px-6 py-2 bg-slate-900 text-white rounded-lg font-black uppercase text-[9px] italic hover:bg-amber-500 hover:text-black transition-all">
+                  {t("upgradeBtn")}
+                </Link>
+             </div>
+          )}
+
+          <div className={`transition-all ${!isEliteOrTeam ? 'blur-sm grayscale opacity-30 pointer-events-none' : ''}`}>
+            <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-6">
+              <div>
+                <h2 className="text-lg md:text-xl font-black uppercase italic text-slate-900 tracking-tighter mb-2 border-l-4 border-emerald-500 pl-3">
+                  WhatsApp Automations
+                </h2>
+                <p className="text-slate-500 text-[11px] font-bold max-w-2xl">
+                  Conectează numărul firmei pentru confirmări și remindere automate trimise direct de pe WhatsApp-ul businessului.
+                </p>
+              </div>
+              <div className={`px-4 py-2 rounded-full text-[9px] font-black uppercase italic border ${
+                whatsAppConnection?.status === "connected"
+                  ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                  : whatsAppConnection?.status === "setup_started"
+                    ? "bg-amber-50 text-amber-700 border-amber-200"
+                    : "bg-slate-50 text-slate-400 border-slate-200"
+              }`}>
+                {whatsAppConnection?.status === "connected" ? "Conectat" : whatsAppConnection?.status === "setup_started" ? "Configurare pornită" : "Neconectat"}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-4">
+              <input
+                value={whatsAppBusinessName}
+                onChange={(e) => setWhatsAppBusinessName(e.target.value)}
+                placeholder="Nume firmă"
+                className="bg-slate-50 border-2 border-slate-100 rounded-xl px-4 py-3 text-[12px] font-bold outline-none focus:border-emerald-500"
+              />
+              <select
+                value={whatsAppCountry}
+                onChange={(e) => setWhatsAppCountry(e.target.value)}
+                className="bg-slate-50 border-2 border-slate-100 rounded-xl px-4 py-3 text-[12px] font-black outline-none focus:border-emerald-500"
+              >
+                {WHATSAPP_COUNTRY_OPTIONS.map((country) => <option key={country} value={country}>{country}</option>)}
+              </select>
+              <input
+                value={whatsAppPhone}
+                onChange={(e) => setWhatsAppPhone(e.target.value)}
+                placeholder="+39 ..."
+                className="bg-slate-50 border-2 border-slate-100 rounded-xl px-4 py-3 text-[12px] font-bold outline-none focus:border-emerald-500"
+              />
+              <select
+                value={whatsAppLanguage}
+                onChange={(e) => setWhatsAppLanguage(e.target.value)}
+                className="bg-slate-50 border-2 border-slate-100 rounded-xl px-4 py-3 text-[12px] font-black outline-none focus:border-emerald-500"
+              >
+                {WHATSAPP_LANGUAGE_OPTIONS.map((language) => <option key={language} value={language}>{language.toUpperCase()}</option>)}
+              </select>
+            </div>
+
+            <div className="flex flex-col md:flex-row gap-3">
+              <button
+                type="button"
+                onClick={handleConnectWhatsApp}
+                disabled={connectingWhatsApp}
+                className="px-6 py-3 bg-emerald-500 text-white rounded-xl font-black text-[10px] uppercase italic hover:bg-emerald-600 transition-all shadow-md disabled:opacity-50"
+              >
+                {connectingWhatsApp ? "Se pregătește..." : "Conectează WhatsApp Business"}
+              </button>
+              <button
+                type="button"
+                onClick={refreshWhatsAppStatus}
+                className="px-6 py-3 bg-white border-2 border-slate-200 text-slate-600 rounded-xl font-black text-[10px] uppercase italic hover:border-emerald-500 hover:text-emerald-600 transition-all"
+              >
+                Verifică status
+              </button>
+            </div>
+
+            <div className="mt-5 bg-slate-50 border-2 border-slate-100 rounded-[22px] p-5">
+              <p className="text-[10px] font-black uppercase italic text-slate-700 mb-2">Ce face Chronos automat</p>
+              <p className="text-[11px] font-bold text-slate-500 leading-relaxed">
+                Salvează conexiunea firmei, pregătește conectarea Meta, folosește numărul firmei pentru mesaje automate și va activa template-urile pe limbi după configurarea Embedded Signup.
+              </p>
+              {whatsAppConnection?.last_error && (
+                <p className="mt-3 text-[10px] font-bold text-red-500 italic">{whatsAppConnection.last_error}</p>
+              )}
             </div>
           </div>
         </section>
