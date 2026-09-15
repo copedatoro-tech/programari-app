@@ -8,6 +8,13 @@ import { QRCodeSVG } from "qrcode.react";
 import { showToast } from "@/lib/toast";
 import TwoFactorSetup from "@/components/TwoFactorSetup";
 
+declare global {
+  interface Window {
+    FB?: any;
+    fbAsyncInit?: () => void;
+  }
+}
+
 type ManualBlocksMap = Record<string, string[]>;
 type StoredManualBlocksMap = Record<string, string[] | Record<string, ManualBlocksMap> | undefined>;
 type WorkLocationRow = {
@@ -25,6 +32,18 @@ type WhatsAppConnectionStatus = {
   templates_status?: string | null;
   last_error?: string | null;
 } | null;
+type MetaSignupConfig = {
+  configured: boolean;
+  appId: string | null;
+  configId: string | null;
+  graphVersion: string;
+};
+type EmbeddedSignupResult = {
+  code: string;
+  wabaId: string;
+  phoneNumberId: string;
+  displayPhoneNumber?: string | null;
+};
 
 const CURRENCY_OPTIONS = ["RON", "EUR", "USD", "GBP", "HUF", "PLN"];
 const WHATSAPP_COUNTRY_OPTIONS = [
@@ -43,6 +62,32 @@ const WHATSAPP_COUNTRY_OPTIONS = [
 const WHATSAPP_LANGUAGE_OPTIONS = ["ro", "it", "en", "fr", "de", "es", "pt", "pl", "hu"];
 const DEFAULT_NOTIF_SETTINGS: NotificationSettings = { in_app_enabled: true, system_enabled: false, sound_enabled: true, volume: 75 };
 const LOCATION_BLOCKS_KEY = "__work_location_manual_blocks";
+const FACEBOOK_SDK_SCRIPT_ID = "facebook-jssdk";
+
+function loadFacebookSdk() {
+  return new Promise<void>((resolve, reject) => {
+    if (typeof window === "undefined") return reject(new Error("Browser unavailable"));
+    if (window.FB) return resolve();
+
+    const existingScript = document.getElementById(FACEBOOK_SDK_SCRIPT_ID) as HTMLScriptElement | null;
+    window.fbAsyncInit = () => resolve();
+
+    if (existingScript) {
+      existingScript.addEventListener("load", () => resolve(), { once: true });
+      existingScript.addEventListener("error", () => reject(new Error("Facebook SDK failed to load")), { once: true });
+      return;
+    }
+
+    const script = document.createElement("script");
+    script.id = FACEBOOK_SDK_SCRIPT_ID;
+    script.async = true;
+    script.defer = true;
+    script.crossOrigin = "anonymous";
+    script.src = "https://connect.facebook.net/en_US/sdk.js";
+    script.onerror = () => reject(new Error("Facebook SDK failed to load"));
+    document.body.appendChild(script);
+  });
+}
 
 function SettingsContent() {
   const t = useTranslations("settings");
@@ -349,6 +394,102 @@ function SettingsContent() {
     }
   };
 
+  const runMetaEmbeddedSignup = async (config: MetaSignupConfig): Promise<EmbeddedSignupResult> => {
+    if (!config.appId || !config.configId) throw new Error(t("whatsappAutomations.metaNotConfigured"));
+
+    try {
+      await loadFacebookSdk();
+    } catch {
+      throw new Error(t("whatsappAutomations.sdkLoadError"));
+    }
+
+    window.FB?.init({
+      appId: config.appId,
+      autoLogAppEvents: true,
+      xfbml: false,
+      version: config.graphVersion,
+    });
+
+    return new Promise((resolve, reject) => {
+      let authCode = "";
+      let wabaId = "";
+      let phoneNumberId = "";
+      let displayPhoneNumber: string | null = null;
+      let settled = false;
+      let authReturned = false;
+
+      const cleanup = () => {
+        window.removeEventListener("message", handleMessage);
+        window.clearTimeout(timeoutId);
+      };
+
+      const fail = (message: string) => {
+        if (settled) return;
+        settled = true;
+        cleanup();
+        reject(new Error(message));
+      };
+
+      const completeIfReady = () => {
+        if (settled || !authReturned) return;
+        if (authCode && wabaId && phoneNumberId) {
+          settled = true;
+          cleanup();
+          resolve({ code: authCode, wabaId, phoneNumberId, displayPhoneNumber });
+          return;
+        }
+        window.setTimeout(() => {
+          if (!settled && authReturned) fail(t("whatsappAutomations.metaMissingData"));
+        }, 2500);
+      };
+
+      const handleMessage = (event: MessageEvent) => {
+        if (!event.origin.endsWith("facebook.com")) return;
+        let payload: any = event.data;
+        if (typeof payload === "string") {
+          try {
+            payload = JSON.parse(payload);
+          } catch {
+            return;
+          }
+        }
+        if (payload?.type !== "WA_EMBEDDED_SIGNUP") return;
+
+        const data = payload.data || {};
+        if (data.waba_id) wabaId = data.waba_id;
+        if (data.phone_number_id) phoneNumberId = data.phone_number_id;
+        if (data.display_phone_number) displayPhoneNumber = data.display_phone_number;
+        completeIfReady();
+      };
+
+      const timeoutId = window.setTimeout(() => {
+        fail(t("whatsappAutomations.metaTimeout"));
+      }, 60000);
+
+      window.addEventListener("message", handleMessage);
+
+      window.FB?.login((response: any) => {
+        authReturned = true;
+        authCode = response?.authResponse?.code || "";
+        if (!authCode) {
+          fail(t("whatsappAutomations.metaCancelled"));
+          return;
+        }
+        completeIfReady();
+      }, {
+        config_id: config.configId,
+        response_type: "code",
+        override_default_response_type: true,
+        extras: {
+          setup: {
+            business: { name: whatsAppBusinessName || undefined },
+            phone: { display_phone_number: whatsAppPhone || undefined },
+          },
+        },
+      });
+    });
+  };
+
   const refreshWhatsAppStatus = async () => {
     try {
       const res = await fetch("/api/whatsapp/status");
@@ -380,15 +521,34 @@ function SettingsContent() {
         }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Eroare la conectarea WhatsApp.");
-      if (data.url) {
-        window.location.href = data.url;
+      if (!res.ok) throw new Error(t("whatsappAutomations.connectError"));
+
+      const setupConfigRes = await fetch("/api/whatsapp/setup-config");
+      const setupConfig = await setupConfigRes.json() as MetaSignupConfig;
+      if (!setupConfigRes.ok) throw new Error(t("whatsappAutomations.connectError"));
+
+      if (!setupConfig.configured) {
+        setWhatsAppConnection(data.connection || null);
+        await showToast({
+          message: t("whatsappAutomations.metaNotConfigured"),
+          type: "info",
+        });
         return;
       }
-      setWhatsAppConnection(data.connection || null);
+
+      const signupResult = await runMetaEmbeddedSignup(setupConfig);
+      const completeRes = await fetch("/api/whatsapp/embedded-signup/complete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(signupResult),
+      });
+      const completeData = await completeRes.json();
+      if (!completeRes.ok) throw new Error(t("whatsappAutomations.connectError"));
+
+      setWhatsAppConnection(completeData.connection || null);
       await showToast({
-        message: t("whatsappAutomations.savedMessage"),
-        type: "info",
+        message: t("whatsappAutomations.connectedMessage"),
+        type: "success",
       });
     } catch (e: any) {
       await showToast({ message: e?.message || t("whatsappAutomations.connectError"), type: "error" });

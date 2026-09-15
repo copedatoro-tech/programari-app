@@ -1186,6 +1186,12 @@
                                            "automaticText":  "Elmenti a vállalkozás kapcsolatát, előkészíti a Meta-beállítást, a cég számát használja automatikus üzenetekhez, és az Embedded Signup beállítása után aktiválja a többnyelvű sablonokat.",
                                            "savedMessage":  "A WhatsApp-adatok mentve. A következő lépés a Meta Embedded Signup beállítása.",
                                            "connectError":  "Hiba a WhatsApp csatlakoztatásakor.",
+                                           "connectedMessage":  "A WhatsApp Business sikeresen csatlakoztatva.",
+                                           "metaNotConfigured":  "A WhatsApp-adatok mentve. A Meta Embedded Signup még nincs beállítva a szerveren.",
+                                           "metaCancelled":  "A Meta-kapcsolat megszakadt vagy nem lett engedélyezve.",
+                                           "metaMissingData":  "A Meta nem küldött vissza minden szükséges adatot a WhatsApp-számhoz.",
+                                           "metaTimeout":  "A Meta-kapcsolat túl sokáig tartott. Kérjük, próbáld újra.",
+                                           "sdkLoadError":  "Nem sikerült elindítani a Meta-kapcsolódást. Kérjük, próbáld újra.",
                                            "countries":  {
                                                                "RO":  "Románia",
                                                                "IT":  "Olaszország",

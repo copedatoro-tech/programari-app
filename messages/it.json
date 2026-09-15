@@ -1186,6 +1186,12 @@
                                            "automaticText":  "Salva la connessione dell'azienda, prepara la configurazione Meta, usa il numero dell'azienda per i messaggi automatici e attiverà i template multilingua dopo la configurazione di Embedded Signup.",
                                            "savedMessage":  "I dati WhatsApp sono stati salvati. Il prossimo passo è configurare Meta Embedded Signup.",
                                            "connectError":  "Errore durante il collegamento di WhatsApp.",
+                                           "connectedMessage":  "WhatsApp Business è stato collegato con successo.",
+                                           "metaNotConfigured":  "I dati WhatsApp sono stati salvati. Meta Embedded Signup non è ancora configurato sul server.",
+                                           "metaCancelled":  "La connessione Meta è stata annullata o non autorizzata.",
+                                           "metaMissingData":  "Meta non ha restituito tutti i dati necessari per il numero WhatsApp.",
+                                           "metaTimeout":  "La connessione Meta ha richiesto troppo tempo. Riprova.",
+                                           "sdkLoadError":  "Non è stato possibile avviare la connessione Meta. Riprova.",
                                            "countries":  {
                                                                "RO":  "Romania",
                                                                "IT":  "Italia",

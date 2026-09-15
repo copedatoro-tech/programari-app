@@ -1186,6 +1186,12 @@
                                            "automaticText":  "Speichert die Unternehmensverbindung, bereitet die Meta-Einrichtung vor, nutzt die Geschäftsnummer für automatische Nachrichten und aktiviert mehrsprachige Vorlagen nach der Embedded-Signup-Konfiguration.",
                                            "savedMessage":  "Die WhatsApp-Daten wurden gespeichert. Der nächste Schritt ist die Konfiguration von Meta Embedded Signup.",
                                            "connectError":  "Fehler beim Verbinden von WhatsApp.",
+                                           "connectedMessage":  "WhatsApp Business wurde erfolgreich verbunden.",
+                                           "metaNotConfigured":  "Die WhatsApp-Daten wurden gespeichert. Meta Embedded Signup ist auf dem Server noch nicht konfiguriert.",
+                                           "metaCancelled":  "Die Meta-Verbindung wurde abgebrochen oder nicht autorisiert.",
+                                           "metaMissingData":  "Meta hat nicht alle erforderlichen Daten für die WhatsApp-Nummer zurückgegeben.",
+                                           "metaTimeout":  "Die Meta-Verbindung hat zu lange gedauert. Bitte versuchen Sie es erneut.",
+                                           "sdkLoadError":  "Die Meta-Verbindung konnte nicht gestartet werden. Bitte versuchen Sie es erneut.",
                                            "countries":  {
                                                                "RO":  "Rumänien",
                                                                "IT":  "Italien",
