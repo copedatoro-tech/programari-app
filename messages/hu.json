@@ -1212,6 +1212,22 @@
                                            "aiDisabled":  "AI kikapcsolva",
                                            "aiHandoffPlaceholder":  "Telefon kézi átvételhez",
                                            "aiNotesPlaceholder":  "AI-jegyzetek: hangnem, szabályok, fontos szolgáltatások",
+                                           "aiRulesTitle":  "Válaszadási szabályok",
+                                           "aiFeaturedServicesTitle":  "Fontos szolgáltatások",
+                                           "aiNoServicesText":  "Adj hozzá szolgáltatásokat a Chronosban, hogy itt kiemelhesd őket.",
+                                           "aiToneOptions":  {
+                                                               "professional":  "Professzionális",
+                                                               "warm":  "Meleg és barátságos",
+                                                               "concise":  "Rövid és közvetlen",
+                                                               "premium":  "Prémium és elegáns"
+                                           },
+                                           "aiRuleOptions":  {
+                                                               "confirm_before_booking":  "Létrehozás előtt egyeztessen az ügyféllel",
+                                                               "offer_only_available_slots":  "Csak Chronosban elérhető időpontokat ajánljon",
+                                                               "handoff_on_uncertainty":  "Bizonytalanság esetén adja át a csapatnak",
+                                                               "mention_payment_policy":  "Említse a fizetési/előleg szabályt",
+                                                               "ask_for_missing_details":  "Folytatás előtt kérje be a hiányzó adatokat"
+                                           },
                                            "aiSaveButton":  "AI Receptionist mentése",
                                            "aiSavingButton":  "Mentés...",
                                            "aiSavedMessage":  "Az AI Receptionist beállításai mentve.",

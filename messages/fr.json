@@ -1212,6 +1212,22 @@
                                            "aiDisabled":  "IA désactivée",
                                            "aiHandoffPlaceholder":  "Téléphone pour reprise manuelle",
                                            "aiNotesPlaceholder":  "Notes pour l'IA : ton, règles, services importants",
+                                           "aiRulesTitle":  "Règles de réponse",
+                                           "aiFeaturedServicesTitle":  "Services importants",
+                                           "aiNoServicesText":  "Ajoutez des services dans Chronos pour les mettre en avant ici.",
+                                           "aiToneOptions":  {
+                                                               "professional":  "Professionnel",
+                                                               "warm":  "Chaleureux et amical",
+                                                               "concise":  "Court et direct",
+                                                               "premium":  "Premium et élégant"
+                                           },
+                                           "aiRuleOptions":  {
+                                                               "confirm_before_booking":  "Confirmer avec le client avant de créer",
+                                                               "offer_only_available_slots":  "Proposer uniquement les horaires disponibles dans Chronos",
+                                                               "handoff_on_uncertainty":  "Transférer à l'équipe en cas de doute",
+                                                               "mention_payment_policy":  "Mentionner la politique de paiement/acompte",
+                                                               "ask_for_missing_details":  "Demander les détails manquants avant de continuer"
+                                           },
                                            "aiSaveButton":  "Enregistrer AI Receptionist",
                                            "aiSavingButton":  "Enregistrement...",
                                            "aiSavedMessage":  "Les paramètres AI Receptionist ont été enregistrés.",

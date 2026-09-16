@@ -1212,6 +1212,22 @@
                                            "aiDisabled":  "AI disattivata",
                                            "aiHandoffPlaceholder":  "Telefono per intervento manuale",
                                            "aiNotesPlaceholder":  "Note per l'AI: tono, regole, servizi importanti",
+                                           "aiRulesTitle":  "Regole di risposta",
+                                           "aiFeaturedServicesTitle":  "Servizi importanti",
+                                           "aiNoServicesText":  "Aggiungi servizi in Chronos per evidenziarli qui.",
+                                           "aiToneOptions":  {
+                                                               "professional":  "Professionale",
+                                                               "warm":  "Caldo e amichevole",
+                                                               "concise":  "Breve e diretto",
+                                                               "premium":  "Premium ed elegante"
+                                           },
+                                           "aiRuleOptions":  {
+                                                               "confirm_before_booking":  "Conferma con il cliente prima di creare",
+                                                               "offer_only_available_slots":  "Offri solo orari disponibili in Chronos",
+                                                               "handoff_on_uncertainty":  "Passa al team in caso di dubbio",
+                                                               "mention_payment_policy":  "Menziona la politica di pagamento/acconto",
+                                                               "ask_for_missing_details":  "Chiedi i dettagli mancanti prima di continuare"
+                                           },
                                            "aiSaveButton":  "Salva AI Receptionist",
                                            "aiSavingButton":  "Salvataggio...",
                                            "aiSavedMessage":  "Le impostazioni di AI Receptionist sono state salvate.",

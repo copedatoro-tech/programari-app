@@ -1435,6 +1435,22 @@
                                            "aiDisabled":  "AI oprit",
                                            "aiHandoffPlaceholder":  "Telefon pentru preluare manuală",
                                            "aiNotesPlaceholder":  "Note pentru AI: ton, reguli, servicii importante",
+                                           "aiRulesTitle":  "Reguli de răspuns",
+                                           "aiFeaturedServicesTitle":  "Servicii importante",
+                                           "aiNoServicesText":  "Adaugă servicii în Chronos ca să le poți evidenția aici.",
+                                           "aiToneOptions":  {
+                                                               "professional":  "Profesional",
+                                                               "warm":  "Cald și prietenos",
+                                                               "concise":  "Scurt și direct",
+                                                               "premium":  "Premium și elegant"
+                                           },
+                                           "aiRuleOptions":  {
+                                                               "confirm_before_booking":  "Confirmă cu clientul înainte de creare",
+                                                               "offer_only_available_slots":  "Oferă doar ore disponibile în Chronos",
+                                                               "handoff_on_uncertainty":  "Transferă către personal dacă nu este sigur",
+                                                               "mention_payment_policy":  "Menționează politica de plată/avans",
+                                                               "ask_for_missing_details":  "Cere datele lipsă înainte să continue"
+                                           },
                                            "aiSaveButton":  "Salvează AI Receptionist",
                                            "aiSavingButton":  "Se salvează...",
                                            "aiSavedMessage":  "Setările AI Receptionist au fost salvate.",

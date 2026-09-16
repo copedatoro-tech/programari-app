@@ -1212,6 +1212,22 @@
                                            "aiDisabled":  "AI wyłączona",
                                            "aiHandoffPlaceholder":  "Telefon do ręcznego przejęcia",
                                            "aiNotesPlaceholder":  "Notatki dla AI: ton, zasady, ważne usługi",
+                                           "aiRulesTitle":  "Zasady odpowiedzi",
+                                           "aiFeaturedServicesTitle":  "Ważne usługi",
+                                           "aiNoServicesText":  "Dodaj usługi w Chronos, aby wyróżnić je tutaj.",
+                                           "aiToneOptions":  {
+                                                               "professional":  "Profesjonalny",
+                                                               "warm":  "Ciepły i przyjazny",
+                                                               "concise":  "Krótki i bezpośredni",
+                                                               "premium":  "Premium i elegancki"
+                                           },
+                                           "aiRuleOptions":  {
+                                                               "confirm_before_booking":  "Potwierdź z klientem przed utworzeniem",
+                                                               "offer_only_available_slots":  "Oferuj tylko terminy dostępne w Chronos",
+                                                               "handoff_on_uncertainty":  "Przekaż zespołowi w razie niepewności",
+                                                               "mention_payment_policy":  "Wspomnij zasady płatności/zadatku",
+                                                               "ask_for_missing_details":  "Poproś o brakujące dane przed kontynuacją"
+                                           },
                                            "aiSaveButton":  "Zapisz AI Receptionist",
                                            "aiSavingButton":  "Zapisywanie...",
                                            "aiSavedMessage":  "Ustawienia AI Receptionist zostały zapisane.",

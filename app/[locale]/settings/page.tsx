@@ -22,6 +22,10 @@ type WorkLocationRow = {
   name: string;
   address?: string;
 };
+type ServiceOption = {
+  id: string;
+  nume_serviciu: string;
+};
 type NotificationSettings = { in_app_enabled: boolean; system_enabled: boolean; sound_enabled: boolean; volume: number };
 type WhatsAppConnectionStatus = {
   business_name?: string | null;
@@ -35,6 +39,9 @@ type WhatsAppConnectionStatus = {
   ai_receptionist_status?: string | null;
   ai_receptionist_handoff_phone?: string | null;
   ai_receptionist_notes?: string | null;
+  ai_receptionist_tone?: string | null;
+  ai_receptionist_rules?: string[] | null;
+  ai_receptionist_featured_service_ids?: string[] | null;
 } | null;
 type MetaSignupConfig = {
   configured: boolean;
@@ -64,6 +71,14 @@ const WHATSAPP_COUNTRY_OPTIONS = [
   { code: "US", name: "Statele Unite", prefix: "+1", example: "+1 xxx xxx xxxx" },
 ];
 const WHATSAPP_LANGUAGE_OPTIONS = ["ro", "it", "en", "fr", "de", "es", "pt", "pl", "hu"];
+const AI_RECEPTIONIST_TONES = ["professional", "warm", "concise", "premium"];
+const AI_RECEPTIONIST_RULES = [
+  "confirm_before_booking",
+  "offer_only_available_slots",
+  "handoff_on_uncertainty",
+  "mention_payment_policy",
+  "ask_for_missing_details",
+];
 const DEFAULT_NOTIF_SETTINGS: NotificationSettings = { in_app_enabled: true, system_enabled: false, sound_enabled: true, volume: 75 };
 const LOCATION_BLOCKS_KEY = "__work_location_manual_blocks";
 const FACEBOOK_SDK_SCRIPT_ID = "facebook-jssdk";
@@ -193,7 +208,11 @@ function SettingsContent() {
   const [aiReceptionistEnabled, setAiReceptionistEnabled] = useState(false);
   const [aiReceptionistHandoffPhone, setAiReceptionistHandoffPhone] = useState("");
   const [aiReceptionistNotes, setAiReceptionistNotes] = useState("");
+  const [aiReceptionistTone, setAiReceptionistTone] = useState("professional");
+  const [aiReceptionistRules, setAiReceptionistRules] = useState<string[]>(["confirm_before_booking", "offer_only_available_slots", "ask_for_missing_details"]);
+  const [aiReceptionistFeaturedServiceIds, setAiReceptionistFeaturedServiceIds] = useState<string[]>([]);
   const [savingAiReceptionist, setSavingAiReceptionist] = useState(false);
+  const [serviceOptions, setServiceOptions] = useState<ServiceOption[]>([]);
 
   // ✅ Notificări
   const [notifSettings, setNotifSettings] = useState<NotificationSettings>(DEFAULT_NOTIF_SETTINGS);
@@ -203,6 +222,8 @@ function SettingsContent() {
   const weekdaysShort = t.raw("weekdaysShort") as string[];
   const weekdayLetters = t.raw("weekdayLetters") as string[];
   const whatsAppCountryLabels = t.raw("whatsappAutomations.countries") as Record<string, string>;
+  const aiToneLabels = t.raw("whatsappAutomations.aiToneOptions") as Record<string, string>;
+  const aiRuleLabels = t.raw("whatsappAutomations.aiRuleOptions") as Record<string, string>;
 
   const isEliteOrTeam = useMemo(() => {
     return userPlan.includes("ELITE") || userPlan.includes("TEAM") || userPlan.includes("BUSINESS");
@@ -351,6 +372,12 @@ function SettingsContent() {
         setStoredManualBlocks({});
         setManualBlocks({});
       }
+      const { data: services } = await supabase
+        .from("services")
+        .select("id,nume_serviciu")
+        .eq("user_id", currentUid)
+        .order("created_at", { ascending: false });
+      setServiceOptions((services || []) as ServiceOption[]);
       }
     } catch {
       setTechnicalError(true);
@@ -545,6 +572,9 @@ function SettingsContent() {
         setAiReceptionistEnabled(!!connection.ai_receptionist_enabled);
         setAiReceptionistHandoffPhone(connection.ai_receptionist_handoff_phone || "");
         setAiReceptionistNotes(connection.ai_receptionist_notes || "");
+        setAiReceptionistTone(connection.ai_receptionist_tone || "professional");
+        setAiReceptionistRules(Array.isArray(connection.ai_receptionist_rules) ? connection.ai_receptionist_rules : []);
+        setAiReceptionistFeaturedServiceIds(Array.isArray(connection.ai_receptionist_featured_service_ids) ? connection.ai_receptionist_featured_service_ids : []);
       }
     } catch {
       // statusul WhatsApp este informativ; nu blocăm pagina de setări
@@ -561,6 +591,9 @@ function SettingsContent() {
           enabled: aiReceptionistEnabled,
           handoffPhone: aiReceptionistHandoffPhone,
           notes: aiReceptionistNotes,
+          tone: aiReceptionistTone,
+          rules: aiReceptionistRules,
+          featuredServiceIds: aiReceptionistFeaturedServiceIds,
         }),
       });
       const data = await res.json();
@@ -572,6 +605,18 @@ function SettingsContent() {
     } finally {
       setSavingAiReceptionist(false);
     }
+  };
+
+  const toggleAiRule = (rule: string) => {
+    setAiReceptionistRules((current) => current.includes(rule)
+      ? current.filter((item) => item !== rule)
+      : [...current, rule]);
+  };
+
+  const toggleAiFeaturedService = (serviceId: string) => {
+    setAiReceptionistFeaturedServiceIds((current) => current.includes(serviceId)
+      ? current.filter((item) => item !== serviceId)
+      : [...current, serviceId]);
   };
 
   const handleConnectWhatsApp = async () => {
@@ -1337,12 +1382,67 @@ function SettingsContent() {
                   placeholder={t("whatsappAutomations.aiHandoffPlaceholder")}
                   className="bg-slate-50 border-2 border-slate-100 rounded-xl px-4 py-3 text-[12px] font-bold outline-none focus:border-emerald-500"
                 />
-                <input
-                  value={aiReceptionistNotes}
-                  onChange={(e) => setAiReceptionistNotes(e.target.value)}
-                  placeholder={t("whatsappAutomations.aiNotesPlaceholder")}
-                  className="bg-slate-50 border-2 border-slate-100 rounded-xl px-4 py-3 text-[12px] font-bold outline-none focus:border-emerald-500"
-                />
+                <select
+                  value={aiReceptionistTone}
+                  onChange={(e) => setAiReceptionistTone(e.target.value)}
+                  className="bg-slate-50 border-2 border-slate-100 rounded-xl px-4 py-3 text-[12px] font-black outline-none focus:border-emerald-500"
+                >
+                  {AI_RECEPTIONIST_TONES.map((tone) => (
+                    <option key={tone} value={tone}>{aiToneLabels[tone] || tone}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3">
+                <div className="bg-slate-50 border-2 border-slate-100 rounded-[18px] p-4">
+                  <p className="text-[9px] font-black uppercase italic text-slate-600 mb-3">
+                    {t("whatsappAutomations.aiRulesTitle")}
+                  </p>
+                  <div className="flex flex-col gap-2">
+                    {AI_RECEPTIONIST_RULES.map((rule) => {
+                      const selected = aiReceptionistRules.includes(rule);
+                      return (
+                        <button
+                          key={rule}
+                          type="button"
+                          onClick={() => toggleAiRule(rule)}
+                          className={`text-left px-3 py-2 rounded-xl border-2 text-[10px] font-bold transition-all ${
+                            selected ? "bg-emerald-500 text-white border-emerald-500" : "bg-white text-slate-500 border-slate-100 hover:border-emerald-300"
+                          }`}
+                        >
+                          {aiRuleLabels[rule] || rule}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <div className="bg-slate-50 border-2 border-slate-100 rounded-[18px] p-4">
+                  <p className="text-[9px] font-black uppercase italic text-slate-600 mb-3">
+                    {t("whatsappAutomations.aiFeaturedServicesTitle")}
+                  </p>
+                  {serviceOptions.length === 0 ? (
+                    <p className="text-[10px] font-bold text-slate-400 italic">{t("whatsappAutomations.aiNoServicesText")}</p>
+                  ) : (
+                    <div className="flex flex-wrap gap-2">
+                      {serviceOptions.map((service) => {
+                        const selected = aiReceptionistFeaturedServiceIds.includes(service.id);
+                        return (
+                          <button
+                            key={service.id}
+                            type="button"
+                            onClick={() => toggleAiFeaturedService(service.id)}
+                            className={`px-3 py-2 rounded-xl border-2 text-[10px] font-black transition-all ${
+                              selected ? "bg-emerald-500 text-white border-emerald-500" : "bg-white text-slate-500 border-slate-100 hover:border-emerald-300"
+                            }`}
+                          >
+                            {service.nume_serviciu}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
               </div>
 
               <button
