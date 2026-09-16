@@ -11,6 +11,10 @@ export type BusinessWhatsAppConnection = {
   access_token: string | null;
   status: string | null;
   templates_status: string | null;
+  ai_receptionist_enabled?: boolean | null;
+  ai_receptionist_status?: string | null;
+  ai_receptionist_handoff_phone?: string | null;
+  ai_receptionist_notes?: string | null;
 };
 
 export type WhatsAppCredentialsResult =
@@ -39,7 +43,7 @@ export async function getBusinessWhatsAppCredentials(
 ): Promise<WhatsAppCredentialsResult> {
   const { data: connection, error } = await supabaseAdmin
     .from("business_whatsapp_connections")
-    .select("user_id,business_name,country_code,default_language,display_phone_number,waba_id,phone_number_id,access_token,status,templates_status")
+    .select("user_id,business_name,country_code,default_language,display_phone_number,waba_id,phone_number_id,access_token,status,templates_status,ai_receptionist_enabled,ai_receptionist_status,ai_receptionist_handoff_phone,ai_receptionist_notes")
     .eq("user_id", userId)
     .maybeSingle();
 

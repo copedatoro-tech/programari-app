@@ -31,6 +31,10 @@ type WhatsAppConnectionStatus = {
   status?: string | null;
   templates_status?: string | null;
   last_error?: string | null;
+  ai_receptionist_enabled?: boolean | null;
+  ai_receptionist_status?: string | null;
+  ai_receptionist_handoff_phone?: string | null;
+  ai_receptionist_notes?: string | null;
 } | null;
 type MetaSignupConfig = {
   configured: boolean;
@@ -180,6 +184,10 @@ function SettingsContent() {
   const [whatsAppPhone, setWhatsAppPhone] = useState("");
   const [whatsAppLanguage, setWhatsAppLanguage] = useState("ro");
   const [connectingWhatsApp, setConnectingWhatsApp] = useState(false);
+  const [aiReceptionistEnabled, setAiReceptionistEnabled] = useState(false);
+  const [aiReceptionistHandoffPhone, setAiReceptionistHandoffPhone] = useState("");
+  const [aiReceptionistNotes, setAiReceptionistNotes] = useState("");
+  const [savingAiReceptionist, setSavingAiReceptionist] = useState(false);
 
   // ✅ Notificări
   const [notifSettings, setNotifSettings] = useState<NotificationSettings>(DEFAULT_NOTIF_SETTINGS);
@@ -501,9 +509,35 @@ function SettingsContent() {
         setWhatsAppCountry(connection.country_code || "RO");
         setWhatsAppPhone(connection.display_phone_number || "");
         setWhatsAppLanguage(connection.default_language || "ro");
+        setAiReceptionistEnabled(!!connection.ai_receptionist_enabled);
+        setAiReceptionistHandoffPhone(connection.ai_receptionist_handoff_phone || "");
+        setAiReceptionistNotes(connection.ai_receptionist_notes || "");
       }
     } catch {
       // statusul WhatsApp este informativ; nu blocăm pagina de setări
+    }
+  };
+
+  const handleSaveAiReceptionist = async () => {
+    setSavingAiReceptionist(true);
+    try {
+      const res = await fetch("/api/whatsapp/receptionist", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          enabled: aiReceptionistEnabled,
+          handoffPhone: aiReceptionistHandoffPhone,
+          notes: aiReceptionistNotes,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(t("whatsappAutomations.aiSaveError"));
+      setWhatsAppConnection(data.connection || null);
+      await showToast({ message: t("whatsappAutomations.aiSavedMessage"), type: "success" });
+    } catch (e: any) {
+      await showToast({ message: e?.message || t("whatsappAutomations.aiSaveError"), type: "error" });
+    } finally {
+      setSavingAiReceptionist(false);
     }
   };
 
@@ -1169,6 +1203,53 @@ function SettingsContent() {
               {whatsAppConnection?.last_error && (
                 <p className="mt-3 text-[10px] font-bold text-red-500 italic">{whatsAppConnection.last_error}</p>
               )}
+            </div>
+
+            <div className="mt-4 bg-white border-2 border-slate-100 rounded-[22px] p-5">
+              <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-3 mb-4">
+                <div>
+                  <p className="text-[10px] font-black uppercase italic text-slate-800 mb-1">
+                    {t("whatsappAutomations.aiTitle")}
+                  </p>
+                  <p className="text-[11px] font-bold text-slate-500 leading-relaxed max-w-2xl">
+                    {t("whatsappAutomations.aiText")}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setAiReceptionistEnabled((v) => !v)}
+                  disabled={whatsAppConnection?.status !== "connected"}
+                  className={`px-5 py-3 rounded-xl font-black text-[10px] uppercase italic transition-all shadow-md disabled:opacity-40 ${
+                    aiReceptionistEnabled ? "bg-emerald-500 text-white hover:bg-emerald-600" : "bg-slate-100 text-slate-500 hover:bg-slate-200"
+                  }`}
+                >
+                  {aiReceptionistEnabled ? t("whatsappAutomations.aiEnabled") : t("whatsappAutomations.aiDisabled")}
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <input
+                  value={aiReceptionistHandoffPhone}
+                  onChange={(e) => setAiReceptionistHandoffPhone(e.target.value)}
+                  placeholder={t("whatsappAutomations.aiHandoffPlaceholder")}
+                  className="bg-slate-50 border-2 border-slate-100 rounded-xl px-4 py-3 text-[12px] font-bold outline-none focus:border-emerald-500"
+                />
+                <input
+                  value={aiReceptionistNotes}
+                  onChange={(e) => setAiReceptionistNotes(e.target.value)}
+                  placeholder={t("whatsappAutomations.aiNotesPlaceholder")}
+                  className="bg-slate-50 border-2 border-slate-100 rounded-xl px-4 py-3 text-[12px] font-bold outline-none focus:border-emerald-500"
+                />
+              </div>
+
+              <button
+                type="button"
+                onClick={handleSaveAiReceptionist}
+                disabled={savingAiReceptionist || whatsAppConnection?.status !== "connected"}
+                className="mt-3 px-6 py-3 bg-slate-900 text-white rounded-xl font-black text-[10px] uppercase italic hover:bg-emerald-600 transition-all shadow-md disabled:opacity-40"
+              >
+                {savingAiReceptionist ? t("whatsappAutomations.aiSavingButton") : t("whatsappAutomations.aiSaveButton")}
+              </button>
             </div>
           </div>
         </section>
