@@ -1170,6 +1170,20 @@
                      "refreshStatusBtn":  "🔄 Status aktualisieren",
                      "techErrorBannerMsg":  "Vorübergehendes technisches Problem, außerhalb unserer Kontrolle — wird bearbeitet.",
                      "techErrorRetryBtn":  "🔄 Erneut versuchen",
+                     "businessIdentity":  {
+                                           "title":  "Unternehmensidentität",
+                                           "subtitle":  "Rechtliche Daten helfen Chronos, das Unternehmen für Abrechnung, Prüfungen, Duplikate und zukünftige Automatisierungen korrekt zu identifizieren.",
+                                           "badge":  "Rechtsprofil",
+                                           "legalNamePlaceholder":  "Offizieller Firmenname",
+                                           "taxIdPlaceholder":  "Steuernummer / USt-IdNr.",
+                                           "billingEmailPlaceholder":  "E-Mail für Abrechnung",
+                                           "addressPlaceholder":  "Steuerliche / rechtliche Adresse",
+                                           "helperText":  "Diese Daten ersetzen nicht die technische WhatsApp-Identität. Nachrichten werden weiterhin über die Meta phone_number_id und WABA ID geroutet.",
+                                           "saveButton":  "Firmendaten speichern",
+                                           "savingButton":  "Wird gespeichert...",
+                                           "savedMessage":  "Firmendaten wurden gespeichert.",
+                                           "saveError":  "Firmendaten konnten nicht gespeichert werden."
+                     },
                      "whatsappAutomations":  {
                                            "title":  "WhatsApp-Automatisierungen",
                                            "subtitle":  "Verbinden Sie die Geschäftsnummer für automatische Bestätigungen und Erinnerungen direkt über das WhatsApp des Unternehmens.",

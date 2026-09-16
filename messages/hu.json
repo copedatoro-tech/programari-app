@@ -1170,6 +1170,20 @@
                      "refreshStatusBtn":  "🔄 Állapot frissítése",
                      "techErrorBannerMsg":  "Ideiglenes technikai probléma, rajtunk kívülálló okból — folyamatban a megoldás.",
                      "techErrorRetryBtn":  "🔄 Újra próbálom",
+                     "businessIdentity":  {
+                                           "title":  "Vállalkozás azonosítása",
+                                           "subtitle":  "A jogi adatok segítenek a Chronosnak a vállalkozás helyes azonosításában számlázáshoz, ellenőrzésekhez, duplikációkhoz és jövőbeli automatizálásokhoz.",
+                                           "badge":  "Jogi profil",
+                                           "legalNamePlaceholder":  "Hivatalos cégnév",
+                                           "taxIdPlaceholder":  "Adószám / VAT ID",
+                                           "billingEmailPlaceholder":  "Számlázási e-mail",
+                                           "addressPlaceholder":  "Adózási / hivatalos cím",
+                                           "helperText":  "Ezek az adatok nem helyettesítik a technikai WhatsApp-azonosítást. Az üzenetek továbbra is a Meta phone_number_id és WABA ID alapján kerülnek irányításra.",
+                                           "saveButton":  "Cégadatok mentése",
+                                           "savingButton":  "Mentés...",
+                                           "savedMessage":  "A cégadatok mentve.",
+                                           "saveError":  "Nem sikerült menteni a cégadatokat."
+                     },
                      "whatsappAutomations":  {
                                            "title":  "WhatsApp automatizálások",
                                            "subtitle":  "Csatlakoztasd a vállalkozás számát, hogy az automatikus visszaigazolások és emlékeztetők a cég WhatsAppjáról menjenek ki.",

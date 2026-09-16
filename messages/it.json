@@ -1170,6 +1170,20 @@
                      "refreshStatusBtn":  "🔄 Verifica di nuovo",
                      "techErrorBannerMsg":  "Problema tecnico temporaneo, indipendente da noi — in fase di risoluzione.",
                      "techErrorRetryBtn":  "🔄 Riprova",
+                     "businessIdentity":  {
+                                           "title":  "Identità aziendale",
+                                           "subtitle":  "I dati legali aiutano Chronos a identificare correttamente l'attività per fatturazione, verifiche, duplicati e automazioni future.",
+                                           "badge":  "Profilo legale",
+                                           "legalNamePlaceholder":  "Ragione sociale",
+                                           "taxIdPlaceholder":  "Codice fiscale / Partita IVA",
+                                           "billingEmailPlaceholder":  "E-mail fatturazione",
+                                           "addressPlaceholder":  "Indirizzo fiscale / sede legale",
+                                           "helperText":  "Questi dati non sostituiscono l'identità tecnica WhatsApp. I messaggi restano instradati tramite phone_number_id e WABA ID di Meta.",
+                                           "saveButton":  "Salva dati azienda",
+                                           "savingButton":  "Salvataggio...",
+                                           "savedMessage":  "I dati aziendali sono stati salvati.",
+                                           "saveError":  "Impossibile salvare i dati aziendali."
+                     },
                      "whatsappAutomations":  {
                                            "title":  "Automazioni WhatsApp",
                                            "subtitle":  "Collega il numero dell'azienda per conferme e promemoria automatici inviati direttamente dal WhatsApp del business.",

@@ -1170,6 +1170,20 @@
                      "refreshStatusBtn":  "🔄 Sprawdź ponownie",
                      "techErrorBannerMsg":  "Tymczasowy problem techniczny, niezależny od nas — trwają prace nad rozwiązaniem.",
                      "techErrorRetryBtn":  "🔄 Spróbuj ponownie",
+                     "businessIdentity":  {
+                                           "title":  "Tożsamość firmy",
+                                           "subtitle":  "Dane prawne pomagają Chronos poprawnie identyfikować firmę do rozliczeń, weryfikacji, duplikatów i przyszłych automatyzacji.",
+                                           "badge":  "Profil prawny",
+                                           "legalNamePlaceholder":  "Pełna nazwa firmy",
+                                           "taxIdPlaceholder":  "NIP / VAT ID",
+                                           "billingEmailPlaceholder":  "E-mail do rozliczeń",
+                                           "addressPlaceholder":  "Adres podatkowy / siedziba",
+                                           "helperText":  "Te dane nie zastępują technicznej tożsamości WhatsApp. Wiadomości nadal są kierowane przez Meta phone_number_id i WABA ID.",
+                                           "saveButton":  "Zapisz dane firmy",
+                                           "savingButton":  "Zapisywanie...",
+                                           "savedMessage":  "Dane firmy zostały zapisane.",
+                                           "saveError":  "Nie udało się zapisać danych firmy."
+                     },
                      "whatsappAutomations":  {
                                            "title":  "Automatyzacje WhatsApp",
                                            "subtitle":  "Połącz numer firmy, aby automatyczne potwierdzenia i przypomnienia były wysyłane bezpośrednio z firmowego WhatsAppa.",

@@ -178,6 +178,12 @@ function SettingsContent() {
   const [depositPercent, setDepositPercent] = useState(100);
   const [reminder2hEnabled, setReminder2hEnabled] = useState(false);
   const [connectingStripe, setConnectingStripe] = useState(false);
+  const [businessLegalName, setBusinessLegalName] = useState("");
+  const [businessTaxId, setBusinessTaxId] = useState("");
+  const [businessTaxCountry, setBusinessTaxCountry] = useState("RO");
+  const [businessRegisteredAddress, setBusinessRegisteredAddress] = useState("");
+  const [businessBillingEmail, setBusinessBillingEmail] = useState("");
+  const [savingBusinessIdentity, setSavingBusinessIdentity] = useState(false);
   const [whatsAppConnection, setWhatsAppConnection] = useState<WhatsAppConnectionStatus>(null);
   const [whatsAppBusinessName, setWhatsAppBusinessName] = useState("");
   const [whatsAppCountry, setWhatsAppCountry] = useState("RO");
@@ -315,6 +321,11 @@ function SettingsContent() {
       setRebookingDays(profile.rebooking_reminder_days || 30);
       setDepositPercent(profile.deposit_percent || 100);
       setReminder2hEnabled(!!profile.reminder_2h_enabled);
+      setBusinessLegalName(profile.business_legal_name || "");
+      setBusinessTaxId(profile.business_tax_id || "");
+      setBusinessTaxCountry(profile.business_tax_country || "RO");
+      setBusinessRegisteredAddress(profile.business_registered_address || "");
+      setBusinessBillingEmail(profile.business_billing_email || "");
       setWorkLocations(Array.isArray(profile.work_locations) ? profile.work_locations : []);
       if (profile.notification_settings && typeof profile.notification_settings === "object") {
         setNotifSettings({ ...DEFAULT_NOTIF_SETTINGS, ...profile.notification_settings });
@@ -399,6 +410,28 @@ function SettingsContent() {
       // ignorăm
     } finally {
       setConnectingStripe(false);
+    }
+  };
+
+  const handleSaveBusinessIdentity = async () => {
+    if (!userId) return;
+    setSavingBusinessIdentity(true);
+    try {
+      const { error } = await supabase.from("profiles").update({
+        business_legal_name: businessLegalName.trim() || null,
+        business_tax_id: businessTaxId.trim() || null,
+        business_tax_country: businessTaxCountry || null,
+        business_registered_address: businessRegisteredAddress.trim() || null,
+        business_billing_email: businessBillingEmail.trim() || null,
+        updated_at: new Date().toISOString(),
+      }).eq("id", userId);
+
+      if (error) throw error;
+      await showToast({ message: t("businessIdentity.savedMessage"), type: "success", title: t("toastSavedTitle") });
+    } catch {
+      await showToast({ message: t("businessIdentity.saveError"), type: "error", title: t("toastSaveErrorTitle") });
+    } finally {
+      setSavingBusinessIdentity(false);
     }
   };
 
@@ -976,6 +1009,76 @@ function SettingsContent() {
                 <span className="[writing-mode:vertical-lr] rotate-180">{t("printBtn")}</span>
               </button>
             </div>
+          </div>
+        </section>
+
+        <section className="bg-white rounded-[30px] p-6 md:p-8 mb-8 shadow-xl border border-slate-100">
+          <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-6">
+            <div>
+              <h2 className="text-lg md:text-xl font-black uppercase italic text-slate-900 tracking-tighter mb-2 border-l-4 border-cyan-500 pl-3">
+                {t("businessIdentity.title")}
+              </h2>
+              <p className="text-slate-500 text-[11px] font-bold max-w-3xl">
+                {t("businessIdentity.subtitle")}
+              </p>
+            </div>
+            <div className="px-4 py-2 rounded-full text-[9px] font-black uppercase italic border bg-cyan-50 text-cyan-700 border-cyan-200">
+              {t("businessIdentity.badge")}
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+            <input
+              value={businessLegalName}
+              onChange={(e) => setBusinessLegalName(e.target.value)}
+              placeholder={t("businessIdentity.legalNamePlaceholder")}
+              className="bg-slate-50 border-2 border-slate-100 rounded-xl px-4 py-3 text-[12px] font-bold outline-none focus:border-cyan-500"
+            />
+            <input
+              value={businessTaxId}
+              onChange={(e) => setBusinessTaxId(e.target.value)}
+              placeholder={t("businessIdentity.taxIdPlaceholder")}
+              className="bg-slate-50 border-2 border-slate-100 rounded-xl px-4 py-3 text-[12px] font-bold outline-none focus:border-cyan-500"
+            />
+            <select
+              value={businessTaxCountry}
+              onChange={(e) => setBusinessTaxCountry(e.target.value)}
+              className="bg-slate-50 border-2 border-slate-100 rounded-xl px-4 py-3 text-[12px] font-black outline-none focus:border-cyan-500"
+            >
+              {WHATSAPP_COUNTRY_OPTIONS.map((country) => (
+                <option key={country.code} value={country.code}>
+                  {whatsAppCountryLabels[country.code] || country.name} ({country.prefix})
+                </option>
+              ))}
+            </select>
+            <input
+              value={businessBillingEmail}
+              onChange={(e) => setBusinessBillingEmail(e.target.value)}
+              placeholder={t("businessIdentity.billingEmailPlaceholder")}
+              className="bg-slate-50 border-2 border-slate-100 rounded-xl px-4 py-3 text-[12px] font-bold outline-none focus:border-cyan-500"
+            />
+          </div>
+
+          <textarea
+            value={businessRegisteredAddress}
+            onChange={(e) => setBusinessRegisteredAddress(e.target.value)}
+            placeholder={t("businessIdentity.addressPlaceholder")}
+            rows={3}
+            className="w-full bg-slate-50 border-2 border-slate-100 rounded-xl px-4 py-3 text-[12px] font-bold outline-none focus:border-cyan-500 resize-none"
+          />
+
+          <div className="mt-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+            <p className="text-[10px] font-bold text-slate-400 leading-relaxed max-w-3xl">
+              {t("businessIdentity.helperText")}
+            </p>
+            <button
+              type="button"
+              onClick={handleSaveBusinessIdentity}
+              disabled={savingBusinessIdentity}
+              className="px-6 py-3 bg-slate-900 text-white rounded-xl font-black text-[10px] uppercase italic hover:bg-cyan-600 transition-all shadow-md disabled:opacity-50"
+            >
+              {savingBusinessIdentity ? t("businessIdentity.savingButton") : t("businessIdentity.saveButton")}
+            </button>
           </div>
         </section>
 

@@ -1393,6 +1393,20 @@
                      "refreshStatusBtn":  "🔄 Reverifică starea",
                      "techErrorBannerMsg":  "Problemă tehnică temporară, independentă de noi — se lucrează la rezolvare.",
                      "techErrorRetryBtn":  "🔄 Reîncearcă",
+                     "businessIdentity":  {
+                                           "title":  "Identificare firmă",
+                                           "subtitle":  "Datele legale ajută Chronos să identifice corect firma pentru facturare, verificări, duplicate și automatizări viitoare.",
+                                           "badge":  "Profil legal",
+                                           "legalNamePlaceholder":  "Denumire legală firmă",
+                                           "taxIdPlaceholder":  "CUI / CIF / VAT ID",
+                                           "billingEmailPlaceholder":  "E-mail facturare",
+                                           "addressPlaceholder":  "Adresă fiscală / sediu social",
+                                           "helperText":  "Aceste date nu înlocuiesc identificarea tehnică WhatsApp. Mesajele se rutează în continuare după phone_number_id și WABA ID de la Meta.",
+                                           "saveButton":  "Salvează date firmă",
+                                           "savingButton":  "Se salvează...",
+                                           "savedMessage":  "Datele firmei au fost salvate.",
+                                           "saveError":  "Nu am putut salva datele firmei."
+                     },
                      "whatsappAutomations":  {
                                            "title":  "Automatizări WhatsApp",
                                            "subtitle":  "Conectează numărul firmei pentru confirmări și reamintiri automate trimise direct de pe WhatsApp-ul businessului.",

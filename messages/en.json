@@ -1170,6 +1170,20 @@
                      "refreshStatusBtn":  "🔄 Refresh status",
                      "techErrorBannerMsg":  "Temporary technical issue, outside our control — it\u0027s being worked on.",
                      "techErrorRetryBtn":  "🔄 Retry",
+                     "businessIdentity":  {
+                                           "title":  "Business identity",
+                                           "subtitle":  "Legal details help Chronos identify the business correctly for billing, checks, duplicates, and future automations.",
+                                           "badge":  "Legal profile",
+                                           "legalNamePlaceholder":  "Registered business name",
+                                           "taxIdPlaceholder":  "Tax ID / VAT ID",
+                                           "billingEmailPlaceholder":  "Billing email",
+                                           "addressPlaceholder":  "Registered fiscal / legal address",
+                                           "helperText":  "These details do not replace the technical WhatsApp identity. Messages are still routed by the Meta phone_number_id and WABA ID.",
+                                           "saveButton":  "Save business details",
+                                           "savingButton":  "Saving...",
+                                           "savedMessage":  "Business details were saved.",
+                                           "saveError":  "Could not save business details."
+                     },
                      "whatsappAutomations":  {
                                            "title":  "WhatsApp Automations",
                                            "subtitle":  "Connect the business phone number for automatic confirmations and reminders sent directly from the business WhatsApp.",
