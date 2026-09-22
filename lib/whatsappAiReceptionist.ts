@@ -88,7 +88,7 @@ export async function getWhatsAppReceptionistBusinessContext(userId: string) {
       .order("created_at", { ascending: false }),
     supabaseAdmin
       .from("business_whatsapp_connections")
-      .select("business_name,country_code,default_language,display_phone_number,status,ai_receptionist_enabled,ai_receptionist_status,ai_receptionist_handoff_phone,ai_receptionist_notes,ai_receptionist_tone,ai_receptionist_rules,ai_receptionist_featured_service_ids")
+      .select("business_name,country_code,default_language,display_phone_number,status,ai_receptionist_enabled,ai_receptionist_status,ai_receptionist_handoff_phone,ai_receptionist_handoff_country,ai_receptionist_notes,ai_receptionist_tone,ai_receptionist_rules,ai_receptionist_featured_service_ids")
       .eq("user_id", userId)
       .maybeSingle(),
   ]);

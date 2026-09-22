@@ -38,6 +38,7 @@ type WhatsAppConnectionStatus = {
   ai_receptionist_enabled?: boolean | null;
   ai_receptionist_status?: string | null;
   ai_receptionist_handoff_phone?: string | null;
+  ai_receptionist_handoff_country?: string | null;
   ai_receptionist_notes?: string | null;
   ai_receptionist_tone?: string | null;
   ai_receptionist_rules?: string[] | null;
@@ -207,6 +208,7 @@ function SettingsContent() {
   const [connectingWhatsApp, setConnectingWhatsApp] = useState(false);
   const [aiReceptionistEnabled, setAiReceptionistEnabled] = useState(false);
   const [aiReceptionistHandoffPhone, setAiReceptionistHandoffPhone] = useState("");
+  const [aiReceptionistHandoffCountry, setAiReceptionistHandoffCountry] = useState("RO");
   const [aiReceptionistNotes, setAiReceptionistNotes] = useState("");
   const [aiReceptionistTone, setAiReceptionistTone] = useState("professional");
   const [aiReceptionistRules, setAiReceptionistRules] = useState<string[]>(["confirm_before_booking", "offer_only_available_slots", "ask_for_missing_details"]);
@@ -571,6 +573,7 @@ function SettingsContent() {
         setWhatsAppLanguage(connection.default_language || "ro");
         setAiReceptionistEnabled(!!connection.ai_receptionist_enabled);
         setAiReceptionistHandoffPhone(connection.ai_receptionist_handoff_phone || "");
+        setAiReceptionistHandoffCountry(connection.ai_receptionist_handoff_country || connection.country_code || "RO");
         setAiReceptionistNotes(connection.ai_receptionist_notes || "");
         setAiReceptionistTone(connection.ai_receptionist_tone || "professional");
         setAiReceptionistRules(Array.isArray(connection.ai_receptionist_rules) ? connection.ai_receptionist_rules : []);
@@ -590,6 +593,7 @@ function SettingsContent() {
         body: JSON.stringify({
           enabled: aiReceptionistEnabled,
           handoffPhone: aiReceptionistHandoffPhone,
+          handoffCountry: aiReceptionistHandoffCountry,
           notes: aiReceptionistNotes,
           tone: aiReceptionistTone,
           rules: aiReceptionistRules,
@@ -1366,8 +1370,7 @@ function SettingsContent() {
                 <button
                   type="button"
                   onClick={() => setAiReceptionistEnabled((v) => !v)}
-                  disabled={whatsAppConnection?.status !== "connected"}
-                  className={`px-5 py-3 rounded-xl font-black text-[10px] uppercase italic transition-all shadow-md disabled:opacity-40 ${
+                  className={`px-5 py-3 rounded-xl font-black text-[10px] uppercase italic transition-all shadow-md ${
                     aiReceptionistEnabled ? "bg-emerald-500 text-white hover:bg-emerald-600" : "bg-slate-100 text-slate-500 hover:bg-slate-200"
                   }`}
                 >
@@ -1376,12 +1379,25 @@ function SettingsContent() {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                <input
-                  value={aiReceptionistHandoffPhone}
-                  onChange={(e) => setAiReceptionistHandoffPhone(e.target.value)}
-                  placeholder={t("whatsappAutomations.aiHandoffPlaceholder")}
-                  className="bg-slate-50 border-2 border-slate-100 rounded-xl px-4 py-3 text-[12px] font-bold outline-none focus:border-emerald-500"
-                />
+                <div className="grid grid-cols-[minmax(130px,0.45fr)_1fr] gap-2">
+                  <select
+                    value={aiReceptionistHandoffCountry}
+                    onChange={(e) => setAiReceptionistHandoffCountry(e.target.value)}
+                    className="bg-slate-50 border-2 border-slate-100 rounded-xl px-3 py-3 text-[12px] font-black outline-none focus:border-emerald-500 min-w-0"
+                  >
+                    {WHATSAPP_COUNTRY_OPTIONS.map((country) => (
+                      <option key={country.code} value={country.code}>
+                        {country.prefix} {whatsAppCountryLabels[country.code] || country.name}
+                      </option>
+                    ))}
+                  </select>
+                  <input
+                    value={aiReceptionistHandoffPhone}
+                    onChange={(e) => setAiReceptionistHandoffPhone(e.target.value)}
+                    placeholder={t("whatsappAutomations.aiHandoffPlaceholder")}
+                    className="bg-slate-50 border-2 border-slate-100 rounded-xl px-4 py-3 text-[12px] font-bold outline-none focus:border-emerald-500 min-w-0"
+                  />
+                </div>
                 <select
                   value={aiReceptionistTone}
                   onChange={(e) => setAiReceptionistTone(e.target.value)}
@@ -1458,7 +1474,7 @@ function SettingsContent() {
               <button
                 type="button"
                 onClick={handleSaveAiReceptionist}
-                disabled={savingAiReceptionist || whatsAppConnection?.status !== "connected"}
+                disabled={savingAiReceptionist}
                 className="mt-3 px-6 py-3 bg-slate-900 text-white rounded-xl font-black text-[10px] uppercase italic hover:bg-emerald-600 transition-all shadow-md disabled:opacity-40"
               >
                 {savingAiReceptionist ? t("whatsappAutomations.aiSavingButton") : t("whatsappAutomations.aiSaveButton")}

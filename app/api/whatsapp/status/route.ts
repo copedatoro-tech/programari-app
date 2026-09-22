@@ -22,7 +22,7 @@ export async function GET() {
 
   const { data, error } = await supabase
     .from("business_whatsapp_connections")
-    .select("business_name,country_code,default_language,display_phone_number,status,templates_status,last_error,connected_at,updated_at,ai_receptionist_enabled,ai_receptionist_status,ai_receptionist_handoff_phone,ai_receptionist_notes,ai_receptionist_tone,ai_receptionist_rules,ai_receptionist_featured_service_ids")
+    .select("business_name,country_code,default_language,display_phone_number,status,templates_status,last_error,connected_at,updated_at,ai_receptionist_enabled,ai_receptionist_status,ai_receptionist_handoff_phone,ai_receptionist_handoff_country,ai_receptionist_notes,ai_receptionist_tone,ai_receptionist_rules,ai_receptionist_featured_service_ids")
     .eq("user_id", user.id)
     .maybeSingle();
 

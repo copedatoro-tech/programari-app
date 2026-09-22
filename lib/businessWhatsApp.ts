@@ -14,6 +14,7 @@ export type BusinessWhatsAppConnection = {
   ai_receptionist_enabled?: boolean | null;
   ai_receptionist_status?: string | null;
   ai_receptionist_handoff_phone?: string | null;
+  ai_receptionist_handoff_country?: string | null;
   ai_receptionist_notes?: string | null;
   ai_receptionist_tone?: string | null;
   ai_receptionist_rules?: string[] | null;
@@ -46,7 +47,7 @@ export async function getBusinessWhatsAppCredentials(
 ): Promise<WhatsAppCredentialsResult> {
   const { data: connection, error } = await supabaseAdmin
     .from("business_whatsapp_connections")
-    .select("user_id,business_name,country_code,default_language,display_phone_number,waba_id,phone_number_id,access_token,status,templates_status,ai_receptionist_enabled,ai_receptionist_status,ai_receptionist_handoff_phone,ai_receptionist_notes,ai_receptionist_tone,ai_receptionist_rules,ai_receptionist_featured_service_ids")
+    .select("user_id,business_name,country_code,default_language,display_phone_number,waba_id,phone_number_id,access_token,status,templates_status,ai_receptionist_enabled,ai_receptionist_status,ai_receptionist_handoff_phone,ai_receptionist_handoff_country,ai_receptionist_notes,ai_receptionist_tone,ai_receptionist_rules,ai_receptionist_featured_service_ids")
     .eq("user_id", userId)
     .maybeSingle();
 
