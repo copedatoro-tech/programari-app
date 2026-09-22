@@ -142,7 +142,7 @@ export async function GET(request: Request) {
 
   const { data: appointments, error } = await supabaseAdmin
     .from("appointments")
-    .select("id, title, prenume, nume, email, phone, date, time, serviciu_id, reminder_sent, reminder_whatsapp_sent, user_id, total_price, amount_paid, payment_status, work_location_name, work_location_address, work_location_maps_url")
+    .select("id, title, prenume, nume, email, phone, date, time, serviciu_id, reminder_sent, reminder_whatsapp_sent, user_id, total_price, amount_paid, payment_status, work_location_id, work_location_name, work_location_address, work_location_maps_url")
     .eq("date", tomorrowStr)
     .neq("status", "cancelled")
     .or("reminder_sent.eq.false,reminder_whatsapp_sent.eq.false");
@@ -165,10 +165,7 @@ export async function GET(request: Request) {
     .in("id", userIds);
   const planByUser: Record<string, string> = {};
   (profiles || []).forEach((p) => { planByUser[p.id] = (p.plan_type || "").toUpperCase(); });
-  const whatsappByUser: Record<string, WhatsAppCredentialsResult> = {};
-  await Promise.all(userIds.map(async (userId) => {
-    whatsappByUser[userId] = await getBusinessWhatsAppCredentials(userId);
-  }));
+  const whatsappByUserAndLocation: Record<string, WhatsAppCredentialsResult> = {};
   const hasWhatsAppAccess = (userId: string) => {
     const plan = planByUser[userId] || "";
     return plan.includes("ELITE") || plan.includes("TEAM") || plan.includes("BUSINESS");
@@ -203,7 +200,11 @@ export async function GET(request: Request) {
 
     // --- WHATSAPP (nou) — doar pentru conturi Elite/Team, cu respectarea cotei lunare ---
     if (!appt.reminder_whatsapp_sent && appt.phone && hasWhatsAppAccess(appt.user_id)) {
-      const whatsapp = whatsappByUser[appt.user_id];
+      const whatsappKey = `${appt.user_id}:${appt.work_location_id || "__default__"}`;
+      if (!whatsappByUserAndLocation[whatsappKey]) {
+        whatsappByUserAndLocation[whatsappKey] = await getBusinessWhatsAppCredentials(appt.user_id, null, appt.work_location_id);
+      }
+      const whatsapp = whatsappByUserAndLocation[whatsappKey];
       if (!whatsapp?.ok) {
         errors.push(`[whatsapp] ${appt.id}: ${whatsapp?.reason || "business_whatsapp_not_connected"}`);
         continue;

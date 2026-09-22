@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { createServerClient } from "@supabase/ssr";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
+import { DEFAULT_WHATSAPP_WORK_LOCATION_ID } from "@/lib/businessWhatsApp";
 
 type CompleteSignupBody = {
   code?: string;
@@ -11,17 +12,19 @@ type CompleteSignupBody = {
   phone_number_id?: string;
   displayPhoneNumber?: string;
   display_phone_number?: string;
+  workLocationId?: string | null;
 };
 
-async function updateConnectionError(userId: string, message: string) {
+async function updateConnectionError(userId: string, workLocationId: string, message: string) {
   await supabaseAdmin
     .from("business_whatsapp_connections")
     .upsert({
       user_id: userId,
+      work_location_id: workLocationId,
       status: "setup_failed",
       last_error: message,
       updated_at: new Date().toISOString(),
-    }, { onConflict: "user_id" });
+    }, { onConflict: "user_id,work_location_id" });
 }
 
 export async function POST(request: Request) {
@@ -47,6 +50,7 @@ export async function POST(request: Request) {
   const wabaId = body.wabaId || body.waba_id;
   const phoneNumberId = body.phoneNumberId || body.phone_number_id;
   const displayPhoneNumber = body.displayPhoneNumber || body.display_phone_number || null;
+  const workLocationId = body.workLocationId || DEFAULT_WHATSAPP_WORK_LOCATION_ID;
 
   if (!code || !wabaId || !phoneNumberId) {
     return NextResponse.json({ error: "Date Meta lipsă pentru finalizarea conectării WhatsApp." }, { status: 400 });
@@ -57,7 +61,7 @@ export async function POST(request: Request) {
   const graphVersion = process.env.NEXT_PUBLIC_META_GRAPH_VERSION || "v23.0";
 
   if (!appId || !appSecret) {
-    await updateConnectionError(user.id, "Meta App ID sau Meta App Secret lipsesc din environment.");
+    await updateConnectionError(user.id, workLocationId, "Meta App ID sau Meta App Secret lipsesc din environment.");
     return NextResponse.json({ error: "Meta nu este configurat complet pe server." }, { status: 500 });
   }
 
@@ -71,7 +75,7 @@ export async function POST(request: Request) {
 
   if (!tokenRes.ok || !tokenJson.access_token) {
     const message = tokenJson?.error?.message || "Nu am putut obține access token de la Meta.";
-    await updateConnectionError(user.id, message);
+    await updateConnectionError(user.id, workLocationId, message);
     return NextResponse.json({ error: message }, { status: 400 });
   }
 
@@ -91,6 +95,7 @@ export async function POST(request: Request) {
       .from("business_whatsapp_connections")
       .upsert({
         user_id: user.id,
+        work_location_id: workLocationId,
         waba_id: wabaId,
         phone_number_id: phoneNumberId,
         display_phone_number: displayPhoneNumber,
@@ -98,7 +103,7 @@ export async function POST(request: Request) {
         status: "meta_authorized",
         last_error: message,
         updated_at: new Date().toISOString(),
-      }, { onConflict: "user_id" });
+      }, { onConflict: "user_id,work_location_id" });
     return NextResponse.json({ error: message, status: "meta_authorized" }, { status: 400 });
   }
 
@@ -106,6 +111,7 @@ export async function POST(request: Request) {
     .from("business_whatsapp_connections")
     .upsert({
       user_id: user.id,
+      work_location_id: workLocationId,
       waba_id: wabaId,
       phone_number_id: phoneNumberId,
       display_phone_number: displayPhoneNumber,
@@ -115,8 +121,8 @@ export async function POST(request: Request) {
       last_error: null,
       connected_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
-    }, { onConflict: "user_id" })
-    .select("business_name,country_code,default_language,display_phone_number,status,templates_status,connected_at")
+    }, { onConflict: "user_id,work_location_id" })
+    .select("work_location_id,business_name,country_code,default_language,display_phone_number,status,templates_status,connected_at")
     .single();
 
   if (error) {

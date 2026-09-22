@@ -22,10 +22,11 @@ export async function POST(request: Request) {
   }
 
   const body = await request.json().catch(() => ({}));
-  const { businessName, countryCode, defaultLanguage, displayPhoneNumber } = body || {};
+  const { businessName, countryCode, defaultLanguage, displayPhoneNumber, workLocationId } = body || {};
 
   const { data, error } = await upsertPreparedBusinessWhatsAppConnection({
     userId: user.id,
+    workLocationId,
     businessName,
     countryCode,
     defaultLanguage,

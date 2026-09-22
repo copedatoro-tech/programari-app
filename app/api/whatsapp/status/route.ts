@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { createServerClient } from "@supabase/ssr";
 
-export async function GET() {
+export async function GET(request: Request) {
   const cookieStore = await cookies();
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -20,10 +20,13 @@ export async function GET() {
     return NextResponse.json({ error: "Neautorizat." }, { status: 401 });
   }
 
+  const workLocationId = new URL(request.url).searchParams.get("workLocationId") || "__default__";
+
   const { data, error } = await supabase
     .from("business_whatsapp_connections")
-    .select("business_name,country_code,default_language,display_phone_number,status,templates_status,last_error,connected_at,updated_at,ai_receptionist_enabled,ai_receptionist_status,ai_receptionist_handoff_phone,ai_receptionist_handoff_country,ai_receptionist_notes,ai_receptionist_tone,ai_receptionist_rules,ai_receptionist_featured_service_ids")
+    .select("work_location_id,business_name,country_code,default_language,display_phone_number,status,templates_status,last_error,connected_at,updated_at,ai_receptionist_enabled,ai_receptionist_status,ai_receptionist_handoff_phone,ai_receptionist_handoff_country,ai_receptionist_notes,ai_receptionist_tone,ai_receptionist_rules,ai_receptionist_featured_service_ids")
     .eq("user_id", user.id)
+    .eq("work_location_id", workLocationId)
     .maybeSingle();
 
   if (error) {

@@ -1193,6 +1193,7 @@
                                            "statusSetupStarted":  "Einrichtung gestartet",
                                            "statusNotConnected":  "Nicht verbunden",
                                            "businessNamePlaceholder":  "Name des Standorts",
+                                           "workLocationPlaceholder":  "Allgemein / alle Standorte",
                                            "connectButton":  "WhatsApp Business verbinden",
                                            "connectingButton":  "Wird vorbereitet...",
                                            "refreshButton":  "Status prüfen",

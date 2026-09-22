@@ -3,7 +3,7 @@ import { cookies } from "next/headers";
 import { createServerClient } from "@supabase/ssr";
 import { getWhatsAppReceptionistBusinessContext } from "@/lib/whatsappAiReceptionist";
 
-export async function GET() {
+export async function GET(request: Request) {
   const cookieStore = await cookies();
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -22,7 +22,8 @@ export async function GET() {
   }
 
   try {
-    const context = await getWhatsAppReceptionistBusinessContext(user.id);
+    const workLocationId = new URL(request.url).searchParams.get("workLocationId");
+    const context = await getWhatsAppReceptionistBusinessContext(user.id, workLocationId);
     return NextResponse.json(context);
   } catch (error) {
     const message = error instanceof Error ? error.message : "context_lookup_failed";

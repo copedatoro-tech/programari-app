@@ -28,6 +28,7 @@ type ServiceOption = {
 };
 type NotificationSettings = { in_app_enabled: boolean; system_enabled: boolean; sound_enabled: boolean; volume: number };
 type WhatsAppConnectionStatus = {
+  work_location_id?: string | null;
   business_name?: string | null;
   country_code?: string | null;
   default_language?: string | null;
@@ -72,6 +73,7 @@ const WHATSAPP_COUNTRY_OPTIONS = [
   { code: "US", name: "Statele Unite", prefix: "+1", example: "+1 xxx xxx xxxx" },
 ];
 const WHATSAPP_LANGUAGE_OPTIONS = ["ro", "it", "en", "fr", "de", "es", "pt", "pl", "hu"];
+const DEFAULT_WHATSAPP_WORK_LOCATION_ID = "__default__";
 const AI_RECEPTIONIST_TONES = ["professional", "warm", "concise", "premium"];
 const AI_RECEPTIONIST_RULES = [
   "confirm_before_booking",
@@ -201,6 +203,7 @@ function SettingsContent() {
   const [businessBillingEmail, setBusinessBillingEmail] = useState("");
   const [savingBusinessIdentity, setSavingBusinessIdentity] = useState(false);
   const [whatsAppConnection, setWhatsAppConnection] = useState<WhatsAppConnectionStatus>(null);
+  const [selectedWhatsAppWorkLocationId, setSelectedWhatsAppWorkLocationId] = useState(DEFAULT_WHATSAPP_WORK_LOCATION_ID);
   const [whatsAppBusinessName, setWhatsAppBusinessName] = useState("");
   const [whatsAppCountry, setWhatsAppCountry] = useState("RO");
   const [whatsAppPhone, setWhatsAppPhone] = useState("");
@@ -233,6 +236,9 @@ function SettingsContent() {
   const selectedWhatsAppCountry = useMemo(() => {
     return WHATSAPP_COUNTRY_OPTIONS.find((country) => country.code === whatsAppCountry) || WHATSAPP_COUNTRY_OPTIONS[0];
   }, [whatsAppCountry]);
+  const selectedWhatsAppWorkLocation = useMemo(() => {
+    return workLocations.find((location) => location.id === selectedWhatsAppWorkLocationId) || null;
+  }, [selectedWhatsAppWorkLocationId, workLocations]);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -562,7 +568,8 @@ function SettingsContent() {
 
   const refreshWhatsAppStatus = async () => {
     try {
-      const res = await fetch("/api/whatsapp/status");
+      const params = new URLSearchParams({ workLocationId: selectedWhatsAppWorkLocationId });
+      const res = await fetch(`/api/whatsapp/status?${params.toString()}`);
       const data = await res.json();
       const connection = data.connection || null;
       setWhatsAppConnection(connection);
@@ -578,11 +585,28 @@ function SettingsContent() {
         setAiReceptionistTone(connection.ai_receptionist_tone || "professional");
         setAiReceptionistRules(Array.isArray(connection.ai_receptionist_rules) ? connection.ai_receptionist_rules : []);
         setAiReceptionistFeaturedServiceIds(Array.isArray(connection.ai_receptionist_featured_service_ids) ? connection.ai_receptionist_featured_service_ids : []);
+      } else {
+        setWhatsAppBusinessName(selectedWhatsAppWorkLocation?.name || "");
+        setWhatsAppCountry("RO");
+        setWhatsAppPhone("");
+        setWhatsAppLanguage("ro");
+        setAiReceptionistEnabled(false);
+        setAiReceptionistHandoffPhone("");
+        setAiReceptionistHandoffCountry("RO");
+        setAiReceptionistNotes("");
+        setAiReceptionistTone("professional");
+        setAiReceptionistRules(["confirm_before_booking", "offer_only_available_slots", "ask_for_missing_details"]);
+        setAiReceptionistFeaturedServiceIds([]);
       }
     } catch {
       // statusul WhatsApp este informativ; nu blocăm pagina de setări
     }
   };
+
+  useEffect(() => {
+    if (userId) refreshWhatsAppStatus();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedWhatsAppWorkLocationId, userId]);
 
   const handleSaveAiReceptionist = async () => {
     setSavingAiReceptionist(true);
@@ -592,6 +616,7 @@ function SettingsContent() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           enabled: aiReceptionistEnabled,
+          workLocationId: selectedWhatsAppWorkLocationId,
           handoffPhone: aiReceptionistHandoffPhone,
           handoffCountry: aiReceptionistHandoffCountry,
           notes: aiReceptionistNotes,
@@ -631,6 +656,7 @@ function SettingsContent() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           businessName: whatsAppBusinessName,
+          workLocationId: selectedWhatsAppWorkLocationId,
           countryCode: whatsAppCountry,
           defaultLanguage: whatsAppLanguage,
           displayPhoneNumber: whatsAppPhone,
@@ -656,7 +682,10 @@ function SettingsContent() {
       const completeRes = await fetch("/api/whatsapp/embedded-signup/complete", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(signupResult),
+        body: JSON.stringify({
+          ...signupResult,
+          workLocationId: selectedWhatsAppWorkLocationId,
+        }),
       });
       const completeData = await completeRes.json();
       if (!completeRes.ok) throw new Error(t("whatsappAutomations.connectError"));
@@ -1296,7 +1325,19 @@ function SettingsContent() {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-4">
+            <div className="grid grid-cols-1 md:grid-cols-5 gap-3 mb-4">
+              <select
+                value={selectedWhatsAppWorkLocationId}
+                onChange={(e) => setSelectedWhatsAppWorkLocationId(e.target.value)}
+                className="bg-slate-50 border-2 border-slate-100 rounded-xl px-4 py-3 text-[12px] font-black outline-none focus:border-emerald-500"
+              >
+                <option value={DEFAULT_WHATSAPP_WORK_LOCATION_ID}>{t("whatsappAutomations.workLocationPlaceholder")}</option>
+                {workLocations.map((location) => (
+                  <option key={location.id} value={location.id}>
+                    {location.name || t("workLocationNamePlaceholder")}
+                  </option>
+                ))}
+              </select>
               <input
                 value={whatsAppBusinessName}
                 onChange={(e) => setWhatsAppBusinessName(e.target.value)}

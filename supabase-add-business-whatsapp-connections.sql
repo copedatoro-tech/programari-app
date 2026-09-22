@@ -4,6 +4,7 @@
 CREATE TABLE IF NOT EXISTS public.business_whatsapp_connections (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id uuid NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
+  work_location_id text NOT NULL DEFAULT '__default__',
   business_name text,
   country_code text,
   default_language text NOT NULL DEFAULT 'ro',
@@ -17,11 +18,14 @@ CREATE TABLE IF NOT EXISTS public.business_whatsapp_connections (
   connected_at timestamptz,
   created_at timestamptz NOT NULL DEFAULT now(),
   updated_at timestamptz NOT NULL DEFAULT now(),
-  UNIQUE (user_id)
+  UNIQUE (user_id, work_location_id)
 );
 
 CREATE INDEX IF NOT EXISTS idx_business_whatsapp_connections_user_id
   ON public.business_whatsapp_connections(user_id);
+
+CREATE INDEX IF NOT EXISTS idx_business_whatsapp_connections_work_location_id
+  ON public.business_whatsapp_connections(work_location_id);
 
 CREATE INDEX IF NOT EXISTS idx_business_whatsapp_connections_phone_number_id
   ON public.business_whatsapp_connections(phone_number_id);

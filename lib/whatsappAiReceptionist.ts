@@ -1,4 +1,5 @@
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
+import { DEFAULT_WHATSAPP_WORK_LOCATION_ID } from "@/lib/businessWhatsApp";
 
 type WorkingHourEntry = {
   day: string;
@@ -69,7 +70,7 @@ function getLocation(profileLocations: unknown, workLocationId?: string | null):
   return (profileLocations as WorkLocationRow[]).find((location) => String(location.id || "") === String(workLocationId)) || null;
 }
 
-export async function getWhatsAppReceptionistBusinessContext(userId: string) {
+export async function getWhatsAppReceptionistBusinessContext(userId: string, workLocationId?: string | null) {
   const [profileRes, servicesRes, staffRes, connectionRes] = await Promise.all([
     supabaseAdmin
       .from("profiles")
@@ -88,9 +89,8 @@ export async function getWhatsAppReceptionistBusinessContext(userId: string) {
       .order("created_at", { ascending: false }),
     supabaseAdmin
       .from("business_whatsapp_connections")
-      .select("business_name,country_code,default_language,display_phone_number,status,ai_receptionist_enabled,ai_receptionist_status,ai_receptionist_handoff_phone,ai_receptionist_handoff_country,ai_receptionist_notes,ai_receptionist_tone,ai_receptionist_rules,ai_receptionist_featured_service_ids")
-      .eq("user_id", userId)
-      .maybeSingle(),
+      .select("work_location_id,business_name,country_code,default_language,display_phone_number,status,ai_receptionist_enabled,ai_receptionist_status,ai_receptionist_handoff_phone,ai_receptionist_handoff_country,ai_receptionist_notes,ai_receptionist_tone,ai_receptionist_rules,ai_receptionist_featured_service_ids")
+      .eq("user_id", userId),
   ]);
 
   if (profileRes.error) throw profileRes.error;
@@ -98,11 +98,16 @@ export async function getWhatsAppReceptionistBusinessContext(userId: string) {
   if (staffRes.error) throw staffRes.error;
   if (connectionRes.error) throw connectionRes.error;
 
+  const normalizedWorkLocationId = workLocationId || DEFAULT_WHATSAPP_WORK_LOCATION_ID;
+  const whatsappConnection = (connectionRes.data || []).find((item) => item.work_location_id === normalizedWorkLocationId)
+    || (connectionRes.data || []).find((item) => !item.work_location_id || item.work_location_id === DEFAULT_WHATSAPP_WORK_LOCATION_ID)
+    || null;
+
   return {
     profile: profileRes.data,
     services: servicesRes.data || [],
     staff: staffRes.data || [],
-    whatsapp: connectionRes.data || null,
+    whatsapp: whatsappConnection,
   };
 }
 

@@ -1416,6 +1416,7 @@
                                            "statusSetupStarted":  "Configurare pornită",
                                            "statusNotConnected":  "Neconectat",
                                            "businessNamePlaceholder":  "Nume punct de lucru",
+                                           "workLocationPlaceholder":  "General / toate punctele",
                                            "connectButton":  "Conectează WhatsApp Business",
                                            "connectingButton":  "Se pregătește...",
                                            "refreshButton":  "Verifică status",

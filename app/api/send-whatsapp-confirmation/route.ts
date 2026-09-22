@@ -39,7 +39,7 @@ export async function POST(request: Request) {
     // care nu-i aparțin.
     const { data: appointment, error: apptError } = await supabaseAdmin
       .from("appointments")
-      .select("phone, prenume, nume, date, time, user_id, work_location_name, work_location_address, work_location_maps_url")
+      .select("phone, prenume, nume, date, time, user_id, work_location_id, work_location_name, work_location_address, work_location_maps_url")
       .eq("id", appointmentId)
       .maybeSingle();
 
@@ -59,7 +59,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ skipped: true, reason: quota.reason });
     }
 
-    const whatsapp = await getBusinessWhatsAppCredentials(adminId);
+    const whatsapp = await getBusinessWhatsAppCredentials(adminId, null, appointment.work_location_id);
     if (!whatsapp.ok) {
       return NextResponse.json({ skipped: true, reason: whatsapp.reason });
     }

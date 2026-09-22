@@ -1193,6 +1193,7 @@
                                            "statusSetupStarted":  "Beállítás elindítva",
                                            "statusNotConnected":  "Nincs csatlakoztatva",
                                            "businessNamePlaceholder":  "Munkavégzési hely neve",
+                                           "workLocationPlaceholder":  "Általános / minden helyszín",
                                            "connectButton":  "WhatsApp Business csatlakoztatása",
                                            "connectingButton":  "Előkészítés...",
                                            "refreshButton":  "Állapot ellenőrzése",

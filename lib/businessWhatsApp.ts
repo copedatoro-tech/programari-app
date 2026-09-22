@@ -2,6 +2,7 @@ import { supabaseAdmin } from "@/lib/supabaseAdmin";
 
 export type BusinessWhatsAppConnection = {
   user_id: string;
+  work_location_id?: string | null;
   business_name: string | null;
   country_code: string | null;
   default_language: string | null;
@@ -26,6 +27,7 @@ export type WhatsAppCredentialsResult =
   | { ok: false; reason: string };
 
 const SUPPORTED_TEMPLATE_LANGUAGES = new Set(["ro", "en", "it", "fr", "de", "es", "pt", "pl", "hu"]);
+export const DEFAULT_WHATSAPP_WORK_LOCATION_ID = "__default__";
 
 export function normalizeWhatsAppLanguage(language?: string | null) {
   const normalized = (language || "ro").toLowerCase().split(/[-_]/)[0];
@@ -44,17 +46,22 @@ export function normalizePhone(raw: string): string | null {
 export async function getBusinessWhatsAppCredentials(
   userId: string,
   preferredLanguage?: string | null,
+  workLocationId?: string | null,
 ): Promise<WhatsAppCredentialsResult> {
-  const { data: connection, error } = await supabaseAdmin
+  const { data: connections, error } = await supabaseAdmin
     .from("business_whatsapp_connections")
-    .select("user_id,business_name,country_code,default_language,display_phone_number,waba_id,phone_number_id,access_token,status,templates_status,ai_receptionist_enabled,ai_receptionist_status,ai_receptionist_handoff_phone,ai_receptionist_handoff_country,ai_receptionist_notes,ai_receptionist_tone,ai_receptionist_rules,ai_receptionist_featured_service_ids")
-    .eq("user_id", userId)
-    .maybeSingle();
+    .select("user_id,work_location_id,business_name,country_code,default_language,display_phone_number,waba_id,phone_number_id,access_token,status,templates_status,ai_receptionist_enabled,ai_receptionist_status,ai_receptionist_handoff_phone,ai_receptionist_handoff_country,ai_receptionist_notes,ai_receptionist_tone,ai_receptionist_rules,ai_receptionist_featured_service_ids")
+    .eq("user_id", userId);
 
   if (error) {
     console.error("WhatsApp connection lookup error:", error.message);
     return { ok: false, reason: "connection_lookup_failed" };
   }
+
+  const normalizedWorkLocationId = workLocationId || DEFAULT_WHATSAPP_WORK_LOCATION_ID;
+  const connection = (connections || []).find((item) => item.work_location_id === normalizedWorkLocationId)
+    || (connections || []).find((item) => !item.work_location_id || item.work_location_id === DEFAULT_WHATSAPP_WORK_LOCATION_ID)
+    || null;
 
   if (!connection) return { ok: false, reason: "business_whatsapp_not_connected" };
   if (connection.status !== "connected") return { ok: false, reason: "business_whatsapp_not_active" };
@@ -71,6 +78,7 @@ export async function getBusinessWhatsAppCredentials(
 
 export async function upsertPreparedBusinessWhatsAppConnection(input: {
   userId: string;
+  workLocationId?: string | null;
   businessName?: string | null;
   countryCode?: string | null;
   defaultLanguage?: string | null;
@@ -80,6 +88,7 @@ export async function upsertPreparedBusinessWhatsAppConnection(input: {
     .from("business_whatsapp_connections")
     .upsert({
       user_id: input.userId,
+      work_location_id: input.workLocationId || DEFAULT_WHATSAPP_WORK_LOCATION_ID,
       business_name: input.businessName || null,
       country_code: input.countryCode || null,
       default_language: normalizeWhatsAppLanguage(input.defaultLanguage),
@@ -87,7 +96,7 @@ export async function upsertPreparedBusinessWhatsAppConnection(input: {
       status: "setup_started",
       templates_status: "not_configured",
       updated_at: new Date().toISOString(),
-    }, { onConflict: "user_id" })
-    .select("user_id,business_name,country_code,default_language,display_phone_number,status,templates_status")
+    }, { onConflict: "user_id,work_location_id" })
+    .select("user_id,work_location_id,business_name,country_code,default_language,display_phone_number,status,templates_status")
     .single();
 }
