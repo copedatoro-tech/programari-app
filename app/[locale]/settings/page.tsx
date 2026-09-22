@@ -1406,11 +1406,16 @@ function SettingsContent() {
                           key={rule}
                           type="button"
                           onClick={() => toggleAiRule(rule)}
-                          className={`text-left px-3 py-2 rounded-xl border-2 text-[10px] font-bold transition-all ${
+                          className={`w-full text-left px-3 py-2 rounded-xl border-2 text-[10px] font-bold transition-all flex items-center gap-2 ${
                             selected ? "bg-emerald-500 text-white border-emerald-500" : "bg-white text-slate-500 border-slate-100 hover:border-emerald-300"
                           }`}
                         >
-                          {aiRuleLabels[rule] || rule}
+                          <span className={`w-4 h-4 rounded-md border-2 flex items-center justify-center text-[10px] font-black shrink-0 ${
+                            selected ? "bg-white text-emerald-600 border-white" : "bg-slate-50 text-transparent border-slate-300"
+                          }`}>
+                            ✓
+                          </span>
+                          <span>{aiRuleLabels[rule] || rule}</span>
                         </button>
                       );
                     })}
@@ -1432,11 +1437,16 @@ function SettingsContent() {
                             key={service.id}
                             type="button"
                             onClick={() => toggleAiFeaturedService(service.id)}
-                            className={`px-3 py-2 rounded-xl border-2 text-[10px] font-black transition-all ${
+                            className={`px-3 py-2 rounded-xl border-2 text-[10px] font-black transition-all flex items-center gap-2 ${
                               selected ? "bg-emerald-500 text-white border-emerald-500" : "bg-white text-slate-500 border-slate-100 hover:border-emerald-300"
                             }`}
                           >
-                            {service.nume_serviciu}
+                            <span className={`w-4 h-4 rounded-md border-2 flex items-center justify-center text-[10px] font-black shrink-0 ${
+                              selected ? "bg-white text-emerald-600 border-white" : "bg-slate-50 text-transparent border-slate-300"
+                            }`}>
+                              ✓
+                            </span>
+                            <span>{service.nume_serviciu}</span>
                           </button>
                         );
                       })}
