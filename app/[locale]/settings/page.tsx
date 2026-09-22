@@ -209,6 +209,7 @@ function SettingsContent() {
   const [whatsAppPhone, setWhatsAppPhone] = useState("");
   const [whatsAppLanguage, setWhatsAppLanguage] = useState("ro");
   const [connectingWhatsApp, setConnectingWhatsApp] = useState(false);
+  const [checkingWhatsAppStatus, setCheckingWhatsAppStatus] = useState(false);
   const [aiReceptionistEnabled, setAiReceptionistEnabled] = useState(false);
   const [aiReceptionistHandoffPhone, setAiReceptionistHandoffPhone] = useState("");
   const [aiReceptionistHandoffCountry, setAiReceptionistHandoffCountry] = useState("RO");
@@ -566,11 +567,13 @@ function SettingsContent() {
     });
   };
 
-  const refreshWhatsAppStatus = async () => {
+  const refreshWhatsAppStatus = async (showFeedback = false) => {
+    if (showFeedback) setCheckingWhatsAppStatus(true);
     try {
       const params = new URLSearchParams({ workLocationId: selectedWhatsAppWorkLocationId });
       const res = await fetch(`/api/whatsapp/status?${params.toString()}`);
       const data = await res.json();
+      if (!res.ok) throw new Error(data?.error || t("whatsappAutomations.statusRefreshError"));
       const connection = data.connection || null;
       setWhatsAppConnection(connection);
       if (connection) {
@@ -585,6 +588,14 @@ function SettingsContent() {
         setAiReceptionistTone(connection.ai_receptionist_tone || "professional");
         setAiReceptionistRules(Array.isArray(connection.ai_receptionist_rules) ? connection.ai_receptionist_rules : []);
         setAiReceptionistFeaturedServiceIds(Array.isArray(connection.ai_receptionist_featured_service_ids) ? connection.ai_receptionist_featured_service_ids : []);
+        if (showFeedback) {
+          await showToast({
+            message: connection.status === "connected"
+              ? t("whatsappAutomations.statusConnectedMessage")
+              : t("whatsappAutomations.statusPendingMessage"),
+            type: connection.status === "connected" ? "success" : "info",
+          });
+        }
       } else {
         setWhatsAppBusinessName(selectedWhatsAppWorkLocation?.name || "");
         setWhatsAppCountry("RO");
@@ -597,9 +608,17 @@ function SettingsContent() {
         setAiReceptionistTone("professional");
         setAiReceptionistRules(["confirm_before_booking", "offer_only_available_slots", "ask_for_missing_details"]);
         setAiReceptionistFeaturedServiceIds([]);
+        if (showFeedback) {
+          await showToast({ message: t("whatsappAutomations.statusNotConfiguredMessage"), type: "info" });
+        }
       }
-    } catch {
+    } catch (e: any) {
+      if (showFeedback) {
+        await showToast({ message: e?.message || t("whatsappAutomations.statusRefreshError"), type: "error" });
+      }
       // statusul WhatsApp este informativ; nu blocăm pagina de setări
+    } finally {
+      if (showFeedback) setCheckingWhatsAppStatus(false);
     }
   };
 
@@ -1381,10 +1400,11 @@ function SettingsContent() {
               </button>
               <button
                 type="button"
-                onClick={refreshWhatsAppStatus}
-                className="px-6 py-3 bg-white border-2 border-slate-200 text-slate-600 rounded-xl font-black text-[10px] uppercase italic hover:border-emerald-500 hover:text-emerald-600 transition-all"
+                onClick={() => refreshWhatsAppStatus(true)}
+                disabled={checkingWhatsAppStatus}
+                className="px-6 py-3 bg-white border-2 border-slate-200 text-slate-600 rounded-xl font-black text-[10px] uppercase italic hover:border-emerald-500 hover:text-emerald-600 transition-all disabled:opacity-50"
               >
-                {t("whatsappAutomations.refreshButton")}
+                {checkingWhatsAppStatus ? t("whatsappAutomations.refreshingButton") : t("whatsappAutomations.refreshButton")}
               </button>
             </div>
 
