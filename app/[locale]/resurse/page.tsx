@@ -385,7 +385,7 @@ export default function ResursePage() {
 
   const openPackageModal = (pkg?: any) => {
     if (isDemo) return;
-    setPackageForm(pkg ? { ...pkg } : { id: null, name: "", description: "", service_ids: [], price: 0, active: true });
+    setPackageForm(pkg ? { ...pkg } : { id: null, name: "", description: "", service_ids: [], price: 0, discount_percent: null, valid_from: "", valid_until: "", active: true });
   };
 
   const togglePackageService = (serviceId: string) => {
@@ -410,6 +410,9 @@ export default function ResursePage() {
       service_ids: packageForm.service_ids,
       price: Number(packageForm.price) || 0,
       active: !!packageForm.active,
+      discount_percent: packageForm.discount_percent !== "" && packageForm.discount_percent !== null ? Number(packageForm.discount_percent) : null,
+      valid_from: packageForm.valid_from || null,
+      valid_until: packageForm.valid_until || null,
     };
     const { error } = packageForm.id
       ? await supabase.from("packages").update(payload).eq("id", packageForm.id)
@@ -1359,6 +1362,21 @@ export default function ResursePage() {
                 <div>
                   <label className="text-[9px] font-black uppercase text-slate-400">PRET PACHET ({businessCurrency})</label>
                   <input type="number" value={packageForm.price} onChange={(e) => setPackageForm({ ...packageForm, price: e.target.value })} className="w-full p-2 rounded-md border text-sm" />
+                </div>
+                <div>
+                  <label className="text-[9px] font-black uppercase text-slate-400">REDUCERE PROCENTUALA (OPTIONAL, %)</label>
+                  <input type="number" min="0" max="100" value={packageForm.discount_percent ?? ""} onChange={(e) => setPackageForm({ ...packageForm, discount_percent: e.target.value })} placeholder="ex: 20" className="w-full p-2 rounded-md border text-sm" />
+                  <p className="text-[9px] text-slate-400 mt-1">Daca setezi un procent, acesta se aplica la suma serviciilor incluse (independent de pretul fix de mai sus).</p>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-[9px] font-black uppercase text-slate-400">VALABIL DE LA (OPTIONAL)</label>
+                    <input type="date" value={packageForm.valid_from || ""} onChange={(e) => setPackageForm({ ...packageForm, valid_from: e.target.value })} className="w-full p-2 rounded-md border text-sm" />
+                  </div>
+                  <div>
+                    <label className="text-[9px] font-black uppercase text-slate-400">VALABIL PANA LA (OPTIONAL)</label>
+                    <input type="date" value={packageForm.valid_until || ""} onChange={(e) => setPackageForm({ ...packageForm, valid_until: e.target.value })} className="w-full p-2 rounded-md border text-sm" />
+                  </div>
                 </div>
                 <label className="flex items-center gap-2 text-sm">
                   <input type="checkbox" className="w-4 h-4" checked={!!packageForm.active} onChange={(e) => setPackageForm({ ...packageForm, active: e.target.checked })} />
