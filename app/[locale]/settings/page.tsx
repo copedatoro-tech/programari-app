@@ -60,17 +60,17 @@ type EmbeddedSignupResult = {
 
 const CURRENCY_OPTIONS = ["RON", "EUR", "USD", "GBP", "HUF", "PLN"];
 const WHATSAPP_COUNTRY_OPTIONS = [
-  { code: "RO", name: "România", prefix: "+40", example: "+40 7xx xxx xxx" },
-  { code: "IT", name: "Italia", prefix: "+39", example: "+39 3xx xxx xxxx" },
-  { code: "FR", name: "Franța", prefix: "+33", example: "+33 6 xx xx xx xx" },
-  { code: "DE", name: "Germania", prefix: "+49", example: "+49 15x xxxxxxxx" },
-  { code: "ES", name: "Spania", prefix: "+34", example: "+34 6xx xxx xxx" },
-  { code: "PT", name: "Portugalia", prefix: "+351", example: "+351 9xx xxx xxx" },
-  { code: "PL", name: "Polonia", prefix: "+48", example: "+48 5xx xxx xxx" },
-  { code: "HU", name: "Ungaria", prefix: "+36", example: "+36 20 xxx xxxx" },
-  { code: "GB", name: "Regatul Unit", prefix: "+44", example: "+44 7xxx xxx xxx" },
-  { code: "IE", name: "Irlanda", prefix: "+353", example: "+353 8x xxx xxxx" },
-  { code: "US", name: "Statele Unite", prefix: "+1", example: "+1 xxx xxx xxxx" },
+  { code: "RO", name: "România", prefix: "+40", example: "7xx xxx xxx" },
+  { code: "IT", name: "Italia", prefix: "+39", example: "3xx xxx xxxx" },
+  { code: "FR", name: "Franța", prefix: "+33", example: "6 xx xx xx xx" },
+  { code: "DE", name: "Germania", prefix: "+49", example: "15x xxxxxxxx" },
+  { code: "ES", name: "Spania", prefix: "+34", example: "6xx xxx xxx" },
+  { code: "PT", name: "Portugalia", prefix: "+351", example: "9xx xxx xxx" },
+  { code: "PL", name: "Polonia", prefix: "+48", example: "5xx xxx xxx" },
+  { code: "HU", name: "Ungaria", prefix: "+36", example: "20 xxx xxxx" },
+  { code: "GB", name: "Regatul Unit", prefix: "+44", example: "7xxx xxx xxx" },
+  { code: "IE", name: "Irlanda", prefix: "+353", example: "8x xxx xxxx" },
+  { code: "US", name: "Statele Unite", prefix: "+1", example: "xxx xxx xxxx" },
 ];
 const WHATSAPP_LANGUAGE_OPTIONS = ["ro", "it", "en", "fr", "de", "es", "pt", "pl", "hu"];
 const DEFAULT_WHATSAPP_WORK_LOCATION_ID = "__default__";
@@ -109,6 +109,27 @@ function loadFacebookSdk() {
     script.onerror = () => reject(new Error("Facebook SDK failed to load"));
     document.body.appendChild(script);
   });
+}
+
+function compactPhone(value: string) {
+  return value.replace(/[^\d+]/g, "");
+}
+
+function stripCountryPrefixFromPhone(value: string, countryCode: string) {
+  const country = WHATSAPP_COUNTRY_OPTIONS.find((item) => item.code === countryCode) || WHATSAPP_COUNTRY_OPTIONS[0];
+  const prefixDigits = country.prefix.replace(/\D/g, "");
+  const digits = compactPhone(value).replace(/^\+/, "");
+  if (digits.startsWith(prefixDigits)) return digits.slice(prefixDigits.length);
+  return digits;
+}
+
+function buildInternationalWhatsAppPhone(value: string, countryCode: string) {
+  const compact = compactPhone(value);
+  if (!compact) return "";
+  if (compact.startsWith("+")) return compact;
+  const country = WHATSAPP_COUNTRY_OPTIONS.find((item) => item.code === countryCode) || WHATSAPP_COUNTRY_OPTIONS[0];
+  const local = country.code === "RO" ? compact.replace(/^0+/, "") : compact;
+  return `${country.prefix}${local}`;
 }
 
 function SettingsContent() {
@@ -240,6 +261,12 @@ function SettingsContent() {
   const selectedWhatsAppWorkLocation = useMemo(() => {
     return workLocations.find((location) => location.id === selectedWhatsAppWorkLocationId) || null;
   }, [selectedWhatsAppWorkLocationId, workLocations]);
+  const inferredWhatsAppBusinessName = useMemo(() => {
+    return selectedWhatsAppWorkLocation?.name || businessLegalName || whatsAppBusinessName || "Chronos Business";
+  }, [businessLegalName, selectedWhatsAppWorkLocation?.name, whatsAppBusinessName]);
+  const whatsappDisplayPhone = useMemo(() => {
+    return buildInternationalWhatsAppPhone(whatsAppPhone, whatsAppCountry);
+  }, [whatsAppCountry, whatsAppPhone]);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -559,8 +586,8 @@ function SettingsContent() {
         override_default_response_type: true,
         extras: {
           setup: {
-            business: { name: whatsAppBusinessName || undefined },
-            phone: { display_phone_number: whatsAppPhone || undefined },
+            business: { name: inferredWhatsAppBusinessName || undefined },
+            phone: { display_phone_number: whatsappDisplayPhone || undefined },
           },
         },
       });
@@ -579,7 +606,7 @@ function SettingsContent() {
       if (connection) {
         setWhatsAppBusinessName(connection.business_name || "");
         setWhatsAppCountry(connection.country_code || "RO");
-        setWhatsAppPhone(connection.display_phone_number || "");
+        setWhatsAppPhone(stripCountryPrefixFromPhone(connection.display_phone_number || "", connection.country_code || "RO"));
         setWhatsAppLanguage(connection.default_language || "ro");
         setAiReceptionistEnabled(!!connection.ai_receptionist_enabled);
         setAiReceptionistHandoffPhone(connection.ai_receptionist_handoff_phone || "");
@@ -674,11 +701,11 @@ function SettingsContent() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          businessName: whatsAppBusinessName,
+          businessName: inferredWhatsAppBusinessName,
           workLocationId: selectedWhatsAppWorkLocationId,
           countryCode: whatsAppCountry,
           defaultLanguage: whatsAppLanguage,
-          displayPhoneNumber: whatsAppPhone,
+          displayPhoneNumber: whatsappDisplayPhone,
         }),
       });
       const data = await res.json();
@@ -1344,49 +1371,59 @@ function SettingsContent() {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-5 gap-3 mb-4">
-              <select
-                value={selectedWhatsAppWorkLocationId}
-                onChange={(e) => setSelectedWhatsAppWorkLocationId(e.target.value)}
-                className="bg-slate-50 border-2 border-slate-100 rounded-xl px-4 py-3 text-[12px] font-black outline-none focus:border-emerald-500"
-              >
-                <option value={DEFAULT_WHATSAPP_WORK_LOCATION_ID}>{t("whatsappAutomations.workLocationPlaceholder")}</option>
-                {workLocations.map((location) => (
-                  <option key={location.id} value={location.id}>
-                    {location.name || t("workLocationNamePlaceholder")}
-                  </option>
-                ))}
-              </select>
-              <input
-                value={whatsAppBusinessName}
-                onChange={(e) => setWhatsAppBusinessName(e.target.value)}
-                placeholder={t("whatsappAutomations.businessNamePlaceholder")}
-                className="bg-slate-50 border-2 border-slate-100 rounded-xl px-4 py-3 text-[12px] font-bold outline-none focus:border-emerald-500"
-              />
-              <select
-                value={whatsAppCountry}
-                onChange={(e) => setWhatsAppCountry(e.target.value)}
-                className="bg-slate-50 border-2 border-slate-100 rounded-xl px-4 py-3 text-[12px] font-black outline-none focus:border-emerald-500"
-              >
-                {WHATSAPP_COUNTRY_OPTIONS.map((country) => (
-                  <option key={country.code} value={country.code}>
-                    {whatsAppCountryLabels[country.code] || country.name} ({country.prefix})
-                  </option>
-                ))}
-              </select>
-              <input
-                value={whatsAppPhone}
-                onChange={(e) => setWhatsAppPhone(e.target.value)}
-                placeholder={selectedWhatsAppCountry.example}
-                className="bg-slate-50 border-2 border-slate-100 rounded-xl px-4 py-3 text-[12px] font-bold outline-none focus:border-emerald-500"
-              />
-              <select
-                value={whatsAppLanguage}
-                onChange={(e) => setWhatsAppLanguage(e.target.value)}
-                className="bg-slate-50 border-2 border-slate-100 rounded-xl px-4 py-3 text-[12px] font-black outline-none focus:border-emerald-500"
-              >
-                {WHATSAPP_LANGUAGE_OPTIONS.map((language) => <option key={language} value={language}>{language.toUpperCase()}</option>)}
-              </select>
+            <div className="grid grid-cols-1 md:grid-cols-[1.3fr_1.15fr_1fr_0.8fr] gap-3 mb-4">
+              <label className="block">
+                <span className="block text-[9px] font-black uppercase italic text-slate-400 mb-1">{t("whatsappAutomations.workLocationLabel")}</span>
+                <select
+                  value={selectedWhatsAppWorkLocationId}
+                  onChange={(e) => setSelectedWhatsAppWorkLocationId(e.target.value)}
+                  className="w-full bg-slate-50 border-2 border-slate-100 rounded-xl px-4 py-3 text-[12px] font-black outline-none focus:border-emerald-500"
+                >
+                  <option value={DEFAULT_WHATSAPP_WORK_LOCATION_ID}>{t("whatsappAutomations.workLocationPlaceholder")}</option>
+                  {workLocations.map((location) => (
+                    <option key={location.id} value={location.id}>
+                      {location.name || t("workLocationNamePlaceholder")}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="block">
+                <span className="block text-[9px] font-black uppercase italic text-slate-400 mb-1">{t("whatsappAutomations.countryPrefixLabel")}</span>
+                <select
+                  value={whatsAppCountry}
+                  onChange={(e) => {
+                    const nextCountry = e.target.value;
+                    setWhatsAppCountry(nextCountry);
+                    setWhatsAppPhone((current) => stripCountryPrefixFromPhone(current, nextCountry));
+                  }}
+                  className="w-full bg-slate-50 border-2 border-slate-100 rounded-xl px-4 py-3 text-[12px] font-black outline-none focus:border-emerald-500"
+                >
+                  {WHATSAPP_COUNTRY_OPTIONS.map((country) => (
+                    <option key={country.code} value={country.code}>
+                      {whatsAppCountryLabels[country.code] || country.name} ({country.prefix})
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="block">
+                <span className="block text-[9px] font-black uppercase italic text-slate-400 mb-1">{t("whatsappAutomations.phoneLocalLabel")}</span>
+                <input
+                  value={whatsAppPhone}
+                  onChange={(e) => setWhatsAppPhone(stripCountryPrefixFromPhone(e.target.value, whatsAppCountry))}
+                  placeholder={selectedWhatsAppCountry.example}
+                  className="w-full bg-slate-50 border-2 border-slate-100 rounded-xl px-4 py-3 text-[12px] font-bold outline-none focus:border-emerald-500"
+                />
+              </label>
+              <label className="block">
+                <span className="block text-[9px] font-black uppercase italic text-slate-400 mb-1">{t("whatsappAutomations.languageLabel")}</span>
+                <select
+                  value={whatsAppLanguage}
+                  onChange={(e) => setWhatsAppLanguage(e.target.value)}
+                  className="w-full bg-slate-50 border-2 border-slate-100 rounded-xl px-4 py-3 text-[12px] font-black outline-none focus:border-emerald-500"
+                >
+                  {WHATSAPP_LANGUAGE_OPTIONS.map((language) => <option key={language} value={language}>{language.toUpperCase()}</option>)}
+                </select>
+              </label>
             </div>
 
             <div className="flex flex-col md:flex-row gap-3">
