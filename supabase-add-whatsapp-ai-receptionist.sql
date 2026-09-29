@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS public.whatsapp_ai_conversations (
   last_message_at timestamptz NOT NULL DEFAULT now(),
   created_at timestamptz NOT NULL DEFAULT now(),
   updated_at timestamptz NOT NULL DEFAULT now(),
-  UNIQUE (user_id, customer_phone)
+  UNIQUE (connection_id, customer_phone)
 );
 
 CREATE INDEX IF NOT EXISTS idx_whatsapp_ai_conversations_user_id

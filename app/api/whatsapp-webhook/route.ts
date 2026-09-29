@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
+import { generateReceptionistReply } from "@/lib/whatsappAiReply";
 
 // -------------------------------------------------------------------------
 // Webhook pentru WhatsApp Business API (Meta)
@@ -38,22 +39,6 @@ type WhatsAppWebhookContact = {
   profile?: { name?: string };
 };
 
-function getHoldingReply(language?: string | null) {
-  const lang = (language || "ro").toLowerCase().split(/[-_]/)[0];
-  const replies: Record<string, string> = {
-    ro: "Buna! Am primit mesajul tau. Asistentul Chronos verifica detaliile si revine imediat cu urmatorul pas.",
-    en: "Hi! We received your message. The Chronos assistant is checking the details and will reply with the next step shortly.",
-    it: "Ciao! Abbiamo ricevuto il tuo messaggio. L'assistente Chronos verifica i dettagli e risponde a breve con il prossimo passo.",
-    fr: "Bonjour ! Nous avons reçu votre message. L'assistant Chronos vérifie les détails et répondra bientôt avec la prochaine étape.",
-    de: "Hallo! Wir haben deine Nachricht erhalten. Der Chronos-Assistent prüft die Details und meldet sich gleich mit dem nächsten Schritt.",
-    es: "Hola. Hemos recibido tu mensaje. El asistente Chronos revisa los detalles y responderá pronto con el siguiente paso.",
-    pt: "Olá! Recebemos a tua mensagem. O assistente Chronos está a verificar os detalhes e responderá em breve com o próximo passo.",
-    pl: "Cześć! Otrzymaliśmy Twoją wiadomość. Asystent Chronos sprawdza szczegóły i wkrótce odpowie z kolejnym krokiem.",
-    hu: "Szia! Megkaptuk az üzeneted. A Chronos asszisztens ellenőrzi a részleteket, és hamarosan válaszol a következő lépéssel.",
-  };
-  return replies[lang] || replies.ro;
-}
-
 async function sendWhatsAppText(phoneNumberId: string, accessToken: string, to: string, text: string) {
   const res = await fetch(`https://graph.facebook.com/${GRAPH_VERSION}/${phoneNumberId}/messages`, {
     method: "POST",
@@ -81,7 +66,7 @@ async function processInboundMessage(input: {
 
   const { data: connection, error: connectionError } = await supabaseAdmin
     .from("business_whatsapp_connections")
-    .select("id,user_id,default_language,phone_number_id,access_token,status,ai_receptionist_enabled")
+    .select("id,user_id,work_location_id,default_language,phone_number_id,access_token,status,ai_receptionist_enabled,ai_receptionist_rules,ai_receptionist_tone,ai_receptionist_notes,ai_receptionist_handoff_phone,ai_receptionist_handoff_country")
     .eq("phone_number_id", input.phoneNumberId)
     .maybeSingle();
 
@@ -105,7 +90,7 @@ async function processInboundMessage(input: {
       status: "open",
       last_message_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
-    }, { onConflict: "user_id,customer_phone" })
+    }, { onConflict: "connection_id,customer_phone" })
     .select("id")
     .single();
 
@@ -127,16 +112,24 @@ async function processInboundMessage(input: {
   if (connection.status !== "connected" || !connection.ai_receptionist_enabled || !connection.access_token) {
     return;
   }
+  if (!text) {
+    return;
+  }
 
-  const reply = getHoldingReply(connection.default_language);
-  const sendResult = await sendWhatsAppText(input.phoneNumberId, connection.access_token, customerPhone, reply);
+  const { replyText } = await generateReceptionistReply({
+    conversationId: conversation.id,
+    connection,
+    customerPhone,
+    customerName,
+  });
+  const sendResult = await sendWhatsAppText(input.phoneNumberId, connection.access_token, customerPhone, replyText);
   await supabaseAdmin.from("whatsapp_ai_messages").insert({
     conversation_id: conversation.id,
     user_id: connection.user_id,
     direction: "outbound",
     message_type: "text",
     whatsapp_message_id: sendResult?.messages?.[0]?.id || null,
-    content: reply,
+    content: replyText,
     raw_payload: sendResult,
   });
 }
