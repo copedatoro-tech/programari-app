@@ -1196,7 +1196,9 @@
                                            "workLocationPlaceholder":  "Geral / todos os locais",
                                            "workLocationLabel":  "Local de trabalho",
                                            "countryPrefixLabel":  "País e indicativo",
+                                           "prefixLabel":  "Indicativo",
                                            "phoneLocalLabel":  "Número local do WhatsApp",
+                                           "phoneLabel":  "Número de telefone",
                                            "languageLabel":  "Idioma das mensagens",
                                            "connectButton":  "Ligar WhatsApp Business",
                                            "connectingButton":  "A preparar...",
@@ -1288,7 +1290,11 @@
                                         "title":  "Lembrete Adicional (2 horas antes)",
                                         "subtitle":  "Um último aviso, no próprio dia da marcação, além do lembrete do dia anterior.",
                                         "label":  "Lembrete 2 Horas Antes",
-                                        "desc":  "Opcional. Envia um email curto cerca de 2 horas antes da marcação — útil para clientes ocupados, que esquecem facilmente."
+                                       "desc":  "Opcional. Envia um lembrete curto cerca de 2 horas antes da marcação — útil para clientes ocupados, que esquecem facilmente.",
+                                       "emailChannel":  "E-mail",
+                                       "emailChannelDesc":  "Envia o lembrete para o e-mail do cliente.",
+                                       "whatsappChannel":  "WhatsApp",
+                                       "whatsappChannelDesc":  "Envia o lembrete no WhatsApp a partir do número business ligado."
                                     },
                      "allowClientDocumentsLabel":  "Documentos dos clientes",
                      "allowClientDocumentsHint":  "Permite que os clientes anexem fotos ou documentos (ex. uma fatura, um defeito) diretamente à reserva online. Máximo 5 ficheiros, 10MB cada."

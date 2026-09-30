@@ -1196,7 +1196,9 @@
                                            "workLocationPlaceholder":  "Ogólne / wszystkie lokalizacje",
                                            "workLocationLabel":  "Punkt pracy",
                                            "countryPrefixLabel":  "Kraj i prefiks",
+                                           "prefixLabel":  "Prefiks",
                                            "phoneLocalLabel":  "Lokalny numer WhatsApp",
+                                           "phoneLabel":  "Numer telefonu",
                                            "languageLabel":  "Język wiadomości",
                                            "connectButton":  "Połącz WhatsApp Business",
                                            "connectingButton":  "Przygotowywanie...",
@@ -1288,7 +1290,11 @@
                                         "title":  "Dodatkowe Przypomnienie (2 godziny wcześniej)",
                                         "subtitle":  "Ostatnie przypomnienie, w dniu wizyty, oprócz przypomnienia z dnia poprzedniego.",
                                         "label":  "Przypomnienie 2 Godziny Wcześniej",
-                                        "desc":  "Opcjonalnie. Wysyła krótki e-mail około 2 godziny przed wizytą — przydatne dla zapracowanych klientów, którzy łatwo zapominają."
+                                       "desc":  "Opcjonalnie. Wysyła krótkie przypomnienie około 2 godziny przed wizytą — przydatne dla zapracowanych klientów, którzy łatwo zapominają.",
+                                       "emailChannel":  "E-mail",
+                                       "emailChannelDesc":  "Wysyła przypomnienie na adres e-mail klienta.",
+                                       "whatsappChannel":  "WhatsApp",
+                                       "whatsappChannelDesc":  "Wysyła przypomnienie przez WhatsApp z połączonego numeru firmowego."
                                     },
                      "allowClientDocumentsLabel":  "Dokumenty klientów",
                      "allowClientDocumentsHint":  "Pozwala klientom dołączyć zdjęcia lub dokumenty (np. fakturę, usterkę) bezpośrednio do rezerwacji online. Maksymalnie 5 plików, po 10MB każdy."

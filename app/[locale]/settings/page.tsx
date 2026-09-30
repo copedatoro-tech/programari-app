@@ -216,6 +216,8 @@ function SettingsContent() {
   const [rebookingSaving, setRebookingSaving] = useState(false);
   const [depositPercent, setDepositPercent] = useState(100);
   const [reminder2hEnabled, setReminder2hEnabled] = useState(false);
+  const [reminder2hEmailEnabled, setReminder2hEmailEnabled] = useState(true);
+  const [reminder2hWhatsAppEnabled, setReminder2hWhatsAppEnabled] = useState(false);
   const [connectingStripe, setConnectingStripe] = useState(false);
   const [businessLegalName, setBusinessLegalName] = useState("");
   const [businessTaxId, setBusinessTaxId] = useState("");
@@ -378,6 +380,8 @@ function SettingsContent() {
       setRebookingDays(profile.rebooking_reminder_days || 30);
       setDepositPercent(profile.deposit_percent || 100);
       setReminder2hEnabled(!!profile.reminder_2h_enabled);
+      setReminder2hEmailEnabled(profile.reminder_2h_email_enabled !== false);
+      setReminder2hWhatsAppEnabled(!!profile.reminder_2h_whatsapp_enabled);
       setBusinessLegalName(profile.business_legal_name || "");
       setBusinessTaxId(profile.business_tax_id || "");
       setBusinessTaxCountry(profile.business_tax_country || "RO");
@@ -806,6 +810,26 @@ function SettingsContent() {
     const newVal = !reminder2hEnabled;
     setReminder2hEnabled(newVal);
     await supabase.from('profiles').update({ reminder_2h_enabled: newVal }).eq('id', userId);
+  };
+
+  const handleToggleReminder2hEmail = async () => {
+    if (!userId) return;
+    const newVal = !reminder2hEmailEnabled;
+    setReminder2hEmailEnabled(newVal);
+    await supabase.from('profiles').update({
+      reminder_2h_email_enabled: newVal,
+      reminder_2h_enabled: reminder2hEnabled || newVal || reminder2hWhatsAppEnabled,
+    }).eq('id', userId);
+  };
+
+  const handleToggleReminder2hWhatsApp = async () => {
+    if (!userId) return;
+    const newVal = !reminder2hWhatsAppEnabled;
+    setReminder2hWhatsAppEnabled(newVal);
+    await supabase.from('profiles').update({
+      reminder_2h_whatsapp_enabled: newVal,
+      reminder_2h_enabled: reminder2hEnabled || reminder2hEmailEnabled || newVal,
+    }).eq('id', userId);
   };
 
   const handleToggleSound = () => {
@@ -1388,7 +1412,7 @@ function SettingsContent() {
                 </select>
               </label>
               <label className="block">
-                <span className="block text-[9px] font-black uppercase italic text-slate-400 mb-1">{t("whatsappAutomations.countryPrefixLabel")}</span>
+                <span className="block text-[9px] font-black uppercase italic text-slate-400 mb-1">{t("whatsappAutomations.prefixLabel")}</span>
                 <select
                   value={whatsAppCountry}
                   onChange={(e) => {
@@ -1406,7 +1430,7 @@ function SettingsContent() {
                 </select>
               </label>
               <label className="block">
-                <span className="block text-[9px] font-black uppercase italic text-slate-400 mb-1">{t("whatsappAutomations.phoneLocalLabel")}</span>
+                <span className="block text-[9px] font-black uppercase italic text-slate-400 mb-1">{t("whatsappAutomations.phoneLabel")}</span>
                 <input
                   value={whatsAppPhone}
                   onChange={(e) => setWhatsAppPhone(stripCountryPrefixFromPhone(e.target.value, whatsAppCountry))}
@@ -1728,6 +1752,28 @@ function SettingsContent() {
                 className={`px-5 py-3 rounded-xl font-black text-[10px] uppercase italic transition-all shrink-0 ${reminder2hEnabled ? "bg-red-50 text-red-500 hover:bg-red-500 hover:text-white" : "bg-emerald-500 text-white hover:bg-emerald-600"}`}
               >
                 {reminder2hEnabled ? t("notifications.deactivateBtn") : t("notifications.activateBtn")}
+              </button>
+            </div>
+            <div className={`mt-4 grid grid-cols-1 md:grid-cols-2 gap-3 transition-opacity ${!reminder2hEnabled ? "opacity-40 pointer-events-none" : ""}`}>
+              <button
+                type="button"
+                onClick={handleToggleReminder2hEmail}
+                className={`p-4 rounded-2xl border-2 text-left transition-all ${reminder2hEmailEnabled ? "bg-emerald-50 border-emerald-200 text-emerald-700" : "bg-slate-50 border-slate-100 text-slate-400"}`}
+              >
+                <span className="block text-[10px] font-black uppercase italic mb-1">
+                  {reminder2hEmailEnabled ? "✓ " : ""}{t("reminder2h.emailChannel")}
+                </span>
+                <span className="block text-[9px] font-bold leading-relaxed">{t("reminder2h.emailChannelDesc")}</span>
+              </button>
+              <button
+                type="button"
+                onClick={handleToggleReminder2hWhatsApp}
+                className={`p-4 rounded-2xl border-2 text-left transition-all ${reminder2hWhatsAppEnabled ? "bg-emerald-50 border-emerald-200 text-emerald-700" : "bg-slate-50 border-slate-100 text-slate-400"}`}
+              >
+                <span className="block text-[10px] font-black uppercase italic mb-1">
+                  {reminder2hWhatsAppEnabled ? "✓ " : ""}{t("reminder2h.whatsappChannel")}
+                </span>
+                <span className="block text-[9px] font-bold leading-relaxed">{t("reminder2h.whatsappChannelDesc")}</span>
               </button>
             </div>
           </section>

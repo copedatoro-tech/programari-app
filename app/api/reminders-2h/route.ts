@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import { Resend } from "resend";
+import { checkAndConsumeWhatsAppQuota } from "@/lib/whatsappQuota";
+import { getBusinessWhatsAppCredentials, normalizePhone, type WhatsAppCredentialsResult } from "@/lib/businessWhatsApp";
 
 function escapeHtml(value: unknown) {
   return String(value ?? "")
@@ -16,9 +18,50 @@ function escapeHtml(value: unknown) {
 // Trimite DOAR pentru saloanele care au activat explicit această opțiune în Settings
 // (implicit dezactivată — nimeni nu primește mesaje în plus fără să ceară).
 //
-// 📧 CONVERTIT PE EMAIL (2026-07): trimitea inițial pe WhatsApp Business API,
-// dezactivat temporar din cauza costurilor și complexității de configurare Meta.
-// Rămâne disponibil doar pentru planurile ELITE și TEAM, la fel ca înainte.
+async function sendWhatsApp2hReminder(
+  whatsapp: Extract<WhatsAppCredentialsResult, { ok: true }>,
+  phone: string,
+  nume: string,
+  data: string,
+  ora: string,
+) {
+  const to = normalizePhone(phone);
+  if (!to) return { ok: false, error: `Număr de telefon invalid: "${phone}"` };
+
+  try {
+    const res = await fetch(`https://graph.facebook.com/v23.0/${whatsapp.phoneNumberId}/messages`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${whatsapp.accessToken}`,
+      },
+      body: JSON.stringify({
+        messaging_product: "whatsapp",
+        to,
+        type: "template",
+        template: {
+          name: "reminder_programare",
+          language: { code: whatsapp.language },
+          components: [{
+            type: "body",
+            parameters: [
+              { type: "text", text: nume },
+              { type: "text", text: data },
+              { type: "text", text: ora },
+            ],
+          }],
+        },
+      }),
+    });
+
+    const json = await res.json();
+    if (!res.ok) return { ok: false, error: json?.error?.message || `HTTP ${res.status}` };
+    return { ok: true };
+  } catch (e: any) {
+    return { ok: false, error: e?.message || "eroare de rețea necunoscută" };
+  }
+}
+
 export async function GET(request: Request) {
   const authHeader = request.headers.get("authorization");
   if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
@@ -43,10 +86,10 @@ export async function GET(request: Request) {
 
   const { data: appointments, error } = await supabaseAdmin
     .from("appointments")
-    .select("id, title, prenume, nume, email, date, time, user_id, reminder_2h_sent, total_price, amount_paid, payment_status, work_location_name, work_location_address, work_location_maps_url")
+    .select("id, title, prenume, nume, email, phone, date, time, user_id, reminder_2h_sent, reminder_2h_email_sent, reminder_2h_whatsapp_sent, total_price, amount_paid, payment_status, work_location_id, work_location_name, work_location_address, work_location_maps_url")
     .in("date", [todayStr, tomorrowStr])
     .neq("status", "cancelled")
-    .eq("reminder_2h_sent", false);
+    .or("reminder_2h_email_sent.eq.false,reminder_2h_whatsapp_sent.eq.false");
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
@@ -69,14 +112,17 @@ export async function GET(request: Request) {
   const userIds = Array.from(new Set(inWindow.map((a) => a.user_id).filter(Boolean)));
   const { data: profiles } = await supabaseAdmin
     .from("profiles")
-    .select("id, plan_type, reminder_2h_enabled, full_name")
+    .select("id, plan_type, reminder_2h_enabled, reminder_2h_email_enabled, reminder_2h_whatsapp_enabled, full_name")
     .in("id", userIds);
 
   const profileByUser: Record<string, any> = {};
   (profiles || []).forEach((p) => { profileByUser[p.id] = p; });
 
   let sent = 0;
+  let sentEmail = 0;
+  let sentWhatsapp = 0;
   const errors: string[] = [];
+  const whatsappByUserAndLocation: Record<string, WhatsAppCredentialsResult> = {};
 
   for (const appt of inWindow) {
     const profile = profileByUser[appt.user_id];
@@ -84,7 +130,6 @@ export async function GET(request: Request) {
 
     const plan = (profile.plan_type || "").toUpperCase();
     if (!plan.includes("ELITE") && !plan.includes("TEAM") && !plan.includes("BUSINESS")) continue; // functie disponibila doar ELITE/TEAM
-    if (!appt.email) continue; // fără email, nu avem cum trimite
 
     const clientName = appt.title || appt.prenume || appt.nume || "Client";
     const safeName = escapeHtml(clientName);
@@ -94,7 +139,13 @@ export async function GET(request: Request) {
     const safeLocationAddress = appt.work_location_address ? escapeHtml(appt.work_location_address) : "";
     const mapsUrl = appt.work_location_maps_url || (appt.work_location_address ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(appt.work_location_address)}` : "");
 
-    try {
+    const emailEnabled = profile.reminder_2h_email_enabled !== false;
+    const whatsappEnabled = !!profile.reminder_2h_whatsapp_enabled;
+    let emailSentNow = false;
+    let whatsappSentNow = false;
+
+    if (emailEnabled && !appt.reminder_2h_email_sent && appt.email) {
+      try {
       const dataMail = await resend.emails.send({
         from: "Chronos <notificari@chronosproductivity.com>",
         to: [appt.email],
@@ -136,15 +187,50 @@ export async function GET(request: Request) {
       });
 
       if (!dataMail.error) {
-        await supabaseAdmin.from("appointments").update({ reminder_2h_sent: true }).eq("id", appt.id);
+        await supabaseAdmin.from("appointments").update({ reminder_2h_email_sent: true }).eq("id", appt.id);
         sent++;
+        sentEmail++;
+        emailSentNow = true;
       } else {
-        errors.push(`${appt.id}: ${dataMail.error.message}`);
+        errors.push(`[email] ${appt.id}: ${dataMail.error.message}`);
       }
     } catch (e: any) {
-      errors.push(`${appt.id}: ${e.message}`);
+      errors.push(`[email] ${appt.id}: ${e.message}`);
+      }
+    }
+
+    if (whatsappEnabled && !appt.reminder_2h_whatsapp_sent && appt.phone) {
+      const whatsappKey = `${appt.user_id}:${appt.work_location_id || "__default__"}`;
+      if (!whatsappByUserAndLocation[whatsappKey]) {
+        whatsappByUserAndLocation[whatsappKey] = await getBusinessWhatsAppCredentials(appt.user_id, null, appt.work_location_id);
+      }
+      const whatsapp = whatsappByUserAndLocation[whatsappKey];
+      if (!whatsapp?.ok) {
+        errors.push(`[whatsapp] ${appt.id}: ${whatsapp?.reason || "business_whatsapp_not_connected"}`);
+      } else {
+        const quota = await checkAndConsumeWhatsAppQuota(appt.user_id, plan);
+        if (!quota.allowed) {
+          errors.push(`[whatsapp] ${appt.id}: cotă lunară epuizată (${quota.reason})`);
+        } else {
+          const waResult = await sendWhatsApp2hReminder(whatsapp, appt.phone, clientName, appt.date, appt.time);
+          if (waResult.ok) {
+            await supabaseAdmin.from("appointments").update({ reminder_2h_whatsapp_sent: true }).eq("id", appt.id);
+            sent++;
+            sentWhatsapp++;
+            whatsappSentNow = true;
+          } else {
+            errors.push(`[whatsapp] ${appt.id}: ${waResult.error}`);
+          }
+        }
+      }
+    }
+
+    const emailDone = !emailEnabled || !!appt.reminder_2h_email_sent || emailSentNow || !appt.email;
+    const whatsappDone = !whatsappEnabled || !!appt.reminder_2h_whatsapp_sent || whatsappSentNow || !appt.phone;
+    if (emailDone && whatsappDone) {
+      await supabaseAdmin.from("appointments").update({ reminder_2h_sent: true }).eq("id", appt.id);
     }
   }
 
-  return NextResponse.json({ sent, errors });
+  return NextResponse.json({ sent, sentEmail, sentWhatsapp, errors });
 }

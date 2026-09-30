@@ -1196,7 +1196,9 @@
                                            "workLocationPlaceholder":  "Général / tous les lieux",
                                            "workLocationLabel":  "Lieu de travail",
                                            "countryPrefixLabel":  "Pays et indicatif",
+                                           "prefixLabel":  "Indicatif",
                                            "phoneLocalLabel":  "Numéro WhatsApp local",
+                                           "phoneLabel":  "Numéro de téléphone",
                                            "languageLabel":  "Langue des messages",
                                            "connectButton":  "Connecter WhatsApp Business",
                                            "connectingButton":  "Préparation...",
@@ -1288,7 +1290,11 @@
                                         "title":  "Rappel Supplémentaire (2 heures avant)",
                                         "subtitle":  "Un dernier rappel, le jour même du rendez-vous, en plus du rappel de la veille.",
                                         "label":  "Rappel 2 Heures Avant",
-                                        "desc":  "Optionnel. Envoie un court email environ 2 heures avant le rendez-vous — utile pour les clients occupés, qui oublient facilement."
+                                       "desc":  "Optionnel. Envoie un court rappel environ 2 heures avant le rendez-vous — utile pour les clients occupés, qui oublient facilement.",
+                                       "emailChannel":  "E-mail",
+                                       "emailChannelDesc":  "Envoie le rappel à l'adresse e-mail du client.",
+                                       "whatsappChannel":  "WhatsApp",
+                                       "whatsappChannelDesc":  "Envoie le rappel sur WhatsApp depuis le numéro business connecté."
                                     },
                      "allowClientDocumentsLabel":  "Documents des clients",
                      "allowClientDocumentsHint":  "Permet aux clients de joindre des photos ou documents (ex. une facture, un défaut) directement à la réservation en ligne. Max 5 fichiers, 10 Mo chacun."

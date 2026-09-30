@@ -1196,7 +1196,9 @@
                                            "workLocationPlaceholder":  "Generale / tutte le sedi",
                                            "workLocationLabel":  "Sede",
                                            "countryPrefixLabel":  "Paese e prefisso",
+                                           "prefixLabel":  "Prefisso",
                                            "phoneLocalLabel":  "Numero WhatsApp locale",
+                                           "phoneLabel":  "Numero di telefono",
                                            "languageLabel":  "Lingua messaggi",
                                            "connectButton":  "Collega WhatsApp Business",
                                            "connectingButton":  "Preparazione...",
@@ -1288,7 +1290,11 @@
                                         "title":  "Promemoria Aggiuntivo (2 ore prima)",
                                         "subtitle":  "Un ultimo promemoria, il giorno stesso dell\u0027appuntamento, oltre a quello del giorno prima.",
                                         "label":  "Promemoria 2 Ore Prima",
-                                        "desc":  "Opzionale. Invia una breve email circa 2 ore prima dell\u0027appuntamento — utile per i clienti impegnati, che dimenticano facilmente."
+                                       "desc":  "Opzionale. Invia un breve promemoria circa 2 ore prima dell\u0027appuntamento — utile per i clienti impegnati, che dimenticano facilmente.",
+                                       "emailChannel":  "E-mail",
+                                       "emailChannelDesc":  "Invia il promemoria all'indirizzo e-mail del cliente.",
+                                       "whatsappChannel":  "WhatsApp",
+                                       "whatsappChannelDesc":  "Invia il promemoria su WhatsApp dal numero business collegato."
                                     },
                      "allowClientDocumentsLabel":  "Documenti dei clienti",
                      "allowClientDocumentsHint":  "Consente ai clienti di allegare foto o documenti (es. una fattura, un difetto) direttamente alla prenotazione online. Massimo 5 file, 10MB ciascuno."

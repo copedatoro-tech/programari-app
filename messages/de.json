@@ -1196,7 +1196,9 @@
                                            "workLocationPlaceholder":  "Allgemein / alle Standorte",
                                            "workLocationLabel":  "Standort",
                                            "countryPrefixLabel":  "Land und Vorwahl",
+                                           "prefixLabel":  "Vorwahl",
                                            "phoneLocalLabel":  "Lokale WhatsApp-Nummer",
+                                           "phoneLabel":  "Telefonnummer",
                                            "languageLabel":  "Nachrichtensprache",
                                            "connectButton":  "WhatsApp Business verbinden",
                                            "connectingButton":  "Wird vorbereitet...",
@@ -1288,7 +1290,11 @@
                                         "title":  "Zusätzliche Erinnerung (2 Stunden vorher)",
                                         "subtitle":  "Ein letzter Anstoß, am Tag des Termins, zusätzlich zur Erinnerung am Vortag.",
                                         "label":  "2-Stunden-Erinnerung",
-                                        "desc":  "Optional. Sendet etwa 2 Stunden vor dem Termin eine kurze E-Mail — nützlich für vielbeschäftigte Kunden, die leicht vergessen."
+                                       "desc":  "Optional. Sendet etwa 2 Stunden vor dem Termin eine kurze Erinnerung — nützlich für vielbeschäftigte Kunden, die leicht vergessen.",
+                                       "emailChannel":  "E-Mail",
+                                       "emailChannelDesc":  "Sendet die Erinnerung an die E-Mail-Adresse des Kunden.",
+                                       "whatsappChannel":  "WhatsApp",
+                                       "whatsappChannelDesc":  "Sendet die Erinnerung per WhatsApp über die verbundene Business-Nummer."
                                     },
                      "allowClientDocumentsLabel":  "Kundendokumente",
                      "allowClientDocumentsHint":  "Ermöglicht Kunden, Fotos oder Dokumente (z. B. eine Rechnung, ein Defekt) direkt bei der Online-Buchung anzuhängen. Max. 5 Dateien, je 10 MB."

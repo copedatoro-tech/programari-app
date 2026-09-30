@@ -1196,7 +1196,9 @@
                                            "workLocationPlaceholder":  "General / all locations",
                                            "workLocationLabel":  "Work location",
                                            "countryPrefixLabel":  "Country and prefix",
+                                           "prefixLabel":  "Prefix",
                                            "phoneLocalLabel":  "Local WhatsApp number",
+                                           "phoneLabel":  "Phone number",
                                            "languageLabel":  "Message language",
                                            "connectButton":  "Connect WhatsApp Business",
                                            "connectingButton":  "Preparing...",
@@ -1288,7 +1290,11 @@
                                         "title":  "Extra Reminder (2 hours before)",
                                         "subtitle":  "One last nudge, on the day of the appointment, in addition to the day-before reminder.",
                                         "label":  "2-Hour Reminder",
-                                        "desc":  "Optional. Sends a short email about 2 hours before the appointment — useful for busy clients who tend to forget."
+                                       "desc":  "Optional. Sends a short reminder about 2 hours before the appointment — useful for busy clients who tend to forget.",
+                                       "emailChannel":  "Email",
+                                       "emailChannelDesc":  "Sends the reminder to the client's email address.",
+                                       "whatsappChannel":  "WhatsApp",
+                                       "whatsappChannelDesc":  "Sends the reminder on WhatsApp from the connected business number."
                                     },
                      "allowClientDocumentsLabel":  "Client Documents",
                      "allowClientDocumentsHint":  "Allow clients to attach photos or documents (e.g. an invoice, a defect) directly to the online booking. Max 5 files, 10MB each."

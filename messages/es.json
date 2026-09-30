@@ -1196,7 +1196,9 @@
                                            "workLocationPlaceholder":  "General / todos los puntos",
                                            "workLocationLabel":  "Punto de trabajo",
                                            "countryPrefixLabel":  "País y prefijo",
+                                           "prefixLabel":  "Prefijo",
                                            "phoneLocalLabel":  "Número local de WhatsApp",
+                                           "phoneLabel":  "Número de teléfono",
                                            "languageLabel":  "Idioma de mensajes",
                                            "connectButton":  "Conectar WhatsApp Business",
                                            "connectingButton":  "Preparando...",
@@ -1288,7 +1290,11 @@
                                         "title":  "Recordatorio Adicional (2 horas antes)",
                                         "subtitle":  "Un último aviso, el mismo día de la cita, además del recordatorio del día anterior.",
                                         "label":  "Recordatorio 2 Horas Antes",
-                                        "desc":  "Opcional. Envía un email breve aproximadamente 2 horas antes de la cita — útil para clientes ocupados que suelen olvidar."
+                                       "desc":  "Opcional. Envía un recordatorio breve aproximadamente 2 horas antes de la cita — útil para clientes ocupados que suelen olvidar.",
+                                       "emailChannel":  "E-mail",
+                                       "emailChannelDesc":  "Envía el recordatorio al correo del cliente.",
+                                       "whatsappChannel":  "WhatsApp",
+                                       "whatsappChannelDesc":  "Envía el recordatorio por WhatsApp desde el número business conectado."
                                     },
                      "allowClientDocumentsLabel":  "Documentos de clientes",
                      "allowClientDocumentsHint":  "Permite a los clientes adjuntar fotos o documentos (ej. una factura, un desperfecto) directamente en la reserva online. Máximo 5 archivos, 10MB cada uno."
