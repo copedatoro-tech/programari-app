@@ -82,6 +82,7 @@ const AI_RECEPTIONIST_RULES = [
   "mention_payment_policy",
   "ask_for_missing_details",
 ];
+const DEFAULT_AI_RECEPTIONIST_RULES = [...AI_RECEPTIONIST_RULES];
 const DEFAULT_NOTIF_SETTINGS: NotificationSettings = { in_app_enabled: true, system_enabled: false, sound_enabled: true, volume: 75 };
 const LOCATION_BLOCKS_KEY = "__work_location_manual_blocks";
 const FACEBOOK_SDK_SCRIPT_ID = "facebook-jssdk";
@@ -241,7 +242,7 @@ function SettingsContent() {
   const [aiReceptionistHandoffCountry, setAiReceptionistHandoffCountry] = useState("RO");
   const [aiReceptionistNotes, setAiReceptionistNotes] = useState("");
   const [aiReceptionistTone, setAiReceptionistTone] = useState("professional");
-  const [aiReceptionistRules, setAiReceptionistRules] = useState<string[]>(["confirm_before_booking", "offer_only_available_slots", "ask_for_missing_details"]);
+  const [aiReceptionistRules, setAiReceptionistRules] = useState<string[]>(DEFAULT_AI_RECEPTIONIST_RULES);
   const [aiReceptionistFeaturedServiceIds, setAiReceptionistFeaturedServiceIds] = useState<string[]>([]);
   const [savingAiReceptionist, setSavingAiReceptionist] = useState(false);
   const [serviceOptions, setServiceOptions] = useState<ServiceOption[]>([]);
@@ -650,8 +651,12 @@ function SettingsContent() {
         setAiReceptionistHandoffCountry(connection.ai_receptionist_handoff_country || connection.country_code || "RO");
         setAiReceptionistNotes(connection.ai_receptionist_notes || "");
         setAiReceptionistTone(connection.ai_receptionist_tone || "professional");
-        setAiReceptionistRules(Array.isArray(connection.ai_receptionist_rules) ? connection.ai_receptionist_rules : []);
-        setAiReceptionistFeaturedServiceIds(Array.isArray(connection.ai_receptionist_featured_service_ids) ? connection.ai_receptionist_featured_service_ids : []);
+        setAiReceptionistRules(Array.isArray(connection.ai_receptionist_rules) && connection.ai_receptionist_rules.length > 0
+          ? connection.ai_receptionist_rules
+          : DEFAULT_AI_RECEPTIONIST_RULES);
+        setAiReceptionistFeaturedServiceIds(Array.isArray(connection.ai_receptionist_featured_service_ids) && connection.ai_receptionist_featured_service_ids.length > 0
+          ? connection.ai_receptionist_featured_service_ids
+          : serviceOptions.map((service) => service.id));
         if (showFeedback) {
           await showToast({
             message: connection.status === "connected"
@@ -670,8 +675,8 @@ function SettingsContent() {
         setAiReceptionistHandoffCountry("RO");
         setAiReceptionistNotes("");
         setAiReceptionistTone("professional");
-        setAiReceptionistRules(["confirm_before_booking", "offer_only_available_slots", "ask_for_missing_details"]);
-        setAiReceptionistFeaturedServiceIds([]);
+        setAiReceptionistRules(DEFAULT_AI_RECEPTIONIST_RULES);
+        setAiReceptionistFeaturedServiceIds(serviceOptions.map((service) => service.id));
         if (showFeedback) {
           await showToast({ message: t("whatsappAutomations.statusNotConfiguredMessage"), type: "info" });
         }
@@ -690,6 +695,12 @@ function SettingsContent() {
     if (userId) refreshWhatsAppStatus();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedWhatsAppWorkLocationId, userId]);
+
+  useEffect(() => {
+    if (serviceOptions.length > 0 && aiReceptionistFeaturedServiceIds.length === 0) {
+      setAiReceptionistFeaturedServiceIds(serviceOptions.map((service) => service.id));
+    }
+  }, [serviceOptions, aiReceptionistFeaturedServiceIds.length]);
 
   const handleSaveAiReceptionist = async () => {
     setSavingAiReceptionist(true);

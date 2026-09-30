@@ -23,6 +23,7 @@ const ALLOWED_RULES = new Set([
   "mention_payment_policy",
   "ask_for_missing_details",
 ]);
+const DEFAULT_RULES = Array.from(ALLOWED_RULES);
 
 export async function POST(request: Request) {
   const cookieStore = await cookies();
@@ -49,7 +50,7 @@ export async function POST(request: Request) {
   const handoffCountry = typeof body.handoffCountry === "string" ? body.handoffCountry.trim().toUpperCase() : null;
   const notes = typeof body.notes === "string" ? body.notes.trim().slice(0, 1000) : null;
   const tone = typeof body.tone === "string" && ALLOWED_TONES.has(body.tone) ? body.tone : "professional";
-  const rules = Array.isArray(body.rules) ? body.rules.filter((rule) => ALLOWED_RULES.has(rule)) : [];
+  const rules = Array.isArray(body.rules) ? body.rules.filter((rule) => ALLOWED_RULES.has(rule)) : DEFAULT_RULES;
   const featuredServiceIds = Array.isArray(body.featuredServiceIds)
     ? body.featuredServiceIds.filter((id) => typeof id === "string").slice(0, 8)
     : [];

@@ -123,6 +123,13 @@ const TONE_MAP: Record<string, string> = {
   concise: "scurt si eficient, fara politeturi excesive",
   premium: "elegant, ca la un salon premium",
 };
+const DEFAULT_AI_RECEPTIONIST_RULES = [
+  "confirm_before_booking",
+  "offer_only_available_slots",
+  "handoff_on_uncertainty",
+  "mention_payment_policy",
+  "ask_for_missing_details",
+];
 
 function digitsOnly(value?: string | null) {
   return String(value || "").replace(/[^\d]/g, "");
@@ -163,7 +170,9 @@ function buildSystemPrompt(
     .join("\n");
 
   const tone = connection.ai_receptionist_tone || "professional";
-  const rules = connection.ai_receptionist_rules || [];
+  const rules = Array.isArray(connection.ai_receptionist_rules) && connection.ai_receptionist_rules.length > 0
+    ? connection.ai_receptionist_rules
+    : DEFAULT_AI_RECEPTIONIST_RULES;
   const notes = connection.ai_receptionist_notes;
   const today = new Date().toISOString().slice(0, 10);
   const confirmBeforeBooking = rules.includes("confirm_before_booking");

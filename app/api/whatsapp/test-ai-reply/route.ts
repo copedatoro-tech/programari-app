@@ -48,7 +48,7 @@ export async function POST(request: Request) {
         work_location_id: workLocationId,
         status: "test_only",
         ai_receptionist_enabled: true,
-        ai_receptionist_rules: ["confirm_before_booking", "offer_only_available_slots", "ask_for_missing_details"],
+        ai_receptionist_rules: ["confirm_before_booking", "offer_only_available_slots", "handoff_on_uncertainty", "mention_payment_policy", "ask_for_missing_details"],
         ai_receptionist_tone: "professional",
         default_language: "ro",
       }, { onConflict: "user_id,work_location_id" })
