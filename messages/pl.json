@@ -1182,7 +1182,18 @@
                                            "saveButton":  "Zapisz dane firmy",
                                            "savingButton":  "Zapisywanie...",
                                            "savedMessage":  "Dane firmy zostały zapisane.",
-                                           "saveError":  "Nie udało się zapisać danych firmy."
+                                           "saveError":  "Nie udało się zapisać danych firmy.",
+                                           "lookupButton":  "Znajdź firmę",
+                                           "lookupSearchingButton":  "Wyszukiwanie...",
+                                           "lookupHint":  "Dla Rumunii Chronos może automatycznie uzupełnić nazwę i adres firmy na podstawie identyfikatora podatkowego.",
+                                           "lookupFound":  "Firma znaleziona. Sprawdź dane i zapisz.",
+                                           "lookupError":  "Nie udało się znaleźć firmy.",
+                                           "lookupMissingTaxId":  "Wpisz numer podatkowy przed wyszukiwaniem.",
+                                           "lookupUnsupportedCountry":  "Automatyczne wyszukiwanie jest obecnie dostępne dla Rumunii. Dla innych krajów dane można uzupełnić ręcznie.",
+                                           "lookupProviderError":  "ANAF nie odpowiedział poprawnie. Spróbuj ponownie lub uzupełnij dane ręcznie.",
+                                           "lookupNotFound":  "Nie znaleziono firmy dla tego numeru podatkowego.",
+                                           "lookupTimeout":  "Wyszukiwanie ANAF trwało zbyt długo. Spróbuj ponownie.",
+                                           "lookupUnavailable":  "Nie można teraz zweryfikować firmy."
                      },
                      "whatsappAutomations":  {
                                            "title":  "Automatyzacje WhatsApp",
@@ -1281,7 +1292,11 @@
                                        "label":  "Automatyczne Przypomnienia",
                                        "desc":  "Każdy klient automatycznie otrzymuje e-mail we właściwym momencie na powrót — obliczonym na podstawie jego rzeczywistego wzorca wizyt, a nie stałej daty dla wszystkich.",
                                        "daysLabel":  "Domyślny interwał (nowi klienci, brak jeszcze wzorca)",
-                                       "daysHint":  "dni od ostatniej wizyty"
+                                      "daysHint":  "dni od ostatniej wizyty",
+                                      "emailChannel":  "E-mail",
+                                      "emailChannelDesc":  "Wysyła przypomnienie o powrocie e-mailem.",
+                                      "whatsappChannel":  "WhatsApp",
+                                      "whatsappChannelDesc":  "Wysyła przypomnienie o powrocie przez WhatsApp z połączonego numeru firmowego."
                                    },
                      "depositLabel":  "Procent Zaliczki",
                      "depositFullHint":  "Klient płaci pełną cenę przy rezerwacji.",

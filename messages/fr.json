@@ -1182,7 +1182,18 @@
                                            "saveButton":  "Enregistrer les données",
                                            "savingButton":  "Enregistrement...",
                                            "savedMessage":  "Les données de l'entreprise ont été enregistrées.",
-                                           "saveError":  "Impossible d'enregistrer les données de l'entreprise."
+                                           "saveError":  "Impossible d'enregistrer les données de l'entreprise.",
+                                           "lookupButton":  "Rechercher l'entreprise",
+                                           "lookupSearchingButton":  "Recherche...",
+                                           "lookupHint":  "Pour la Roumanie, Chronos peut remplir automatiquement le nom et l'adresse de l'entreprise à partir de l'identifiant fiscal.",
+                                           "lookupFound":  "Entreprise trouvée. Vérifie les données et enregistre.",
+                                           "lookupError":  "Impossible de trouver l'entreprise.",
+                                           "lookupMissingTaxId":  "Saisissez l'identifiant fiscal avant de lancer la recherche.",
+                                           "lookupUnsupportedCountry":  "La recherche automatique est actuellement disponible pour la Roumanie. Pour les autres pays, les informations peuvent être complétées manuellement.",
+                                           "lookupProviderError":  "ANAF n'a pas répondu correctement. Réessayez ou complétez les informations manuellement.",
+                                           "lookupNotFound":  "Aucune entreprise n'a été trouvée pour cet identifiant fiscal.",
+                                           "lookupTimeout":  "La recherche ANAF a pris trop de temps. Veuillez réessayer.",
+                                           "lookupUnavailable":  "Impossible de vérifier l'entreprise pour le moment."
                      },
                      "whatsappAutomations":  {
                                            "title":  "Automatisations WhatsApp",
@@ -1281,7 +1292,11 @@
                                        "label":  "Rappels Automatiques",
                                        "desc":  "Chaque client reçoit automatiquement un email au bon moment pour revenir — calculé à partir de son schéma réel de visites, pas une date fixe pour tous.",
                                        "daysLabel":  "Intervalle par défaut (nouveaux clients, sans historique)",
-                                       "daysHint":  "jours depuis la dernière visite"
+                                      "daysHint":  "jours depuis la dernière visite",
+                                      "emailChannel":  "E-mail",
+                                      "emailChannelDesc":  "Envoie le rappel de retour par e-mail.",
+                                      "whatsappChannel":  "WhatsApp",
+                                      "whatsappChannelDesc":  "Envoie le rappel de retour sur WhatsApp depuis le numéro business connecté."
                                    },
                      "depositLabel":  "Pourcentage d\u0027Acompte",
                      "depositFullHint":  "Le client paie le prix intégral à la réservation.",

@@ -1182,7 +1182,18 @@
                                            "saveButton":  "Guardar dados da empresa",
                                            "savingButton":  "A guardar...",
                                            "savedMessage":  "Os dados da empresa foram guardados.",
-                                           "saveError":  "Não foi possível guardar os dados da empresa."
+                                           "saveError":  "Não foi possível guardar os dados da empresa.",
+                                           "lookupButton":  "Pesquisar empresa",
+                                           "lookupSearchingButton":  "A pesquisar...",
+                                           "lookupHint":  "Para a Roménia, o Chronos pode preencher automaticamente o nome e a morada da empresa a partir do ID fiscal.",
+                                           "lookupFound":  "Empresa encontrada. Verifica os dados e guarda.",
+                                           "lookupError":  "Não foi possível encontrar a empresa.",
+                                           "lookupMissingTaxId":  "Introduza o número fiscal antes de pesquisar.",
+                                           "lookupUnsupportedCountry":  "A pesquisa automática está disponível neste momento para a Roménia. Para outros países, os dados podem ser preenchidos manualmente.",
+                                           "lookupProviderError":  "A ANAF não respondeu corretamente. Tente novamente ou preencha os dados manualmente.",
+                                           "lookupNotFound":  "Não foi encontrada nenhuma empresa para este número fiscal.",
+                                           "lookupTimeout":  "A pesquisa na ANAF demorou demasiado. Tente novamente.",
+                                           "lookupUnavailable":  "Não é possível verificar a empresa neste momento."
                      },
                      "whatsappAutomations":  {
                                            "title":  "Automatizações WhatsApp",
@@ -1281,7 +1292,11 @@
                                        "label":  "Lembretes Automáticos",
                                        "desc":  "Cada cliente recebe automaticamente um email quando é o momento certo para ele voltar — calculado a partir do seu padrão real de visitas, não uma data fixa para todos.",
                                        "daysLabel":  "Intervalo padrão (novos clientes, ainda sem padrão)",
-                                       "daysHint":  "dias desde a última visita"
+                                      "daysHint":  "dias desde a última visita",
+                                      "emailChannel":  "E-mail",
+                                      "emailChannelDesc":  "Envia o lembrete de regresso por e-mail.",
+                                      "whatsappChannel":  "WhatsApp",
+                                      "whatsappChannelDesc":  "Envia o lembrete de regresso no WhatsApp a partir do número business ligado."
                                    },
                      "depositLabel":  "Percentagem de Sinal",
                      "depositFullHint":  "O cliente paga o preço total na marcação.",

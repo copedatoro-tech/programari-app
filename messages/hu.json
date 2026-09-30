@@ -1182,7 +1182,18 @@
                                            "saveButton":  "Cégadatok mentése",
                                            "savingButton":  "Mentés...",
                                            "savedMessage":  "A cégadatok mentve.",
-                                           "saveError":  "Nem sikerült menteni a cégadatokat."
+                                           "saveError":  "Nem sikerült menteni a cégadatokat.",
+                                           "lookupButton":  "Cég keresése",
+                                           "lookupSearchingButton":  "Keresés...",
+                                           "lookupHint":  "Románia esetén a Chronos automatikusan kitöltheti a cég nevét és címét az adószám alapján.",
+                                           "lookupFound":  "Cég megtalálva. Ellenőrizd az adatokat és mentsd.",
+                                           "lookupError":  "Nem sikerült megtalálni a céget.",
+                                           "lookupMissingTaxId":  "Add meg az adószámot a keresés előtt.",
+                                           "lookupUnsupportedCountry":  "Az automatikus keresés jelenleg Romániában érhető el. Más országoknál az adatok kézzel tölthetők ki.",
+                                           "lookupProviderError":  "Az ANAF nem válaszolt megfelelően. Próbáld újra, vagy töltsd ki kézzel az adatokat.",
+                                           "lookupNotFound":  "Ehhez az adószámhoz nem található cég.",
+                                           "lookupTimeout":  "Az ANAF-keresés túl sokáig tartott. Kérjük, próbáld újra.",
+                                           "lookupUnavailable":  "A cég jelenleg nem ellenőrizhető."
                      },
                      "whatsappAutomations":  {
                                            "title":  "WhatsApp automatizálások",
@@ -1281,7 +1292,11 @@
                                        "label":  "Automatikus Emlékeztetők",
                                        "desc":  "Minden ügyfél automatikusan kap egy emailt, amikor számára a megfelelő idő van a visszatérésre — a valós látogatási mintázata alapján kiszámítva, nem egy fix dátum mindenkinek.",
                                        "daysLabel":  "Alapértelmezett intervallum (új ügyfelek, még nincs mintázat)",
-                                       "daysHint":  "nap az utolsó látogatás óta"
+                                      "daysHint":  "nap az utolsó látogatás óta",
+                                      "emailChannel":  "E-mail",
+                                      "emailChannelDesc":  "E-mailben küldi a visszatérési emlékeztetőt.",
+                                      "whatsappChannel":  "WhatsApp",
+                                      "whatsappChannelDesc":  "WhatsAppon küldi a visszatérési emlékeztetőt a csatlakoztatott üzleti számról."
                                    },
                      "depositLabel":  "Előleg Százaléka",
                      "depositFullHint":  "Az ügyfél a teljes árat fizeti foglaláskor.",

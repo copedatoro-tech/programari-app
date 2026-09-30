@@ -1182,7 +1182,18 @@
                                            "saveButton":  "Save business details",
                                            "savingButton":  "Saving...",
                                            "savedMessage":  "Business details were saved.",
-                                           "saveError":  "Could not save business details."
+                                           "saveError":  "Could not save business details.",
+                                           "lookupButton":  "Find business",
+                                           "lookupSearchingButton":  "Searching...",
+                                           "lookupHint":  "For Romania, Chronos can automatically fill the business name and address from the tax ID.",
+                                           "lookupFound":  "Business found. Check the details and save.",
+                                           "lookupError":  "Could not find the business.",
+                                           "lookupMissingTaxId":  "Enter the tax ID before searching.",
+                                           "lookupUnsupportedCountry":  "Automatic lookup is currently available for Romania. For other countries, the details can be completed manually.",
+                                           "lookupProviderError":  "ANAF did not respond correctly. Try again or complete the details manually.",
+                                           "lookupNotFound":  "No business was found for this tax ID.",
+                                           "lookupTimeout":  "The ANAF lookup took too long. Please try again.",
+                                           "lookupUnavailable":  "The business could not be verified right now."
                      },
                      "whatsappAutomations":  {
                                            "title":  "WhatsApp Automations",
@@ -1281,7 +1292,11 @@
                                        "label":  "Automatic Reminders",
                                        "desc":  "Each client automatically receives an email when it\u0027s the right time for them to come back — calculated from their actual visit pattern, not a fixed date for everyone.",
                                        "daysLabel":  "Default interval (for new clients, no pattern yet)",
-                                       "daysHint":  "days since last visit"
+                                       "daysHint":  "days since last visit",
+                                       "emailChannel":  "Email",
+                                       "emailChannelDesc":  "Sends the rebooking reminder by email.",
+                                       "whatsappChannel":  "WhatsApp",
+                                       "whatsappChannelDesc":  "Sends the rebooking reminder on WhatsApp from the connected business number."
                                    },
                      "depositLabel":  "Deposit Percentage",
                      "depositFullHint":  "The client pays the full price at booking.",

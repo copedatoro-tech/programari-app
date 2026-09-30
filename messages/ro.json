@@ -1405,7 +1405,18 @@
                                            "saveButton":  "Salvează date firmă",
                                            "savingButton":  "Se salvează...",
                                            "savedMessage":  "Datele firmei au fost salvate.",
-                                           "saveError":  "Nu am putut salva datele firmei."
+                                           "saveError":  "Nu am putut salva datele firmei.",
+                                           "lookupButton":  "Caută firma",
+                                           "lookupSearchingButton":  "Se caută...",
+                                           "lookupHint":  "Pentru România, Chronos poate completa automat denumirea și adresa firmei după CUI.",
+                                           "lookupFound":  "Firma a fost găsită. Verifică datele și salvează.",
+                                           "lookupError":  "Nu am putut găsi firma.",
+                                           "lookupMissingTaxId":  "Introdu CUI-ul înainte de căutare.",
+                                           "lookupUnsupportedCountry":  "Căutarea automată este disponibilă momentan pentru România. Pentru alte țări, datele se pot completa manual.",
+                                           "lookupProviderError":  "ANAF nu a răspuns corect. Încearcă din nou sau completează manual.",
+                                           "lookupNotFound":  "Firma nu a fost găsită pentru CUI-ul introdus.",
+                                           "lookupTimeout":  "Căutarea ANAF a durat prea mult. Te rugăm să încerci din nou.",
+                                           "lookupUnavailable":  "Nu am putut verifica firma acum."
                      },
                      "whatsappAutomations":  {
                                            "title":  "Automatizări WhatsApp",
@@ -1504,7 +1515,11 @@
                                        "label":  "Reamintiri Automate",
                                        "desc":  "Fiecare client primește automat un email când e momentul potrivit pentru el să revină — calculat din tiparul lui real de vizite, nu o dată fixă pentru toți.",
                                        "daysLabel":  "Interval implicit (pentru clienți noi, fără tipar încă)",
-                                       "daysHint":  "zile de la ultima vizită"
+                                       "daysHint":  "zile de la ultima vizită",
+                                       "emailChannel":  "E-mail",
+                                       "emailChannelDesc":  "Trimite reamintirea de revenire pe e-mail.",
+                                       "whatsappChannel":  "WhatsApp",
+                                       "whatsappChannelDesc":  "Trimite reamintirea de revenire pe WhatsApp, de pe numărul businessului conectat."
                                    },
                      "depositLabel":  "Procent Avans",
                      "depositFullHint":  "Clientul plătește prețul integral la rezervare.",

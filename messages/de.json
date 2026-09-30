@@ -1182,7 +1182,18 @@
                                            "saveButton":  "Firmendaten speichern",
                                            "savingButton":  "Wird gespeichert...",
                                            "savedMessage":  "Firmendaten wurden gespeichert.",
-                                           "saveError":  "Firmendaten konnten nicht gespeichert werden."
+                                           "saveError":  "Firmendaten konnten nicht gespeichert werden.",
+                                           "lookupButton":  "Firma suchen",
+                                           "lookupSearchingButton":  "Suche...",
+                                           "lookupHint":  "Für Rumänien kann Chronos Firmenname und Adresse automatisch aus der Steuernummer ausfüllen.",
+                                           "lookupFound":  "Firma gefunden. Prüfe die Daten und speichere.",
+                                           "lookupError":  "Firma konnte nicht gefunden werden.",
+                                           "lookupMissingTaxId":  "Gib die Steuernummer ein, bevor du suchst.",
+                                           "lookupUnsupportedCountry":  "Die automatische Suche ist derzeit für Rumänien verfügbar. Für andere Länder können die Daten manuell ausgefüllt werden.",
+                                           "lookupProviderError":  "ANAF hat nicht korrekt geantwortet. Versuche es erneut oder fülle die Daten manuell aus.",
+                                           "lookupNotFound":  "Für diese Steuernummer wurde keine Firma gefunden.",
+                                           "lookupTimeout":  "Die ANAF-Suche hat zu lange gedauert. Bitte versuche es erneut.",
+                                           "lookupUnavailable":  "Die Firma kann momentan nicht geprüft werden."
                      },
                      "whatsappAutomations":  {
                                            "title":  "WhatsApp-Automatisierungen",
@@ -1281,7 +1292,11 @@
                                        "label":  "Automatische Erinnerungen",
                                        "desc":  "Jeder Kunde erhält automatisch eine E-Mail, wenn der richtige Zeitpunkt für ihn ist, wiederzukommen — berechnet aus seinem tatsächlichen Besuchsmuster, kein fester Termin für alle.",
                                        "daysLabel":  "Standardintervall (für neue Kunden, noch kein Muster)",
-                                       "daysHint":  "Tage seit dem letzten Besuch"
+                                      "daysHint":  "Tage seit dem letzten Besuch",
+                                      "emailChannel":  "E-Mail",
+                                      "emailChannelDesc":  "Sendet die Wiederkehr-Erinnerung per E-Mail.",
+                                      "whatsappChannel":  "WhatsApp",
+                                      "whatsappChannelDesc":  "Sendet die Wiederkehr-Erinnerung per WhatsApp über die verbundene Business-Nummer."
                                    },
                      "depositLabel":  "Anzahlungsprozentsatz",
                      "depositFullHint":  "Der Kunde zahlt den vollen Preis bei der Buchung.",

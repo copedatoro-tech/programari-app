@@ -213,6 +213,8 @@ function SettingsContent() {
   const [currency, setCurrency] = useState("RON");
   const [rebookingEnabled, setRebookingEnabled] = useState(false);
   const [rebookingDays, setRebookingDays] = useState(30);
+  const [rebookingEmailEnabled, setRebookingEmailEnabled] = useState(true);
+  const [rebookingWhatsAppEnabled, setRebookingWhatsAppEnabled] = useState(false);
   const [rebookingSaving, setRebookingSaving] = useState(false);
   const [depositPercent, setDepositPercent] = useState(100);
   const [reminder2hEnabled, setReminder2hEnabled] = useState(false);
@@ -225,6 +227,7 @@ function SettingsContent() {
   const [businessRegisteredAddress, setBusinessRegisteredAddress] = useState("");
   const [businessBillingEmail, setBusinessBillingEmail] = useState("");
   const [savingBusinessIdentity, setSavingBusinessIdentity] = useState(false);
+  const [lookingUpBusinessIdentity, setLookingUpBusinessIdentity] = useState(false);
   const [whatsAppConnection, setWhatsAppConnection] = useState<WhatsAppConnectionStatus>(null);
   const [selectedWhatsAppWorkLocationId, setSelectedWhatsAppWorkLocationId] = useState(DEFAULT_WHATSAPP_WORK_LOCATION_ID);
   const [whatsAppBusinessName, setWhatsAppBusinessName] = useState("");
@@ -378,6 +381,8 @@ function SettingsContent() {
       setCurrency(profile.currency || "RON");
       setRebookingEnabled(!!profile.rebooking_reminder_enabled);
       setRebookingDays(profile.rebooking_reminder_days || 30);
+      setRebookingEmailEnabled(profile.rebooking_reminder_email_enabled !== false);
+      setRebookingWhatsAppEnabled(!!profile.rebooking_reminder_whatsapp_enabled);
       setDepositPercent(profile.deposit_percent || 100);
       setReminder2hEnabled(!!profile.reminder_2h_enabled);
       setReminder2hEmailEnabled(profile.reminder_2h_email_enabled !== false);
@@ -499,6 +504,34 @@ function SettingsContent() {
       await showToast({ message: t("businessIdentity.saveError"), type: "error", title: t("toastSaveErrorTitle") });
     } finally {
       setSavingBusinessIdentity(false);
+    }
+  };
+
+  const handleLookupBusinessIdentity = async () => {
+    setLookingUpBusinessIdentity(true);
+    try {
+      const res = await fetch("/api/business-identity/lookup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          country: businessTaxCountry,
+          taxId: businessTaxId,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        const translatedError = data?.errorKey ? t(`businessIdentity.${data.errorKey}`) : "";
+        throw new Error(translatedError || data?.error || t("businessIdentity.lookupError"));
+      }
+      if (data.company?.legalName) setBusinessLegalName(data.company.legalName);
+      if (data.company?.taxId) setBusinessTaxId(data.company.taxId);
+      if (data.company?.registeredAddress) setBusinessRegisteredAddress(data.company.registeredAddress);
+      if (data.company?.country) setBusinessTaxCountry(data.company.country);
+      await showToast({ message: t("businessIdentity.lookupFound"), type: "success", title: t("toastSavedTitle") });
+    } catch (e: any) {
+      await showToast({ message: e?.message || t("businessIdentity.lookupError"), type: "error", title: t("toastSaveErrorTitle") });
+    } finally {
+      setLookingUpBusinessIdentity(false);
     }
   };
 
@@ -791,6 +824,26 @@ function SettingsContent() {
     setRebookingEnabled(newVal);
     await supabase.from('profiles').update({ rebooking_reminder_enabled: newVal }).eq('id', userId);
     setRebookingSaving(false);
+  };
+
+  const handleToggleRebookingEmail = async () => {
+    if (!userId) return;
+    const newVal = !rebookingEmailEnabled;
+    setRebookingEmailEnabled(newVal);
+    await supabase.from('profiles').update({
+      rebooking_reminder_email_enabled: newVal,
+      rebooking_reminder_enabled: rebookingEnabled || newVal || rebookingWhatsAppEnabled,
+    }).eq('id', userId);
+  };
+
+  const handleToggleRebookingWhatsApp = async () => {
+    if (!userId) return;
+    const newVal = !rebookingWhatsAppEnabled;
+    setRebookingWhatsAppEnabled(newVal);
+    await supabase.from('profiles').update({
+      rebooking_reminder_whatsapp_enabled: newVal,
+      rebooking_reminder_enabled: rebookingEnabled || rebookingEmailEnabled || newVal,
+    }).eq('id', userId);
   };
 
   const handleRebookingDaysChange = async (days: number) => {
@@ -1205,6 +1258,20 @@ function SettingsContent() {
               placeholder={t("businessIdentity.billingEmailPlaceholder")}
               className="bg-slate-50 border-2 border-slate-100 rounded-xl px-4 py-3 text-[12px] font-bold outline-none focus:border-cyan-500"
             />
+          </div>
+
+          <div className="mb-3 flex flex-col md:flex-row md:items-center gap-3">
+            <button
+              type="button"
+              onClick={handleLookupBusinessIdentity}
+              disabled={lookingUpBusinessIdentity || !businessTaxId.trim()}
+              className="px-5 py-3 bg-cyan-50 border-2 border-cyan-100 text-cyan-700 rounded-xl font-black text-[10px] uppercase italic hover:bg-cyan-500 hover:text-white hover:border-cyan-500 transition-all disabled:opacity-50"
+            >
+              {lookingUpBusinessIdentity ? t("businessIdentity.lookupSearchingButton") : t("businessIdentity.lookupButton")}
+            </button>
+            <p className="text-[10px] font-bold text-slate-400 leading-relaxed">
+              {t("businessIdentity.lookupHint")}
+            </p>
           </div>
 
           <textarea
@@ -1730,6 +1797,28 @@ function SettingsContent() {
                 />
                 <span className="text-[10px] font-bold text-slate-400 uppercase italic">{t("rebooking.daysHint")}</span>
               </div>
+            </div>
+            <div className={`mt-4 grid grid-cols-1 md:grid-cols-2 gap-3 transition-opacity ${!rebookingEnabled ? "opacity-40 pointer-events-none" : ""}`}>
+              <button
+                type="button"
+                onClick={handleToggleRebookingEmail}
+                className={`p-4 rounded-2xl border-2 text-left transition-all ${rebookingEmailEnabled ? "bg-emerald-50 border-emerald-200 text-emerald-700" : "bg-slate-50 border-slate-100 text-slate-400"}`}
+              >
+                <span className="block text-[10px] font-black uppercase italic mb-1">
+                  {rebookingEmailEnabled ? "✓ " : ""}{t("rebooking.emailChannel")}
+                </span>
+                <span className="block text-[9px] font-bold leading-relaxed">{t("rebooking.emailChannelDesc")}</span>
+              </button>
+              <button
+                type="button"
+                onClick={handleToggleRebookingWhatsApp}
+                className={`p-4 rounded-2xl border-2 text-left transition-all ${rebookingWhatsAppEnabled ? "bg-emerald-50 border-emerald-200 text-emerald-700" : "bg-slate-50 border-slate-100 text-slate-400"}`}
+              >
+                <span className="block text-[10px] font-black uppercase italic mb-1">
+                  {rebookingWhatsAppEnabled ? "✓ " : ""}{t("rebooking.whatsappChannel")}
+                </span>
+                <span className="block text-[9px] font-bold leading-relaxed">{t("rebooking.whatsappChannelDesc")}</span>
+              </button>
             </div>
           </section>
         )}

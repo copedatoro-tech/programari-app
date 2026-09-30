@@ -1182,7 +1182,18 @@
                                            "saveButton":  "Salva dati azienda",
                                            "savingButton":  "Salvataggio...",
                                            "savedMessage":  "I dati aziendali sono stati salvati.",
-                                           "saveError":  "Impossibile salvare i dati aziendali."
+                                           "saveError":  "Impossibile salvare i dati aziendali.",
+                                           "lookupButton":  "Cerca azienda",
+                                           "lookupSearchingButton":  "Ricerca...",
+                                           "lookupHint":  "Per la Romania, Chronos può compilare automaticamente nome e indirizzo aziendale dal codice fiscale.",
+                                           "lookupFound":  "Azienda trovata. Controlla i dati e salva.",
+                                           "lookupError":  "Impossibile trovare l'azienda.",
+                                           "lookupMissingTaxId":  "Inserisci l'ID fiscale prima di cercare.",
+                                           "lookupUnsupportedCountry":  "La ricerca automatica è disponibile al momento per la Romania. Per gli altri paesi, i dati possono essere completati manualmente.",
+                                           "lookupProviderError":  "ANAF non ha risposto correttamente. Riprova o completa i dati manualmente.",
+                                           "lookupNotFound":  "Nessuna azienda trovata per questo ID fiscale.",
+                                           "lookupTimeout":  "La ricerca ANAF ha impiegato troppo tempo. Riprova.",
+                                           "lookupUnavailable":  "Non è possibile verificare l'azienda in questo momento."
                      },
                      "whatsappAutomations":  {
                                            "title":  "Automazioni WhatsApp",
@@ -1281,7 +1292,11 @@
                                        "label":  "Promemoria Automatici",
                                        "desc":  "Ogni cliente riceve automaticamente un\u0027email quando è il momento giusto per tornare — calcolato dal suo reale schema di visite, non una data fissa per tutti.",
                                        "daysLabel":  "Intervallo predefinito (nuovi clienti, ancora senza schema)",
-                                       "daysHint":  "giorni dall\u0027ultima visita"
+                                      "daysHint":  "giorni dall\u0027ultima visita",
+                                      "emailChannel":  "E-mail",
+                                      "emailChannelDesc":  "Invia il promemoria di ritorno via e-mail.",
+                                      "whatsappChannel":  "WhatsApp",
+                                      "whatsappChannelDesc":  "Invia il promemoria di ritorno su WhatsApp dal numero business collegato."
                                    },
                      "depositLabel":  "Percentuale Acconto",
                      "depositFullHint":  "Il cliente paga il prezzo intero alla prenotazione.",
