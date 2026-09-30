@@ -40,6 +40,7 @@ export async function middleware(req: NextRequest) {
     pathname === '/login' ||
     pathname === '/register' ||
     pathname === '/forgot-password' ||
+    pathname === '/data-deletion' ||
     pathname.startsWith('/rezervare') ||
     pathname.startsWith('/specialist')
 
