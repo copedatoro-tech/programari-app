@@ -371,6 +371,7 @@
     "landing":  {
                     "nav":  {
                                 "login":  "Intră în cont",
+                                "dataDeletion":  "Ștergere date",
                                 "registerCta":  "Înregistrare gratuită →"
                             },
                     "hero":  {

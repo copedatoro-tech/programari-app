@@ -109,6 +109,9 @@ export default function LandingPage() {
           <motion.div initial={{ opacity:0, x:20 }} animate={{ opacity:1, x:0 }} className="hidden sm:flex items-center justify-end gap-2 min-w-0">
             <LocaleSwitcher />
             <CurrencySwitcher />
+            <Link href="/data-deletion" className="text-[10px] font-black uppercase italic text-slate-500 hover:text-slate-900 transition-colors px-3 py-2">
+              {t("nav.dataDeletion")}
+            </Link>
             <Link href="/login" className="text-[10px] font-black uppercase italic text-slate-600 hover:text-slate-900 transition-colors px-3 py-2">
               {t("nav.login")}
             </Link>
@@ -124,6 +127,9 @@ export default function LandingPage() {
             <CurrencySwitcher />
             <Link href="/login" onClick={() => setMobileMenuOpen(false)} className="h-10 rounded-xl bg-slate-50 border border-slate-200 text-slate-700 text-[10px] font-black uppercase italic flex items-center justify-center">
               {t("nav.login")}
+            </Link>
+            <Link href="/data-deletion" onClick={() => setMobileMenuOpen(false)} className="h-10 rounded-xl bg-slate-50 border border-slate-200 text-slate-700 text-[10px] font-black uppercase italic flex items-center justify-center">
+              {t("nav.dataDeletion")}
             </Link>
             <Link href="/register" onClick={() => setMobileMenuOpen(false)} className="h-10 rounded-xl bg-amber-500 text-slate-950 text-[10px] font-black uppercase italic flex items-center justify-center text-center px-2">
               10 zile gratuit

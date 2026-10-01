@@ -371,6 +371,7 @@
     "landing":  {
                     "nav":  {
                                 "login":  "Accedi",
+                                "dataDeletion":  "Eliminazione dati",
                                 "registerCta":  "Registrazione gratuita →"
                             },
                     "hero":  {
