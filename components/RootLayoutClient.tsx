@@ -248,6 +248,7 @@ export default function RootLayoutClient({ children }: { children: React.ReactNo
     { href: "/rapoarte",            icon: "📊", label: t("nav.rapoarte") },
     { href: "/sugestii",            icon: "⭐", label: t("nav.recenzii") },
     { href: "/contacte-utile",      icon: "📞", label: t("nav.contacteUtile") },
+    { href: "/data-deletion",       icon: "🗑️", label: t("nav.dataDeletion") },
     { href: "/settings",            icon: "⚙️", label: t("nav.setari") },
     { href: "/profil",              icon: "👤", label: t("nav.profil") },
   ];
