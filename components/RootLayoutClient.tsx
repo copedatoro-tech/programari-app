@@ -7,6 +7,8 @@ import { supabase } from "@/lib/supabaseClient";
 import Image from "next/image";
 import { Crown, Gem, ShieldCheck, Zap, CalendarDays, ClipboardList, Users, Clock, BarChart3 } from "lucide-react";
 
+import GDPRModal from "@/components/GDPRModal";
+import TermeniModal from "@/components/TermeniModal";
 import CookiesModal from "@/components/CookiesModal";
 import CookieConsentBanner from "@/components/CookieConsentBanner";
 import LocaleSwitcher from "@/components/LocaleSwitcher";
@@ -37,7 +39,7 @@ export default function RootLayoutClient({ children }: { children: React.ReactNo
   const adminChannelRef = useRef<any>(null);
 
   const menuRef = useRef<HTMLDivElement>(null);
-  const [modalOpen, setModalOpen] = useState({ cookies: false });
+  const [modalOpen, setModalOpen] = useState({ gdpr: false, termeni: false, cookies: false });
 
   const isPublicPage =
     path === "/login" ||
@@ -418,14 +420,14 @@ export default function RootLayoutClient({ children }: { children: React.ReactNo
                   <span>🔄</span> {t("footer.reviewTour")}
                 </button>
               )}
-              <Link href="/terms"
+              <button onClick={() => setModalOpen({ ...modalOpen, termeni: true })}
                 className="text-[11px] font-black uppercase italic text-slate-500 hover:text-amber-500 transition-colors">
                 {t("footer.termeni")}
-              </Link>
-              <Link href="/privacy"
+              </button>
+              <button onClick={() => setModalOpen({ ...modalOpen, gdpr: true })}
                 className="text-[11px] font-black uppercase italic text-slate-500 hover:text-amber-500 transition-colors">
                 {t("footer.confidentialitate")}
-              </Link>
+              </button>
               <button onClick={() => setModalOpen({ ...modalOpen, cookies: true })}
                 className="text-[11px] font-black uppercase italic text-slate-500 hover:text-amber-500 transition-colors">
                 {t("footer.cookies")}
@@ -451,6 +453,8 @@ export default function RootLayoutClient({ children }: { children: React.ReactNo
         </footer>
       )}
 
+      <GDPRModal isOpen={modalOpen.gdpr} onClose={() => setModalOpen({ ...modalOpen, gdpr: false })} />
+      <TermeniModal isOpen={modalOpen.termeni} onClose={() => setModalOpen({ ...modalOpen, termeni: false })} />
       <CookiesModal isOpen={modalOpen.cookies} onClose={() => setModalOpen({ ...modalOpen, cookies: false })} />
     </>
   ) : (
