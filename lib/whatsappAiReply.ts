@@ -349,6 +349,8 @@ async function rescheduleCustomerAppointment(input: {
       reminder_sent: false,
       reminder_whatsapp_sent: false,
       reminder_2h_sent: false,
+      reminder_2h_email_sent: false,
+      reminder_2h_whatsapp_sent: false,
     })
     .eq("id", appointment.id);
   if (error) throw error;

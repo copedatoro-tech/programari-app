@@ -40,7 +40,7 @@ async function sendWhatsApp2hReminder(
         to,
         type: "template",
         template: {
-          name: "reminder_programare",
+          name: "reminder_programare_2h",
           language: { code: whatsapp.language },
           components: [{
             type: "body",

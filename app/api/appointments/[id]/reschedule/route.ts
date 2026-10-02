@@ -57,7 +57,15 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
 
   const { error } = await supabaseAdmin
     .from("appointments")
-    .update({ date, time, reminder_sent: false }) // resetăm reamintirea, ca să se trimită pentru noua dată
+    .update({
+      date,
+      time,
+      reminder_sent: false,
+      reminder_whatsapp_sent: false,
+      reminder_2h_sent: false,
+      reminder_2h_email_sent: false,
+      reminder_2h_whatsapp_sent: false,
+    }) // resetăm reamintirile, ca să se trimită pentru noua dată
     .eq("id", id);
 
   if (error) {
