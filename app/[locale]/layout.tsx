@@ -50,6 +50,7 @@ export default async function LocaleLayout({
         </Script>
         <noscript>
           <img
+            alt=""
             height="1"
             width="1"
             style={{ display: "none" }}
