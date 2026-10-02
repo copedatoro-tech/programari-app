@@ -16,10 +16,6 @@ import {
   Phone, CheckCircle2, Package, Smartphone, CreditCard, Paperclip, Globe, Menu, X,
   MapPin, ListOrdered, Link2, RotateCcw, Lock, MessageCircle,
 } from "lucide-react";
-// ✅ Modale legale — deschise direct pe pagina de landing, în loc să
-// navigheze greșit către alte rute (ex. /login)
-import GDPRModal from "@/components/GDPRModal";
-import TermeniModal from "@/components/TermeniModal";
 import CookiesModal from "@/components/CookiesModal";
 
 export default function LandingPage() {
@@ -30,7 +26,7 @@ export default function LandingPage() {
   const { format } = useCurrency();
 
   // ✅ Stare pentru modalele legale, deschise din footer-ul landing page-ului
-  const [modalOpen, setModalOpen] = useState({ gdpr: false, termeni: false, cookies: false });
+  const [modalOpen, setModalOpen] = useState({ cookies: false });
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
@@ -608,21 +604,21 @@ export default function LandingPage() {
                 {t("footer.description")}
               </p>
             </div>
-            {/* Legal — ✅ butoane care deschid modalele, nu mai navighează gresit */}
+            {/* Legal */}
             <div className="flex flex-col gap-3">
               <h4 className="text-amber-500 font-black italic uppercase text-[10px] tracking-widest mb-1">{t("footer.legalHeading")}</h4>
-              <button
-                onClick={() => setModalOpen((m) => ({ ...m, termeni: true }))}
+              <Link
+                href="/terms"
                 className="text-left text-slate-500 text-[10px] font-black uppercase italic hover:text-white transition-colors"
               >
                 {tLayout("footer.termeni")}
-              </button>
-              <button
-                onClick={() => setModalOpen((m) => ({ ...m, gdpr: true }))}
+              </Link>
+              <Link
+                href="/privacy"
                 className="text-left text-slate-500 text-[10px] font-black uppercase italic hover:text-white transition-colors"
               >
                 {tLayout("footer.confidentialitate")}
-              </button>
+              </Link>
               <button
                 onClick={() => setModalOpen((m) => ({ ...m, cookies: true }))}
                 className="text-left text-slate-500 text-[10px] font-black uppercase italic hover:text-white transition-colors"
@@ -661,9 +657,7 @@ export default function LandingPage() {
         </div>
       </footer>
 
-      {/* ✅ Modalele legale, deschise din butoanele de mai sus */}
-      <GDPRModal isOpen={modalOpen.gdpr} onClose={() => setModalOpen((m) => ({ ...m, gdpr: false }))} />
-      <TermeniModal isOpen={modalOpen.termeni} onClose={() => setModalOpen((m) => ({ ...m, termeni: false }))} />
+      {/* ✅ Politica de cookies rămâne modală informativă pe landing page. */}
       <CookiesModal isOpen={modalOpen.cookies} onClose={() => setModalOpen((m) => ({ ...m, cookies: false }))} />
 
     </div>

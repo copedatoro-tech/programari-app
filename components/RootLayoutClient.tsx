@@ -7,8 +7,6 @@ import { supabase } from "@/lib/supabaseClient";
 import Image from "next/image";
 import { Crown, Gem, ShieldCheck, Zap, CalendarDays, ClipboardList, Users, Clock, BarChart3 } from "lucide-react";
 
-import GDPRModal from "@/components/GDPRModal";
-import TermeniModal from "@/components/TermeniModal";
 import CookiesModal from "@/components/CookiesModal";
 import CookieConsentBanner from "@/components/CookieConsentBanner";
 import LocaleSwitcher from "@/components/LocaleSwitcher";
@@ -39,7 +37,7 @@ export default function RootLayoutClient({ children }: { children: React.ReactNo
   const adminChannelRef = useRef<any>(null);
 
   const menuRef = useRef<HTMLDivElement>(null);
-  const [modalOpen, setModalOpen] = useState({ gdpr: false, termeni: false, cookies: false });
+  const [modalOpen, setModalOpen] = useState({ cookies: false });
 
   const isPublicPage =
     path === "/login" ||
@@ -343,14 +341,14 @@ export default function RootLayoutClient({ children }: { children: React.ReactNo
                           🔄 {t("footer.reviewTour")}
                         </button>
                       )}
-                      <button onClick={() => { setIsMenuOpen(false); setModalOpen((m) => ({ ...m, termeni: true })); }}
+                      <Link href="/terms" onClick={() => setIsMenuOpen(false)}
                         className="w-full text-left p-2.5 text-[9px] font-black uppercase italic text-slate-400 hover:bg-slate-50 rounded-xl">
                         {t("footer.termeni")}
-                      </button>
-                      <button onClick={() => { setIsMenuOpen(false); setModalOpen((m) => ({ ...m, gdpr: true })); }}
+                      </Link>
+                      <Link href="/privacy" onClick={() => setIsMenuOpen(false)}
                         className="w-full text-left p-2.5 text-[9px] font-black uppercase italic text-slate-400 hover:bg-slate-50 rounded-xl">
                         {t("footer.confidentialitate")}
-                      </button>
+                      </Link>
                       <button onClick={() => { setIsMenuOpen(false); setModalOpen((m) => ({ ...m, cookies: true })); }}
                         className="w-full text-left p-2.5 text-[9px] font-black uppercase italic text-slate-400 hover:bg-slate-50 rounded-xl">
                         {t("footer.cookies")}
@@ -420,14 +418,14 @@ export default function RootLayoutClient({ children }: { children: React.ReactNo
                   <span>🔄</span> {t("footer.reviewTour")}
                 </button>
               )}
-              <button onClick={() => setModalOpen({ ...modalOpen, termeni: true })}
+              <Link href="/terms"
                 className="text-[11px] font-black uppercase italic text-slate-500 hover:text-amber-500 transition-colors">
                 {t("footer.termeni")}
-              </button>
-              <button onClick={() => setModalOpen({ ...modalOpen, gdpr: true })}
+              </Link>
+              <Link href="/privacy"
                 className="text-[11px] font-black uppercase italic text-slate-500 hover:text-amber-500 transition-colors">
                 {t("footer.confidentialitate")}
-              </button>
+              </Link>
               <button onClick={() => setModalOpen({ ...modalOpen, cookies: true })}
                 className="text-[11px] font-black uppercase italic text-slate-500 hover:text-amber-500 transition-colors">
                 {t("footer.cookies")}
@@ -453,8 +451,6 @@ export default function RootLayoutClient({ children }: { children: React.ReactNo
         </footer>
       )}
 
-      <GDPRModal isOpen={modalOpen.gdpr} onClose={() => setModalOpen({ ...modalOpen, gdpr: false })} />
-      <TermeniModal isOpen={modalOpen.termeni} onClose={() => setModalOpen({ ...modalOpen, termeni: false })} />
       <CookiesModal isOpen={modalOpen.cookies} onClose={() => setModalOpen({ ...modalOpen, cookies: false })} />
     </>
   ) : (
