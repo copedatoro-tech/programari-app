@@ -344,15 +344,15 @@ export default function RootLayoutClient({ children }: { children: React.ReactNo
                         </button>
                       )}
                       <Link href="/terms" onClick={() => setIsMenuOpen(false)}
-                        className="w-full text-left p-2.5 text-[9px] font-black uppercase italic text-slate-400 hover:bg-slate-50 rounded-xl">
+                        className="block w-full text-left p-2.5 text-[9px] font-black uppercase italic text-slate-400 hover:bg-slate-50 rounded-xl">
                         {t("footer.termeni")}
                       </Link>
                       <Link href="/privacy" onClick={() => setIsMenuOpen(false)}
-                        className="w-full text-left p-2.5 text-[9px] font-black uppercase italic text-slate-400 hover:bg-slate-50 rounded-xl">
+                        className="block w-full text-left p-2.5 text-[9px] font-black uppercase italic text-slate-400 hover:bg-slate-50 rounded-xl">
                         {t("footer.confidentialitate")}
                       </Link>
                       <button onClick={() => { setIsMenuOpen(false); setModalOpen((m) => ({ ...m, cookies: true })); }}
-                        className="w-full text-left p-2.5 text-[9px] font-black uppercase italic text-slate-400 hover:bg-slate-50 rounded-xl">
+                        className="block w-full text-left p-2.5 text-[9px] font-black uppercase italic text-slate-400 hover:bg-slate-50 rounded-xl">
                         {t("footer.cookies")}
                       </button>
                     </div>
