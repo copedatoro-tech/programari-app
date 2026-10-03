@@ -218,6 +218,7 @@ function SettingsContent() {
   const [rebookingWhatsAppEnabled, setRebookingWhatsAppEnabled] = useState(false);
   const [rebookingSaving, setRebookingSaving] = useState(false);
   const [depositPercent, setDepositPercent] = useState(100);
+  const [packageDepositPercent, setPackageDepositPercent] = useState(100);
   const [reminder2hEnabled, setReminder2hEnabled] = useState(false);
   const [reminder2hEmailEnabled, setReminder2hEmailEnabled] = useState(true);
   const [reminder2hWhatsAppEnabled, setReminder2hWhatsAppEnabled] = useState(false);
@@ -385,6 +386,7 @@ function SettingsContent() {
       setRebookingEmailEnabled(profile.rebooking_reminder_email_enabled !== false);
       setRebookingWhatsAppEnabled(!!profile.rebooking_reminder_whatsapp_enabled);
       setDepositPercent(profile.deposit_percent || 100);
+      setPackageDepositPercent(profile.package_deposit_percent || profile.deposit_percent || 100);
       setReminder2hEnabled(!!profile.reminder_2h_enabled);
       setReminder2hEmailEnabled(profile.reminder_2h_email_enabled !== false);
       setReminder2hWhatsAppEnabled(!!profile.reminder_2h_whatsapp_enabled);
@@ -867,6 +869,12 @@ function SettingsContent() {
     if (!userId) return;
     setDepositPercent(percent);
     await supabase.from('profiles').update({ deposit_percent: percent }).eq('id', userId);
+  };
+
+  const handlePackageDepositPercentChange = async (percent: number) => {
+    if (!userId) return;
+    setPackageDepositPercent(percent);
+    await supabase.from('profiles').update({ package_deposit_percent: percent }).eq('id', userId);
   };
 
   const handleToggleReminder2h = async () => {
@@ -1374,23 +1382,44 @@ function SettingsContent() {
                 </button>
 
                 {requirePayment && (
-                  <div className="mt-4 pt-4 border-t border-slate-200">
-                    <span className="text-[9px] font-black uppercase text-slate-400 italic mb-2 block">{t("depositLabel")}</span>
-                    <div className="flex items-center gap-3">
-                      <input
-                        type="range"
-                        min={10}
-                        max={100}
-                        step={5}
-                        value={depositPercent}
-                        onChange={(e) => handleDepositPercentChange(Number(e.target.value))}
-                        className="flex-1 accent-amber-500"
-                      />
-                      <span className="text-sm font-black text-slate-900 w-14 text-right">{depositPercent}%</span>
+                  <div className="mt-4 pt-4 border-t border-slate-200 space-y-4">
+                    <div>
+                      <span className="text-[9px] font-black uppercase text-slate-400 italic mb-2 block">{t("depositLabel")}</span>
+                      <div className="flex items-center gap-3">
+                        <input
+                          type="range"
+                          min={10}
+                          max={100}
+                          step={5}
+                          value={depositPercent}
+                          onChange={(e) => handleDepositPercentChange(Number(e.target.value))}
+                          className="flex-1 accent-amber-500"
+                        />
+                        <span className="text-sm font-black text-slate-900 w-14 text-right">{depositPercent}%</span>
+                      </div>
+                      <p className="text-[8px] font-bold text-slate-400 italic mt-2">
+                        {depositPercent === 100 ? t("depositFullHint") : t("depositPartialHint", { percent: depositPercent })}
+                      </p>
                     </div>
-                    <p className="text-[8px] font-bold text-slate-400 italic mt-2">
-                      {depositPercent === 100 ? t("depositFullHint") : t("depositPartialHint", { percent: depositPercent })}
-                    </p>
+
+                    <div className="rounded-2xl border border-amber-100 bg-amber-50/70 p-3">
+                      <span className="text-[9px] font-black uppercase text-amber-700 italic mb-2 block">{t("packageDepositLabel")}</span>
+                      <div className="flex items-center gap-3">
+                        <input
+                          type="range"
+                          min={10}
+                          max={100}
+                          step={5}
+                          value={packageDepositPercent}
+                          onChange={(e) => handlePackageDepositPercentChange(Number(e.target.value))}
+                          className="flex-1 accent-amber-500"
+                        />
+                        <span className="text-sm font-black text-slate-900 w-14 text-right">{packageDepositPercent}%</span>
+                      </div>
+                      <p className="text-[8px] font-bold text-amber-700/80 italic mt-2">
+                        {packageDepositPercent === 100 ? t("packageDepositFullHint") : t("packageDepositPartialHint", { percent: packageDepositPercent })}
+                      </p>
+                    </div>
                   </div>
                 )}
               </div>

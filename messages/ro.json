@@ -1526,6 +1526,9 @@
                      "depositLabel":  "Procent Avans",
                      "depositFullHint":  "Clientul plătește prețul integral al serviciului sau pachetului la rezervare.",
                      "depositPartialHint":  "Clientul plătește {percent}% acum din serviciu sau pachet, restul la salon.",
+                     "packageDepositLabel":  "Procent plată pachete",
+                     "packageDepositFullHint":  "Clientul plătește pachetul integral la rezervare.",
+                     "packageDepositPartialHint":  "Clientul plătește {percent}% din pachet acum, restul la salon.",
                      "reminder2h":  {
                                         "title":  "Reamintire Suplimentară (2 ore înainte)",
                                         "subtitle":  "Un ultim impuls, chiar în ziua programării, pe lângă reamintirea de o zi înainte.",

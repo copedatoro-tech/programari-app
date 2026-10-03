@@ -1303,6 +1303,9 @@
                      "depositLabel":  "Pourcentage d\u0027Acompte",
                      "depositFullHint":  "Le client paie le prix intégral du service ou du forfait à la réservation.",
                      "depositPartialHint":  "Le client paie {percent}% du service ou du forfait maintenant, le reste sur place.",
+                     "packageDepositLabel":  "Pourcentage de paiement des forfaits",
+                     "packageDepositFullHint":  "Le client paie le forfait intégral à la réservation.",
+                     "packageDepositPartialHint":  "Le client paie {percent}% du forfait maintenant, le reste sur place.",
                      "reminder2h":  {
                                         "title":  "Rappel Supplémentaire (2 heures avant)",
                                         "subtitle":  "Un dernier rappel, le jour même du rendez-vous, en plus du rappel de la veille.",

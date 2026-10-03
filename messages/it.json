@@ -1303,6 +1303,9 @@
                      "depositLabel":  "Percentuale Acconto",
                      "depositFullHint":  "Il cliente paga il prezzo intero del servizio o pacchetto alla prenotazione.",
                      "depositPartialHint":  "Il cliente paga il {percent}% del servizio o pacchetto ora, il resto in salone.",
+                     "packageDepositLabel":  "Percentuale pagamento pacchetti",
+                     "packageDepositFullHint":  "Il cliente paga il pacchetto completo alla prenotazione.",
+                     "packageDepositPartialHint":  "Il cliente paga il {percent}% del pacchetto ora, il resto in salone.",
                      "reminder2h":  {
                                         "title":  "Promemoria Aggiuntivo (2 ore prima)",
                                         "subtitle":  "Un ultimo promemoria, il giorno stesso dell\u0027appuntamento, oltre a quello del giorno prima.",

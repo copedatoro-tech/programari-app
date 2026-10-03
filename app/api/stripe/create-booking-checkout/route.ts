@@ -24,7 +24,7 @@ export async function POST(request: Request) {
 
     const { data: profile } = await supabaseAdmin
       .from("profiles")
-      .select("stripe_account_id, stripe_onboarded, currency, require_payment_at_booking, deposit_percent, slug, work_locations")
+      .select("stripe_account_id, stripe_onboarded, currency, require_payment_at_booking, deposit_percent, package_deposit_percent, slug, work_locations")
       .eq("id", adminId)
       .single();
 
@@ -101,10 +101,9 @@ export async function POST(request: Request) {
       }
     }
 
-    // ✅ Procentul de avans — 100 = plată integrală (comportament vechi, neschimbat),
-    // orice valoare mai mică = client plătește doar acel procent acum, restul la salon
-    const depositPercent = Math.min(100, Math.max(10, profile.deposit_percent || 100));
-    const isDeposit = depositPercent < 100;
+    const serviceDepositPercent = Math.min(100, Math.max(10, profile.deposit_percent || 100));
+    const packageDepositPercent = Math.min(100, Math.max(10, profile.package_deposit_percent || profile.deposit_percent || 100));
+    let isDeposit = false;
 
     let totalFullPrice = 0; // prețul complet real al serviciilor, pentru evidență
     let totalRemaining = 0; // ✅ suma totală rămasă de plătit la salon, pentru mesajul de sub buton
@@ -112,15 +111,17 @@ export async function POST(request: Request) {
       const svc = bookableItems.find((s) => s.id === b.serviciu_id);
       const fullPrice = svc?.price || 0;
       totalFullPrice += fullPrice;
-      const chargedAmount = Math.round(fullPrice * (depositPercent / 100));
+      const itemDepositPercent = svc?.is_package ? packageDepositPercent : serviceDepositPercent;
+      if (itemDepositPercent < 100) isDeposit = true;
+      const chargedAmount = Math.round(fullPrice * (itemDepositPercent / 100));
       const remaining = fullPrice - chargedAmount;
       totalRemaining += remaining;
       return {
         price_data: {
           currency,
           product_data: {
-            name: isDeposit
-              ? `${svc?.nume_serviciu || "Serviciu"} — Avans ${depositPercent}% (rest ${remaining} ${currency.toUpperCase()})`
+            name: itemDepositPercent < 100
+              ? `${svc?.nume_serviciu || "Serviciu"} — Avans ${itemDepositPercent}% (rest ${remaining} ${currency.toUpperCase()})`
               : svc?.nume_serviciu || "Serviciu",
           },
           unit_amount: Math.round(chargedAmount * 100), // Stripe lucrează în bani (subunități)
@@ -177,7 +178,8 @@ export async function POST(request: Request) {
         // exact cât s-a plătit acum (avans sau integral) și cât mai rămâne
         totalFullPrice: totalFullPrice.toString(),
         amountPaid: (totalAmount / 100).toString(),
-        depositPercent: depositPercent.toString(),
+        depositPercent: serviceDepositPercent.toString(),
+        packageDepositPercent: packageDepositPercent.toString(),
         paymentStatus: isDeposit ? "deposit_paid" : "fully_paid",
       },
     });

@@ -1303,6 +1303,9 @@
                      "depositLabel":  "Deposit Percentage",
                      "depositFullHint":  "The client pays the full service or package price at booking.",
                      "depositPartialHint":  "The client pays {percent}% of the service or package now, the rest at the salon.",
+                     "packageDepositLabel":  "Package payment percentage",
+                     "packageDepositFullHint":  "The client pays the full package price at booking.",
+                     "packageDepositPartialHint":  "The client pays {percent}% of the package now, the rest at the salon.",
                      "reminder2h":  {
                                         "title":  "Extra Reminder (2 hours before)",
                                         "subtitle":  "One last nudge, on the day of the appointment, in addition to the day-before reminder.",

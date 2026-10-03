@@ -211,8 +211,8 @@ export async function POST(request: Request) {
         const bookings = JSON.parse(metadata.bookings || "[]");
         const adminId = metadata.adminId;
 
-        const depositPercent = Number(metadata.depositPercent) || 100;
-        const paymentStatus = metadata.paymentStatus || "fully_paid";
+        const serviceDepositPercent = Number(metadata.depositPercent) || 100;
+        const packageDepositPercent = Number(metadata.packageDepositPercent) || serviceDepositPercent;
         let selectedWorkLocation: any = null;
         try { selectedWorkLocation = metadata.workLocation ? JSON.parse(metadata.workLocation) : null; } catch {}
 
@@ -241,7 +241,9 @@ export async function POST(request: Request) {
         const rows = bookings.map((b: any) => {
           const svc = bookableItems.find((s) => s.id === b.serviciu_id);
           const fullPrice = svc?.price || 0;
-          const amountPaidNow = Math.round(fullPrice * (depositPercent / 100));
+          const itemDepositPercent = svc?.is_package ? packageDepositPercent : serviceDepositPercent;
+          const amountPaidNow = Math.round(fullPrice * (itemDepositPercent / 100));
+          const paymentStatus = itemDepositPercent < 100 ? "deposit_paid" : "fully_paid";
           const underlyingServiceIds = getUnderlyingServiceIds(svc);
           const includedServices = underlyingServiceIds
             .map((id) => services?.find((service) => service.id === id)?.nume_serviciu)
@@ -258,7 +260,7 @@ export async function POST(request: Request) {
             date: b.data,
             time: b.ora,
             duration: svc?.duration || 30,
-            details: `${svc?.is_package ? "Pachet" : "Serviciu"}: ${svc?.nume_serviciu || "N/A"}${svc?.is_package && includedServices ? ` (${includedServices})` : ""}${metadata.clientDetalii ? ` | Notă: ${metadata.clientDetalii}` : ""} | ${paymentStatus === "deposit_paid" ? `Avans plătit online (${depositPercent}%)` : "Plătit online integral"}`,
+            details: `${svc?.is_package ? "Pachet" : "Serviciu"}: ${svc?.nume_serviciu || "N/A"}${svc?.is_package && includedServices ? ` (${includedServices})` : ""}${metadata.clientDetalii ? ` | Notă: ${metadata.clientDetalii}` : ""} | ${paymentStatus === "deposit_paid" ? `Avans plătit online (${itemDepositPercent}%)` : "Plătit online integral"}`,
             angajat_id: b.specialist_id || null,
             serviciu_id: underlyingServiceIds[0] || null,
             nume_serviciu: svc?.nume_serviciu || null,

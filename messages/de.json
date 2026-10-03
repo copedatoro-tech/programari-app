@@ -1303,6 +1303,9 @@
                      "depositLabel":  "Anzahlungsprozentsatz",
                      "depositFullHint":  "Der Kunde zahlt den vollen Preis der Dienstleistung oder des Pakets bei der Buchung.",
                      "depositPartialHint":  "Der Kunde zahlt jetzt {percent}% der Dienstleistung oder des Pakets, den Rest vor Ort.",
+                     "packageDepositLabel":  "Zahlungsprozentsatz für Pakete",
+                     "packageDepositFullHint":  "Der Kunde zahlt den vollen Paketpreis bei der Buchung.",
+                     "packageDepositPartialHint":  "Der Kunde zahlt jetzt {percent}% des Pakets, den Rest vor Ort.",
                      "reminder2h":  {
                                         "title":  "Zusätzliche Erinnerung (2 Stunden vorher)",
                                         "subtitle":  "Ein letzter Anstoß, am Tag des Termins, zusätzlich zur Erinnerung am Vortag.",
