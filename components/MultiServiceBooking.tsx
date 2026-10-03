@@ -97,8 +97,11 @@ function SlotRow({
 
   const selectedWorkLocation = workLocations.find((loc) => loc.id === slot.work_location_id);
   const locationServices = useMemo(() => {
-    if (!selectedWorkLocation?.service_ids?.length) return servicii;
-    return servicii.filter((s) => isBookableAllowedAtLocation(s, selectedWorkLocation.service_ids));
+    if (!selectedWorkLocation) return servicii;
+    if (!selectedWorkLocation.service_ids?.length) {
+      return servicii.filter((s) => isBookableAllowedAtLocation(s, null, selectedWorkLocation.id));
+    }
+    return servicii.filter((s) => isBookableAllowedAtLocation(s, selectedWorkLocation.service_ids, selectedWorkLocation.id));
   }, [servicii, selectedWorkLocation]);
 
   const locationSpecialists = useMemo(() => {

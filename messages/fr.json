@@ -1301,8 +1301,8 @@
                                       "whatsappChannelDesc":  "Envoie le rappel de retour sur WhatsApp depuis le numéro business connecté."
                                    },
                      "depositLabel":  "Pourcentage d\u0027Acompte",
-                     "depositFullHint":  "Le client paie le prix intégral à la réservation.",
-                     "depositPartialHint":  "Le client paie {percent}% maintenant, le reste sur place.",
+                     "depositFullHint":  "Le client paie le prix intégral du service ou du forfait à la réservation.",
+                     "depositPartialHint":  "Le client paie {percent}% du service ou du forfait maintenant, le reste sur place.",
                      "reminder2h":  {
                                         "title":  "Rappel Supplémentaire (2 heures avant)",
                                         "subtitle":  "Un dernier rappel, le jour même du rendez-vous, en plus du rappel de la veille.",

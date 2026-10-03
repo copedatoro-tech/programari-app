@@ -1301,8 +1301,8 @@
                                       "whatsappChannelDesc":  "Wysyła przypomnienie o powrocie przez WhatsApp z połączonego numeru firmowego."
                                    },
                      "depositLabel":  "Procent Zaliczki",
-                     "depositFullHint":  "Klient płaci pełną cenę przy rezerwacji.",
-                     "depositPartialHint":  "Klient płaci {percent}% teraz, resztę w salonie.",
+                     "depositFullHint":  "Klient płaci pełną cenę usługi lub pakietu przy rezerwacji.",
+                     "depositPartialHint":  "Klient płaci teraz {percent}% ceny usługi lub pakietu, resztę w salonie.",
                      "reminder2h":  {
                                         "title":  "Dodatkowe Przypomnienie (2 godziny wcześniej)",
                                         "subtitle":  "Ostatnie przypomnienie, w dniu wizyty, oprócz przypomnienia z dnia poprzedniego.",

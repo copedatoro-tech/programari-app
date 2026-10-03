@@ -1301,8 +1301,8 @@
                                       "whatsappChannelDesc":  "Sendet die Wiederkehr-Erinnerung per WhatsApp über die verbundene Business-Nummer."
                                    },
                      "depositLabel":  "Anzahlungsprozentsatz",
-                     "depositFullHint":  "Der Kunde zahlt den vollen Preis bei der Buchung.",
-                     "depositPartialHint":  "Der Kunde zahlt jetzt {percent}%, den Rest vor Ort.",
+                     "depositFullHint":  "Der Kunde zahlt den vollen Preis der Dienstleistung oder des Pakets bei der Buchung.",
+                     "depositPartialHint":  "Der Kunde zahlt jetzt {percent}% der Dienstleistung oder des Pakets, den Rest vor Ort.",
                      "reminder2h":  {
                                         "title":  "Zusätzliche Erinnerung (2 Stunden vorher)",
                                         "subtitle":  "Ein letzter Anstoß, am Tag des Termins, zusätzlich zur Erinnerung am Vortag.",

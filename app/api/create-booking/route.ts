@@ -169,7 +169,7 @@ export async function POST(request: Request) {
     const { data: packages } = packageIds.length > 0
       ? await supabaseAdmin
         .from("packages")
-        .select("id,name,description,service_ids,price,active,valid_from,valid_until")
+        .select("*")
         .eq("user_id", adminId)
         .in("id", packageIds)
       : { data: [] as any[] };
@@ -200,7 +200,7 @@ export async function POST(request: Request) {
       }
       // If the selected work location restricts services, ensure the chosen
       // service is available in that location.
-      if (!isBookableAllowedAtLocation(item, locationServiceIds)) {
+      if (!isBookableAllowedAtLocation(item, locationServiceIds, selectedWorkLocation?.id || null)) {
         return NextResponse.json({ error: "Unul dintre serviciile selectate nu este disponibil in punctul de lucru selectat." }, { status: 400 });
       }
       if (b.specialist_id) {

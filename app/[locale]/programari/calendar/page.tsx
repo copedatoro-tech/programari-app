@@ -7,6 +7,14 @@ import { showToast, showConfirm } from "@/lib/toast";
 import { useTranslations } from "next-intl";
 import { ChronosTimePicker, ChronosDatePicker } from "@/components/ChronosDateTimePickers";
 import SimpleTimePicker from "@/components/SimpleTimePicker";
+import {
+  buildBookableServices,
+  getUnderlyingServiceIds,
+  isBookableAllowedAtLocation,
+  isBookableOfferedByStaff,
+  type BookingPackageRow,
+  type BookableServiceRow,
+} from "@/lib/bookingPackages";
 // --- Constants ----------------------------------------------------------------
 const SLOT_H = 34;
 const TIME_COL_W = 44;
@@ -121,7 +129,7 @@ type ViewMode = "day"|"week"|"month"|"year";
 type ManualBlocks = Record<string, string[]>;
 type WorkLocationRow = { id: string; name: string; address?: string; maps_url?: string; service_ids?: string[]; staff_ids?: string[] };
 interface StaffRow   { id: string; name: string; services: string[]; working_hours?: any; manual_blocks?: any; can_view_client_contact?: boolean }
-interface ServiceRow { id: string; nume_serviciu: string; price: number; duration: number }
+type ServiceRow = BookableServiceRow;
 interface WorkingHour{ day: string; start: string; end: string; closed: boolean }
 type NotificationSettings = { in_app_enabled: boolean; system_enabled: boolean; sound_enabled: boolean; volume: number };
 const DEFAULT_NOTIF_SETTINGS: NotificationSettings = { in_app_enabled: true, system_enabled: false, sound_enabled: true, volume: 75 };
@@ -1375,6 +1383,10 @@ function CalendarContent() {
     queryKey:["services",userId],enabled:!!userId,staleTime:1000*60*10,
     queryFn:async()=>{const{data}=await supabase.from("services").select("id,nume_serviciu,price,duration").eq("user_id",userId!);return data || [];},
   });
+  const {data:packages=[]} = useQuery<BookingPackageRow[]>({
+    queryKey:["packages",userId],enabled:!!userId,staleTime:1000*60*10,
+    queryFn:async()=>{const{data}=await supabase.from("packages").select("*").eq("user_id",userId!);return data || [];},
+  });
   const dateRange = useMemo(()=>{
     const yr=selectedDate.getFullYear(),mo=selectedDate.getMonth();
     return{start:new Date(yr,mo-2,1).toISOString().split("T")[0],end:new Date(yr,mo+3,0).toISOString().split("T")[0]};
@@ -1405,6 +1417,7 @@ function CalendarContent() {
   const adminWorkingHours = useMemo<WorkingHour[]>(()=>parseWH(profile?.working_hours),[profile?.working_hours]);
   const adminManualBlocks = useMemo<ManualBlocks>(()=>{const r=profile?.manual_blocks;if(!r||typeof r!=="object"||Array.isArray(r))return{};return r as ManualBlocks;},[profile?.manual_blocks]);
   const workLocations = useMemo<WorkLocationRow[]>(()=>{const r=profile?.work_locations;return Array.isArray(r)?r:[];},[profile?.work_locations]);
+  const bookableServices = useMemo<ServiceRow[]>(()=>buildBookableServices(rawServices, packages),[rawServices,packages]);
   const userSub = useMemo(()=>{if(!profile)return null;let plan=(profile.plan_type||"CHRONOS FREE").toUpperCase();if(profile.trial_started_at&&Date.now()-new Date(profile.trial_started_at).getTime()<10*24*60*60*1000)plan="CHRONOS TEAM";return{plan};},[profile]);
   const hasWA = userSub?.plan.includes("ELITE")||userSub?.plan.includes("TEAM")||userSub?.plan.includes("BUSINESS");
   const programariByDate = useMemo(()=>{const m:Record<string,Prog[]>={};programari.forEach(p=>{if(!p.data)return;if(!m[p.data])m[p.data]=[];m[p.data].push(p);});return m;},[programari]);
@@ -1510,7 +1523,7 @@ function CalendarContent() {
       !!newForm.expertId && p.expertId===newForm.expertId
     ).map(p=>({time:p.ora,duration:p.duration||30}));
   },[programari,newForm]);
-  const newSvcDur = useMemo(()=>{if(!newForm?.serviciuId)return 0;return rawServices.find(s=>s.id===newForm.serviciuId)?.duration||0;},[newForm?.serviciuId,rawServices]);
+  const newSvcDur = useMemo(()=>{if(!newForm?.serviciuId)return 0;return bookableServices.find(s=>s.id===newForm.serviciuId)?.duration||0;},[newForm?.serviciuId,bookableServices]);
 
   const getLocationFilteredStaff = useCallback((locationId?: string)=>{
     const loc = workLocations.find(l=>l.id===locationId);
@@ -1520,21 +1533,23 @@ function CalendarContent() {
 
   const getLocationFilteredServices = useCallback((locationId?: string)=>{
     const loc = workLocations.find(l=>l.id===locationId);
-    if(!loc?.service_ids?.length) return rawServices;
-    return rawServices.filter(svc=>loc.service_ids?.includes(svc.id));
-  },[rawServices,workLocations]);
+    if(!loc) return bookableServices;
+    if(!loc.service_ids?.length) return bookableServices.filter(svc=>isBookableAllowedAtLocation(svc,null,loc.id));
+    return bookableServices.filter(svc=>isBookableAllowedAtLocation(svc,loc.service_ids,loc.id));
+  },[bookableServices,workLocations]);
 
   const newAngOpts = useMemo(()=>{
     let opts = getLocationFilteredStaff(newForm?.workLocationId);
-    if(newForm?.serviciuId) opts = opts.filter(a=>a.services?.includes(newForm.serviciuId));
+    const selectedService = bookableServices.find(s=>s.id===newForm?.serviciuId);
+    if(selectedService) opts = opts.filter(a=>isBookableOfferedByStaff(selectedService,a.services));
     return opts;
-  },[newForm?.serviciuId,newForm?.workLocationId,getLocationFilteredStaff]);
+  },[newForm?.serviciuId,newForm?.workLocationId,getLocationFilteredStaff,bookableServices]);
 
   const newSvcOpts = useMemo(()=>{
     let opts = getLocationFilteredServices(newForm?.workLocationId);
     if(newForm?.expertId){
       const a=rawStaff.find(s=>s.id===newForm.expertId);
-      if(a?.services?.length) opts = opts.filter(s=>a.services.includes(s.id));
+      if(a?.services?.length) opts = opts.filter(s=>isBookableOfferedByStaff(s,a.services));
     }
     return opts;
   },[newForm?.expertId,newForm?.workLocationId,rawStaff,getLocationFilteredServices]);
@@ -1709,7 +1724,8 @@ function CalendarContent() {
                   onChange={e=>{
                     const nid=e.target.value;
                     const sp=rawStaff.find(s=>s.id===nid);
-                    const ok=newForm.serviciuId&&sp?.services?.includes(newForm.serviciuId);
+                    const selectedService=bookableServices.find(s=>s.id===newForm.serviciuId);
+                    const ok=selectedService&&isBookableOfferedByStaff(selectedService,sp?.services);
                     setNewForm(p=>p?{...p,expertId:nid,serviciuId:ok?p.serviciuId:""}:null);
                   }}>
                   <option value="" style={{background:"#0f172a"}}>{t("newModal.chooseOpt")}</option>
@@ -1723,7 +1739,8 @@ function CalendarContent() {
                   onChange={e=>{
                     const nid=e.target.value;
                     const sp=rawStaff.find(s=>s.id===newForm.expertId);
-                    const ok=newForm.expertId&&sp?.services?.includes(nid);
+                    const selectedService=bookableServices.find(s=>s.id===nid);
+                    const ok=newForm.expertId&&selectedService&&isBookableOfferedByStaff(selectedService,sp?.services);
                     setNewForm(p=>p?{...p,serviciuId:nid,expertId:ok?p.expertId:""}:null);
                   }}>
                   <option value="" style={{background:"#0f172a"}}>{t("newModal.chooseOpt")}</option>
@@ -1737,14 +1754,19 @@ function CalendarContent() {
               <button style={{flex:2,padding:"10px",background:"#0f172a",border:"none",borderRadius:14,fontSize:11,fontWeight:700,color:"#fff",cursor:"pointer"}} className="hover:bg-amber-600 transition-all"
                 onClick={async()=>{
                   if(!newForm)return;
-                  const durNew=rawServices.find(s=>s.id===newForm.serviciuId)?.duration||15;
+                  const svcNew=bookableServices.find(s=>s.id===newForm.serviciuId);
+                  const durNew=svcNew?.duration||15;
                   if(hasSpecialistConflict(programari,newForm.expertId||"",newForm.date,newForm.time,durNew)){
                     await showToast({message:t("specialistConflictError"),type:"error"});
                     return;
                   }
                   const locNew=workLocations.find(l=>l.id===newForm.workLocationId);
                   const mapsNew=locNew?.maps_url || (locNew?.address ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(locNew.address)}` : null);
-                  const{error}=await supabase.from("appointments").insert({title:newForm.nume,prenume:newForm.nume,nume:newForm.nume,email:newForm.email||null,date:newForm.date,time:newForm.time,phone:newForm.telefon||null,details:newForm.motiv||null,angajat_id:newForm.expertId||null,serviciu_id:newForm.serviciuId||null,work_location_id:newForm.workLocationId||null,work_location_name:locNew?.name||null,work_location_address:locNew?.address||null,work_location_maps_url:mapsNew,user_id:userId,duration:durNew});
+                  const underlyingServiceIds=getUnderlyingServiceIds(svcNew);
+                  const includedServices=underlyingServiceIds.map(id=>rawServices.find(s=>s.id===id)?.nume_serviciu).filter(Boolean).join(", ");
+                  const serviceDetails=svcNew ? `${svcNew.is_package ? "Pachet" : "Serviciu"}: ${svcNew.nume_serviciu}${svcNew.is_package&&includedServices ? ` (${includedServices})` : ""}` : "";
+                  const finalDetails=[serviceDetails,newForm.motiv].filter(Boolean).join(" | ");
+                  const{error}=await supabase.from("appointments").insert({title:newForm.nume,prenume:newForm.nume,nume:newForm.nume,email:newForm.email||null,date:newForm.date,time:newForm.time,phone:newForm.telefon||null,details:finalDetails||null,angajat_id:newForm.expertId||null,serviciu_id:underlyingServiceIds[0]||newForm.serviciuId||null,nume_serviciu:svcNew?.nume_serviciu||null,work_location_id:newForm.workLocationId||null,work_location_name:locNew?.name||null,work_location_address:locNew?.address||null,work_location_maps_url:mapsNew,user_id:userId,duration:durNew,total_price:svcNew?.price||null});
                   if(error){await showToast({message:error.message,type:"error"});return;}
                   qClient.invalidateQueries({queryKey:["appointments",userId]});
                   await showToast({message:t("newModal.addedToast"),type:"success"});

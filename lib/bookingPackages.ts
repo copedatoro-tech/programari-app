@@ -12,6 +12,7 @@ export type BookingPackageRow = {
   name: string;
   description?: string | null;
   service_ids?: string[] | null;
+  work_location_ids?: string[] | null;
   price?: number | string | null;
   active?: boolean | null;
   valid_from?: string | null;
@@ -26,6 +27,7 @@ export type BookableServiceRow = {
   is_package?: boolean;
   package_id?: string;
   package_service_ids?: string[];
+  package_work_location_ids?: string[];
 };
 
 export function isPackageBookingId(id?: string | null) {
@@ -77,6 +79,7 @@ export function buildBookableServices(
         is_package: true,
         package_id: pkg.id,
         package_service_ids: ids,
+        package_work_location_ids: Array.isArray(pkg.work_location_ids) ? pkg.work_location_ids.filter(Boolean) : [],
       };
     })
     .filter(Boolean) as BookableServiceRow[];
@@ -90,9 +93,11 @@ export function getUnderlyingServiceIds(item?: Pick<BookableServiceRow, "id" | "
 }
 
 export function isBookableAllowedAtLocation(
-  item: Pick<BookableServiceRow, "id" | "package_service_ids">,
+  item: Pick<BookableServiceRow, "id" | "package_service_ids" | "package_work_location_ids">,
   locationServiceIds?: string[] | null,
+  locationId?: string | null,
 ) {
+  if (item.package_work_location_ids?.length && locationId && !item.package_work_location_ids.includes(locationId)) return false;
   if (!locationServiceIds?.length) return true;
   return getUnderlyingServiceIds(item).every((serviceId) => locationServiceIds.includes(serviceId));
 }

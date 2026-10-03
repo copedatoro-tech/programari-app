@@ -1301,8 +1301,8 @@
                                        "whatsappChannelDesc":  "Sends the rebooking reminder on WhatsApp from the connected business number."
                                    },
                      "depositLabel":  "Deposit Percentage",
-                     "depositFullHint":  "The client pays the full price at booking.",
-                     "depositPartialHint":  "The client pays {percent}% now, the rest at the salon.",
+                     "depositFullHint":  "The client pays the full service or package price at booking.",
+                     "depositPartialHint":  "The client pays {percent}% of the service or package now, the rest at the salon.",
                      "reminder2h":  {
                                         "title":  "Extra Reminder (2 hours before)",
                                         "subtitle":  "One last nudge, on the day of the appointment, in addition to the day-before reminder.",

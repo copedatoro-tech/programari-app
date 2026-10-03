@@ -1301,8 +1301,8 @@
                                       "whatsappChannelDesc":  "Invia il promemoria di ritorno su WhatsApp dal numero business collegato."
                                    },
                      "depositLabel":  "Percentuale Acconto",
-                     "depositFullHint":  "Il cliente paga il prezzo intero alla prenotazione.",
-                     "depositPartialHint":  "Il cliente paga il {percent}% ora, il resto in salone.",
+                     "depositFullHint":  "Il cliente paga il prezzo intero del servizio o pacchetto alla prenotazione.",
+                     "depositPartialHint":  "Il cliente paga il {percent}% del servizio o pacchetto ora, il resto in salone.",
                      "reminder2h":  {
                                         "title":  "Promemoria Aggiuntivo (2 ore prima)",
                                         "subtitle":  "Un ultimo promemoria, il giorno stesso dell\u0027appuntamento, oltre a quello del giorno prima.",

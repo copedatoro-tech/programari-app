@@ -1301,8 +1301,8 @@
                                       "whatsappChannelDesc":  "Envía el recordatorio de regreso por WhatsApp desde el número business conectado."
                                    },
                      "depositLabel":  "Porcentaje de Depósito",
-                     "depositFullHint":  "El cliente paga el precio completo al reservar.",
-                     "depositPartialHint":  "El cliente paga {percent}% ahora, el resto en el salón.",
+                     "depositFullHint":  "El cliente paga el precio completo del servicio o paquete al reservar.",
+                     "depositPartialHint":  "El cliente paga {percent}% del servicio o paquete ahora, el resto en el salón.",
                      "reminder2h":  {
                                         "title":  "Recordatorio Adicional (2 horas antes)",
                                         "subtitle":  "Un último aviso, el mismo día de la cita, además del recordatorio del día anterior.",

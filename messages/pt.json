@@ -1301,8 +1301,8 @@
                                       "whatsappChannelDesc":  "Envia o lembrete de regresso no WhatsApp a partir do número business ligado."
                                    },
                      "depositLabel":  "Percentagem de Sinal",
-                     "depositFullHint":  "O cliente paga o preço total na marcação.",
-                     "depositPartialHint":  "O cliente paga {percent}% agora, o resto no salão.",
+                     "depositFullHint":  "O cliente paga o preço total do serviço ou pacote na marcação.",
+                     "depositPartialHint":  "O cliente paga {percent}% do serviço ou pacote agora, o resto no salão.",
                      "reminder2h":  {
                                         "title":  "Lembrete Adicional (2 horas antes)",
                                         "subtitle":  "Um último aviso, no próprio dia da marcação, além do lembrete do dia anterior.",

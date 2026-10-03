@@ -1524,8 +1524,8 @@
                                        "whatsappChannelDesc":  "Trimite reamintirea de revenire pe WhatsApp, de pe numărul businessului conectat."
                                    },
                      "depositLabel":  "Procent Avans",
-                     "depositFullHint":  "Clientul plătește prețul integral la rezervare.",
-                     "depositPartialHint":  "Clientul plătește {percent}% acum, restul la salon.",
+                     "depositFullHint":  "Clientul plătește prețul integral al serviciului sau pachetului la rezervare.",
+                     "depositPartialHint":  "Clientul plătește {percent}% acum din serviciu sau pachet, restul la salon.",
                      "reminder2h":  {
                                         "title":  "Reamintire Suplimentară (2 ore înainte)",
                                         "subtitle":  "Un ultim impuls, chiar în ziua programării, pe lângă reamintirea de o zi înainte.",

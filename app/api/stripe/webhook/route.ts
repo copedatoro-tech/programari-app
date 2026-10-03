@@ -223,7 +223,7 @@ export async function POST(request: Request) {
         const { data: packages } = packageIds.length > 0
           ? await supabaseAdmin
             .from("packages")
-            .select("id,name,description,service_ids,price,active,valid_from,valid_until")
+            .select("*")
             .eq("user_id", adminId)
             .in("id", packageIds)
           : { data: [] as any[] };

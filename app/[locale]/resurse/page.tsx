@@ -385,7 +385,10 @@ export default function ResursePage() {
 
   const openPackageModal = (pkg?: any) => {
     if (isDemo) return;
-    setPackageForm(pkg ? { ...pkg } : { id: null, name: "", description: "", service_ids: [], price: 0, discount_percent: null, valid_from: "", valid_until: "", active: true });
+    setPackageForm(pkg
+      ? { ...pkg, service_ids: Array.isArray(pkg.service_ids) ? pkg.service_ids : [], work_location_ids: Array.isArray(pkg.work_location_ids) ? pkg.work_location_ids : [] }
+      : { id: null, name: "", description: "", service_ids: [], work_location_ids: workLocations.length === 1 ? [workLocations[0].id] : [], price: 0, discount_percent: null, valid_from: "", valid_until: "", active: true }
+    );
   };
 
   const togglePackageService = (serviceId: string) => {
@@ -396,11 +399,31 @@ export default function ResursePage() {
     setPackageForm({ ...packageForm, service_ids: list });
   };
 
+  const togglePackageWorkLocation = (locationId: string) => {
+    if (!packageForm) return;
+    const list = Array.isArray(packageForm.work_location_ids) ? [...packageForm.work_location_ids] : [];
+    const idx = list.indexOf(locationId);
+    if (idx > -1) list.splice(idx, 1); else list.push(locationId);
+    setPackageForm({ ...packageForm, work_location_ids: list });
+  };
+
   const savePackage = async () => {
     if (!userId || isDemo || !packageForm) return;
     if (!packageForm.name || !packageForm.service_ids?.length) {
       alert("Alege un nume si cel putin un serviciu pentru pachet.");
       return;
+    }
+    if (workLocations.length > 0 && !packageForm.work_location_ids?.length) {
+      alert("Alege cel putin un punct de lucru pentru pachet.");
+      return;
+    }
+    if (workLocations.length > 0) {
+      const compatibleLocations = getPackageWorkLocations(packageForm.service_ids, packageForm.work_location_ids);
+      const selectedCount = Array.isArray(packageForm.work_location_ids) ? packageForm.work_location_ids.length : 0;
+      if (compatibleLocations.length !== selectedCount) {
+        alert("Unul dintre punctele de lucru selectate nu are toate serviciile incluse in pachet.");
+        return;
+      }
     }
     setSavingPackage(true);
     const payload = {
@@ -408,6 +431,7 @@ export default function ResursePage() {
       name: packageForm.name,
       description: packageForm.description || null,
       service_ids: packageForm.service_ids,
+      work_location_ids: Array.isArray(packageForm.work_location_ids) ? packageForm.work_location_ids : [],
       price: Number(packageForm.price) || 0,
       active: !!packageForm.active,
       discount_percent: packageForm.discount_percent !== "" && packageForm.discount_percent !== null ? Number(packageForm.discount_percent) : null,
@@ -609,10 +633,12 @@ export default function ResursePage() {
     return grouped;
   };
 
-  const getPackageWorkLocations = useCallback((serviceIds: any[] = []) => {
+  const getPackageWorkLocations = useCallback((serviceIds: any[] = [], selectedLocationIds?: any[] | null) => {
     const includedServiceIds = Array.isArray(serviceIds) ? serviceIds.map(String) : [];
+    const explicitLocationIds = Array.isArray(selectedLocationIds) ? selectedLocationIds.map(String).filter(Boolean) : [];
     if (includedServiceIds.length === 0) return [];
     return workLocations.filter((location: any) => {
+      if (explicitLocationIds.length > 0 && !explicitLocationIds.includes(String(location.id))) return false;
       const locationServiceIds = Array.isArray(location.service_ids) ? location.service_ids.map(String) : [];
       if (locationServiceIds.length === 0) return true;
       return includedServiceIds.every((serviceId) => locationServiceIds.includes(serviceId));
@@ -1322,7 +1348,7 @@ export default function ResursePage() {
           <div className="space-y-3">
             {packages.map((pkg: any) => {
               const serviceNames = Array.isArray(pkg.service_ids) ? services.filter((s: any) => pkg.service_ids.includes(s.id)).map((s: any) => s.nume_serviciu) : [];
-              const packageLocations = getPackageWorkLocations(pkg.service_ids);
+              const packageLocations = getPackageWorkLocations(pkg.service_ids, pkg.work_location_ids);
               return (
                 <div key={pkg.id} className="p-4 border rounded-xl bg-slate-50 flex items-center justify-between gap-3">
                   <div className="flex-1 min-w-0">
@@ -1392,7 +1418,7 @@ export default function ResursePage() {
                 <div className="rounded-2xl border border-blue-100 bg-blue-50/70 p-4">
                   <p className="text-[9px] font-black uppercase text-blue-700 mb-2">PUNCTE DE LUCRU DISPONIBILE</p>
                   {(() => {
-                    const packageLocations = getPackageWorkLocations(packageForm.service_ids);
+                    const packageLocations = getPackageWorkLocations(packageForm.service_ids, packageForm.work_location_ids);
                     if (!Array.isArray(packageForm.service_ids) || packageForm.service_ids.length === 0) {
                       return <p className="text-xs font-bold text-slate-500">Alege serviciile incluse ca sa calculam punctele de lucru.</p>;
                     }
@@ -1414,6 +1440,27 @@ export default function ResursePage() {
                   })()}
                   <p className="text-[10px] text-blue-700/70 font-bold mt-2">Un pachet apare intr-un punct de lucru doar daca toate serviciile incluse sunt bifate la acel punct.</p>
                 </div>
+                {workLocations.length > 0 && (
+                  <div>
+                    <p className="text-[9px] font-black uppercase text-slate-400 mb-2">PUNCTE DE LUCRU PENTRU PACHET</p>
+                    <div className="max-h-[150px] overflow-y-auto pr-2 grid grid-cols-1 md:grid-cols-2 gap-2 text-sm border rounded-md p-2">
+                      {workLocations.map((loc: any) => {
+                        const selected = Array.isArray(packageForm.work_location_ids) ? packageForm.work_location_ids.includes(loc.id) : false;
+                        const locationServiceIds = Array.isArray(loc.service_ids) ? loc.service_ids.map(String) : [];
+                        const serviceIds = Array.isArray(packageForm.service_ids) ? packageForm.service_ids.map(String) : [];
+                        const compatible = locationServiceIds.length === 0 || serviceIds.every((serviceId: string) => locationServiceIds.includes(serviceId));
+                        return (
+                          <label key={loc.id} className={`flex items-center gap-2 rounded-lg px-2 py-1 ${compatible ? "" : "opacity-50"}`}>
+                            <input type="checkbox" className="w-4 h-4" checked={selected} onChange={() => togglePackageWorkLocation(loc.id)} />
+                            <span className="truncate">{loc.name || "Punct de lucru"}</span>
+                            {!compatible && <span className="text-[10px] font-bold text-red-500">servicii lipsa</span>}
+                          </label>
+                        );
+                      })}
+                    </div>
+                    <p className="text-[10px] text-slate-400 mt-1">Daca apare &quot;servicii lipsa&quot;, bifeaza acele servicii si in setarile punctului de lucru sau scoate punctul din pachet.</p>
+                  </div>
+                )}
                 <div>
                   <label className="text-[9px] font-black uppercase text-slate-400">PRET PACHET ({businessCurrency})</label>
                   <input type="number" value={packageForm.price} onChange={(e) => setPackageForm({ ...packageForm, price: e.target.value })} className="w-full p-2 rounded-md border text-sm" />

@@ -357,9 +357,9 @@ function RezervareContent() {
     const loc = selectedWorkLocation as any;
     if (!loc) return servicii;
     if (Array.isArray(loc.service_ids) && loc.service_ids.length > 0) {
-      return servicii.filter((s) => isBookableAllowedAtLocation(s, loc.service_ids));
+      return servicii.filter((s) => isBookableAllowedAtLocation(s, loc.service_ids, loc.id));
     }
-    return servicii;
+    return servicii.filter((s) => isBookableAllowedAtLocation(s, null, loc.id));
   }, [servicii, selectedWorkLocation]);
 
   const availableSpecialisti = useMemo(() => {
