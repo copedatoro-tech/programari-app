@@ -4,9 +4,15 @@ import { useState, useMemo, useCallback, useEffect } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import { useTranslations } from "next-intl";
 import { ChronosTimePicker, ChronosDatePicker } from "@/components/ChronosDateTimePickers";
+import {
+  isBookableAllowedAtLocation,
+  isBookableOfferedByStaff,
+  getUnderlyingServiceIds,
+  type BookableServiceRow,
+} from "@/lib/bookingPackages";
 
 // ─── Tipuri ────────────────────────────────────────────────────────────────────
-interface ServiceRow   { id: string; nume_serviciu: string; price: number; duration: number }
+type ServiceRow = BookableServiceRow;
 interface StaffRow     { id: string; name: string; services: string[]; working_hours?: any; manual_blocks?: any }
 interface WorkingHour  { day: string; start: string; end: string; closed: boolean; work_location_id?: string }
 interface WorkLocationRow { id: string; name: string; address?: string; maps_url?: string; service_ids?: string[]; staff_ids?: string[] }
@@ -92,7 +98,7 @@ function SlotRow({
   const selectedWorkLocation = workLocations.find((loc) => loc.id === slot.work_location_id);
   const locationServices = useMemo(() => {
     if (!selectedWorkLocation?.service_ids?.length) return servicii;
-    return servicii.filter((s) => selectedWorkLocation.service_ids?.includes(s.id));
+    return servicii.filter((s) => isBookableAllowedAtLocation(s, selectedWorkLocation.service_ids));
   }, [servicii, selectedWorkLocation]);
 
   const locationSpecialists = useMemo(() => {
@@ -129,38 +135,40 @@ function SlotRow({
   // Specialiștii care oferă serviciul ales
   const filteredSpec = useMemo(() =>
     slot.serviciu_id
-      ? specialisti.filter((sp) => sp.services?.includes(slot.serviciu_id))
+      ? specialisti.filter((sp) => !!svc && isBookableOfferedByStaff(svc, sp.services))
       : specialisti,
-  [slot.serviciu_id, specialisti]);
+  [slot.serviciu_id, specialisti, svc]);
 
   // Serviciile pe care le oferă specialistul ales — filtrare strictă, simetrică
   // cu cea de mai sus (nu mai există fallback "arată tot" dacă specialistul
   // nu are servicii asociate — dacă nu are, lista rămâne goală, cu mesaj explicativ)
   const filteredSvc = useMemo(() => {
-    if (!slot.specialist_id) return servicii;
+    if (!slot.specialist_id) return locationServices;
     const sp = locationSpecialists.find((s) => s.id === slot.specialist_id);
-    return servicii.filter((s) => sp?.services?.includes(s.id));
-  }, [slot.specialist_id, servicii, specialisti]);
+    return locationServices.filter((s) => isBookableOfferedByStaff(s, sp?.services));
+  }, [slot.specialist_id, locationServices, locationSpecialists]);
 
   const handleSpecialistChange = useCallback((specialistId: string) => {
     const sp = locationSpecialists.find((s) => s.id === specialistId);
-    const serviceStillValid = slot.serviciu_id && sp?.services?.includes(slot.serviciu_id);
+    const selectedService = locationServices.find((s) => s.id === slot.serviciu_id);
+    const serviceStillValid = selectedService && isBookableOfferedByStaff(selectedService, sp?.services);
     onChange({
       specialist_id: specialistId,
       serviciu_id:   serviceStillValid ? slot.serviciu_id : "",
       ora:           serviceStillValid ? slot.ora : "00:00",
     });
-  }, [slot.serviciu_id, slot.ora, locationSpecialists, onChange]);
+  }, [slot.serviciu_id, slot.ora, locationServices, locationSpecialists, onChange]);
 
   const handleServiciuChange = useCallback((serviciuId: string) => {
     const sp = locationSpecialists.find((s) => s.id === slot.specialist_id);
-    const specialistStillValid = slot.specialist_id && sp?.services?.includes(serviciuId);
+    const selectedService = locationServices.find((s) => s.id === serviciuId);
+    const specialistStillValid = selectedService && isBookableOfferedByStaff(selectedService, sp?.services);
     onChange({
       serviciu_id:   serviciuId,
       specialist_id: specialistStillValid ? slot.specialist_id : "",
       ora:           "00:00",
     });
-  }, [slot.specialist_id, locationSpecialists, onChange]);
+  }, [slot.specialist_id, locationServices, locationSpecialists, onChange]);
 
   const endOra = svc?.duration && slot.ora && slot.ora !== "00:00"
     ? addMin(slot.ora, svc.duration) : null;
@@ -514,6 +522,11 @@ export default function MultiServiceBooking({
       const rows = slots.map((s) => {
         const svc  = servicii.find((x) => x.id === s.serviciu_id);
         const spec = specialisti.find((x) => x.id === s.specialist_id);
+        const underlyingServiceIds = getUnderlyingServiceIds(svc);
+        const includedServices = underlyingServiceIds
+          .map((id) => servicii.find((service) => service.id === id)?.nume_serviciu)
+          .filter(Boolean)
+          .join(", ");
         return {
           user_id:     adminId,
           title:       clientData.nume.trim(),
@@ -524,10 +537,11 @@ export default function MultiServiceBooking({
           date:        s.data,
           time:        s.ora,
           duration:    svc?.duration || 0,
-          details:     `Serviciu: ${svc?.nume_serviciu || t("naFallback")}${clientData.detalii ? ` | Notă: ${clientData.detalii}` : ""}${slots.length > 1 ? " | Rezervare multiplă" : ""}`,
+          details:     `${svc?.is_package ? "Pachet" : "Serviciu"}: ${svc?.nume_serviciu || t("naFallback")}${svc?.is_package && includedServices ? ` (${includedServices})` : ""}${clientData.detalii ? ` | Notă: ${clientData.detalii}` : ""}${slots.length > 1 ? " | Rezervare multiplă" : ""}`,
           specialist:  spec?.name || t("firstAvailFallback"),
           angajat_id:  s.specialist_id || null,
-          serviciu_id: s.serviciu_id || null,
+          serviciu_id: underlyingServiceIds[0] || null,
+          nume_serviciu: svc?.nume_serviciu || null,
           status:      "pending",
           is_client_booking: false,
           ...(pozaProfil ? { file_url: pozaProfil, poza: pozaProfil } : {}),

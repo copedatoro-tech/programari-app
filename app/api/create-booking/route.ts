@@ -1,5 +1,13 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
+import {
+  buildBookableServices,
+  getUnderlyingServiceIds,
+  isBookableAllowedAtLocation,
+  isBookableOfferedByStaff,
+  isPackageBookingId,
+  getPackageIdFromBookingId,
+} from "@/lib/bookingPackages";
 
 const MAX_SERVICES_PER_BOOKING = 5;
 const MAX_BOOKINGS_PER_IP_PER_DAY = 3;
@@ -153,34 +161,51 @@ export async function POST(request: Request) {
     // â”€â”€ Inregistram incercarea (pentru rate limiting) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     await supabaseAdmin.from("booking_rate_limits").insert({ ip_address: ip });
 
-    // â”€â”€ Preluam serviciile si staff-ul, FILTRATE dupa acest salon â”€â”€â”€â”€â”€â”€â”€
-    const serviceIds = bookings.map((b: any) => b.serviciu_id);
-    const { data: services } = await supabaseAdmin
-      .from("services")
-      .select("id, nume_serviciu, duration")
-      .eq("user_id", adminId)
-      .in("id", serviceIds);
+    // â”€â”€ Preluam serviciile/pachetele si staff-ul, FILTRATE dupa acest salon â”€â”€â”€â”€â”€â”€â”€
+    const requestedIds = bookings.map((b: any) => String(b.serviciu_id || "")).filter(Boolean);
+    const packageIds = requestedIds.filter(isPackageBookingId).map(getPackageIdFromBookingId);
+    const directServiceIds = requestedIds.filter((id: string) => !isPackageBookingId(id));
+
+    const { data: packages } = packageIds.length > 0
+      ? await supabaseAdmin
+        .from("packages")
+        .select("id,name,description,service_ids,price,active,valid_from,valid_until")
+        .eq("user_id", adminId)
+        .in("id", packageIds)
+      : { data: [] as any[] };
+
+    const packageServiceIds = (packages || []).flatMap((pkg: any) => Array.isArray(pkg.service_ids) ? pkg.service_ids : []);
+    const serviceIds = Array.from(new Set([...directServiceIds, ...packageServiceIds]));
+    const { data: services } = serviceIds.length > 0
+      ? await supabaseAdmin
+        .from("services")
+        .select("id, nume_serviciu, price, duration")
+        .eq("user_id", adminId)
+        .in("id", serviceIds)
+      : { data: [] as any[] };
+
+    const bookableItems = buildBookableServices(services || [], packages || []);
 
     const { data: staff } = await supabaseAdmin
       .from("staff")
-      .select("id, name")
+      .select("id, name, services")
       .eq("user_id", adminId);
 
     // ðŸ”’ Respingem explicit daca vreun serviciu_id/specialist_id nu apartine
     // acestui salon.
     for (const b of bookings) {
-      const svcExists = services?.some((s) => s.id === b.serviciu_id);
-      if (!svcExists) {
+      const item = bookableItems.find((entry) => entry.id === b.serviciu_id);
+      if (!item) {
         return NextResponse.json({ error: "Unul dintre serviciile selectate nu apartine acestui salon." }, { status: 400 });
       }
       // If the selected work location restricts services, ensure the chosen
       // service is available in that location.
-      if (locationServiceIds && !locationServiceIds.includes(String(b.serviciu_id))) {
+      if (!isBookableAllowedAtLocation(item, locationServiceIds)) {
         return NextResponse.json({ error: "Unul dintre serviciile selectate nu este disponibil in punctul de lucru selectat." }, { status: 400 });
       }
       if (b.specialist_id) {
-        const staffExists = staff?.some((s) => s.id === b.specialist_id);
-        if (!staffExists) {
+        const selectedStaff = staff?.find((s) => s.id === b.specialist_id);
+        if (!selectedStaff) {
           return NextResponse.json({ error: "Specialistul selectat nu apartine acestui salon." }, { status: 400 });
         }
         // If the selected work location restricts staff, ensure the chosen
@@ -188,15 +213,23 @@ export async function POST(request: Request) {
         if (locationStaffIds && !locationStaffIds.includes(String(b.specialist_id))) {
           return NextResponse.json({ error: "Specialistul selectat nu lucreaza in punctul de lucru selectat." }, { status: 400 });
         }
+        if (!isBookableOfferedByStaff(item, selectedStaff.services)) {
+          return NextResponse.json({ error: "Specialistul selectat nu ofera toate serviciile din pachetul ales." }, { status: 400 });
+        }
       }
     }
 
     // â”€â”€ Inseram programarile â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     const insertedIds: string[] = [];
     for (const b of bookings) {
-      const svc = services?.find((s) => s.id === b.serviciu_id);
+      const svc = bookableItems.find((s) => s.id === b.serviciu_id);
       const duration = svc?.duration || 30;
       const specialistName = staff?.find((s) => s.id === b.specialist_id)?.name || "Prima disponibilitate";
+      const underlyingServiceIds = getUnderlyingServiceIds(svc);
+      const includedServices = underlyingServiceIds
+        .map((id) => services?.find((service) => service.id === id)?.nume_serviciu)
+        .filter(Boolean)
+        .join(", ");
 
       const payload = {
         user_id: adminId,
@@ -208,10 +241,11 @@ export async function POST(request: Request) {
         date: b.data,
         time: b.ora,
         duration,
-        details: `Serviciu: ${svc?.nume_serviciu || ""}${clientInfo.detalii ? ` | NotÄƒ: ${clientInfo.detalii}` : ""}`,
+        details: `${svc?.is_package ? "Pachet" : "Serviciu"}: ${svc?.nume_serviciu || ""}${svc?.is_package && includedServices ? ` (${includedServices})` : ""}${clientInfo.detalii ? ` | Nota: ${clientInfo.detalii}` : ""}`,
         specialist: specialistName,
         angajat_id: b.specialist_id || null,
-        serviciu_id: b.serviciu_id,
+        serviciu_id: underlyingServiceIds[0] || null,
+        nume_serviciu: svc?.nume_serviciu || null,
         status: "pending",
         is_client_booking: true,
         documente: safeDocumente,

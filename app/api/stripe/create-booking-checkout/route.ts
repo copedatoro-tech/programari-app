@@ -1,6 +1,13 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
+import {
+  buildBookableServices,
+  isBookableAllowedAtLocation,
+  isBookableOfferedByStaff,
+  isPackageBookingId,
+  getPackageIdFromBookingId,
+} from "@/lib/bookingPackages";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 const PLATFORM_FEE_PERCENT = 1; // ✅ comisionul Chronos, ușor de ajustat aici
@@ -44,33 +51,52 @@ export async function POST(request: Request) {
       ? matchedLocation.staff_ids.map((id: any) => String(id))
       : null;
 
-    const serviceIds = bookings.map((b: any) => b.serviciu_id).filter(Boolean);
-    const { data: services } = await supabaseAdmin
-      .from("services")
-      .select("id, nume_serviciu, price, duration")
-      .eq("user_id", adminId)
-      .in("id", serviceIds);
+    const requestedIds = bookings.map((b: any) => String(b.serviciu_id || "")).filter(Boolean);
+    const packageIds = requestedIds.filter(isPackageBookingId).map(getPackageIdFromBookingId);
+    const directServiceIds = requestedIds.filter((id: string) => !isPackageBookingId(id));
+
+    const { data: packages } = packageIds.length > 0
+      ? await supabaseAdmin
+        .from("packages")
+        .select("id,name,description,service_ids,price,active,valid_from,valid_until")
+        .eq("user_id", adminId)
+        .in("id", packageIds)
+      : { data: [] as any[] };
+
+    const packageServiceIds = (packages || []).flatMap((pkg: any) => Array.isArray(pkg.service_ids) ? pkg.service_ids : []);
+    const serviceIds = Array.from(new Set([...directServiceIds, ...packageServiceIds]));
+    const { data: services } = serviceIds.length > 0
+      ? await supabaseAdmin
+        .from("services")
+        .select("id, nume_serviciu, price, duration")
+        .eq("user_id", adminId)
+        .in("id", serviceIds)
+      : { data: [] as any[] };
+    const bookableItems = buildBookableServices(services || [], packages || []);
 
     const { data: staff } = await supabaseAdmin
       .from("staff")
-      .select("id, name")
+      .select("id, name, services")
       .eq("user_id", adminId);
 
     for (const b of bookings) {
-      const svcExists = services?.some((s) => s.id === b.serviciu_id);
-      if (!svcExists) {
+      const item = bookableItems.find((entry) => entry.id === b.serviciu_id);
+      if (!item) {
         return NextResponse.json({ error: "Unul dintre serviciile selectate nu apartine acestui salon." }, { status: 400 });
       }
-      if (locationServiceIds && !locationServiceIds.includes(String(b.serviciu_id))) {
+      if (!isBookableAllowedAtLocation(item, locationServiceIds)) {
         return NextResponse.json({ error: "Unul dintre serviciile selectate nu este disponibil in punctul de lucru selectat." }, { status: 400 });
       }
       if (b.specialist_id) {
-        const staffExists = staff?.some((s) => s.id === b.specialist_id);
-        if (!staffExists) {
+        const selectedStaff = staff?.find((s) => s.id === b.specialist_id);
+        if (!selectedStaff) {
           return NextResponse.json({ error: "Specialistul selectat nu apartine acestui salon." }, { status: 400 });
         }
         if (locationStaffIds && !locationStaffIds.includes(String(b.specialist_id))) {
           return NextResponse.json({ error: "Specialistul selectat nu lucreaza in punctul de lucru selectat." }, { status: 400 });
+        }
+        if (!isBookableOfferedByStaff(item, selectedStaff.services)) {
+          return NextResponse.json({ error: "Specialistul selectat nu ofera toate serviciile din pachetul ales." }, { status: 400 });
         }
       }
     }
@@ -83,7 +109,7 @@ export async function POST(request: Request) {
     let totalFullPrice = 0; // prețul complet real al serviciilor, pentru evidență
     let totalRemaining = 0; // ✅ suma totală rămasă de plătit la salon, pentru mesajul de sub buton
     const lineItems = bookings.map((b: any) => {
-      const svc = services?.find((s) => s.id === b.serviciu_id);
+      const svc = bookableItems.find((s) => s.id === b.serviciu_id);
       const fullPrice = svc?.price || 0;
       totalFullPrice += fullPrice;
       const chargedAmount = Math.round(fullPrice * (depositPercent / 100));

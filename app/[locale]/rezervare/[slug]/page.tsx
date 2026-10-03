@@ -9,9 +9,14 @@ import { useTranslations } from "next-intl";
 import LocaleSwitcher from "@/components/LocaleSwitcher";
 import { ChronosTimePicker, ChronosDatePicker } from "@/components/ChronosDateTimePickers";
 import { CalendarDays, Clock3, Star, X, Check } from "lucide-react";
+import {
+  buildBookableServices,
+  isBookableAllowedAtLocation,
+  isBookableOfferedByStaff,
+  type BookableServiceRow,
+  type BookingPackageRow,
+} from "@/lib/bookingPackages";
 interface StaffRow { id: string; name: string; services: string[]; working_hours?: any; manual_blocks?: any; photo_url?: string | null }
-interface StaffRow { id: string; name: string; services: string[]; working_hours?: any; photo_url?: string | null }
-interface ServiceRow { id: string; nume_serviciu: string; price: number; duration: number }
 interface ExistingAppointment { time: string; duration: number }
 interface WorkingHourEntry { day: string; start: string; end: string; closed: boolean; work_location_id?: string }
 type WorkLocation = { id: string; name: string; address: string };
@@ -155,7 +160,7 @@ function RezervareContent() {
   const [waitlistJoined, setWaitlistJoined] = useState(false);
 
   const [specialisti, setSpecialisti] = useState<StaffRow[]>([]);
-  const [servicii, setServicii] = useState<ServiceRow[]>([]);
+  const [servicii, setServicii] = useState<BookableServiceRow[]>([]);
   const [feedbacks, setFeedbacks] = useState<any[]>([]);
   const [rating, setRating] = useState(0);
   const [hover, setHover] = useState(0);
@@ -250,14 +255,16 @@ function RezervareContent() {
     if (!adminIdReady || !adminId) { setFetchingConfig(false); return; }
     setTechnicalError(false);
     try {
-      const [staffRes, servicesRes, profileRes] = await Promise.all([
+      const [staffRes, servicesRes, packagesRes, profileRes] = await Promise.all([
         supabase.from("staff").select("*").eq("user_id", adminId).order("created_at", { ascending: false }),
         supabase.from("services").select("*").eq("user_id", adminId).order("created_at", { ascending: false }),
+        supabase.from("packages").select("*").eq("user_id", adminId).order("created_at", { ascending: false }),
         supabase.from("profiles_public").select("working_hours, manual_blocks, has_stripe_account, stripe_onboarded, currency, require_payment_at_booking, slug, avatar_url, full_name, phone, email, work_locations, allow_client_documents").eq("id", adminId).single(),
       ]);
       const hasTechnicalIssue =
         (staffRes.error && staffRes.error.code !== "PGRST116") ||
         (servicesRes.error && servicesRes.error.code !== "PGRST116") ||
+        (packagesRes.error && packagesRes.error.code !== "PGRST116") ||
         (profileRes.error && profileRes.error.code !== "PGRST116");
       if (hasTechnicalIssue) {
         setTechnicalError(true);
@@ -265,7 +272,9 @@ function RezervareContent() {
         return;
       }
       if (staffRes.data) setSpecialisti(staffRes.data);
-      if (servicesRes.data) setServicii(servicesRes.data);
+      if (servicesRes.data) {
+        setServicii(buildBookableServices(servicesRes.data, (packagesRes.data || []) as BookingPackageRow[]));
+      }
       if (profileRes.data) {
         setAdminProfile({
           full_name: profileRes.data.full_name || null,
@@ -344,11 +353,11 @@ function RezervareContent() {
   }, [adminProfile?.work_locations, selectedWorkLocationId]);
 
   // Available services and staff should be filtered by the selected work location
-  const availableServicii = useMemo(() => {
+  const availableServicii = useMemo<BookableServiceRow[]>(() => {
     const loc = selectedWorkLocation as any;
     if (!loc) return servicii;
     if (Array.isArray(loc.service_ids) && loc.service_ids.length > 0) {
-      return servicii.filter((s) => loc.service_ids.includes(s.id));
+      return servicii.filter((s) => isBookableAllowedAtLocation(s, loc.service_ids));
     }
     return servicii;
   }, [servicii, selectedWorkLocation]);
@@ -865,7 +874,8 @@ function RezervareContent() {
       {specialistPickerBookingId && (() => {
         const bookingForPicker = bookings.find((b) => b.id === specialistPickerBookingId);
         if (!bookingForPicker) return null;
-        const availableSpecialists = availableSpecialisti.filter(s => !bookingForPicker.serviciu_id || s.services.includes(bookingForPicker.serviciu_id));
+        const selectedService = servicii.find((service) => service.id === bookingForPicker.serviciu_id);
+        const availableSpecialists = availableSpecialisti.filter((s) => !selectedService || isBookableOfferedByStaff(selectedService, s.services));
         return (
           <div className="fixed inset-0 z-[840] bg-slate-950/55 backdrop-blur-sm flex items-center justify-center p-4"
             onClick={() => setSpecialistPickerBookingId(null)}>
@@ -1112,7 +1122,7 @@ function RezervareContent() {
                             onChange={(e) => updateBooking(b.id, { serviciu_id: e.target.value, ora: "00:00" })}>
                             <option value="">{t("chooseServiceOpt")}</option>
                             {availableServicii
-                              .filter(s => !b.specialist_id || specialisti.find(sp => sp.id === b.specialist_id)?.services.includes(s.id))
+                              .filter(s => !b.specialist_id || isBookableOfferedByStaff(s, specialisti.find(sp => sp.id === b.specialist_id)?.services))
                               .map((s) => (
                                 <option key={s.id} value={s.id}>{s.nume_serviciu.toUpperCase()}</option>
                               ))}
@@ -1167,7 +1177,7 @@ function RezervareContent() {
                         </div>
                       </div>
 
-                      {b.serviciu_id && (
+                      {b.serviciu_id && !servicii.find((s) => s.id === b.serviciu_id)?.is_package && (
                         <div className="text-center mt-1">
                           <button
                             type="button"

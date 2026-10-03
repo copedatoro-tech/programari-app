@@ -9,6 +9,7 @@ import { useTranslations } from "next-intl";
 import MultiServiceBooking from "@/components/MultiServiceBooking";
 import ProgramariCalendarPanel from "@/components/ProgramariCalendarPanel";
 import { CalendarDays, CheckCircle2, FileText, Gift, X } from "lucide-react";
+import { buildBookableServices, type BookingPackageRow } from "@/lib/bookingPackages";
 const queryClient = new QueryClient({
   defaultOptions: { queries: { staleTime: 1000 * 60 * 5, refetchOnWindowFocus: false } },
 });
@@ -95,6 +96,15 @@ function ProgramariContent() {
     },
     enabled: !!userId,
   });
+  const { data: packages } = useQuery({
+    queryKey: ["packages", userId],
+    queryFn: async () => {
+      if (!userId) return [];
+      const { data } = await supabase.from("packages").select("*").eq("user_id", userId);
+      return data || [];
+    },
+    enabled: !!userId,
+  });
   // ── Derived ───────────────────────────────────────────────────────────────────
   const userPlan   = profileData?.plan_type?.toLowerCase() || "chronos free";
   const isTrialing = !!profileData?.trial_started_at;
@@ -115,6 +125,10 @@ function ProgramariContent() {
     const locations = profileData?.work_locations;
     return Array.isArray(locations) ? locations : [];
   }, [profileData?.work_locations]);
+  const bookableServicii = useMemo(
+    () => buildBookableServices((servicii as ServiceRow[]) || [], (packages as BookingPackageRow[]) || []),
+    [servicii, packages]
+  );
   const programariAzi = useMemo(() => (programari || []).filter((p: any) => p.date === today), [programari, today]);
   const statsAzi = useMemo(() => ({
     total: programariAzi.length,
@@ -366,7 +380,7 @@ function ProgramariContent() {
               {userId ? (
                 <MultiServiceBooking
                   adminId={userId}
-                  servicii={(servicii as ServiceRow[]) || []}
+                  servicii={bookableServicii}
                   specialisti={(angajati as StaffRow[]) || []}
                   adminWorkingHours={adminWorkingHours}
                   adminManualBlocks={adminManualBlocks}

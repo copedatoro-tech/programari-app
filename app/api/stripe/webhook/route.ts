@@ -1,6 +1,12 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
+import {
+  buildBookableServices,
+  getUnderlyingServiceIds,
+  isPackageBookingId,
+  getPackageIdFromBookingId,
+} from "@/lib/bookingPackages";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
@@ -210,16 +216,37 @@ export async function POST(request: Request) {
         let selectedWorkLocation: any = null;
         try { selectedWorkLocation = metadata.workLocation ? JSON.parse(metadata.workLocation) : null; } catch {}
 
-        const serviceIds = bookings.map((b: any) => b.serviciu_id).filter(Boolean);
-        const { data: services } = await supabaseAdmin
-          .from("services")
-          .select("id, nume_serviciu, duration, price")
-          .in("id", serviceIds);
+        const requestedIds = bookings.map((b: any) => String(b.serviciu_id || "")).filter(Boolean);
+        const packageIds = requestedIds.filter(isPackageBookingId).map(getPackageIdFromBookingId);
+        const directServiceIds = requestedIds.filter((id: string) => !isPackageBookingId(id));
+
+        const { data: packages } = packageIds.length > 0
+          ? await supabaseAdmin
+            .from("packages")
+            .select("id,name,description,service_ids,price,active,valid_from,valid_until")
+            .eq("user_id", adminId)
+            .in("id", packageIds)
+          : { data: [] as any[] };
+        const packageServiceIds = (packages || []).flatMap((pkg: any) => Array.isArray(pkg.service_ids) ? pkg.service_ids : []);
+        const serviceIds = Array.from(new Set([...directServiceIds, ...packageServiceIds]));
+        const { data: services } = serviceIds.length > 0
+          ? await supabaseAdmin
+            .from("services")
+            .select("id, nume_serviciu, duration, price")
+            .eq("user_id", adminId)
+            .in("id", serviceIds)
+          : { data: [] as any[] };
+        const bookableItems = buildBookableServices(services || [], packages || []);
 
         const rows = bookings.map((b: any) => {
-          const svc = services?.find((s) => s.id === b.serviciu_id);
+          const svc = bookableItems.find((s) => s.id === b.serviciu_id);
           const fullPrice = svc?.price || 0;
           const amountPaidNow = Math.round(fullPrice * (depositPercent / 100));
+          const underlyingServiceIds = getUnderlyingServiceIds(svc);
+          const includedServices = underlyingServiceIds
+            .map((id) => services?.find((service) => service.id === id)?.nume_serviciu)
+            .filter(Boolean)
+            .join(", ");
 
           return {
             user_id: adminId,
@@ -231,9 +258,10 @@ export async function POST(request: Request) {
             date: b.data,
             time: b.ora,
             duration: svc?.duration || 30,
-            details: `Serviciu: ${svc?.nume_serviciu || "N/A"}${metadata.clientDetalii ? ` | Notă: ${metadata.clientDetalii}` : ""} | ${paymentStatus === "deposit_paid" ? `Avans plătit online (${depositPercent}%)` : "Plătit online integral"}`,
+            details: `${svc?.is_package ? "Pachet" : "Serviciu"}: ${svc?.nume_serviciu || "N/A"}${svc?.is_package && includedServices ? ` (${includedServices})` : ""}${metadata.clientDetalii ? ` | Notă: ${metadata.clientDetalii}` : ""} | ${paymentStatus === "deposit_paid" ? `Avans plătit online (${depositPercent}%)` : "Plătit online integral"}`,
             angajat_id: b.specialist_id || null,
-            serviciu_id: b.serviciu_id || null,
+            serviciu_id: underlyingServiceIds[0] || null,
+            nume_serviciu: svc?.nume_serviciu || null,
             status: "confirmed",
             is_client_booking: true,
             paid: true,
