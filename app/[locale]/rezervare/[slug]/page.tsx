@@ -156,6 +156,7 @@ function RezervareContent() {
   const [pickerControl, setPickerControl] = useState<{ type: "date" | "time"; bookingId: string } | null>(null);
   const [waitlistModal, setWaitlistModal] = useState<{ bookingId: string } | null>(null);
   const [specialistPickerBookingId, setSpecialistPickerBookingId] = useState<string | null>(null);
+  const [servicePickerBookingId, setServicePickerBookingId] = useState<string | null>(null);
   const [waitlistSaving, setWaitlistSaving] = useState(false);
   const [waitlistJoined, setWaitlistJoined] = useState(false);
 
@@ -871,6 +872,92 @@ function RezervareContent() {
         </div>
       )}
 
+      {servicePickerBookingId && (() => {
+        const bookingForPicker = bookings.find((b) => b.id === servicePickerBookingId);
+        if (!bookingForPicker) return null;
+        const selectedSpecialist = specialisti.find(sp => sp.id === bookingForPicker.specialist_id);
+        const options = availableServicii.filter((service) => !selectedSpecialist || isBookableOfferedByStaff(service, selectedSpecialist.services));
+        const packageOptions = options.filter((service) => service.is_package);
+        const serviceOptions = options.filter((service) => !service.is_package);
+        const chooseService = (serviceId: string) => {
+          updateBooking(servicePickerBookingId, { serviciu_id: serviceId, ora: "00:00" });
+          setServicePickerBookingId(null);
+        };
+        return (
+          <div className="fixed inset-0 z-[840] bg-slate-950/55 backdrop-blur-sm flex items-center justify-center p-4"
+            onClick={() => setServicePickerBookingId(null)}>
+            <div onClick={(e) => e.stopPropagation()} className="bg-white w-full max-w-3xl rounded-[36px] p-6 md:p-8 shadow-2xl border-t-[8px] border-amber-500 max-h-[82vh] flex flex-col">
+              <div className="flex items-start justify-between gap-4 mb-5">
+                <div>
+                  <span className="text-[9px] font-black uppercase italic text-amber-500 tracking-widest">{t("serviceLabel")}</span>
+                  <h3 className="text-xl md:text-2xl font-black uppercase italic text-slate-900 tracking-tighter">{t("chooseServiceOpt")}</h3>
+                  {selectedSpecialist && <p className="text-xs font-bold text-slate-500 mt-1">Disponibile pentru {selectedSpecialist.name}</p>}
+                </div>
+                <button type="button" onClick={() => setServicePickerBookingId(null)} className="w-10 h-10 rounded-xl bg-slate-100 text-slate-400 flex items-center justify-center hover:bg-red-500 hover:text-white transition-all">
+                  <X className="w-5 h-5" strokeWidth={3} />
+                </button>
+              </div>
+              <div className="overflow-y-auto pr-1 space-y-6">
+                {packageOptions.length > 0 && (
+                  <section>
+                    <p className="text-[10px] font-black uppercase italic text-amber-600 mb-3">Alege pachet</p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {packageOptions.map((service) => {
+                        const selected = bookingForPicker.serviciu_id === service.id;
+                        return (
+                          <button
+                            key={service.id}
+                            type="button"
+                            onClick={() => chooseService(service.id)}
+                            className={`text-left rounded-[26px] border-2 p-5 transition-all ${selected ? "border-amber-500 bg-amber-50 shadow-lg" : "border-slate-200 bg-white hover:border-amber-300"}`}
+                          >
+                            <div className="flex items-start justify-between gap-3">
+                              <p className="text-sm font-black uppercase italic text-slate-900">{service.nume_serviciu}</p>
+                              <span className="shrink-0 rounded-full bg-slate-900 text-amber-500 px-3 py-1 text-[11px] font-black">{service.price} RON</span>
+                            </div>
+                            <p className="text-[10px] font-black uppercase italic text-amber-700 mt-4 mb-2">Include</p>
+                            <div className="flex flex-wrap gap-2">
+                              {(service.package_service_names || []).map((name) => (
+                                <span key={name} className="px-3 py-1 rounded-full bg-white text-slate-800 text-[11px] font-black border border-amber-100">{name}</span>
+                              ))}
+                            </div>
+                            <p className="text-[11px] font-bold text-slate-500 mt-4">{service.duration} min</p>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </section>
+                )}
+
+                <section>
+                  <p className="text-[10px] font-black uppercase italic text-slate-400 mb-3">Alege serviciu</p>
+                  {serviceOptions.length === 0 ? (
+                    <p className="rounded-[24px] bg-slate-50 border-2 border-slate-100 p-5 text-sm font-bold text-slate-400 italic">Nu există servicii disponibile pentru selecția curentă.</p>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      {serviceOptions.map((service) => {
+                        const selected = bookingForPicker.serviciu_id === service.id;
+                        return (
+                          <button
+                            key={service.id}
+                            type="button"
+                            onClick={() => chooseService(service.id)}
+                            className={`text-left rounded-[22px] border-2 p-4 transition-all ${selected ? "border-amber-500 bg-amber-50 shadow-lg" : "border-slate-200 bg-white hover:border-amber-300"}`}
+                          >
+                            <p className="text-sm font-black uppercase italic text-slate-900">{service.nume_serviciu}</p>
+                            <p className="text-[11px] font-bold text-slate-500 mt-2">{service.duration} min{service.price ? ` · ${service.price} RON` : ""}</p>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
+                </section>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
+
       {specialistPickerBookingId && (() => {
         const bookingForPicker = bookings.find((b) => b.id === specialistPickerBookingId);
         if (!bookingForPicker) return null;
@@ -1116,35 +1203,19 @@ function RezervareContent() {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-2">
                           <label className="text-[10px] font-black uppercase italic text-slate-400 ml-4">{t("serviceLabel")}</label>
-                          <select
-                            className="w-full bg-white border-2 border-amber-500 rounded-[25px] py-4 px-6 text-[14px] font-black uppercase italic outline-none cursor-pointer"
-                            value={b.serviciu_id}
-                            onChange={(e) => updateBooking(b.id, { serviciu_id: e.target.value, ora: "00:00" })}>
-                            <option value="">{t("chooseServiceOpt")}</option>
-                            {(() => {
-                              const options = availableServicii.filter(s => !b.specialist_id || isBookableOfferedByStaff(s, specialisti.find(sp => sp.id === b.specialist_id)?.services));
-                              const packages = options.filter((s) => s.is_package);
-                              const services = options.filter((s) => !s.is_package);
-                              return (
-                                <>
-                                  {packages.length > 0 && (
-                                    <optgroup label="ALEGE PACHET">
-                                      {packages.map((s) => (
-                                        <option key={s.id} value={s.id}>
-                                          {s.nume_serviciu.toUpperCase()} — {(s.package_service_names || []).join(" + ")} — {s.price} RON ({s.duration} min)
-                                        </option>
-                                      ))}
-                                    </optgroup>
-                                  )}
-                                  <optgroup label="ALEGE SERVICIU">
-                                    {services.map((s) => (
-                                      <option key={s.id} value={s.id}>{s.nume_serviciu.toUpperCase()}</option>
-                                    ))}
-                                  </optgroup>
-                                </>
-                              );
-                            })()}
-                          </select>
+                          {(() => {
+                            const selected = servicii.find((s) => s.id === b.serviciu_id);
+                            return (
+                              <button
+                                type="button"
+                                onClick={() => setServicePickerBookingId(b.id)}
+                                className="w-full bg-white border-2 border-amber-500 rounded-[25px] py-4 px-6 text-[14px] font-black uppercase italic text-slate-900 text-left outline-none cursor-pointer hover:shadow-lg transition-all flex items-center justify-between gap-4"
+                              >
+                                <span className="truncate">{selected?.nume_serviciu || t("chooseServiceOpt")}</span>
+                                <span className="text-amber-500 text-xl font-black leading-none shrink-0">›</span>
+                              </button>
+                            );
+                          })()}
                           {(() => {
                             const selected = servicii.find((s) => s.id === b.serviciu_id);
                             if (!selected?.is_package) return null;
