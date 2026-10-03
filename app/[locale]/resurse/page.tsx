@@ -609,6 +609,16 @@ export default function ResursePage() {
     return grouped;
   };
 
+  const getPackageWorkLocations = useCallback((serviceIds: any[] = []) => {
+    const includedServiceIds = Array.isArray(serviceIds) ? serviceIds.map(String) : [];
+    if (includedServiceIds.length === 0) return [];
+    return workLocations.filter((location: any) => {
+      const locationServiceIds = Array.isArray(location.service_ids) ? location.service_ids.map(String) : [];
+      if (locationServiceIds.length === 0) return true;
+      return includedServiceIds.every((serviceId) => locationServiceIds.includes(serviceId));
+    });
+  }, [workLocations]);
+
   const handleScheduleLocationChange = (locationId: string) => {
     const staffMember = staff.find((item) => item.id === scheduleStaffId);
     setSelectedScheduleLocationId(locationId);
@@ -1312,6 +1322,7 @@ export default function ResursePage() {
           <div className="space-y-3">
             {packages.map((pkg: any) => {
               const serviceNames = Array.isArray(pkg.service_ids) ? services.filter((s: any) => pkg.service_ids.includes(s.id)).map((s: any) => s.nume_serviciu) : [];
+              const packageLocations = getPackageWorkLocations(pkg.service_ids);
               return (
                 <div key={pkg.id} className="p-4 border rounded-xl bg-slate-50 flex items-center justify-between gap-3">
                   <div className="flex-1 min-w-0">
@@ -1320,6 +1331,25 @@ export default function ResursePage() {
                       {!pkg.active && <span className="text-[9px] font-black uppercase bg-slate-200 text-slate-500 px-2 py-0.5 rounded-full">INACTIV</span>}
                     </div>
                     <p className="text-xs text-slate-500 mt-1 truncate">{serviceNames.join(", ")}</p>
+                    <div className="mt-2">
+                      <p className="text-[9px] font-black uppercase text-slate-400 mb-1">PUNCTE DE LUCRU</p>
+                      <div className="flex flex-wrap items-center gap-2">
+                        {workLocations.length === 0 ? (
+                          <span className="px-2 py-1 bg-slate-100 text-slate-600 rounded-full text-[12px] font-black">Toate punctele</span>
+                        ) : packageLocations.length > 0 ? (
+                          packageLocations.slice(0, 3).map((loc: any) => (
+                            <span key={loc.id} className="px-2 py-1 bg-blue-50 text-blue-700 rounded-full text-[12px] font-black">{loc.name || "Punct de lucru"}</span>
+                          ))
+                        ) : (
+                          <span className="text-xs text-red-500 font-bold">Nu este disponibil in niciun punct de lucru</span>
+                        )}
+                        {packageLocations.length > 3 && (
+                          <span title={packageLocations.slice(3).map((loc: any) => loc.name || "Punct de lucru").join(", ")} className="text-xs text-slate-500 cursor-help">
+                            +{packageLocations.length - 3}
+                          </span>
+                        )}
+                      </div>
+                    </div>
                     <p className="text-sm font-black text-amber-600 mt-1">{pkg.price} {businessCurrency}</p>
                   </div>
                   <div className="flex-shrink-0 flex gap-2">
@@ -1358,6 +1388,31 @@ export default function ResursePage() {
                       </label>
                     ))}
                   </div>
+                </div>
+                <div className="rounded-2xl border border-blue-100 bg-blue-50/70 p-4">
+                  <p className="text-[9px] font-black uppercase text-blue-700 mb-2">PUNCTE DE LUCRU DISPONIBILE</p>
+                  {(() => {
+                    const packageLocations = getPackageWorkLocations(packageForm.service_ids);
+                    if (!Array.isArray(packageForm.service_ids) || packageForm.service_ids.length === 0) {
+                      return <p className="text-xs font-bold text-slate-500">Alege serviciile incluse ca sa calculam punctele de lucru.</p>;
+                    }
+                    if (workLocations.length === 0) {
+                      return <p className="text-xs font-bold text-slate-600">Pachetul va fi disponibil in toate punctele de lucru.</p>;
+                    }
+                    if (packageLocations.length === 0) {
+                      return <p className="text-xs font-bold text-red-500">Pachetul nu va aparea in rezervari pana cand toate serviciile incluse sunt disponibile in acelasi punct de lucru.</p>;
+                    }
+                    return (
+                      <div className="flex flex-wrap gap-2">
+                        {packageLocations.map((loc: any) => (
+                          <span key={loc.id} className="px-2 py-1 bg-white text-blue-700 rounded-full text-[12px] font-black border border-blue-100">
+                            {loc.name || "Punct de lucru"}
+                          </span>
+                        ))}
+                      </div>
+                    );
+                  })()}
+                  <p className="text-[10px] text-blue-700/70 font-bold mt-2">Un pachet apare intr-un punct de lucru doar daca toate serviciile incluse sunt bifate la acel punct.</p>
                 </div>
                 <div>
                   <label className="text-[9px] font-black uppercase text-slate-400">PRET PACHET ({businessCurrency})</label>
