@@ -79,7 +79,7 @@ function ProgramariContent() {
     enabled: !!userId,
   });
   const { data: angajati } = useQuery({
-    queryKey: ["angajati"],
+    queryKey: ["angajati", userId],
     queryFn: async () => {
       if (!userId) return [];
       const { data } = await supabase.from("staff").select("id, name, services, working_hours, manual_blocks").eq("user_id", userId);
@@ -88,7 +88,7 @@ function ProgramariContent() {
     enabled: !!userId,
   });
   const { data: servicii } = useQuery({
-    queryKey: ["servicii"],
+    queryKey: ["servicii", userId],
     queryFn: async () => {
       if (!userId) return [];
       const { data } = await supabase.from("services").select("id, nume_serviciu, price, duration").eq("user_id", userId);
