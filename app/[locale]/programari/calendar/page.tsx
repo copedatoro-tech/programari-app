@@ -1357,6 +1357,7 @@ function CalendarContent() {
   const [showTimePicker, setShowTimePicker] = useState(false);
   const [showNewDatePicker, setShowNewDatePicker] = useState(false);
   const [showNewTimePicker, setShowNewTimePicker] = useState(false);
+  const [showNewServicePicker, setShowNewServicePicker] = useState(false);
   const [searchResults, setSearchResults] = useState<Prog[]>([]);
   const [showSearchDrop, setShowSearchDrop] = useState(false);
   const [debouncedSearch, setDebouncedSearch] = useState("");
@@ -1426,7 +1427,7 @@ function CalendarContent() {
   useEffect(()=>{const timer=setTimeout(()=>setDebouncedSearch(searchTerm),250);return()=>clearTimeout(timer);},[searchTerm]);
   const handleSearch = useCallback((q:string)=>{if(!q.trim()){setSearchResults([]);return;}setSearchResults(programari.filter(p=>p.nume.toLowerCase().includes(q.toLowerCase())||p.telefon?.includes(q)||p.email?.toLowerCase().includes(q.toLowerCase())).slice(0,8));},[programari]);
   const openEdit = useCallback((p:Prog)=>{setEditForm({...p});setShowDatePicker(false);setShowTimePicker(false);setShowSearchDrop(false);},[]);
-  const closeModal = useCallback(()=>{setEditForm(null);setNewForm(null);setShowDatePicker(false);setShowTimePicker(false);setShowNewDatePicker(false);setShowNewTimePicker(false);setShowSearchDrop(false);},[]);
+  const closeModal = useCallback(()=>{setEditForm(null);setNewForm(null);setShowDatePicker(false);setShowTimePicker(false);setShowNewDatePicker(false);setShowNewTimePicker(false);setShowNewServicePicker(false);setShowSearchDrop(false);},[]);
   useEffect(()=>{if(!editForm)return;const sn=rawServices.find(s=>s.id===editForm.serviciuId)?.nume_serviciu;const base=t("editModal.whatsappMessageBase",{nume:editForm.nume,data:editForm.data,ora:editForm.ora});const suffix=sn?t("editModal.whatsappMessageServiceSuffix",{serviciu:sn}):"";const locationBlock=editForm.workLocationAddress?`\n${t("editModal.whatsappLocationLine",{location:editForm.workLocationName||editForm.workLocationAddress})}\n${t("editModal.whatsappMapsLine",{maps:editForm.workLocationMapsUrl||`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(editForm.workLocationAddress)}`})}`:"";setCustomMsg(`${base}${suffix}.${locationBlock}`);},[editForm?.id,rawServices,t]);
   useEffect(()=>{function h(e:MouseEvent){if(modalRef.current&&!modalRef.current.contains(e.target as Node)&&!showDatePicker&&!showTimePicker)closeModal();}if(editForm)document.addEventListener("mousedown",h);return()=>document.removeEventListener("mousedown",h);},[editForm,showDatePicker,showTimePicker]);
   const handleUpdate = async()=>{
@@ -1699,6 +1700,65 @@ function CalendarContent() {
 
       {showNewDatePicker&&newForm&&(<div style={{position:"fixed",inset:0,zIndex:900,background:"rgba(0,0,0,0.5)",backdropFilter:"blur(4px)",display:"flex",alignItems:"center",justifyContent:"center",padding:16}} onClick={()=>setShowNewDatePicker(false)}><div onClick={e=>e.stopPropagation()}><ChronosDatePicker value={newForm.date} onChange={v=>{setNewForm(p=>p?{...p,date:v,time:""}:null);setShowNewDatePicker(false);}} onClose={()=>setShowNewDatePicker(false)} workingHours={newWorkingHours}/></div></div>)}
       {showNewTimePicker&&newForm&&(<div style={{position:"fixed",inset:0,zIndex:900,background:"rgba(0,0,0,0.5)",backdropFilter:"blur(4px)",display:"flex",alignItems:"center",justifyContent:"center",padding:16}} onClick={()=>setShowNewTimePicker(false)}><div onClick={e=>e.stopPropagation()}><ChronosTimePicker value={newForm.time||"09:00"} onChange={v=>{setNewForm(p=>p?{...p,time:v}:null);setShowNewTimePicker(false);}} onClose={()=>setShowNewTimePicker(false)} workingHours={newWorkingHours} existingAppointments={newExisting} selectedDate={newForm.date} serviceDuration={newSvcDur} manualBlocks={newManualBlocks}/></div></div>)}
+      {showNewServicePicker&&newForm&&(
+        <div style={{position:"fixed",inset:0,zIndex:960,background:"rgba(15,23,42,0.62)",backdropFilter:"blur(5px)",display:"flex",alignItems:"center",justifyContent:"center",padding:16}} onClick={()=>setShowNewServicePicker(false)}>
+          <div style={{background:"#fff",width:"100%",maxWidth:560,maxHeight:"82vh",overflow:"auto",borderRadius:22,boxShadow:"0 24px 70px rgba(15,23,42,0.28)",padding:18,display:"flex",flexDirection:"column",gap:14}} onClick={e=>e.stopPropagation()}>
+            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:12}}>
+              <div>
+                <p style={{fontSize:10,fontWeight:800,color:"#f59e0b",textTransform:"uppercase",margin:0}}>Calendar</p>
+                <h3 style={{fontSize:18,fontWeight:900,color:"#0f172a",margin:0}}>Alege serviciul sau pachetul</h3>
+              </div>
+              <button onClick={()=>setShowNewServicePicker(false)} style={{width:34,height:34,border:"none",borderRadius:12,background:"#f1f5f9",color:"#64748b",fontSize:16,fontWeight:900,cursor:"pointer"}} className="hover:bg-red-500 hover:text-white transition-all">✕</button>
+            </div>
+            {newSvcOpts.filter(o=>o.is_package).length>0&&(
+              <div style={{display:"flex",flexDirection:"column",gap:8}}>
+                <p style={{fontSize:11,fontWeight:900,color:"#92400e",textTransform:"uppercase",margin:0}}>Alege pachet</p>
+                {newSvcOpts.filter(o=>o.is_package).map(o=>{
+                  const selected=o.id===newForm.serviciuId;
+                  return (
+                    <button key={o.id} type="button" onClick={()=>{
+                      const sp=rawStaff.find(s=>s.id===newForm.expertId);
+                      const ok=newForm.expertId&&isBookableOfferedByStaff(o,sp?.services);
+                      setNewForm(p=>p?{...p,serviciuId:o.id,expertId:ok?p.expertId:""}:null);
+                      setShowNewServicePicker(false);
+                    }} style={{textAlign:"left",background:selected?"#fffbeb":"#fff",border:selected?"2px solid #f59e0b":"1.5px solid #fde68a",borderRadius:14,padding:"12px 14px",cursor:"pointer",display:"flex",flexDirection:"column",gap:7}}>
+                      <span style={{fontSize:14,fontWeight:900,color:"#0f172a"}}>{o.nume_serviciu}</span>
+                      {!!o.package_service_names?.length&&(
+                        <span style={{display:"flex",flexWrap:"wrap",gap:6}}>
+                          {o.package_service_names.map(name=><span key={name} style={{background:"#fff7ed",border:"1px solid #fed7aa",borderRadius:999,padding:"3px 8px",fontSize:10,fontWeight:800,color:"#9a3412"}}>{name}</span>)}
+                        </span>
+                      )}
+                      <span style={{fontSize:11,fontWeight:800,color:"#92400e"}}>{o.duration} min · {o.price} RON</span>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+            <div style={{display:"flex",flexDirection:"column",gap:8}}>
+              <p style={{fontSize:11,fontWeight:900,color:"#334155",textTransform:"uppercase",margin:0}}>Alege serviciu</p>
+              {newSvcOpts.filter(o=>!o.is_package).map(o=>{
+                const selected=o.id===newForm.serviciuId;
+                return (
+                  <button key={o.id} type="button" onClick={()=>{
+                    const sp=rawStaff.find(s=>s.id===newForm.expertId);
+                    const ok=newForm.expertId&&isBookableOfferedByStaff(o,sp?.services);
+                    setNewForm(p=>p?{...p,serviciuId:o.id,expertId:ok?p.expertId:""}:null);
+                    setShowNewServicePicker(false);
+                  }} style={{textAlign:"left",background:selected?"#f8fafc":"#fff",border:selected?"2px solid #0f172a":"1.5px solid #e2e8f0",borderRadius:14,padding:"11px 14px",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"space-between",gap:12}}>
+                    <span style={{fontSize:13,fontWeight:900,color:"#0f172a"}}>{o.nume_serviciu}</span>
+                    <span style={{fontSize:11,fontWeight:800,color:"#64748b",whiteSpace:"nowrap"}}>{o.duration} min · {o.price} RON</span>
+                  </button>
+                );
+              })}
+              {newSvcOpts.length===0&&(
+                <div style={{background:"#f8fafc",border:"1.5px dashed #cbd5e1",borderRadius:14,padding:14,fontSize:12,fontWeight:800,color:"#64748b"}}>
+                  Nu există servicii sau pachete disponibile pentru punctul de lucru și specialistul selectat.
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
       {newForm&&(
         <div style={{position:"fixed",inset:0,background:"rgba(15,23,42,0.72)",backdropFilter:"blur(6px)",zIndex:500,display:"flex",alignItems:"center",justifyContent:"center",padding:16}} onClick={()=>setNewForm(null)}>
           <div style={{background:"#fff",width:"100%",maxWidth:480,borderRadius:24,overflow:"hidden",boxShadow:"0 24px 60px rgba(0,0,0,0.22)",padding:20,display:"flex",flexDirection:"column",gap:10}} onClick={e=>e.stopPropagation()}>
@@ -1734,25 +1794,12 @@ function CalendarContent() {
               </div>
               <div style={{background:"#0f172a",borderRadius:14,padding:"10px 14px"}}>
                 <p style={{fontSize:8,fontWeight:700,color:"#f59e0b",textTransform:"uppercase",marginBottom:4}}>{t("newModal.serviceLabel")}</p>
-                <select style={{width:"100%",background:"transparent",border:"none",fontSize:11,fontWeight:700,color:"#fff",outline:"none",cursor:"pointer"}}
-                  value={newForm.serviciuId}
-                  onChange={e=>{
-                    const nid=e.target.value;
-                    const sp=rawStaff.find(s=>s.id===newForm.expertId);
-                    const selectedService=bookableServices.find(s=>s.id===nid);
-                    const ok=newForm.expertId&&selectedService&&isBookableOfferedByStaff(selectedService,sp?.services);
-                    setNewForm(p=>p?{...p,serviciuId:nid,expertId:ok?p.expertId:""}:null);
-                  }}>
-                  <option value="" style={{background:"#0f172a"}}>{t("newModal.chooseOpt")}</option>
-                  {newSvcOpts.filter(o=>o.is_package).length>0&&(
-                    <optgroup label="Alege pachet">
-                      {newSvcOpts.filter(o=>o.is_package).map(o=><option key={o.id} value={o.id} style={{background:"#0f172a"}}>{o.nume_serviciu}{o.package_service_names?.length?` — ${o.package_service_names.join(" + ")}`:""}</option>)}
-                    </optgroup>
-                  )}
-                  <optgroup label="Alege serviciu">
-                    {newSvcOpts.filter(o=>!o.is_package).map(o=><option key={o.id} value={o.id} style={{background:"#0f172a"}}>{o.nume_serviciu}</option>)}
-                  </optgroup>
-                </select>
+                <button type="button" onClick={()=>setShowNewServicePicker(true)} style={{width:"100%",background:"transparent",border:"none",fontSize:11,fontWeight:700,color:"#fff",outline:"none",cursor:"pointer",textAlign:"left",display:"flex",alignItems:"center",justifyContent:"space-between",gap:8,padding:0}}>
+                  <span style={{overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
+                    {bookableServices.find(s=>s.id===newForm.serviciuId)?.nume_serviciu || t("newModal.chooseOpt")}
+                  </span>
+                  <span style={{fontSize:16,fontWeight:900,color:"#f59e0b",lineHeight:1}}>›</span>
+                </button>
               </div>
             </div>
             {(() => {
