@@ -271,12 +271,41 @@ function SlotRow({
               value={slot.serviciu_id}
               onChange={(e) => handleServiciuChange(e.target.value)}>
               <option value="">{t("chooseServiceOpt")}</option>
-              {filteredSvc.map((s) => (
-                <option key={s.id} value={s.id}>
-                  {s.nume_serviciu}{s.price ? ` — ${s.price} RON` : ""}{s.duration ? ` (${s.duration} min)` : ""}
-                </option>
-              ))}
+              {(() => {
+                const packages = filteredSvc.filter((s) => s.is_package);
+                const services = filteredSvc.filter((s) => !s.is_package);
+                return (
+                  <>
+                    {packages.length > 0 && (
+                      <optgroup label="Alege pachet">
+                        {packages.map((s) => (
+                          <option key={s.id} value={s.id}>
+                            {s.nume_serviciu}{s.package_service_names?.length ? ` — ${s.package_service_names.join(" + ")}` : ""}{s.price ? ` — ${s.price} RON` : ""}{s.duration ? ` (${s.duration} min)` : ""}
+                          </option>
+                        ))}
+                      </optgroup>
+                    )}
+                    <optgroup label="Alege serviciu">
+                      {services.map((s) => (
+                        <option key={s.id} value={s.id}>
+                          {s.nume_serviciu}{s.price ? ` — ${s.price} RON` : ""}{s.duration ? ` (${s.duration} min)` : ""}
+                        </option>
+                      ))}
+                    </optgroup>
+                  </>
+                );
+              })()}
             </select>
+            {svc?.is_package && (
+              <div className="mt-3 rounded-[22px] border-2 border-amber-100 bg-amber-50 px-5 py-4">
+                <p className="text-[10px] font-black uppercase italic text-amber-700 mb-2">Pachetul include</p>
+                <div className="flex flex-wrap gap-2">
+                  {(svc.package_service_names || []).map((name) => (
+                    <span key={name} className="px-3 py-1 rounded-full bg-white text-slate-800 text-[11px] font-black border border-amber-100">{name}</span>
+                  ))}
+                </div>
+              </div>
+            )}
             {slot.specialist_id && filteredSvc.length === 0 && (
               <p className="text-[9px] font-bold text-amber-600 italic ml-4">{t("noServicesForSpecialist")}</p>
             )}

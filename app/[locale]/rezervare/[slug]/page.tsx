@@ -1121,12 +1121,45 @@ function RezervareContent() {
                             value={b.serviciu_id}
                             onChange={(e) => updateBooking(b.id, { serviciu_id: e.target.value, ora: "00:00" })}>
                             <option value="">{t("chooseServiceOpt")}</option>
-                            {availableServicii
-                              .filter(s => !b.specialist_id || isBookableOfferedByStaff(s, specialisti.find(sp => sp.id === b.specialist_id)?.services))
-                              .map((s) => (
-                                <option key={s.id} value={s.id}>{s.nume_serviciu.toUpperCase()}</option>
-                              ))}
+                            {(() => {
+                              const options = availableServicii.filter(s => !b.specialist_id || isBookableOfferedByStaff(s, specialisti.find(sp => sp.id === b.specialist_id)?.services));
+                              const packages = options.filter((s) => s.is_package);
+                              const services = options.filter((s) => !s.is_package);
+                              return (
+                                <>
+                                  {packages.length > 0 && (
+                                    <optgroup label="ALEGE PACHET">
+                                      {packages.map((s) => (
+                                        <option key={s.id} value={s.id}>
+                                          {s.nume_serviciu.toUpperCase()} — {(s.package_service_names || []).join(" + ")} — {s.price} RON ({s.duration} min)
+                                        </option>
+                                      ))}
+                                    </optgroup>
+                                  )}
+                                  <optgroup label="ALEGE SERVICIU">
+                                    {services.map((s) => (
+                                      <option key={s.id} value={s.id}>{s.nume_serviciu.toUpperCase()}</option>
+                                    ))}
+                                  </optgroup>
+                                </>
+                              );
+                            })()}
                           </select>
+                          {(() => {
+                            const selected = servicii.find((s) => s.id === b.serviciu_id);
+                            if (!selected?.is_package) return null;
+                            return (
+                              <div className="mt-3 rounded-[22px] border-2 border-amber-100 bg-amber-50 px-5 py-4">
+                                <p className="text-[10px] font-black uppercase italic text-amber-700 mb-2">Pachetul include</p>
+                                <div className="flex flex-wrap gap-2">
+                                  {(selected.package_service_names || []).map((name) => (
+                                    <span key={name} className="px-3 py-1 rounded-full bg-white text-slate-800 text-[11px] font-black border border-amber-100">{name}</span>
+                                  ))}
+                                </div>
+                                <p className="text-[11px] font-bold text-slate-500 mt-3">{selected.duration} min · {selected.price} RON</p>
+                              </div>
+                            );
+                          })()}
                         </div>
                         <div className="space-y-2">
                           <label className="text-[10px] font-black uppercase italic text-slate-400 ml-4">{t("expertLabel")}</label>

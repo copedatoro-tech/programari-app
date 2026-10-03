@@ -27,6 +27,7 @@ export type BookableServiceRow = {
   is_package?: boolean;
   package_id?: string;
   package_service_ids?: string[];
+  package_service_names?: string[];
   package_work_location_ids?: string[];
 };
 
@@ -96,6 +97,7 @@ export function buildBookableServices(
         is_package: true,
         package_id: pkg.id,
         package_service_ids: ids,
+        package_service_names: included.map((service) => service.nume_serviciu),
         package_work_location_ids: toStringArray(pkg.work_location_ids),
       };
     })

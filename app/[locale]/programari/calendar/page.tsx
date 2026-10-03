@@ -1744,10 +1744,30 @@ function CalendarContent() {
                     setNewForm(p=>p?{...p,serviciuId:nid,expertId:ok?p.expertId:""}:null);
                   }}>
                   <option value="" style={{background:"#0f172a"}}>{t("newModal.chooseOpt")}</option>
-                  {newSvcOpts.map(o=><option key={o.id} value={o.id} style={{background:"#0f172a"}}>{o.nume_serviciu}</option>)}
+                  {newSvcOpts.filter(o=>o.is_package).length>0&&(
+                    <optgroup label="Alege pachet">
+                      {newSvcOpts.filter(o=>o.is_package).map(o=><option key={o.id} value={o.id} style={{background:"#0f172a"}}>{o.nume_serviciu}{o.package_service_names?.length?` — ${o.package_service_names.join(" + ")}`:""}</option>)}
+                    </optgroup>
+                  )}
+                  <optgroup label="Alege serviciu">
+                    {newSvcOpts.filter(o=>!o.is_package).map(o=><option key={o.id} value={o.id} style={{background:"#0f172a"}}>{o.nume_serviciu}</option>)}
+                  </optgroup>
                 </select>
               </div>
             </div>
+            {(() => {
+              const selected = bookableServices.find(s=>s.id===newForm.serviciuId);
+              if(!selected?.is_package) return null;
+              return (
+                <div style={{background:"#fffbeb",border:"1.5px solid #fcd34d",borderRadius:14,padding:"10px 14px"}}>
+                  <p style={{fontSize:8,fontWeight:700,color:"#92400e",textTransform:"uppercase",marginBottom:6}}>Pachetul include</p>
+                  <div style={{display:"flex",flexWrap:"wrap",gap:6}}>
+                    {(selected.package_service_names||[]).map(name=><span key={name} style={{background:"#fff",border:"1px solid #fde68a",borderRadius:999,padding:"3px 8px",fontSize:10,fontWeight:800,color:"#334155"}}>{name}</span>)}
+                  </div>
+                  <p style={{fontSize:10,fontWeight:800,color:"#92400e",marginTop:8}}>{selected.duration} min · {selected.price} RON</p>
+                </div>
+              );
+            })()}
             <div style={{background:"#f8fafc",border:"1.5px solid #e2e8f0",borderRadius:14,padding:"10px 14px"}}><p style={{fontSize:8,fontWeight:700,color:"#94a3b8",textTransform:"uppercase",marginBottom:4}}>{t("newModal.notesLabel")}</p><textarea style={{width:"100%",background:"transparent",border:"none",fontSize:11,fontWeight:700,color:"#334155",outline:"none",resize:"none"}} rows={2} value={newForm.motiv} onChange={e=>setNewForm(p=>p?{...p,motiv:e.target.value}:null)}/></div>
             <div style={{display:"flex",gap:8,paddingTop:4}}>
               <button onClick={()=>setNewForm(null)} style={{flex:1,padding:"10px",background:"#f1f5f9",border:"none",borderRadius:14,fontSize:11,fontWeight:700,color:"#64748b",cursor:"pointer"}} className="hover:bg-slate-200 transition-all">{t("newModal.cancelBtn")}</button>
