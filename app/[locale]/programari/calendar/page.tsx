@@ -1909,7 +1909,7 @@ function CalendarContent() {
             onSwipeDay={(dir)=>setSelectedDate(d=>addDays(d,dir))}
             onBlocksSaved={()=>{ qClient.invalidateQueries({queryKey:["staff",userId]}); refetchProfile(); }}
             userId={userId}
-            onAddNew={(time,date,staffId)=>setNewForm({date,time,nume:"",telefon:"",email:"",serviciuId:"",expertId:staffId||selectedExpert||rawStaff[0]?.id||"",motiv:"",workLocationId:selectedWorkLocation||workLocations[0]?.id||""})}/>
+            onAddNew={(time,date)=>setNewForm({date,time,nume:"",telefon:"",email:"",serviciuId:"",expertId:"",motiv:"",workLocationId:selectedWorkLocation||workLocations[0]?.id||""})}/>
         )}
         {viewMode==="week"&&(
           <WeekView selectedDate={selectedDate} programariByDate={programariByDate} rawStaff={rawStaff} rawServices={rawServices} serviceById={serviceById}
