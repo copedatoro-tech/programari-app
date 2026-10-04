@@ -138,9 +138,9 @@ function SlotRow({
   // Specialiștii care oferă serviciul ales
   const filteredSpec = useMemo(() =>
     slot.serviciu_id
-      ? specialisti.filter((sp) => !!svc && isBookableOfferedByStaff(svc, sp.services))
-      : specialisti,
-  [slot.serviciu_id, specialisti, svc]);
+      ? locationSpecialists.filter((sp) => !!svc && isBookableOfferedByStaff(svc, sp.services))
+      : locationSpecialists,
+  [slot.serviciu_id, locationSpecialists, svc]);
 
   // Serviciile pe care le oferă specialistul ales — filtrare strictă, simetrică
   // cu cea de mai sus (nu mai există fallback "arată tot" dacă specialistul
