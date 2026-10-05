@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { createBrowserClient } from "@supabase/ssr";
 import Image from "next/image";
+import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Link, useRouter } from "@/i18n/navigation";
 // ⚠️ Verifică această cale de import — ajusteaz-o dacă modalele tale
@@ -14,6 +15,7 @@ import { Eye, EyeOff } from "lucide-react";
 
 export default function RegisterPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const t = useTranslations("registerPage");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -74,6 +76,13 @@ export default function RegisterPage() {
   );
 
   const formRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const emailFromLogin = searchParams.get("email")?.trim().toLowerCase();
+    if (emailFromLogin) {
+      setForm((prev) => prev.email ? prev : { ...prev, email: emailFromLogin });
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {

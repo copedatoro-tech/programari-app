@@ -3,7 +3,7 @@
 import { useState, useMemo, useEffect } from "react";
 import { createBrowserClient } from "@supabase/ssr";
 import Image from "next/image";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { Link, useRouter } from "@/i18n/navigation";
 import LocaleSwitcher from "@/components/LocaleSwitcher";
 import { Eye, EyeOff } from "lucide-react";
@@ -11,6 +11,24 @@ import { Eye, EyeOff } from "lucide-react";
 export default function LoginPage() {
   const router = useRouter();
   const t = useTranslations("loginPage");
+  const locale = useLocale();
+  const loginMessages = useMemo(() => {
+    const byLocale: Record<string, { accountMissing: string; wrongPassword: string; specialistAccount: string; checkFailed: string }> = {
+      ro: {
+        accountMissing: "Nu am găsit niciun cont cu această adresă de email. Creează un cont nou pentru a continua.",
+        wrongPassword: "Contul există, dar parola introdusă nu este corectă. Poți încerca din nou sau poți reseta parola.",
+        specialistAccount: "Acest email aparține unui cont de specialist. Folosește pagina de autentificare pentru specialist.",
+        checkFailed: "Nu am putut verifica acest email acum. Te rugăm să încerci din nou.",
+      },
+      en: {
+        accountMissing: "We couldn't find an account with this email address. Create a new account to continue.",
+        wrongPassword: "This account exists, but the password is not correct. Try again or reset your password.",
+        specialistAccount: "This email belongs to a specialist account. Please use the specialist login page.",
+        checkFailed: "We couldn't verify this email right now. Please try again.",
+      },
+    };
+    return byLocale[locale] || byLocale.en;
+  }, [locale]);
 
   const supabase = useMemo(() => createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -21,6 +39,8 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [loginError, setLoginError] = useState("");
+  const [missingAccount, setMissingAccount] = useState(false);
 
   // ✅ Stare nouă: dacă userul are 2FA activ, cerem codul înainte de acces complet
   const [needsMfa, setNeedsMfa] = useState(false);
@@ -80,11 +100,14 @@ export default function LoginPage() {
     e.preventDefault();
     if (loading) return;
 
+    const normalizedEmail = email.trim().toLowerCase();
+    setLoginError("");
+    setMissingAccount(false);
     setLoading(true);
 
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
-        email: email.trim().toLowerCase(),
+        email: normalizedEmail,
         password,
       });
 
@@ -93,9 +116,29 @@ export default function LoginPage() {
 
         if (error.message.includes("Refresh Token Not Found")) {
           await supabase.auth.signOut();
-          alert(t("sessionExpired"));
+          setLoginError(t("sessionExpired"));
         } else {
-          alert(t("errorPrefix") + error.message);
+          try {
+            const res = await fetch("/api/auth/check-email", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ email: normalizedEmail }),
+            });
+            const check = await res.json();
+
+            if (res.ok && check?.exists === false) {
+              setMissingAccount(true);
+              setLoginError(loginMessages.accountMissing);
+            } else if (res.ok && check?.type === "specialist") {
+              setLoginError(loginMessages.specialistAccount);
+            } else if (res.ok && check?.exists === true) {
+              setLoginError(loginMessages.wrongPassword);
+            } else {
+              setLoginError(loginMessages.checkFailed);
+            }
+          } catch {
+            setLoginError(t("errorPrefix") + error.message);
+          }
         }
 
         setLoading(false);
@@ -121,13 +164,13 @@ export default function LoginPage() {
         router.push("/programari/calendar");
         router.refresh();
       } else {
-        alert(t("sessionNotCreated"));
+        setLoginError(t("sessionNotCreated"));
         setLoading(false);
       }
     } catch (err) {
       setLoading(false);
       console.error("Eroare Catch:", err);
-      alert(t("connectionError"));
+      setLoginError(t("connectionError"));
     }
   };
 
@@ -195,7 +238,7 @@ export default function LoginPage() {
               required
               placeholder={t("emailPlaceholder")}
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => { setEmail(e.target.value); setLoginError(""); setMissingAccount(false); }}
               className="w-full pl-3 pr-10 py-2.5 sm:p-5 sm:pr-12 bg-slate-50 border-2 border-slate-100 rounded-xl sm:rounded-2xl font-bold text-[9px] sm:text-[11px] uppercase italic tracking-wider focus:border-amber-500 outline-none transition-all"
                 />
             <div className="relative group text-right">
@@ -204,7 +247,7 @@ export default function LoginPage() {
                 required
                 placeholder={t("passwordPlaceholder")}
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e) => { setPassword(e.target.value); setLoginError(""); }}
                 className="w-full pl-3 pr-10 py-2.5 sm:p-5 sm:pr-12 bg-slate-50 border-2 border-slate-100 rounded-xl sm:rounded-2xl font-bold text-[9px] sm:text-[11px] uppercase italic tracking-wider focus:border-amber-500 outline-none transition-all"
               />
               <button
@@ -224,6 +267,12 @@ export default function LoginPage() {
             </div>
           </div>
 
+          {loginError && (
+            <div className={`${missingAccount ? "bg-amber-50 border-amber-200 text-amber-800" : "bg-red-50 border-red-100 text-red-600"} border-2 rounded-xl p-3 text-[10px] sm:text-xs font-bold text-center leading-relaxed`}>
+              {loginError}
+            </div>
+          )}
+
           <button
             type="submit"
             disabled={loading}
@@ -237,7 +286,7 @@ export default function LoginPage() {
               {t("noAccount")}
             </p>
             <Link
-              href="/register"
+              href={missingAccount && email.trim() ? `/register?email=${encodeURIComponent(email.trim().toLowerCase())}` : "/register"}
               className="w-full py-2 sm:py-3 text-[9px] sm:text-[11px] font-black uppercase italic bg-amber-500 text-slate-900 rounded-xl border-b-4 border-amber-600 hover:bg-amber-600 transition-all text-center"
             >
               {t("createAccount")}
