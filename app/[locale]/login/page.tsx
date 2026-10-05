@@ -15,14 +15,14 @@ export default function LoginPage() {
   const loginMessages = useMemo(() => {
     const byLocale: Record<string, { accountMissing: string; wrongPassword: string; specialistAccount: string; checkFailed: string }> = {
       ro: {
-        accountMissing: "Nu am găsit niciun cont cu această adresă de email. Creează un cont nou pentru a continua.",
-        wrongPassword: "Contul există, dar parola introdusă nu este corectă. Poți încerca din nou sau poți reseta parola.",
+        accountMissing: "Acest cont nu există. Verifică dacă emailul este scris corect sau creează un cont nou.",
+        wrongPassword: "Email sau parolă greșită. Reîncearcă datele. Dacă nu ai cont, poți crea unul nou.",
         specialistAccount: "Acest email aparține unui cont de specialist. Folosește pagina de autentificare pentru specialist.",
         checkFailed: "Nu am putut verifica acest email acum. Te rugăm să încerci din nou.",
       },
       en: {
-        accountMissing: "We couldn't find an account with this email address. Create a new account to continue.",
-        wrongPassword: "This account exists, but the password is not correct. Try again or reset your password.",
+        accountMissing: "This account does not exist. Check that the email is correct or create a new account.",
+        wrongPassword: "Wrong email or password. Try again. If you don't have an account, you can create a new one.",
         specialistAccount: "This email belongs to a specialist account. Please use the specialist login page.",
         checkFailed: "We couldn't verify this email right now. Please try again.",
       },
@@ -268,8 +268,16 @@ export default function LoginPage() {
           </div>
 
           {loginError && (
-            <div className={`${missingAccount ? "bg-amber-50 border-amber-200 text-amber-800" : "bg-red-50 border-red-100 text-red-600"} border-2 rounded-xl p-3 text-[10px] sm:text-xs font-bold text-center leading-relaxed`}>
-              {loginError}
+            <div className={`${missingAccount ? "bg-amber-50 border-amber-200 text-amber-800" : "bg-red-50 border-red-100 text-red-600"} border-2 rounded-xl p-3 text-[10px] sm:text-xs font-bold text-center leading-relaxed flex flex-col gap-2`}>
+              <span>{loginError}</span>
+              {missingAccount && (
+                <Link
+                  href={email.trim() ? `/register?email=${encodeURIComponent(email.trim().toLowerCase())}` : "/register"}
+                  className="w-full py-2 rounded-lg bg-amber-500 text-slate-900 font-black uppercase italic text-[9px] sm:text-[10px] hover:bg-amber-600 transition-all"
+                >
+                  {t("createAccount")}
+                </Link>
+              )}
             </div>
           )}
 
