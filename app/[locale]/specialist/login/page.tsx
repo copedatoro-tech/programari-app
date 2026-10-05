@@ -19,7 +19,8 @@ export default function SpecialistLoginPage() {
     setError("");
     setLoading(true);
     try {
-      const { data, error: authError } = await supabase.auth.signInWithPassword({ email, password });
+      const normalizedEmail = email.trim().toLowerCase();
+      const { data, error: authError } = await supabase.auth.signInWithPassword({ email: normalizedEmail, password });
       if (authError || !data.session) {
         setError(t("wrongCredentials"));
         setLoading(false);

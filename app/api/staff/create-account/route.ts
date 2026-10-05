@@ -16,7 +16,8 @@ export async function POST(request: Request) {
     const callerId = callerData.user.id;
 
     const { staffId, email, tempPassword } = await request.json();
-    if (!staffId || !email || !tempPassword) {
+    const normalizedEmail = String(email || "").trim().toLowerCase();
+    if (!staffId || !normalizedEmail || !tempPassword) {
       return NextResponse.json({ error: "Date lipsă." }, { status: 400 });
     }
     if (tempPassword.length < 6) {
@@ -59,7 +60,7 @@ export async function POST(request: Request) {
 
     // ✅ Creăm contul de autentificare al specialistului (email + parolă temporară)
     const { data: newUser, error: createError } = await supabaseAdmin.auth.admin.createUser({
-      email,
+      email: normalizedEmail,
       password: tempPassword,
       email_confirm: true,
     });
@@ -71,7 +72,7 @@ export async function POST(request: Request) {
     // ✅ Legăm noul cont de rândul specialistului
     const { error: linkError } = await supabaseAdmin
       .from("staff")
-      .update({ auth_user_id: newUser.user.id })
+      .update({ auth_user_id: newUser.user.id, email: normalizedEmail })
       .eq("id", staffId);
 
     if (linkError) {

@@ -16,7 +16,8 @@ export async function POST(request: Request) {
     const callerId = callerData.user.id;
 
     const { staffId, newEmail, newPassword } = await request.json();
-    if (!staffId || (!newEmail && !newPassword)) {
+    const normalizedEmail = newEmail ? String(newEmail).trim().toLowerCase() : "";
+    if (!staffId || (!normalizedEmail && !newPassword)) {
       return NextResponse.json({ error: "Nimic de actualizat." }, { status: 400 });
     }
     if (newPassword && newPassword.length < 6) {
@@ -40,7 +41,7 @@ export async function POST(request: Request) {
     }
 
     const updatePayload: Record<string, any> = {};
-    if (newEmail) { updatePayload.email = newEmail; updatePayload.email_confirm = true; }
+    if (normalizedEmail) { updatePayload.email = normalizedEmail; updatePayload.email_confirm = true; }
     if (newPassword) updatePayload.password = newPassword;
 
     const { error: updateError } = await supabaseAdmin.auth.admin.updateUserById(
@@ -53,8 +54,8 @@ export async function POST(request: Request) {
     }
 
     // ✅ Sincronizăm și email-ul afișat în tabela staff, ca cele două să nu rămână diferite
-    if (newEmail) {
-      await supabaseAdmin.from("staff").update({ email: newEmail }).eq("id", staffId);
+    if (normalizedEmail) {
+      await supabaseAdmin.from("staff").update({ email: normalizedEmail }).eq("id", staffId);
     }
 
     return NextResponse.json({ success: true });

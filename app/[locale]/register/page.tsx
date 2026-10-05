@@ -120,8 +120,9 @@ export default function RegisterPage() {
     setError("");
 
     try {
+      const normalizedEmail = form.email.trim().toLowerCase();
       const { data: authData, error: authError } = await supabase.auth.signUp({
-        email: form.email,
+        email: normalizedEmail,
         password: form.parola,
         options: {
           data: {
@@ -141,7 +142,7 @@ export default function RegisterPage() {
         const { error: profileError } = await supabase.from('profiles').update({
           full_name: form.nume,
           phone: telefonFinal,
-          email: form.email,
+          email: normalizedEmail,
           role: 'Administrator',
           // ✅ Dovada consimțământului — data exactă a acceptării
           terms_accepted_at: new Date().toISOString()

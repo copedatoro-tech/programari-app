@@ -84,7 +84,7 @@ export default function LoginPage() {
 
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
-        email: email.trim(),
+        email: email.trim().toLowerCase(),
         password,
       });
 
@@ -198,14 +198,6 @@ export default function LoginPage() {
               onChange={(e) => setEmail(e.target.value)}
               className="w-full pl-3 pr-10 py-2.5 sm:p-5 sm:pr-12 bg-slate-50 border-2 border-slate-100 rounded-xl sm:rounded-2xl font-bold text-[9px] sm:text-[11px] uppercase italic tracking-wider focus:border-amber-500 outline-none transition-all"
                 />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword((show) => !show)}
-                  className="absolute right-3 top-2.5 sm:top-4 text-slate-400 hover:text-slate-900 transition-colors"
-                  aria-label={showPassword ? "Ascunde parola" : "Arata parola"}
-                >
-                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                </button>
             <div className="relative group text-right">
               <input
                 type={showPassword ? "text" : "password"}
@@ -213,8 +205,16 @@ export default function LoginPage() {
                 placeholder={t("passwordPlaceholder")}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-3 py-2.5 sm:p-5 bg-slate-50 border-2 border-slate-100 rounded-xl sm:rounded-2xl font-bold text-[9px] sm:text-[11px] uppercase italic tracking-wider focus:border-amber-500 outline-none transition-all"
+                className="w-full pl-3 pr-10 py-2.5 sm:p-5 sm:pr-12 bg-slate-50 border-2 border-slate-100 rounded-xl sm:rounded-2xl font-bold text-[9px] sm:text-[11px] uppercase italic tracking-wider focus:border-amber-500 outline-none transition-all"
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword((show) => !show)}
+                className="absolute right-3 top-2.5 sm:top-4 text-slate-400 hover:text-slate-900 transition-colors"
+                aria-label={showPassword ? "Ascunde parola" : "Arata parola"}
+              >
+                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
               <Link
                 href="/forgot-password"
                 className="inline-block mt-1 text-[8px] sm:text-[9px] font-black uppercase italic text-slate-400 hover:text-amber-500 transition-colors mr-2"

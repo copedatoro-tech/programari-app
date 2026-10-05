@@ -728,6 +728,7 @@ export default function ResursePage() {
 
   const handleCreateAccount = async () => {
     if (!inviteStaff || !inviteEmail.trim() || !invitePassword.trim()) return;
+    const normalizedInviteEmail = inviteEmail.trim().toLowerCase();
     setInviteLoading(true);
     setInviteError('');
     try {
@@ -742,7 +743,7 @@ export default function ResursePage() {
         },
         body: JSON.stringify({
           staffId: inviteStaff.id,
-          email: inviteEmail.trim(),
+          email: normalizedInviteEmail,
           tempPassword: invitePassword,
         }),
       });
@@ -758,6 +759,7 @@ export default function ResursePage() {
       if (invitePhone.trim() && invitePhone.trim() !== inviteStaff.phone) {
         await supabase.from('staff').update({ phone: invitePhone.trim() }).eq('id', inviteStaff.id);
       }
+      setInviteEmail(normalizedInviteEmail);
       setInviteDone(true);
       if (userId) await fetchResurse(userId);
     } catch (e: any) {
@@ -770,7 +772,7 @@ export default function ResursePage() {
   const copyInviteCredentials = async () => {
     const text = t("staffPortal.copyTemplate", {
       link: `${window.location.origin}/specialist/login`,
-      email: inviteEmail,
+      email: inviteEmail.trim().toLowerCase(),
       password: invitePassword,
     });
     try {
@@ -791,7 +793,7 @@ export default function ResursePage() {
     const text = t("staffPortal.waMessageTemplate", {
       name: inviteStaff?.name || '',
       link: `${window.location.origin}/specialist/login`,
-      email: inviteEmail,
+      email: inviteEmail.trim().toLowerCase(),
       password: invitePassword,
     });
     window.open(`https://wa.me/${normalized}?text=${encodeURIComponent(text)}`, '_blank');
@@ -804,10 +806,10 @@ export default function ResursePage() {
     const body = t("staffPortal.emailBodyTemplate", {
       name: inviteStaff?.name || '',
       link: `${window.location.origin}/specialist/login`,
-      email: inviteEmail,
+      email: inviteEmail.trim().toLowerCase(),
       password: invitePassword,
     });
-    window.location.href = `mailto:${inviteEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    window.location.href = `mailto:${inviteEmail.trim().toLowerCase()}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
   };
 
   // âœ… Deschide modalul de gestionare pentru un specialist cu cont deja activ
@@ -911,7 +913,8 @@ export default function ResursePage() {
       if (!authHeader) { setManageError(t("staffPortal.sessionExpiredError")); setManageLoading(false); return; }
 
       const payload: Record<string, any> = { staffId: manageStaff.id };
-      if (manageEmail.trim() && manageEmail.trim() !== manageStaff.email) payload.newEmail = manageEmail.trim();
+      const normalizedManageEmail = manageEmail.trim().toLowerCase();
+      if (normalizedManageEmail && normalizedManageEmail !== String(manageStaff.email || '').trim().toLowerCase()) payload.newEmail = normalizedManageEmail;
       if (managePassword.trim()) payload.newPassword = managePassword.trim();
 
       if (!payload.newEmail && !payload.newPassword) {
