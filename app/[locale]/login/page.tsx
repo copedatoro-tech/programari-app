@@ -13,18 +13,20 @@ export default function LoginPage() {
   const t = useTranslations("loginPage");
   const locale = useLocale();
   const loginMessages = useMemo(() => {
-    const byLocale: Record<string, { accountMissing: string; wrongPassword: string; specialistAccount: string; checkFailed: string }> = {
+    const byLocale: Record<string, { accountMissing: string; wrongPassword: string; specialistAccount: string; checkFailed: string; specialistLogin: string }> = {
       ro: {
         accountMissing: "Acest cont nu există. Verifică dacă emailul este scris corect sau creează un cont nou.",
         wrongPassword: "Email sau parolă greșită. Reîncearcă datele. Dacă nu ai cont, poți crea unul nou.",
         specialistAccount: "Acest email aparține unui cont de specialist. Folosește pagina de autentificare pentru specialist.",
         checkFailed: "Nu am putut verifica acest email acum. Te rugăm să încerci din nou.",
+        specialistLogin: "Login specialist",
       },
       en: {
         accountMissing: "This account does not exist. Check that the email is correct or create a new account.",
         wrongPassword: "Wrong email or password. Try again. If you don't have an account, you can create a new one.",
         specialistAccount: "This email belongs to a specialist account. Please use the specialist login page.",
         checkFailed: "We couldn't verify this email right now. Please try again.",
+        specialistLogin: "Specialist login",
       },
     };
     return byLocale[locale] || byLocale.en;
@@ -298,6 +300,12 @@ export default function LoginPage() {
               className="w-full py-2 sm:py-3 text-[9px] sm:text-[11px] font-black uppercase italic bg-amber-500 text-slate-900 rounded-xl border-b-4 border-amber-600 hover:bg-amber-600 transition-all text-center"
             >
               {t("createAccount")}
+            </Link>
+            <Link
+              href="/specialist/login"
+              className="w-full py-2 sm:py-3 text-[9px] sm:text-[11px] font-black uppercase italic bg-slate-50 text-slate-500 rounded-xl border-2 border-slate-100 hover:border-amber-300 hover:text-slate-900 transition-all text-center"
+            >
+              {loginMessages.specialistLogin}
             </Link>
           </div>
         </form>
