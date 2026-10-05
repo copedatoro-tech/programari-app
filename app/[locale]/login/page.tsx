@@ -13,13 +13,14 @@ export default function LoginPage() {
   const t = useTranslations("loginPage");
   const locale = useLocale();
   const loginMessages = useMemo(() => {
-    const byLocale: Record<string, { accountMissing: string; wrongPassword: string; specialistAccount: string; checkFailed: string; specialistLogin: string }> = {
+    const byLocale: Record<string, { accountMissing: string; wrongPassword: string; specialistAccount: string; checkFailed: string; specialistLogin: string; specialistLoginHint: string }> = {
       ro: {
         accountMissing: "Acest cont nu există. Verifică dacă emailul este scris corect sau creează un cont nou.",
         wrongPassword: "Email sau parolă greșită. Reîncearcă datele. Dacă nu ai cont, poți crea unul nou.",
         specialistAccount: "Acest email aparține unui cont de specialist. Folosește pagina de autentificare pentru specialist.",
         checkFailed: "Nu am putut verifica acest email acum. Te rugăm să încerci din nou.",
         specialistLogin: "Login specialist",
+        specialistLoginHint: "Pentru angajați sau specialiști care au primit cont de acces.",
       },
       en: {
         accountMissing: "This account does not exist. Check that the email is correct or create a new account.",
@@ -27,6 +28,7 @@ export default function LoginPage() {
         specialistAccount: "This email belongs to a specialist account. Please use the specialist login page.",
         checkFailed: "We couldn't verify this email right now. Please try again.",
         specialistLogin: "Specialist login",
+        specialistLoginHint: "For employees or specialists who received an access account.",
       },
     };
     return byLocale[locale] || byLocale.en;
@@ -307,6 +309,9 @@ export default function LoginPage() {
             >
               {loginMessages.specialistLogin}
             </Link>
+            <p className="text-[7px] sm:text-[9px] font-bold text-slate-400 italic leading-relaxed max-w-[260px]">
+              {loginMessages.specialistLoginHint}
+            </p>
           </div>
         </form>
         )}
