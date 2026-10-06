@@ -16,7 +16,6 @@ function escapeHtml(value: unknown) {
 async function sendWhatsAppRebookingReminder(
   whatsapp: Extract<WhatsAppCredentialsResult, { ok: true }>,
   phone: string,
-  clientName: string,
   salonName: string,
   serviceName: string,
   bookingLink: string,
@@ -41,7 +40,6 @@ async function sendWhatsAppRebookingReminder(
           components: [{
             type: "body",
             parameters: [
-              { type: "text", text: clientName },
               { type: "text", text: salonName },
               { type: "text", text: serviceName },
               { type: "text", text: bookingLink },
@@ -240,7 +238,6 @@ export async function GET(request: Request) {
                 const waResult = await sendWhatsAppRebookingReminder(
                   whatsapp,
                   client.phone_number,
-                  client.client_name || "Client",
                   profile.full_name || "Chronos",
                   topService || "o nouă vizită",
                   bookingLink,
