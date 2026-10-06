@@ -22,7 +22,6 @@ async function sendWhatsApp2hReminder(
   whatsapp: Extract<WhatsAppCredentialsResult, { ok: true }>,
   phone: string,
   nume: string,
-  data: string,
   ora: string,
 ) {
   const to = normalizePhone(phone);
@@ -46,7 +45,6 @@ async function sendWhatsApp2hReminder(
             type: "body",
             parameters: [
               { type: "text", text: nume },
-              { type: "text", text: data },
               { type: "text", text: ora },
             ],
           }],
@@ -212,7 +210,7 @@ export async function GET(request: Request) {
         if (!quota.allowed) {
           errors.push(`[whatsapp] ${appt.id}: cotă lunară epuizată (${quota.reason})`);
         } else {
-          const waResult = await sendWhatsApp2hReminder(whatsapp, appt.phone, clientName, appt.date, appt.time);
+          const waResult = await sendWhatsApp2hReminder(whatsapp, appt.phone, clientName, appt.time);
           if (waResult.ok) {
             await supabaseAdmin.from("appointments").update({ reminder_2h_whatsapp_sent: true }).eq("id", appt.id);
             sent++;

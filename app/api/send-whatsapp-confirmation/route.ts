@@ -39,7 +39,7 @@ export async function POST(request: Request) {
     // care nu-i aparțin.
     const { data: appointment, error: apptError } = await supabaseAdmin
       .from("appointments")
-      .select("phone, prenume, nume, date, time, user_id, work_location_id, work_location_name, work_location_address, work_location_maps_url")
+      .select("phone, prenume, nume, date, time, user_id, total_price, amount_paid, payment_status, work_location_id, work_location_name, work_location_address, work_location_maps_url")
       .eq("id", appointmentId)
       .maybeSingle();
 
@@ -72,6 +72,23 @@ export async function POST(request: Request) {
     const displayName = appointment.prenume
       ? `${appointment.prenume} ${appointment.nume || ""}`.trim()
       : appointment.nume || "";
+    const remainingAmount = appointment.payment_status === "deposit_paid"
+      ? Math.round(Math.max(0, (appointment.total_price || 0) - (appointment.amount_paid || 0)))
+      : 0;
+    const useDepositTemplate = remainingAmount > 0;
+    const templateName = useDepositTemplate ? "confirmare_programare_avans" : "confirmare_programare";
+    const templateParameters = useDepositTemplate
+      ? [
+          { type: "text", text: displayName },
+          { type: "text", text: appointment.date },
+          { type: "text", text: appointment.time },
+          { type: "text", text: String(remainingAmount) },
+        ]
+      : [
+          { type: "text", text: displayName },
+          { type: "text", text: appointment.date },
+          { type: "text", text: appointment.time },
+        ];
 
     const res = await fetch(`https://graph.facebook.com/v23.0/${whatsapp.phoneNumberId}/messages`, {
       method: "POST",
@@ -84,16 +101,12 @@ export async function POST(request: Request) {
         to,
         type: "template",
         template: {
-          name: "confirmare_programare",
+          name: templateName,
           language: { code: whatsapp.language },
           components: [
             {
               type: "body",
-              parameters: [
-                { type: "text", text: displayName },
-                { type: "text", text: appointment.date },
-                { type: "text", text: appointment.time },
-              ],
+              parameters: templateParameters,
             },
           ],
         },
